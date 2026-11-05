@@ -591,6 +591,9 @@ namespace Ship_Game.Data.Mesh
             fx.EmissiveMapTexture = TryLoadTexture(content, fx.EmissiveMapFile);
             fx.NormalMapTexture = TryLoadTexture(content, fx.NormalMapFile);
             fx.SpecularColorMapTexture = TryLoadTexture(content, fx.SpecularColorMapFile);
+            fx.TintMapFile = TintMapFileOf(fx.DiffuseMapFile);
+            if (fx.TintMapFile != null && TintMapExists(fx.TintMapFile))
+                fx.TintMapTexture = TryLoadTexture(content, fx.TintMapFile);
             //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
             fx.Skinned         = isSkinned;
@@ -598,7 +601,7 @@ namespace Ship_Game.Data.Mesh
 
             string alphaPath = RebaseAbsolute(mat->AlphaPath.AsString, modelDir);
             Texture2D alphaMap = alphaPath.NotEmpty()
-                ? content.Load<Texture2D>(alphaPath)
+                ? content.LoadModelTexture(alphaPath)
                 : fx.DiffuseMapTexture;
 
             fx.SetTransparencyModeAndMap(TransparencyMode.None, mat->Alpha, alphaMap);
@@ -623,13 +626,37 @@ namespace Ship_Game.Data.Mesh
             return fx;
         }
 
+        static readonly System.Text.RegularExpressions.Regex DiffuseMapSuffix =
+            new(@"_d(\d*(?:_\d+)?)(\.[^./\\]+)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        static readonly System.Text.RegularExpressions.Regex DiffuseMapWord =
+            new(@"-Diffuse(\.[^./\\]+)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        // a model's tint map sits next to its diffuse map with "_t" for its "_d" or "-Tint" for its "-Diffuse": ship13_d_0.dds -> ship13_t_0.dds
+        public static string TintMapFileOf(string diffuseMapFile)
+        {
+            if (diffuseMapFile.IsEmpty())
+                return null;
+            if (DiffuseMapSuffix.IsMatch(diffuseMapFile))
+                return DiffuseMapSuffix.Replace(diffuseMapFile, "_t$1$2");
+            if (DiffuseMapWord.IsMatch(diffuseMapFile))
+                return DiffuseMapWord.Replace(diffuseMapFile, "-Tint$1");
+            return null;
+        }
+
+        // a path the model's folder gave may already start at Content/, which the content lookup adds itself after trying a running mod's file
+        static bool TintMapExists(string tintMapFile)
+        {
+            string name = tintMapFile.StartsWith("Content/", StringComparison.OrdinalIgnoreCase) ? tintMapFile.Substring("Content/".Length) : tintMapFile;
+            return File.Exists(RawContentLoader.GetContentPath(name));
+        }
+
         static Texture2D TryLoadTexture(GameContentManager content, string texturePath)
         {
             if (texturePath.IsEmpty())
                 return null;
             try
             {
-                return content.Load<Texture2D>(texturePath);
+                return content.LoadModelTexture(texturePath);
             }
             catch (Exception e)
             {
@@ -656,15 +683,7 @@ namespace Ship_Game.Data.Mesh
         {
             if (texturePath.IsEmpty())
                 return texturePath;
-            // Shared-texture models bake a parent-relative ref ("..\ship09_d.dds")
-            // while living in sibling subfolders (Remnant/XenoCruiser, Remnant/
-            // XenoFighterGreen, ...). The OS collapses ".." when it OPENS the file,
-            // so every variant reads the one real Remnant/ship09_d.dds — but the
-            // content cache keys on the raw, un-collapsed string, so each subfolder
-            // becomes a distinct key and the SAME 16 MB texture is decoded once per
-            // folder. A Remnant fleet => a dozen redundant DXT decodes (~128 MB of
-            // throwaway LOH) in one frame, which trips a blocking Gen2 GC. Collapse
-            // ".." here so all variants converge on a single cache entry / decode.
+            // collapse ".." so every model sharing a texture ("..\ship09_d.dds") shares one cache entry
             if (!Path.IsPathRooted(texturePath))
                 return CollapseRelativePath(texturePath);
             string fileName = Path.GetFileName(texturePath);

@@ -18,6 +18,7 @@
   <DefaultMiningShip>Draylok Mining Ship</DefaultMiningShip>
   <DefaultMiningStation>Draylok Basic Mining Station</DefaultMiningStation>  
   <DefaultSalvageShip>Draylok Salvage Ship</DefaultSalvageShip>
+  <HullColors>Paint</HullColors>
   
   <RebelName>Draylok Democrats</RebelName>
   <RebelSing>Democractic Rebel</RebelSing>

@@ -73,6 +73,8 @@ float  SpecularPower   = 16.0;
 float  SpecularAmount  = 1.0;
 // see MeshLighting.fx
 float  EmissiveScale   = 1.0;
+// see MeshLighting.fx
+float4 HullTint        = float4(1, 1, 1, 0);
 float  Alpha           = 1.0;
 float3 EyePosition     = float3(0, 0, 0);
 
@@ -81,6 +83,7 @@ bool   TextureEnabled         = false;
 bool   EmissiveMapEnabled     = false;
 bool   SpecularMapEnabled     = false;
 bool   NormalMapEnabled       = false;
+bool   TintMapEnabled         = false;
 bool   FogEnabled             = false;
 
 float3 AmbientLightColor = float3(0, 0, 0);
@@ -179,6 +182,17 @@ texture NormalMap;
 sampler2D NormalSampler = sampler_state
 {
     Texture   = (NormalMap);
+    MinFilter = Linear;
+    MagFilter = Linear;
+    MipFilter = Linear;
+    AddressU  = Wrap;
+    AddressV  = Wrap;
+};
+
+texture TintMap;
+sampler2D TintSampler = sampler_state
+{
+    Texture   = (TintMap);
     MinFilter = Linear;
     MagFilter = Linear;
     MipFilter = Linear;
@@ -326,13 +340,33 @@ float SampleShadowFactor(float4 positionLS)
     return (occluderDepth + ShadowParams.y < receiverDepth) ? 0.0 : 1.0;
 }
 
+float Luminance(float3 c)
+{
+    return dot(c, float3(0.3, 0.59, 0.11));
+}
+
+// see MeshLighting.fx
+float3 TintAtLuminance(float3 tint, float lum)
+{
+    float3 c = tint + (lum - Luminance(tint));
+    float l = Luminance(c);
+    float n = min(c.r, min(c.g, c.b));
+    float x = max(c.r, max(c.g, c.b));
+    if (n < 0.0) c = l + (c - l) * l / max(l - n, 0.00001);
+    if (x > 1.0) c = l + (c - l) * (1.0 - l) / max(x - l, 0.00001);
+    return c;
+}
+
 float4 PSDefault(VSOutput input) : SV_TARGET
 {
     float4 texColor = TextureEnabled ? tex2D(TextureSampler, input.TexCoord) : float4(1, 1, 1, 1);
 
-    float3 emissive = EmissiveMapEnabled
-        ? tex2D(EmissiveSampler, input.TexCoord).rgb * EmissiveScale
-        : EmissiveColor;
+    if (TintMapEnabled)
+        texColor.rgb = lerp(texColor.rgb, TintAtLuminance(HullTint.rgb, Luminance(texColor.rgb)),
+                            tex2D(TintSampler, input.TexCoord).r * HullTint.w);
+
+    float3 glow = EmissiveMapEnabled ? tex2D(EmissiveSampler, input.TexCoord).rgb : float3(0, 0, 0);
+    float3 emissive = EmissiveMapEnabled ? glow * EmissiveScale : EmissiveColor;
 
     float3 specularMask = SpecularMapEnabled
         ? tex2D(SpecularSampler, input.TexCoord).rgb

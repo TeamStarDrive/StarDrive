@@ -907,7 +907,7 @@ namespace Ship_Game
         // For these Atlases, quality suffers too much, so compression is forbidden
         public static readonly HashSet<string> AtlasNoCompressFolders = new HashSet<string>(new []
         {
-            "NewUI", "EmpireTopBar", "Popup", "ResearchMenu"
+            "NewUI", "EmpireTopBar", "Popup", "ResearchMenu", "ExtensionIcons"
         });
 
         // Atlases whose nopack Color+alpha textures need lossless alpha (PNG cache).

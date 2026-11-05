@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
@@ -122,7 +123,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             float charWidth = LowRes ? 8 : 10;
 
             // left side
-            CoreValue(charWidth*3.5f, "UI/icon_offense", "DPS", Str(s.TotalDps), Color.OrangeRed);
+            CoreValue(charWidth*3.5f, "UI/icon_offense", "DPS", Str(DpsWithTechs(s)), Color.OrangeRed);
             if (Ds.HasEnergyWeapons)
             {
                 float duration = Ds.HasBeams() ? Ds.BurstEnergyDuration : Ds.EnergyDuration;
@@ -194,6 +195,15 @@ namespace Ship_Game.GameScreens.ShipDesign
                 batch.DrawString(Font, Str(value), ident, color);
                 p.Y += Font.LineSpacing + 2;
             }
+        }
+
+        // the shipyard's DPS of each weapon, with the player's weapon technologies as combat applies them
+        float DpsWithTechs(Ship s)
+        {
+            float dps = 0f;
+            for (int i = 0; i < s.Weapons.Count; ++i)
+                dps += WeaponTemplate.DamagePerSecondWithTechs(s.Weapons[i], Player.data);
+            return dps;
         }
 
         static string Str(float value) => value.GetNumberString();

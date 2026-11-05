@@ -100,6 +100,16 @@ namespace Ship_Game
         [StarData] public Remnants Remnants { get; private set; }
 
         [StarData] public Color EmpireColor;
+        [StarData] public bool ColorPicked; // the player picked this opponent's color on the Game Setup screen
+
+        // the player's ships take the empire color while the player's box is on, an opponent's while the opponents' box is and its color was picked
+        bool WearsOwnColor => isPlayer ? Universe.P.PlayerHullColors : ColorPicked && Universe.P.OpponentHullColors;
+
+        public Microsoft.Xna.Framework.Vector4 HullTint => HullTintOf(data.HullColors, EmpireColor, WearsOwnColor);
+
+        // on the tint-mapped paint of any hull, when its race paints its ships; W = 0 for none
+        public static Microsoft.Xna.Framework.Vector4 HullTintOf(HullColorParts parts, Color color, bool worn)
+            => worn && parts == HullColorParts.Paint ? new(color.ToVector3(), 1f) : default;
 
         [StarData] public UniverseState Universe;
 
@@ -2670,6 +2680,10 @@ namespace Ship_Game
         public bool IsEmpireAttackable(Empire targetEmpire, GameObject target = null, bool scanOnly = false)
         {
             if (targetEmpire == this || targetEmpire == null)
+                return false;
+
+            // the Remnants leave meteor showers to the empires whose planets they fall on
+            if (WeAreRemnants && target is Ship { IsMeteor: true })
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);

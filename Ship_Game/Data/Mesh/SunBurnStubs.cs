@@ -436,6 +436,7 @@ namespace SynapseGaming.LightingSystem.Core
                 var fx = (rm.Effect as Effects.Forward.LightingEffect) ?? SharedFx;
                 fx.World = so.World * rm.World;
                 fx.EmissiveScale = so.EmissiveScale; // effects are shared by every ship of a model
+                fx.HullTint = so.HullTint;
 
                 // Phase 2.8.C hotfix #5: per-mesh effects (PlanetType.Material,
                 // ship Materials, etc.) need View/Projection from the current
@@ -496,6 +497,7 @@ namespace SynapseGaming.LightingSystem.Core
                 // is a Phase 3 cleanup if/when skeletal hierarchies return.
                 fx.World = so.World;
                 fx.EmissiveScale = so.EmissiveScale;
+                fx.HullTint = so.HullTint;
                 if (fx != SharedFx) // see DrawRenderables for hotfix #5
                 {
                     fx.View = SharedFx.View;
@@ -592,6 +594,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         public Matrix World { get; set; } = Matrix.Identity;
         // brightness of the model's glow map, e.g. 0 for a ship without power
         public float EmissiveScale { get; set; } = 1f;
+        // the owner's color on the model's tint-mapped paint, W = 0 for the bare texture
+        public Vector4 HullTint { get; set; }
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }
 
@@ -794,6 +798,7 @@ namespace SynapseGaming.LightingSystem.Effects
         public string EmissiveMapFile { get; set; }
         public string NormalMapFile { get; set; }
         public string SpecularColorMapFile { get; set; }
+        public string TintMapFile { get; set; }
 
         // Map-texture data carriers. Phase A samples DiffuseMapTexture only;
         // the others land in Phase B.
@@ -801,6 +806,8 @@ namespace SynapseGaming.LightingSystem.Effects
         public Texture2D EmissiveMapTexture { get; set; }
         public Texture2D NormalMapTexture { get; set; }
         public Texture2D SpecularColorMapTexture { get; set; }
+        // marks the hull paint that takes its owner's color
+        public Texture2D TintMapTexture { get; set; }
 
         public bool Skinned { get; set; }
         public bool DoubleSided { get; set; }
@@ -885,16 +892,16 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // ── EffectParameter handles (cached at ctor) ────────────────────────
         readonly EffectParameter pWorld, pView, pProjection;
         readonly EffectParameter pDiffuseColor, pEmissiveColor, pSpecularColor;
-        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pAlpha, pEyePosition;
+        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pHullTint, pAlpha, pEyePosition;
         readonly EffectParameter pLightingEnabled, pTextureEnabled, pFogEnabled;
-        readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled;
+        readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled, pTintMapEnabled;
         readonly EffectParameter pAmbientLightColor;
         // §4.6 #2: FogStart+FogEnd packed into a float2 (FogStartEnd) on the
         // GPU — see MeshLighting.fx — to free a const register. C# surface
         // keeps the BasicEffect-shaped FogStart/FogEnd properties; OnApply
         // assembles them into the float2 push.
         readonly EffectParameter pFogColor, pFogStartEnd;
-        readonly EffectParameter pTexture, pEmissiveMap, pSpecularMap, pNormalMap;
+        readonly EffectParameter pTexture, pEmissiveMap, pSpecularMap, pNormalMap, pTintMap;
 
         readonly EffectParameter pDl0Direction, pDl0Diffuse, pDl0Specular;
         readonly EffectParameter pDl1Direction, pDl1Diffuse, pDl1Specular;
@@ -941,6 +948,9 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
 
         // scales the glow map for the next draw; the renderer sets it from each SceneObject
         public float EmissiveScale { get; set; } = 1f;
+
+        // the owner's color for the next draw's tint-mapped paint, W = 0 for none; the renderer sets it from each SceneObject
+        public Vector4 HullTint { get; set; }
 
         // View setter caches the inverse-view eye position so OnApply doesn't
         // re-invert per drawn mesh. View typically changes once per frame
@@ -1029,6 +1039,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pSpecularPower      = Parameters["SpecularPower"];
             pSpecularAmount     = Parameters["SpecularAmount"];
             pEmissiveScale      = Parameters["EmissiveScale"];
+            pHullTint           = Parameters["HullTint"];
             pAlpha              = Parameters["Alpha"];
             pEyePosition        = Parameters["EyePosition"];
             pLightingEnabled    = Parameters["LightingEnabled"];
@@ -1036,6 +1047,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pEmissiveMapEnabled = Parameters["EmissiveMapEnabled"];
             pSpecularMapEnabled = Parameters["SpecularMapEnabled"];
             pNormalMapEnabled   = Parameters["NormalMapEnabled"];
+            pTintMapEnabled     = Parameters["TintMapEnabled"];
             pFogEnabled         = Parameters["FogEnabled"];
             pAmbientLightColor  = Parameters["AmbientLightColor"];
             pFogColor           = Parameters["FogColor"];
@@ -1044,6 +1056,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pEmissiveMap        = Parameters["EmissiveMap"];
             pSpecularMap        = Parameters["SpecularMap"];
             pNormalMap          = Parameters["NormalMap"];
+            pTintMap            = Parameters["TintMap"];
 
             pDl0Direction = Parameters["DirLight0Direction"];
             pDl0Diffuse   = Parameters["DirLight0DiffuseColor"];
@@ -1260,6 +1273,12 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pNormalMapEnabled?.SetValue(normalMapBound);
             if (normalMapBound)
                 pNormalMap?.SetValue(NormalMapTexture);
+
+            bool tintMapBound = TintMapTexture != null && HullTint.W > 0f;
+            pTintMapEnabled?.SetValue(tintMapBound);
+            pHullTint?.SetValue(HullTint);
+            if (tintMapBound)
+                pTintMap?.SetValue(TintMapTexture);
 
             // Phase 3.8.B: shadow uniforms. ShadowParams.x is the
             // enable flag (0/1); .y carries the depth bias. Packed into

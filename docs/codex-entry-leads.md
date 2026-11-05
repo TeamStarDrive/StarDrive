@@ -8,53 +8,47 @@ A second, optional pass is worth doing once the leads are in: move per-ship-type
 
 **Order:** most tooltip hooks first (a proxy for how often a player lands there), then the densest. Do a bucket at a time and get a tester's read before continuing.
 
-Entries: 63. Missing a lead: 43. Already have one: 20.
+Entries: 82. Missing a lead: 37. Already have one: 45.
 
 | # | Entry | Bucket | Hooks | Chars | Sections | Bullets | What it covers |
 |---|---|---|---|---|---|---|---|
-| 1 | `design_armor_and_shields` | warfare | 30 | 3885 | 5 | 9 | How a hit is resolved: shields, resistances, deflection, armor piercing, repair and module explosions |
-| 2 | `economy_budget_screen` | economy | 23 | 3862 | 8 | 10 | What every row of the Economic Overview means, and how the tax and treasury sliders drive your governors' budgets |
-| 3 | `weapons_weapon_stats` | warfare | 22 | 2879 | 3 | 16 | What each row of a weapon's stats in the design screen means, and what changes it in combat |
-| 4 | `colony_governor` | economy | 19 | 2929 | 5 | 10 | What a governor decides, where its money comes from, and what it will never scrap |
-| 5 | `expansion_exotic_resources` | expansion | 16 | 2856 | 4 | 12 | Gas giants that hold a resource, the stations that refine it, and the empire-wide bonus it gives |
-| 6 | `design_power_budget` | warfare | 15 | 3550 | 4 | 16 | Power store, flow and draw, and what the design screen's power rows mean |
-| 7 | `warfare_combat_basics` | warfare | 14 | 3421 | 6 | 6 | Stances, targets and how a ship dies |
-| 8 | `colony_blueprints` | economy | 12 | 2011 | 5 | 9 | Saved building plans the governor follows |
-| 9 | `design_sensors_and_targeting` | warfare | 11 | 2818 | 4 | 2 | Sensor range, fire control accuracy and tracking, aim error and ECM |
-| 10 | `design_screen_tools` | warfare | 10 | 3406 | 7 | 0 | Modes, filters, design issues, saving and loading |
-| 11 | `warfare_ground_combat` | warfare | 9 | 3679 | 6 | 0 | Invading and defending planets |
-| 12 | `colony_garrison_and_ports` | economy | 9 | 1696 | 2 | 4 | Keeping troops at home, and choosing where ships are built |
-| 13 | `warfare_ship_design` | warfare | 8 | 2580 | 6 | 0 | Slots, modules, power and the design screen |
+| 1 | `design_armor_and_shields` | warfare | 30 | 4406 | 5 | 9 | How a hit is resolved: shields, resistances, deflection, armor piercing, repair and module explosions |
+| 2 | `economy_budget_screen` | economy | 23 | 3949 | 8 | 10 | What every row of the Economic Overview means, and how the tax and treasury sliders drive your governors' budgets |
+| 3 | `weapons_weapon_stats` | warfare | 21 | 3059 | 3 | 16 | What each row of a weapon's stats in the design screen means, and what changes it in combat |
+| 4 | `colony_governor` | economy | 19 | 4088 | 5 | 13 | What a governor decides, where its money comes from, and what it will never scrap |
+| 5 | `design_power_budget` | warfare | 15 | 3962 | 4 | 16 | Power store, flow and draw, and what the design screen's power rows mean |
+| 6 | `colony_blueprints` | economy | 13 | 2611 | 5 | 9 | Saved building plans the governor follows |
+| 7 | `design_sensors_and_targeting` | warfare | 11 | 2854 | 4 | 2 | Sensor range, fire control accuracy and tracking, aim error and ECM |
+| 8 | `design_screen_tools` | warfare | 10 | 4011 | 8 | 0 | Modes, filters, design issues, saving and loading |
+| 9 | `automation_construction` | economy | 10 | 3504 | 8 | 0 | Constructors, stations, rushing everything, and projector priority |
+| 10 | `colony_garrison_and_ports` | economy | 10 | 2112 | 2 | 6 | Keeping troops at home, and choosing where ships are built |
+| 11 | `warfare_ordnance` | warfare | 9 | 2547 | 4 | 4 | Ammunition, resupply and supply ships |
+| 12 | `expansion_deep_space_building` | expansion | 8 | 2671 | 8 | 0 | Placing stations, platforms and projectors |
+| 13 | `warfare_ship_design` | warfare | 8 | 3124 | 7 | 0 | Slots, modules, power and the design screen |
 | 14 | `expansion_warp_travel` | expansion | 8 | 2582 | 4 | 7 | How ships travel between systems |
-| 15 | `expansion_deep_space_building` | expansion | 8 | 2492 | 4 | 4 | Placing stations, platforms and projectors |
-| 16 | `warfare_ordnance` | warfare | 8 | 2419 | 4 | 4 | Ammunition, resupply and supply ships |
-| 17 | `automation_construction` | economy | 8 | 1777 | 4 | 2 | Constructors, stations, rushing everything, and projector priority |
-| 18 | `design_categories` | warfare | 8 | 970 | 2 | 0 | Repair thresholds per category, and hangar-only designs |
-| 19 | `diplomacy_diplomacy_overview` | diplomacy | 7 | 2081 | 5 | 3 | The diplomacy screen, treaties, trust, anger and threat |
-| 20 | `warfare_fighter_bays` | warfare | 6 | 2771 | 5 | 0 | Carriers, hangars and what they launch |
-| 21 | `expansion_dyson_swarm` | expansion | 6 | 1856 | 5 | 2 | A megastructure around a star that boosts every colony in the system |
-| 22 | `warfare_refit_and_scrap` | warfare | 6 | 3544 | 2 | 10 | Turning an old ship into a new one, or into production and credits. |
-| 23 | `colony_trade` | economy | 5 | 3549 | 5 | 9 | Import, export and store: how a colony decides, and how many freighters it asks for |
-| 24 | `infiltration_levels` | diplomacy | 5 | 2636 | 5 | 0 | Espionage points, weights, level progress and the limit level |
-| 25 | `economy_freighters_and_trade_routes` | economy | 5 | 1941 | 5 | 0 | How goods move between your colonies |
-| 26 | `automation_alerts` | economy | 5 | 1243 | 5 | 0 | Which notifications the boxes at the bottom switch off |
-| 27 | `colony_labor_sliders` | economy | 5 | 1541 | 3 | 6 | How colonists are split between farming, industry and research |
-| 28 | `colony_storage` | economy | 4 | 1595 | 4 | 3 | How much a colony can hold, and what the stores are used for |
-| 29 | `expansion_scouting` | expansion | 4 | 1897 | 3 | 3 | How systems and planets are revealed |
-| 30 | `economy_planetary_qualities` | economy | 3 | 2148 | 5 | 0 | What to look for in a planet |
-| 31 | `expansion_terraforming` | expansion | 3 | 1771 | 4 | 3 | Turning a hostile world into one your people can fill |
-| 32 | `automation_exploration` | economy | 3 | 1709 | 3 | 4 | What the empire does with scouts and colony ships when you let it |
-| 33 | `automation_freighters` | economy | 3 | 1406 | 3 | 3 | Automatic trade, the best freighter, and trading with other empires |
-| 34 | `colony_population` | economy | 2 | 2907 | 5 | 9 | What population does, where its ceiling comes from, and how it grows |
-| 35 | `warfare_capturing_ships` | warfare | 2 | 2646 | 4 | 3 | Boarding actions and boarding defense |
-| 36 | `expansion_colony_ships` | expansion | 2 | 1525 | 3 | 3 | How to settle a new planet |
-| 37 | `automation_research_and_taxes` | economy | 2 | 1042 | 2 | 5 | Letting the empire choose what to research and how much to tax |
-| 38 | `economy_economic_basics` | economy | 1 | 2343 | 5 | 4 | Food, production, research and credits |
-| 39 | `warfare_ship_experience` | warfare | 1 | 1627 | 2 | 8 | What crew levels do and how they are earned |
-| 40 | `diplomacy_federations` | diplomacy | 0 | 2236 | 3 | 6 | Merging empires into one |
-| 41 | `infiltration_operations` | diplomacy | 0 | 2106 | 3 | 0 | How operations run, the dice roll, and what getting caught costs |
-| 42 | `expansion_passenger_transport` | expansion | 0 | 1103 | 3 | 0 | Moving colonists between worlds |
-| 43 | `expansion_subspace_projectors` | expansion | 0 | 1952 | 2 | 6 | Roads in space and what your influence does |
+| 15 | `design_categories` | warfare | 8 | 970 | 2 | 0 | Repair thresholds per category, and hangar-only designs |
+| 16 | `diplomacy_diplomacy_overview` | diplomacy | 7 | 2377 | 6 | 3 | The diplomacy screen, treaties, trust, anger and threat |
+| 17 | `warfare_fighter_bays` | warfare | 6 | 3528 | 9 | 0 | Carriers, hangars and what they launch |
+| 18 | `expansion_dyson_swarm` | expansion | 6 | 1856 | 5 | 2 | A megastructure around a star that boosts every colony in the system |
+| 19 | `economy_freighters_and_trade_routes` | economy | 5 | 3440 | 9 | 0 | How goods move between your colonies |
+| 20 | `colony_trade` | economy | 5 | 3549 | 5 | 9 | Import, export and store: how a colony decides, and how many freighters it asks for |
+| 21 | `infiltration_levels` | diplomacy | 5 | 2911 | 5 | 0 | Espionage points, weights, level progress and the limit level |
+| 22 | `colony_labor_sliders` | economy | 5 | 1541 | 3 | 6 | How colonists are split between farming, industry and research |
+| 23 | `colony_storage` | economy | 4 | 1594 | 4 | 3 | How much a colony can hold, and what the stores are used for |
+| 24 | `expansion_scouting` | expansion | 4 | 2209 | 3 | 3 | How systems and planets are revealed |
+| 25 | `economy_planetary_qualities` | economy | 3 | 2148 | 5 | 0 | What to look for in a planet |
+| 26 | `expansion_terraforming` | expansion | 3 | 1932 | 4 | 3 | Turning a hostile world into one your people can fill |
+| 27 | `automation_exploration` | economy | 3 | 2418 | 3 | 5 | What the empire does with scouts and colony ships when you let it |
+| 28 | `automation_freighters` | economy | 3 | 1529 | 3 | 3 | Automatic trade, the best freighter, and trading with other empires |
+| 29 | `warfare_capturing_ships` | warfare | 2 | 3102 | 8 | 2 | Boarding actions and boarding defense |
+| 30 | `colony_population` | economy | 2 | 3076 | 5 | 9 | What population does, where its ceiling comes from, and how it grows |
+| 31 | `expansion_colony_ships` | expansion | 2 | 2914 | 4 | 3 | How to settle a new planet |
+| 32 | `automation_research_and_taxes` | economy | 2 | 1042 | 2 | 5 | Letting the empire choose what to research and how much to tax |
+| 33 | `economy_economic_basics` | economy | 1 | 2343 | 5 | 4 | Food, production, research and credits |
+| 34 | `warfare_ship_experience` | warfare | 1 | 1627 | 2 | 8 | What crew levels do and how they are earned |
+| 35 | `infiltration_operations` | diplomacy | 0 | 2105 | 3 | 0 | How operations run, the dice roll, and what getting caught costs |
+| 36 | `expansion_passenger_transport` | expansion | 0 | 1463 | 3 | 0 | Moving colonists between worlds |
+| 37 | `expansion_subspace_projectors` | expansion | 0 | 1952 | 2 | 6 | Roads in space and what your influence does |
 
 ## Already carry a lead
 
@@ -66,19 +60,44 @@ Left alone. Listed so the totals can be checked.
 | `blackbox_links` | blackbox | 276 |
 | `blackbox_support` | blackbox | 316 |
 | `blackbox_what_is` | blackbox | 617 |
-| `diplomacy_agent_missions` | diplomacy | 2501 |
-| `diplomacy_espionage` | diplomacy | 935 |
-| `diplomacy_espionage_calculations` | diplomacy | 923 |
-| `espionage_agents_overview` | diplomacy | 2117 |
-| `infiltration_level_rewards` | diplomacy | 1852 |
-| `infiltration_seven_operations` | diplomacy | 2842 |
+| `diplomacy_agent_missions` | diplomacy | 2613 |
+| `diplomacy_espionage` | diplomacy | 1014 |
+| `diplomacy_espionage_calculations` | diplomacy | 1041 |
+| `diplomacy_federations` | diplomacy | 1560 |
+| `espionage_agents_overview` | diplomacy | 2019 |
+| `infiltration_level_rewards` | diplomacy | 2015 |
+| `infiltration_seven_operations` | diplomacy | 2916 |
+| `automation_alerts` | economy | 3502 |
 | `economy_advanced_trade_routes` | economy | 1305 |
-| `economy_automation` | economy | 564 |
-| `economy_the_colony_screen` | economy | 1902 |
+| `economy_automation` | economy | 655 |
+| `economy_shipyards` | economy | 4290 |
+| `economy_the_colony_screen` | economy | 2183 |
 | `economy_trade_treaties` | economy | 1573 |
-| `overview_controls` | overview | 4101 |
-| `overview_map_overlays` | overview | 1999 |
+| `expansion_exotic_refining` | expansion | 1875 |
+| `expansion_exotic_resources` | expansion | 3352 |
+| `game_setup_empire_colors` | overview | 2015 |
+| `overview_controls` | overview | 4190 |
+| `overview_game_setup` | overview | 1927 |
+| `overview_map_overlays` | overview | 2037 |
 | `overview_playing_stardrive` | overview | 1208 |
-| `overview_rule_options` | overview | 4162 |
+| `overview_rule_options` | overview | 4697 |
 | `overview_your_first_game` | overview | 1870 |
-| `warfare_point_defense_weapons` | warfare | 917 |
+| `derelicts_recovering` | warfare | 2951 |
+| `derelicts_salvage_ships` | warfare | 5571 |
+| `derelicts_salvaging` | warfare | 3515 |
+| `ground_combat_battle` | warfare | 2077 |
+| `ground_combat_bombardment` | warfare | 1200 |
+| `ground_combat_landing` | warfare | 2279 |
+| `refit_and_scrap_dismantling` | warfare | 2899 |
+| `refit_and_scrap_refitting` | warfare | 3031 |
+| `refit_and_scrap_scrapping` | warfare | 2416 |
+| `ship_death_blasts` | warfare | 319 |
+| `ship_death_destruction` | warfare | 357 |
+| `ship_death_wrecks` | warfare | 2057 |
+| `warfare_combat_basics` | warfare | 3786 |
+| `warfare_combat_stances` | warfare | 2213 |
+| `warfare_derelicts` | warfare | 2620 |
+| `warfare_ground_combat` | warfare | 285 |
+| `warfare_point_defense_weapons` | warfare | 1295 |
+| `warfare_refit_and_scrap` | warfare | 255 |
+| `warfare_ship_death` | warfare | 341 |

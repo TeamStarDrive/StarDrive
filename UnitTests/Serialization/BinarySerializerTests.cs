@@ -1185,7 +1185,7 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void ARuleOptionUntickedAgainstTheModsGlobalsStaysUnticked()
+        public void ARuleOptionTickedAgainstTheModsGlobalsStaysTicked()
         {
             bool pirates = GlobalStats.Defaults.DisablePirates;
             bool remnantStory = GlobalStats.Defaults.DisableRemnantStory;
@@ -1193,10 +1193,10 @@ namespace UnitTests.Serialization
             {
                 GlobalStats.Defaults.DisablePirates = true;
                 GlobalStats.Defaults.DisableRemnantStory = true;
-                var instance = new UniverseParams { DisablePirates = false, DisableRemnantStory = false }; // unticked at the new game
+                var instance = new UniverseParams { DisablePirates = false, DisableRemnantStory = false }; // ticked at the new game
                 var result = SerDes(instance);
-                Assert.IsFalse(result.DisablePirates, "the mod's Globals tick Disable Pirates, but unticked it loads unticked");
-                Assert.IsFalse(result.DisableRemnantStory, "as does Disable Remnant Story");
+                Assert.IsFalse(result.DisablePirates, "the mod's Globals turn pirates off, but the Pirates box ticked loads ticked");
+                Assert.IsFalse(result.DisableRemnantStory, "as does the Remnant Story box");
             }
             finally
             {

@@ -30,6 +30,12 @@ namespace Ship_Game
         Damage, Range, Speed, Armor, Shield
     }
 
+    // Paint: the hull paint a model's tint map marks
+    public enum HullColorParts
+    {
+        None, Paint
+    }
+
     [StarDataType]
     public sealed class DTrait
     {
@@ -133,6 +139,7 @@ namespace Ship_Game
 
         // RaceDesignScreen:
         string ShipType { get; }
+        HullColorParts HullColors { get; }
         string VideoPath { get; }
         string Singular { get; }
         string Plural { get; }
@@ -275,6 +282,9 @@ namespace Ship_Game
         [StarData] public byte ThrustColor1G;
         [StarData] public byte ThrustColor1B;
 
+        // the part of its ships that takes the empire color, from the race file and never saved, so a loaded game takes its race's
+        public HullColorParts HullColors;
+        HullColorParts IEmpireData.HullColors => HullColors;
 
 
         // FB - Minimum Troop Level
@@ -432,8 +442,10 @@ namespace Ship_Game
             ShipModulesInResearchQueues = new(ShipModulesInResearchQueues);
             OwnTechBonuses();
             // a saved salvage ship that is none, as from before salvage ships or a design since renamed, gives way to its race's
+            var race = ResourceManager.AllRaces.FirstOrDefault(r => r.ArchetypeName == ArchetypeName) as EmpireData;
             if (ResourceManager.SalvageShipDesignOf(this) == null)
-                DefaultSalvageShip = (ResourceManager.AllRaces.FirstOrDefault(r => r.ArchetypeName == ArchetypeName) as EmpireData)?.DefaultSalvageShip;
+                DefaultSalvageShip = race?.DefaultSalvageShip;
+            HullColors = race?.HullColors ?? HullColorParts.None;
         }
 
         void OwnTechBonuses()

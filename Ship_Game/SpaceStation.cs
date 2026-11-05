@@ -33,7 +33,8 @@ public sealed class SpaceStation
 
     void UpdateTransforms(Vector2 position)
     {
-        if (InnerSO == null && OuterSO == null)
+        SceneObject inner = InnerSO, outer = OuterSO; // the sim thread may take them out meanwhile
+        if (inner == null && outer == null)
             return;
 
         Matrix transform = Matrix.CreateScale(Scale)
@@ -42,10 +43,21 @@ public sealed class SpaceStation
                            * Matrix.CreateRotationY(65f.ToRadians())
                            * Matrix.CreateRotationZ(90f.ToRadians())
                            * Matrix.CreateTranslation(position.X, position.Y, PosZ);
-        if (InnerSO != null)
-            InnerSO.World = transform;
-        if (OuterSO != null)
-            OuterSO.World = transform;
+        if (inner != null)
+            inner.World = transform;
+        if (outer != null)
+            outer.World = transform;
+    }
+
+    // the station takes its owner's color like the owner's ships do
+    void UpdateColors(Empire owner)
+    {
+        SceneObject inner = InnerSO, outer = OuterSO; // the sim thread may take them out meanwhile
+        var color = owner?.HullTint ?? default;
+        if (inner != null)
+            inner.HullTint = color;
+        if (outer != null)
+            outer.HullTint = color;
     }
 
     internal void CreateSceneObject(Planet planet, Empire owner)
@@ -89,6 +101,7 @@ public sealed class SpaceStation
         }
 
         UpdateTransforms(planet.Position);
+        UpdateColors(owner);
     }
 
     public void RemoveSceneObject()
@@ -111,6 +124,7 @@ public sealed class SpaceStation
         {
             ZRotation += RadiansPerSecond * timeStep.FixedTime;
             UpdateTransforms(planet.Position);
+            UpdateColors(planet.Owner);
         }
         else if (!IsLoadingSO && !DisableLoading)
         {

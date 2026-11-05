@@ -64,6 +64,7 @@
     <Compile Include="AITests\Ships\WarpInSpreadTests.cs" />
     <Compile Include="AITests\Ships\TestGravityWellRouter.cs" />
     <Compile Include="AITests\Ships\BoardingShuttleTargetTests.cs" />
+    <Compile Include="AITests\Ships\MeteorTargetTests.cs" />
     <Compile Include="AITests\Ships\ChaseLimitTests.cs" />
     <Compile Include="AITests\Ships\InhibitedFleetMoveTests.cs" />
     <Compile Include="AITests\Ships\SafeRebaseTests.cs" />
@@ -118,13 +119,16 @@
     <Compile Include="Fleets\FleetTests.cs" />
     <Compile Include="Fleets\ResetFleetTests.cs" />
     <Compile Include="Graphics\BloomFilterTests.cs" />
+    <Compile Include="Graphics\DdsReaderTests.cs" />
     <Compile Include="Graphics\DistortionComponentTests.cs" />
     <Compile Include="Graphics\FillRectangleRectFTests.cs" />
     <Compile Include="Graphics\FogOfWarTests.cs" />
     <Compile Include="Graphics\FbxMaterialSurveyTests.cs" />
     <Compile Include="Graphics\ForwardRendererTests.cs" />
+    <Compile Include="Graphics\HullColorTests.cs" />
     <Compile Include="Graphics\LightingEffectBinderTests.cs" />
     <Compile Include="Graphics\MeshLightingEffectTests.cs" />
+    <Compile Include="Graphics\ModelTextureTests.cs" />
     <Compile Include="Graphics\ParticleManagerTests.cs" />
     <Compile Include="Graphics\PostProcessChainTests.cs" />
     <Compile Include="Graphics\ShadowMapTests.cs" />
@@ -229,6 +233,7 @@
     <Compile Include="UI\UndoRedoKeyTests.cs" />
     <Compile Include="Ships\MissileJamTests.cs" />
     <Compile Include="Ships\FlakBurstTests.cs" />
+    <Compile Include="Ships\WeaponDamagePerSecondTests.cs" />
     <Compile Include="Ships\PointDefenseCollisionTests.cs" />
     <Compile Include="Ships\PointDefenseTargetTests.cs" />
     <Compile Include="Ships\ShipEmpRecoveryTests.cs" />
@@ -261,6 +266,7 @@
     <Compile Include="Ships\LegacyShipDesignUtils.cs" />
     <Compile Include="Ships\ShipPowerCalcTests.cs" />
     <Compile Include="Ships\ShipStrengthTests.cs" />
+    <Compile Include="Ships\RegenerationTests.cs" />
     <Compile Include="Ships\TestShip.cs" />
     <Compile Include="Ships\ModuleGridTests.cs" />
     <Compile Include="Ships\ShipDataTests.cs" />

@@ -493,13 +493,10 @@ namespace Ship_Game
             float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
             
             bool isBeam = w.IsBeam;
-            bool isBallistic = wOrMirv.Explodes && wOrMirv.OrdinanceRequiredToFire > 0f;
             float beamMultiplier = isBeam ? w.BeamDuration * 60f : 0f;
 
-            float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage);
-            float beamDamage      = rawDamage * beamMultiplier;
-            float ballisticDamage = rawDamage + rawDamage * Player.data.OrdnanceEffectivenessBonus;
-            float energyDamage    = rawDamage;
+            float rawDamage  = WeaponTemplate.DamageWithTechs(wOrMirv, Player.data);
+            float beamDamage = rawDamage * beamMultiplier;
 
             float cost = m.ActualCost(Universe);
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
@@ -522,7 +519,7 @@ namespace Ship_Game
             }
             else
             {
-                DrawStat(ref cursor, GameText.Damage, isBallistic ? ballisticDamage : energyDamage, GameText.IndicatesTheMaximumAmountOf);
+                DrawStat(ref cursor, GameText.Damage, rawDamage, GameText.IndicatesTheMaximumAmountOf);
             }
 
             if (wOrMirv.Explodes)
@@ -552,14 +549,7 @@ namespace Ship_Game
             {
                 int salvos      = w.SalvoCount.LowerBound(1);
                 int projectiles = w.ProjectileCount > 0 ? w.ProjectileCount : 1;
-                float dps = isBeam ? (beamDamage / delay)
-                                   : (salvos / delay) * w.ProjectileCount 
-                                                      * (isBallistic ? ballisticDamage : energyDamage);
-
-                if (wOrMirv.ProjectileCount > 1 && hasWarheads)
-                    dps *= wOrMirv.ProjectileCount;
-
-                DrawStat(ref cursor, "DPS", dps, GameText.IndicatesTheMaximumDamagePer);
+                DrawStat(ref cursor, "DPS", WeaponTemplate.DamagePerSecondWithTechs(w, Player.data), GameText.IndicatesTheMaximumDamagePer);
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, GameText.ThisWeaponsFireASalvo);
                 if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, GameText.ThisWeaponFiresMoreThan);
             }

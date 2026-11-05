@@ -713,16 +713,16 @@ public class DerelictTests : StarDriveTest
         AssertEqual(GlobalStats.VanillaDefaults.SalvageableDerelictCapMultiplier, mod.SalvageableDerelictCapMultiplier, "as it does the other vanilla values");
 
         var p = new UniverseParams();
-        AssertFalse(p.DisableSalvageOps, "with salvage content the rule option starts unticked");
+        AssertFalse(p.DisableSalvageOps, "with salvage content the Salvage Ops box starts ticked");
         AssertTrue(p.SalvageOps, "so salvage ops are on");
         p.DisableSalvageOps = true;
-        AssertFalse(p.SalvageOps, "ticked, it turns them off");
+        AssertFalse(p.SalvageOps, "unticked, it turns them off");
 
         GlobalStats.Defaults.EnableSalvageOps = false;
         p = new UniverseParams();
-        AssertTrue(p.DisableSalvageOps, "without salvage content it starts ticked");
+        AssertTrue(p.DisableSalvageOps, "without salvage content it starts unticked");
         p.DisableSalvageOps = false;
-        AssertFalse(p.SalvageOps, "and unticking it cannot turn them on");
+        AssertFalse(p.SalvageOps, "and ticking it cannot turn them on");
     }
 
     [TestMethod]
@@ -1450,6 +1450,38 @@ public class DerelictTests : StarDriveTest
         AssertTrue(after[0] == salvageable && after[1] == drifting, "the same derelicts, with their turns and knowledge");
         AssertFalse(salvageable.InScene || drifting.InScene, "their models are gone");
         AssertTrue(salvageable.WantsModel && drifting.WantsModel, "and they get them again once on screen");
+    }
+
+    // a derelict keeps its last owner's hull color, on a model handed over at death or loaded later
+    [TestMethod]
+    public void ADerelictKeepsItsLastOwnersHullColor()
+    {
+        ViewEverything();
+        Player.data.HullColors = HullColorParts.Paint;
+        UState.P.PlayerHullColors = true;
+        AssertEqual(0.001f, 1f, Player.HullTint.W, "setup: the player's ships are colored");
+
+        TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));
+        UState.Objects.Update(TestSimStep);
+        var so = new SceneObject(ship.Name);
+        Derelict d = Drifting(ship, so);
+        Step(d, 0.1f);
+        AssertEqual(GlobalStats.ShipVisibility, so.Visibility, "setup: on screen, it is drawn");
+        Assert.AreEqual(Player.HullTint, so.HullTint, "a wreck on screen is drawn in its owner's color");
+
+        AssertTrue(UState.Derelicts.TryAdd(SpawnShip("Dreadnought mk1-a", Player, Site(1)), salvageable: false, seen: false),
+                   "setup: another wreck of the player's, with no model");
+        var loaded = new SceneObject("loaded");
+        AssertTrue(UState.Derelicts.TryAttachModel(Newest(), loaded), "setup: a model loaded later is attached");
+        Assert.AreEqual(Player.HullTint, loaded.HullTint, "and drawn in its owner's color");
+
+        TestShip enemyShip = SpawnShip("Dreadnought mk1-a", Enemy, Site(2));
+        UState.Objects.Update(TestSimStep);
+        var enemySO = new SceneObject(enemyShip.Name);
+        Derelict enemyWreck = Drifting(enemyShip, enemySO);
+        Step(enemyWreck, 0.1f);
+        AssertEqual(GlobalStats.ShipVisibility, enemySO.Visibility, "setup: an enemy's wreck on screen is drawn");
+        AssertEqual(0.001f, 0f, enemySO.HullTint.W, "bare, as the player picked no color for that opponent");
     }
 
     [TestMethod]

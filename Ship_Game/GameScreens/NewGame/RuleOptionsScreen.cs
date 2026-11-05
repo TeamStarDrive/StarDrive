@@ -8,7 +8,9 @@ namespace Ship_Game;
 
 public sealed class RuleOptionsScreen : GameScreen
 {
-    readonly UniverseParams P;
+    readonly RaceDesignScreen RaceScreen;
+    UniverseParams P => RaceScreen.Params;
+    UniverseParams Shown; // the settings the sliders were made from, as a loaded setup replaces them
 
     Menu2 MainMenu;
     FloatSlider FTLPenaltySlider;
@@ -21,9 +23,9 @@ public sealed class RuleOptionsScreen : GameScreen
     FloatSlider CustomMineralDecay;
     FloatSlider VolcanicActivity;
 
-    public RuleOptionsScreen(GameScreen parent, UniverseParams settings) : base(parent, toPause: null)
+    public RuleOptionsScreen(GameScreen parent, RaceDesignScreen raceScreen) : base(parent, toPause: null)
     {
-        P = settings;
+        RaceScreen = raceScreen;
         IsPopup = true;
         TransitionOnTime  = 0.25f;
         TransitionOffTime = 0.25f;
@@ -37,10 +39,21 @@ public sealed class RuleOptionsScreen : GameScreen
         batch.SafeEnd();
     }
 
+    public override void Update(float fixedDeltaTime)
+    {
+        if (Shown != P)
+        {
+            LoadContent();
+            PerformLayout();
+        }
+        base.Update(fixedDeltaTime);
+    }
+
     public override void LoadContent()
     {
         base.LoadContent();
         RemoveAll();
+        Shown = P;
         int width  = ScreenWidth;
         int height = ScreenHeight;
 
@@ -65,16 +78,16 @@ public sealed class RuleOptionsScreen : GameScreen
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*0, () => P.PreventFederations, title: GameText.PreventAiFederations, tooltip: GameText.PreventsAiEmpiresFromMerging);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*1, () => P.FixedPlayerCreditCharge, title: GameText.FixedShipAndBuildingsCost, tooltip: GameText.KeepFixedCreditCostOf);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*2, () => P.AIUsesPlayerDesigns, title: GameText.UsePlayerDesignsTitle, tooltip: GameText.UsePlayerDesignsTip);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*3, () => P.DisablePirates, title: GameText.DisablePirates, tooltip: GameText.DisablesAllPirateFactionsFor);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*4, () => P.DisableRemnantStory, title: GameText.DisableRemnantStory, tooltip: GameText.IfCheckedRemnantForcesIn);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*3, () => P.Pirates, title: GameText.PiratesExtension, tooltip: GameText.PiratesExtensionTip);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*4, () => P.RemnantStory, title: GameText.RemnantStoryExtension, tooltip: GameText.RemnantStoryExtensionTip);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*5, () => P.DisableAlternateAITraits, title: GameText.DisableAlternateTraits, tooltip: GameText.DisableAlternateTraitsTip);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*6, () => P.DisableResearchStations, title: GameText.DisableResearchStationsName, tooltip: GameText.DisableResearchStationsTip);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*7, () => P.DisableMiningOps, title: GameText.DisableMiningOpsName, tooltip: GameText.DisableMiningOpsTip);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*6, () => P.ResearchStations, title: GameText.ResearchStationsExtension, tooltip: GameText.ResearchStationsExtensionTip);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*7, () => P.MiningOps, title: GameText.MiningOpsExtension, tooltip: GameText.MiningOpsExtensionTip);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*8, () => P.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*9, () => P.UseLegacyEspionage, title: GameText.UseLegacyEspionage, tooltip: GameText.UseLegacyEspionageTip);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*9, () => P.Infiltration, title: GameText.InfiltrationExtension, tooltip: GameText.InfiltrationExtensionTip);
         bool salvageOpsEnabled = GlobalStats.Defaults.EnableSalvageOps;
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*10, () => P.DisableSalvageOps, title: GameText.DisableSalvageOpsName,
-                 tooltip: salvageOpsEnabled ? GameText.DisableSalvageOpsTip : GameText.DisableSalvageOpsModTip).Locked = !salvageOpsEnabled;
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*10, () => P.SalvageOps, title: GameText.SalvageOpsExtension,
+                 tooltip: salvageOpsEnabled ? GameText.SalvageOpsExtensionTip : GameText.DisableSalvageOpsModTip).Locked = !salvageOpsEnabled;
 
         var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 275, 270, 50);
         CustomMineralDecay = SliderDecimal1(mdRect, GameText.MineralDecayRate, 0.2f, 3, P.CustomMineralDecay);
@@ -122,6 +135,10 @@ public sealed class RuleOptionsScreen : GameScreen
         StartingRichness.Tip = GameText.AddToAllStartingEmpire;
         TurnTimer.Tip = GameText.TimeInSecondsPerTurn;
 
+        ButtonBigDip(leftRect.CenterX() - 178, leftRect.Bottom - 50, "Load Setup",
+                     _ => ScreenManager.AddScreen(new LoadNewGameSetupScreen(RaceScreen)));
+        ButtonBigDip(leftRect.CenterX() + 10, leftRect.Bottom - 50, "Save Setup",
+                     _ => ScreenManager.AddScreen(new SaveNewGameSetupScreen(RaceScreen, P)));
 
         Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, GameText.AdvancedRuleOptions, Fonts.Arial20Bold);
         string text = Fonts.Arial12.ParseText(GameText.InThisPanelYouMay, MainMenu.Menu.Width - 80);

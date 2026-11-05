@@ -223,6 +223,99 @@ public class MeshLightingEffectTests : StarDriveTest
         Assert.IsTrue(darkGlow < litGlow / 20, $"the dark cube drew with the lit cube's glow: {darkGlow} vs {litGlow}");
     }
 
+    // The owner's color takes the paint the tint map marks, at the texture's own brightness.
+    [TestMethod]
+    public void HullTint_GivesTheTintMappedPaintTheOwnersColorAtItsBrightness()
+    {
+        Color px = CenterPixelOfGrayPaint(maskValue: 255, new Vector4(0f, 0f, 1f, 1f));
+        AssertEqual(3f, 112f, px.R, "blue at the gray paint's brightness keeps some red");
+        AssertEqual(3f, 112f, px.G, "and as much green");
+        AssertEqual(3f, 255f, px.B, "and is mostly blue");
+    }
+
+    // Paint the tint map leaves out, and a model drawn with no owner's color, keep the texture as it is.
+    [TestMethod]
+    [DataRow(0, 1f)]
+    [DataRow(255, 0f)]
+    public void HullTint_LeavesThePaintAloneOutsideTheMaskOrWithNoColor(int maskValue, float tintWeight)
+    {
+        Color px = CenterPixelOfGrayPaint(maskValue, new Vector4(0f, 0f, 1f, tintWeight));
+        AssertEqual(1f, 128f, px.R, "red");
+        AssertEqual(1f, 128f, px.G, "green");
+        AssertEqual(1f, 128f, px.B, "blue");
+    }
+
+    // Every ship of a model shares the model's effect, so each SceneObject's own color must reach the draw.
+    [TestMethod]
+    public void SceneObjectsSharingAnEffectEachDrawWithTheirOwnHullColors()
+    {
+        GraphicsDevice device = Game.GraphicsDevice;
+        using var paint = MakeSolidColorTexture(device, new Color(128, 128, 128, 255));
+        using var mask = MakeSolidColorTexture(device, Color.White);
+        (StaticMesh mesh, VertexBuffer vb, IndexBuffer ib) = BuildUnitCube(device);
+        using var fx = new LightingEffect(device)
+        {
+            DiffuseMapTexture = paint,
+            TintMapTexture = mask,
+        };
+        SceneObject bare = mesh.CreateSceneObject(effect: fx);
+        bare.World = Matrix.CreateTranslation(-0.8f, 0f, 0f);
+        bare.Visibility = ObjectVisibility.Rendered;
+        SceneObject tinted = mesh.CreateSceneObject(effect: fx);
+        tinted.World = Matrix.CreateTranslation(0.8f, 0f, 0f);
+        tinted.Visibility = ObjectVisibility.Rendered;
+        tinted.HullTint = new Vector4(0f, 0f, 1f, 1f);
+
+        using var scene = new SceneInterface(Game.Graphics);
+        var state = new SceneState();
+        Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 4), Vector3.Zero, Vector3.Up);
+        Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1.0f, 0.1f, 100f);
+        state.BeginFrameRendering(ref view, ref projection, 0f, null, false);
+        scene.BeginFrameRendering(state);
+        scene.ObjectManager.Submit(tinted);
+        scene.ObjectManager.Submit(bare);
+
+        using var rt = new RenderTarget2D(device, 64, 64, mipMap: false, SurfaceFormat.Color, DepthFormat.Depth24);
+        RenderTargetBinding[] previousTargets = device.GetRenderTargets();
+        try
+        {
+            device.SetRenderTarget(rt);
+            device.Clear(Color.Magenta);
+            scene.RenderScene();
+        }
+        finally
+        {
+            device.SetRenderTargets(previousTargets);
+            vb.Dispose();
+            ib.Dispose();
+        }
+
+        // the scene's light lands on both cubes alike, so blue above red is the owner's color
+        long bareBlue = GlowInHalf(rt, rightHalf: false);
+        long tintedBlue = GlowInHalf(rt, rightHalf: true);
+        Assert.IsTrue(tintedBlue > 1000, $"setup: the tinted cube is blue, got {tintedBlue}");
+        Assert.IsTrue(bareBlue < tintedBlue / 5, $"the bare cube drew with the tinted cube's color: {bareBlue} vs {tintedBlue}");
+    }
+
+    // an unlit cube painted mid gray under a solid tint map, read at its center
+    static Color CenterPixelOfGrayPaint(int maskValue, Vector4 hullTint)
+    {
+        using var paint = MakeSolidColorTexture(Game.GraphicsDevice, new Color(128, 128, 128, 255));
+        using var mask = MakeSolidColorTexture(Game.GraphicsDevice, new Color(maskValue, maskValue, maskValue, 255));
+        using var rt = RenderUnitCubeWith(fx =>
+        {
+            fx.LightingEnabled = false;
+            fx.EmissiveColor = Vector3.Zero;
+            fx.Texture = paint;
+            fx.TextureEnabled = true;
+            fx.TintMapTexture = mask;
+            fx.HullTint = hullTint;
+        });
+        var pixels = new Color[rt.Width * rt.Height];
+        rt.GetData(pixels);
+        return pixels[rt.Height / 2 * rt.Width + rt.Width / 2];
+    }
+
     static long GlowInHalf(RenderTarget2D rt, bool rightHalf)
     {
         var pixels = new Color[rt.Width * rt.Height];

@@ -16,6 +16,7 @@
   <DefaultMiningStation>Basic Mining Station</DefaultMiningStation>
   <DefaultMiningShip>Terran Mining Ship</DefaultMiningShip>
   <DefaultSalvageShip>Terran Salvage Ship</DefaultSalvageShip>
+  <HullColors>Paint</HullColors>
   
   <ThrustColor0R>95</ThrustColor0R>
   <ThrustColor0G>158</ThrustColor0G>

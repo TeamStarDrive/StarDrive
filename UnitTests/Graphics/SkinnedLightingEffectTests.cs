@@ -94,6 +94,30 @@ public class SkinnedLightingEffectTests : StarDriveTest
         Assert.IsTrue(none < 100, $"no glow at zero scale, got B-sum={none}");
     }
 
+    // Animated hulls take their owner's color on their tint-mapped paint like static hulls do.
+    [TestMethod]
+    [DataRow(1f, 112, 255)]
+    [DataRow(0f, 128, 128)]
+    public void SkinnedLightingEffect_HullTintColorsTheTintMappedPaint(float tintWeight, int red, int blue)
+    {
+        GraphicsDevice device = Game.GraphicsDevice;
+        using var paint = new Texture2D(device, 1, 1);
+        paint.SetData(new[] { new Color(128, 128, 128, 255) });
+        using var mask = new Texture2D(device, 1, 1);
+        mask.SetData(new[] { Color.White });
+        Color[] pixels = RenderSkinnedCube(fx =>
+        {
+            fx.Texture = paint;
+            fx.TextureEnabled = true;
+            fx.TintMapTexture = mask;
+            fx.HullTint = new Vector4(0f, 0f, 1f, tintWeight);
+        });
+        Color px = pixels[32 * 64 + 32];
+        AssertEqual(3f, red, px.R, "red");
+        AssertEqual(3f, red, px.G, "green");
+        AssertEqual(3f, blue, px.B, "blue");
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     struct SkinnedVertex : IVertexType
     {
@@ -120,6 +144,21 @@ public class SkinnedLightingEffectTests : StarDriveTest
     // a unit cube bound whole to bone 0, drawn with no lights and a solid blue glow map
     static long BlueGlowWith(float emissiveScale)
     {
+        using var glowMap = new Texture2D(Game.GraphicsDevice, 1, 1);
+        glowMap.SetData(new[] { new Color(0, 0, 255, 255) });
+        Color[] pixels = RenderSkinnedCube(fx =>
+        {
+            fx.TextureEnabled = false;
+            fx.DiffuseColor = Vector3.Zero;
+            fx.EmissiveMapTexture = glowMap;
+            fx.EmissiveScale = emissiveScale;
+        });
+        return pixels.Where(px => px != Color.Magenta).Sum(px => (long)px.B);
+    }
+
+    // a unit cube bound whole to bone 0, drawn with no lights onto a 64x64 magenta target
+    static Color[] RenderSkinnedCube(System.Action<SkinnedLightingEffect> configure)
+    {
         GraphicsDevice device = Game.GraphicsDevice;
         SkinnedVertex[] vertices = ForwardRendererTests.BuildCubeVertices().Select(v => new SkinnedVertex
         {
@@ -132,18 +171,13 @@ public class SkinnedLightingEffectTests : StarDriveTest
         vb.SetData(vertices);
         using var ib = new IndexBuffer(device, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
         ib.SetData(indices);
-        using var glowMap = new Texture2D(device, 1, 1);
-        glowMap.SetData(new[] { new Color(0, 0, 255, 255) });
         using var fx = new SkinnedLightingEffect(device)
         {
             LightingEnabled = false,
-            TextureEnabled = false,
-            DiffuseColor = Vector3.Zero,
-            EmissiveMapTexture = glowMap,
-            EmissiveScale = emissiveScale,
             View = Matrix.CreateLookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.Up),
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1.0f, 0.1f, 100f),
         };
+        configure(fx);
         fx.SetBoneTransforms(new[] { Matrix.Identity });
 
         using var rt = new RenderTarget2D(device, 64, 64, mipMap: false, SurfaceFormat.Color, DepthFormat.Depth24);
@@ -176,6 +210,6 @@ public class SkinnedLightingEffectTests : StarDriveTest
 
         var pixels = new Color[rt.Width * rt.Height];
         rt.GetData(pixels);
-        return pixels.Where(px => px != Color.Magenta).Sum(px => (long)px.B);
+        return pixels;
     }
 }

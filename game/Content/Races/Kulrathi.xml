@@ -18,6 +18,7 @@
   <DefaultMiningShip>Kulrathi Mining Ship</DefaultMiningShip>
   <DefaultMiningStation>Kulrathi Basic Mining Station</DefaultMiningStation>  
   <DefaultSalvageShip>Kulrathi Salvage Ship</DefaultSalvageShip>
+  <HullColors>Paint</HullColors>
 
   <TechTree>Kulrathi</TechTree>
   <RebelName>Kulrathi Warlords</RebelName>

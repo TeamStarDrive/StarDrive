@@ -2,7 +2,6 @@
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
   <Version>2</Version>
   <UID>SalvageShips</UID>
-  <IconPath>SalvageSpeed</IconPath>
   <TechnologyType>General</TechnologyType>
   <RequiresSalvageOps>true</RequiresSalvageOps>
   <Cost>400</Cost>

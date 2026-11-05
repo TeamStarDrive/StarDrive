@@ -2356,10 +2356,10 @@ namespace Ship_Game
         DisableInhibitionAlerts = 1842,
         /// <summary>Inhibition Alerts are displayed when a single ship is selected</summary>
         InhibitionAlertsAreDisplayedWhen = 1843,
-        /// <summary>Disable Remnant Story</summary>
-        DisableRemnantStory = 1844,
-        /// <summary>If checked, Remnant forces in the game will act as</summary>
-        IfCheckedRemnantForcesIn = 1845,
+        /// <summary>Remnant Story</summary>
+        RemnantStoryExtension = 1844,
+        /// <summary>The Remnants follow a story and can expand.</summary>
+        RemnantStoryExtensionTip = 1845,
         /// <summary>Remnant Titan Engine</summary>
         RemnantTitanEngine = 1846,
         /// <summary>Remnant Capital Engine</summary>
@@ -2404,10 +2404,10 @@ namespace Ship_Game
         MineralRichnessHasGoneDown = 1866,
         /// <summary>- Raw minerals were discovered. Mineral Richness increased by</summary>
         RawMineralsWereDiscoverednmineralRichness = 1867,
-        /// <summary>Disable Pirates</summary>
-        DisablePirates = 1868,
-        /// <summary>Disables all pirate factions for this game.</summary>
-        DisablesAllPirateFactionsFor = 1869,
+        /// <summary>Pirates</summary>
+        PiratesExtension = 1868,
+        /// <summary>Pirate factions take part in this game.</summary>
+        PiratesExtensionTip = 1869,
         /// <summary>Clears the buildable items filter.</summary>
         ClearBuildableItemsFilter = 1870,
         /// <summary>We Managed to destroy a pirate base! We found equipment</summary>
@@ -4575,14 +4575,14 @@ namespace Ship_Game
         EmpireMiningSpeed = 4485,
         /// <summary>Refining Efficiency</summary>
         EmpireRefiningEfficiency = 4486,
-        /// <summary>Disable Research Stations</summary>
-        DisableResearchStationsName = 4487,
-        /// <summary>The game will not have researchable planets</summary>
-        DisableResearchStationsTip = 4488,
-        /// <summary>Disable Mining Ops</summary>
-        DisableMiningOpsName = 4489,
-        /// <summary>The game will not have mineable planets</summary>
-        DisableMiningOpsTip = 4490,
+        /// <summary>Research Stations</summary>
+        ResearchStationsExtension = 4487,
+        /// <summary>The galaxy has researchable planets and stars to place research stations at.</summary>
+        ResearchStationsExtensionTip = 4488,
+        /// <summary>Mining Ops</summary>
+        MiningOpsExtension = 4489,
+        /// <summary>The galaxy has mineable planets for Mining Ops.</summary>
+        MiningOpsExtensionTip = 4490,
         /// <summary>This shows the bonus your empire gets</summary>
         ExoticResourceBonusTip = 4491,
         /// <summary>This shows the usage of the Empire's current</summary>
@@ -5580,10 +5580,10 @@ namespace Ship_Game
         RefitInFleet = 6224,
         /// <summary>All Ships of the same type in the</summary>
         RefitInFleetTip = 6225,
-        /// <summary>Enable Legacy Espionage</summary>
-        UseLegacyEspionage = 6226,
-        /// <summary>Enable Legacy Espionage (Agents) instead of the rewritten one</summary>
-        UseLegacyEspionageTip = 6227,
+        /// <summary>Infiltration</summary>
+        InfiltrationExtension = 6226,
+        /// <summary>Espionage works through infiltration levels in each empire you meet.</summary>
+        InfiltrationExtensionTip = 6227,
         /// <summary>Indicates the persentage of Taxed Research</summary>
         InfiltrationDefesneTip = 6228,
         /// <summary>Allows ship scanning (Tab key) as well as </summary>
@@ -6146,10 +6146,10 @@ namespace Ship_Game
         ModInstallUnfinished = 7122,
         /// <summary>Colonists per Cargo Unit</summary>
         ColonistsPerCargoUnit = 7123,
-        /// <summary>Disable Salvage Ops</summary>
-        DisableSalvageOpsName = 7124,
-        /// <summary>Every derelict drifts and sinks away, so there are no wrecks to salvage.</summary>
-        DisableSalvageOpsTip = 7125,
+        /// <summary>Salvage Ops</summary>
+        SalvageOpsExtension = 7124,
+        /// <summary>Some derelicts come to rest in their systems and can be salvaged.</summary>
+        SalvageOpsExtensionTip = 7125,
         /// <summary>Salvage ops are off: EnableSalvageOps is false in Globals.yaml, or the mod has no salvage content.</summary>
         DisableSalvageOpsModTip = 7126,
         /// <summary>Derelict</summary>
@@ -6374,6 +6374,28 @@ namespace Ship_Game
         TechLeechAlerts = 7271,
         /// <summary>Alerts when your spy network gains you research progress on a technology</summary>
         TechLeechAlertsTip = 7272,
+        /// <summary>Your Hull Color</summary>
+        YourHullColor = 7273,
+        /// <summary>Your ships take your empire color on their hull paint. Some mod races' ships have no part marked for the color.</summary>
+        YourHullColorTip = 7274,
+        /// <summary>Opponents' Hull Color</summary>
+        OpponentsHullColor = 7275,
+        /// <summary>Opponents you picked a color for before the game wear it on their ships' hull paint; the others keep their look. Some mod races' ships have no part marked for the color.</summary>
+        OpponentsHullColorTip = 7276,
+        /// <summary>Game Setup</summary>
+        GameSetup = 7277,
+        /// <summary>Your Empire</summary>
+        YourEmpire = 7278,
+        /// <summary>Galaxy</summary>
+        Galaxy = 7279,
+        /// <summary>Game Extensions</summary>
+        GameExtensions = 7280,
+        /// <summary>Back</summary>
+        Back = 7281,
+        /// <summary>Choose the opponents you want to play against, or leave the places open for random ones.</summary>
+        ChooseOpponentsHint = 7282,
+        /// <summary>Drag to turn</summary>
+        DragToTurn = 7283,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

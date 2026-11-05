@@ -49,7 +49,12 @@
     -
       UID: overview_map_overlays
     -
-      UID: overview_rule_options
+      UID: overview_game_setup
+      Children:
+        -
+          UID: game_setup_empire_colors
+        -
+          UID: overview_rule_options
     -
       UID: overview_your_first_game
 -

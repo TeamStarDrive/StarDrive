@@ -622,6 +622,27 @@ namespace Ship_Game.Data
             return tex;
         }
 
+        // a model's texture, cached as Load caches it, with a DXT1 file kept compressed on the GPU
+        public Texture2D LoadModelTexture(string assetName)
+        {
+            var asset = new AssetName(assetName);
+            if (asset.Extension != "dds")
+                return Load<Texture2D>(assetName);
+            if (LoadedAssets == null)
+                throw new ObjectDisposedException(ToString());
+            if (TryGetAsset(asset.RelPathWithExt, out Texture2D tex))
+                return tex;
+
+            if (DebugAssetLoading)
+            {
+                Log.Write(ConsoleColor.Cyan, $"LoadModelTexture {asset.RelPathWithExt}");
+                SlowCheckForResourceLeaks(asset.RelPathWithExt);
+            }
+            tex = RawContent.LoadModelTexture(asset.RelPathWithExt);
+            lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref tex);
+            return tex;
+        }
+
         /// <summary>
         /// Guaranteed to load an atlas with at least 1 texture.
         /// This might be called by multiple threads, so additional synchronization is required

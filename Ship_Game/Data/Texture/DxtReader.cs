@@ -25,6 +25,12 @@ namespace Ship_Game.Data.Texture
         // even when they're intentionally empty, which would otherwise false-
         // positive the broken-plane fallback.
         public PixelFormat Format { get; private set; } = PixelFormat.UNKNOWN;
+        // the undecoded DXT1 data from the base level on, when the reader was asked to keep it and a GPU can sample it as it is
+        public byte[] Dxt1Blocks { get; private set; }
+        // the bytes at the start of Dxt1Blocks that hold the base level
+        public int Dxt1BaseLevelSize { get; private set; }
+        // the bytes an uncompressed image lacks at the end of its file, which read as zeros
+        public int MissingBytes { get; private set; }
 
         public DxtReader(byte[] ddsImage)
         {
@@ -43,18 +49,18 @@ namespace Ship_Game.Data.Texture
             }
         }
 
-        public DxtReader(Stream ddsImage)
+        public DxtReader(Stream ddsImage, bool keepDxt1Blocks = false)
         {
             if (ddsImage == null) return;
             if (!ddsImage.CanRead) return;
 
             using (var reader = new BinaryReader(ddsImage))
             {
-                Parse(reader);
+                Parse(reader, keepDxt1Blocks);
             }
         }
 
-        Color[] Parse(BinaryReader reader)
+        Color[] Parse(BinaryReader reader, bool keepDxt1Blocks = false)
         {
             var header = new DDSHeader();
 
@@ -66,12 +72,24 @@ namespace Ship_Game.Data.Texture
             Width = (int)header.width;
             Height = (int)header.height;
 
-            PixelFormat format = GetFormat(header, out uint _);
+            PixelFormat format = GetFormat(header, out uint baseLevelSize);
             if (format == PixelFormat.UNKNOWN)
                 throw new InvalidFileHeaderException();
             Format = format;
 
-            byte[] data = ReadData(reader, header);
+            byte[] data = ReadData(reader, header, baseLevelSize, out int missingBytes);
+            MissingBytes = missingBytes;
+            // the decoders read a whole base level without bounds checks, so a file holding less is refused
+            if (data != null && data.Length < baseLevelSize)
+                throw new InvalidDataException($"DDS holds {data.Length} bytes of image data, its {Width}x{Height} base level needs {baseLevelSize}");
+            // a GPU samples DXT1 only in whole 4x4 blocks of a single image
+            if (keepDxt1Blocks && data != null && format == PixelFormat.DXT1 && header.depth == 1
+                && Width > 0 && Height > 0 && Width % 4 == 0 && Height % 4 == 0)
+            {
+                Dxt1Blocks = data;
+                Dxt1BaseLevelSize = (int)baseLevelSize;
+                return DecodedImage;
+            }
             if (data != null)
             {
                 DecodedImage = DecompressData(header, data, format);
@@ -79,12 +97,14 @@ namespace Ship_Game.Data.Texture
             return DecodedImage;
         }
 
-        static byte[] ReadData(BinaryReader reader, DDSHeader header)
+        static byte[] ReadData(BinaryReader reader, DDSHeader header, uint baseLevelSize, out int missingBytes)
         {
             byte[] compdata;
             uint compsize;
+            missingBytes = 0;
 
-            if ((header.flags & DDSD_LINEARSIZE) > 1 && header.sizeorpitch != 0)
+            // a flagged linear size too small for the base level is a pitch some tools write there, so it is not trusted
+            if ((header.flags & DDSD_LINEARSIZE) > 1 && header.sizeorpitch != 0 && header.sizeorpitch >= baseLevelSize)
             {
                 compdata = reader.ReadBytes((int)header.sizeorpitch);
                 compsize = (uint)compdata.Length;
@@ -106,6 +126,7 @@ namespace Ship_Game.Data.Texture
                         mem.Write(temp, 0, temp.Length);
                     }
                 }
+                missingBytes = (int)(compsize - mem.Length);
                 mem.Seek(0, SeekOrigin.Begin);
 
                 mem.Read(compdata, 0, compdata.Length);
@@ -114,7 +135,7 @@ namespace Ship_Game.Data.Texture
             else
             {
                 // Block-compressed (DXT1/DXT3/DXT5/etc.) with no LinearSize flag, or
-                // any case where the explicit size fields are zeroed: read everything
+                // any case where the explicit size fields are zeroed or too small: read everything
                 // remaining in the stream. The Decompress* methods only consume the
                 // base-level bytes they need; trailing mipmap data is harmless.
                 long remaining = reader.BaseStream.Length - reader.BaseStream.Position;
@@ -281,16 +302,8 @@ namespace Ship_Game.Data.Texture
                 case PixelFormat.ATI1N:
                     return 1;
 
-                case PixelFormat.R16F:
-                    return 2;
-
                 case PixelFormat.A16B16G16R16:
-                case PixelFormat.A16B16G16R16F:
-                case PixelFormat.G32R32F:
                     return 8;
-
-                case PixelFormat.A32B32G32R32F:
-                    return 16;
 
                 default:
                     return 4;
@@ -302,14 +315,6 @@ namespace Ship_Game.Data.Texture
         {
             switch (pf)
             {
-                case PixelFormat.R16F:
-                case PixelFormat.G16R16F:
-                case PixelFormat.A16B16G16R16F:
-                    return 4;
-                case PixelFormat.R32F:
-                case PixelFormat.G32R32F:
-                case PixelFormat.A32B32G32R32F:
-                    return 4;
                 case PixelFormat.A16B16G16R16:
                     return 2;
                 default:
@@ -333,29 +338,26 @@ namespace Ship_Game.Data.Texture
             return false;
         }
 
-        static unsafe void CorrectPremult(uint pixnum, Color[] buffer)
+        // DXT2 and DXT4 store colors multiplied by their alpha, so each pixel is divided back out of it
+        static void CorrectPremult(uint pixnum, Color[] buffer)
         {
-            fixed (Color* pBuffer = buffer)
+            for (uint i = 0; i < pixnum; i++)
             {
-                byte* data = (byte*)pBuffer;
-                for (uint i = 0; i < pixnum; i++)
-                {
-                    byte alpha = data[i + 3];
-                    if (alpha == 0) continue;
-                    int red   = (data[i] << 8) / alpha;
-                    int green = (data[i + 1] << 8) / alpha;
-                    int blue  = (data[i + 2] << 8) / alpha;
-
-                    data[i] = (byte)red;
-                    data[i + 1] = (byte)green;
-                    data[i + 2] = (byte)blue;
-                }
+                Color c = buffer[i];
+                if (c.A == 0) continue;
+                buffer[i] = new Color(c.R * 255 / c.A, c.G * 255 / c.A, c.B * 255 / c.A, (int)c.A);
             }
         }
 
+        // a channel with no bits in its mask reads as 0
         static void ComputeMaskParams(uint mask, out int shift1, out int mul, out int shift2)
         {
             shift1 = 0; mul = 1; shift2 = 0;
+            if (mask == 0)
+            {
+                mul = 0;
+                return;
+            }
             while ((mask & 1) == 0)
             {
                 mask >>= 1;
@@ -385,11 +387,11 @@ namespace Ship_Game.Data.Texture
             byte r1 = (byte)((data[3] & 0xF8) >> 3);
 
             op[0].red = (byte)(r0 << 3 | r0 >> 2);
-            op[0].green = (byte)(g0 << 2 | g0 >> 3);
+            op[0].green = (byte)(g0 << 2 | g0 >> 4);
             op[0].blue = (byte)(b0 << 3 | b0 >> 2);
 
             op[1].red = (byte)(r1 << 3 | r1 >> 2);
-            op[1].green = (byte)(g1 << 2 | g1 >> 3);
+            op[1].green = (byte)(g1 << 2 | g1 >> 4);
             op[1].blue = (byte)(b1 << 3 | b1 >> 2);
         }
 
@@ -400,8 +402,17 @@ namespace Ship_Game.Data.Texture
             byte r = (byte)((data & 0xF800) >> 11);
 
             op.red = (byte)(r << 3 | r >> 2);
-            op.green = (byte)(g << 2 | g >> 3);
-            op.blue = (byte)(b << 3 | r >> 2);
+            op.green = (byte)(g << 2 | g >> 4);
+            op.blue = (byte)(b << 3 | b >> 2);
+        }
+
+        // a pixel of 1 to 4 bytes, read without touching the bytes past it
+        static unsafe uint ReadPixel(byte* p, uint size)
+        {
+            uint px = 0;
+            for (int i = 0; i < size; ++i)
+                px |= (uint)p[i] << (8 * i);
+            return px;
         }
 
         static unsafe void DxtcReadColors(byte* data, ref Colour565 color_0, ref Colour565 color_1)
@@ -460,91 +471,6 @@ namespace Ship_Game.Data.Texture
             }
 
             return count;
-        }
-
-        static uint HalfToFloat(ushort y)
-        {
-            int s = (y >> 15) & 0x00000001;
-            int e = (y >> 10) & 0x0000001f;
-            int m = y & 0x000003ff;
-
-            if (e == 0)
-            {
-                if (m == 0)
-                {
-                    // Plus or minus zero
-                    return (uint)(s << 31);
-                }
-                else
-                {
-                    // Denormalized number -- renormalize it
-                    while ((m & 0x00000400) == 0)
-                    {
-                        m <<= 1;
-                        e -= 1;
-                    }
-
-                    e += 1;
-                    m &= ~0x00000400;
-                }
-            }
-            else if (e == 31)
-            {
-                if (m == 0)
-                {
-                    // Positive or negative infinity
-                    return (uint)((s << 31) | 0x7f800000);
-                }
-                else
-                {
-                    // Nan -- preserve sign and significand bits
-                    return (uint)((s << 31) | 0x7f800000 | (m << 13));
-                }
-            }
-
-            // Normalized number
-            e = e + (127 - 15);
-            m = m << 13;
-
-            // Assemble s, e and m.
-            return (uint)((s << 31) | (e << 23) | m);
-        }
-
-        static unsafe void ConvFloat16ToFloat32(uint* dest, ushort* src, uint size)
-        {
-            uint i;
-            for (i = 0; i < size; ++i, ++dest, ++src)
-            {
-                //float: 1 sign bit, 8 exponent bits, 23 mantissa bits
-                //half: 1 sign bit, 5 exponent bits, 10 mantissa bits
-                *dest = HalfToFloat(*src);
-            }
-        }
-
-        static unsafe void ConvG16R16ToFloat32(uint* dest, ushort* src, uint size)
-        {
-            uint i;
-            for (i = 0; i < size; i += 3)
-            {
-                //float: 1 sign bit, 8 exponent bits, 23 mantissa bits
-                //half: 1 sign bit, 5 exponent bits, 10 mantissa bits
-                *dest++ = HalfToFloat(*src++);
-                *dest++ = HalfToFloat(*src++);
-                *((float*)dest++) = 1.0f;
-            }
-        }
-
-        static unsafe void ConvR16ToFloat32(uint* dest, ushort* src, uint size)
-        {
-            uint i;
-            for (i = 0; i < size; i += 3)
-            {
-                //float: 1 sign bit, 8 exponent bits, 23 mantissa bits
-                //half: 1 sign bit, 5 exponent bits, 10 mantissa bits
-                *dest++ = HalfToFloat(*src++);
-                *((float*)dest++) = 1.0f;
-                *((float*)dest++) = 1.0f;
-            }
         }
         #endregion
 
@@ -728,10 +654,8 @@ namespace Ship_Game.Data.Texture
                             temp += 8;
 
                             DxtcReadColors(temp, ref colours);
-                            temp += 4;
-
                             uint bitmask = ((uint*)temp)[1];
-                            temp += 4;
+                            temp += 8;
 
                             // Four-color block: derive the other two colors.
                             // 00 = color_0, 01 = color_1, 10 = color_2, 11	= color_3
@@ -963,7 +887,7 @@ namespace Ship_Game.Data.Texture
                 byte* temp = bytePtr;
                 while (pixnum-- > 0)
                 {
-                    uint px = *((uint*)temp) & valMask;
+                    uint px = ReadPixel(temp, pixSize) & valMask;
                     temp += pixSize;
                     uint pxc = px & header.pixelformat.rbitmask;
                     dest[0] = (byte)(((pxc >> rShift1) * rMul) >> rShift2);// RGBA
@@ -1006,7 +930,7 @@ namespace Ship_Game.Data.Texture
                 byte* temp = bytePtr;
                 while (pixnum-- > 0)
                 {
-                    uint px = *((uint*)temp) & valMask;
+                    uint px = ReadPixel(temp, pixSize) & valMask;
                     temp += pixSize;
                     uint pxc = px & header.pixelformat.rbitmask;
                     dest[0] = (byte)(((pxc >> rShift1) * rMul) >> rShift2);// RGBA
@@ -1015,7 +939,7 @@ namespace Ship_Game.Data.Texture
                     pxc = px & header.pixelformat.bbitmask;
                     dest[2] = (byte)(((pxc >> bShift1) * bMul) >> bShift2);
                     pxc = px & header.pixelformat.alphabitmask;
-                    dest[3] = (byte)(((pxc >> aShift1) * aMul) >> aShift2);
+                    dest[3] = header.pixelformat.alphabitmask == 0 ? (byte)0xff : (byte)(((pxc >> aShift1) * aMul) >> aShift2); // no alpha bits: opaque
                     dest += 4;
                 }
             }
@@ -1274,10 +1198,8 @@ namespace Ship_Game.Data.Texture
                             temp += 8;
 
                             DxtcReadColors(temp, ref color_0, ref color_1);
-                            temp += 4;
-
                             uint bitmask = ((uint*)temp)[1];
-                            temp += 4;
+                            temp += 8;
 
                             colours[0].red   = (byte)(color_0.red << 3);
                             colours[0].green = (byte)(color_0.green << 2);
@@ -1386,67 +1308,39 @@ namespace Ship_Game.Data.Texture
             return rawData;
         }
 
+        // float channels stored red, green, blue, alpha, each clamped to 0..1; a channel the format lacks is full
         static unsafe Color[] DecompressFloat(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
-            // allocate bitmap
-            int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
-            int bps = (int)(header.width * bpp * PixelFormatToBpc(pixelFormat));
-            int sizeofplane = (int)(bps * header.height);
-            int width = (int)header.width;
-            int height = (int)header.height;
-            int depth = (int)header.depth;
-
-            var rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
-            fixed (byte* bytePtr = data)
-            fixed (Color* destPtr = rawData)
+            int pixels = (int)(header.width * header.height * header.depth);
+            bool half = pixelFormat is PixelFormat.R16F or PixelFormat.G16R16F or PixelFormat.A16B16G16R16F;
+            int channels = pixelFormat switch
             {
-                byte* destData = (byte*)destPtr;
-                byte* temp = bytePtr;
-                int size;
-                switch (pixelFormat)
+                PixelFormat.R16F or PixelFormat.R32F => 1,
+                PixelFormat.G16R16F or PixelFormat.G32R32F => 2,
+                _ => 4,
+            };
+
+            var rawData = new Color[pixels];
+            fixed (byte* bytePtr = data)
+            {
+                for (int p = 0; p < pixels; ++p)
                 {
-                    case PixelFormat.R32F:  // Red float, green = blue = max
-                        size = width * height * depth * 3;
-                        for (int i = 0, j = 0; i < size; i += 3, j++)
-                        {
-                            ((float*)destData)[i + 2] = ((float*)temp)[j];
-                            ((float*)destData)[i + 1] = 1.0f;
-                            ((float*)destData)[i + 0] = 1.0f;
-                        }
-                        break;
-
-                    case PixelFormat.A32B32G32R32F:  // Direct copy of float RGBA data
-                        Array.Copy(data, rawData, data.Length);
-                        break;
-
-                    case PixelFormat.G32R32F:  // Red float, green float, blue = max
-                        size = width * height * depth * 3;
-                        for (int i = 0, j = 0; i < size; i += 3, j += 2)
-                        {
-                            ((float*)destData)[i + 2] = ((float*)temp)[j];
-                            ((float*)destData)[i + 1] = ((float*)temp)[j + 1];
-                            ((float*)destData)[i + 0] = 1.0f;
-                        }
-                        break;
-
-                    case PixelFormat.R16F:  // Red float, green = blue = max
-                        size = width * height * depth * bpp;
-                        ConvR16ToFloat32((uint*)destData, (ushort*)temp, (uint)size);
-                        break;
-
-                    case PixelFormat.A16B16G16R16F:  // Just convert from half to float.
-                        size = width * height * depth * bpp;
-                        ConvFloat16ToFloat32((uint*)destData, (ushort*)temp, (uint)size);
-                        break;
-
-                    case PixelFormat.G16R16F:  // Convert from half to float, set blue = max.
-                        size = width * height * depth * bpp;
-                        ConvG16R16ToFloat32((uint*)destData, (ushort*)temp, (uint)size);
-                        break;
+                    int first = p * channels;
+                    float r = FloatChannel(bytePtr, first, half);
+                    float g = channels > 1 ? FloatChannel(bytePtr, first + 1, half) : 1f;
+                    float b = channels > 2 ? FloatChannel(bytePtr, first + 2, half) : 1f;
+                    float a = channels > 3 ? FloatChannel(bytePtr, first + 3, half) : 1f;
+                    rawData[p] = new Color(r, g, b, a);
                 }
             }
-
             return rawData;
+        }
+
+        // NaN reads as 0, and a value past either end of 0..1 as that end
+        static unsafe float FloatChannel(byte* data, int index, bool half)
+        {
+            float v = half ? (float)((Half*)data)[index] : ((float*)data)[index];
+            return v > 0f ? (v < 1f ? v : 1f) : 0f;
         }
 
         #endregion // Decompress

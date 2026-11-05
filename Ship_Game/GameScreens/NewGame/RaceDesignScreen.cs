@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
@@ -32,21 +31,36 @@ namespace Ship_Game
         ScrollList<TraitsListItem> TraitsList;
         Menu1 TraitsBg;
         UIColorPicker Picker;
+        ShipColorPreview ShipPreview;
 
-        UIButton ModeBtn;
-        UIButton SelectOpponentsBtn;
         Rectangle FlagRect;
         ScrollList<RaceArchetypeListItem> ChooseRaceList;
         UITextBox DescriptionTextList;
 
-        UILabel NumSystemsLabel;
-        UILabel ExtraPlanetsLabel;
-        UILabel PerformanceWarning;
-        int FlagIndex;
+        public int FlagIndex { get; set; }
+        public Color PlayerColor { get => Picker.CurrentColor; private set => Picker.CurrentColor = value; }
+
+        // a color the player takes other than the race's own ticks the player's hull color box; only the player unticks it
+        public void PickPlayerColor(Color color)
+        {
+            PlayerColor = color;
+            if (color != SelectedData.Traits.Color)
+                P.PlayerHullColors = true;
+        }
+
+        public UniverseParams Params => P;
+        // the borders of the upper and lower panel rows, which the Game Setup panels line up with
+        public (int Top, int UpperBottom, int LowerTop) PanelRows { get; private set; }
         public int TotalPointsUsed { get; private set; }
 
         public IEmpireData SelectedData { get; private set; }
 
+        UIButton GameSetupButton;
+        UIButton AbortButton;
+        // Game Setup's Back and Engage come out of these two
+        public Vector2 AbortPos => AbortButton.Pos;
+        public Vector2 GameSetupPos => GameSetupButton.Pos;
+        public void ShowButtonRow(bool show) => GameSetupButton.Visible = AbortButton.Visible = show;
         UITextEntry NameEntry;
         UITextEntry SingEntry;
         UITextEntry PlurEntry;
@@ -88,9 +102,16 @@ namespace Ship_Game
             return t;
         }
         
+        // a setup holds no chosen opponents, so a loaded one keeps those chosen before it, as far as its opponent count allows
         public void SetCustomSetup(UniverseParams settings)
         {
+            foreach (IEmpireData race in P.SelectedOpponents)
+                settings.SelectedOpponents.Add(race);
+            foreach (var look in P.OpponentLooks)
+                settings.OpponentLooks[look.Key] = look.Value;
             P = settings;
+            PickPlayerColor(PlayerColor); // a color other than the race's own ticks the box again whatever the setup holds
+            VerifySelectedOpponents();
         }
         
         Graphics.Font DescriptionTextFont => LowRes ? Fonts.Arial10 
@@ -128,6 +149,7 @@ namespace Ship_Game
                                   (int)NameMenu.Bottom + 5,
                                   (int)(ScreenWidth * 0.5f), 
                                   (int)(ScreenHeight - TitleBar.Bottom - 0.25f*ScreenHeight));
+            PanelRows = ((int)NameMenu.Y, (int)NameMenu.Bottom, (int)traitsList.Y);
 
             LocalizedText[] traitNames = { GameText.Physical, GameText.Sociological, GameText.HistoryAndTradition, "Environment" };
             Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20, -10), traitNames));
@@ -155,62 +177,6 @@ namespace Ship_Game
             foreach (IEmpireData e in ResourceManager.MajorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            Graphics.Font font = LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold;
-            float labelX = LowRes ? NameMenu.Right + 20 : NameMenu.Right + 300;
-            float labelY = LowRes ? NameMenu.Y - 50 : NameMenu.Y + 3;
-            NumSystemsLabel = Add(new UILabel(labelX, labelY, $"Solar Systems: {GetSystemsNum()}"));
-            NumSystemsLabel.Font  = font;
-            NumSystemsLabel.Color = Color.SteelBlue;
-
-            ExtraPlanetsLabel = Add(new UILabel(NumSystemsLabel.X, NumSystemsLabel.Y + font.LineSpacing + 3, ""));
-            ExtraPlanetsLabel.Font  = font;
-            ExtraPlanetsLabel.Color = Color.Green;
-
-            PerformanceWarning = Add(new UILabel(NameMenu.Right + 20, NameMenu.Y - 20 , ""));
-            PerformanceWarning.Font = font;
-
-            UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y);
-            optionButtons.CaptureInput = true;
-            optionButtons.Padding      = new Vector2(2,3);
-            optionButtons.Color        = Color.Black.Alpha(0.5f);
-
-            var customStyle = new UIButton.StyleTextures();
-            // [ btn_title : ]  lbl_text
-            UIButton AddOption(string title, Action<UIButton> onClick,
-                               Func<UILabel, string> getText, LocalizedText tip = default)
-            {
-                var button = new UIButton(customStyle, new Vector2(160, 18), LocalizedText.Parse(title))
-                {
-                    Font              = Fonts.Arial11Bold, OnClick = onClick,
-                    Tooltip           = tip, TextAlign = ButtonTextAlign.Right,
-                    AcceptRightClicks = true, TextShadows = true,
-                };
-                optionButtons.AddSplit(button, new UILabel(getText, Fonts.Arial11Bold)).Split = 180;
-                return button;
-            }
-
-            string galaxySizeTip = "Sets the scale of the generated galaxy";
-            if (GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
-                galaxySizeTip += ". Scale other than Medium will increase/decrease research cost of technologies.";
-            
-            string solarSystemsTip = "Number of Solar Systems packed into the Universe";
-            if (GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
-                solarSystemsTip += ". Technology research costs will scale up or down as well";
-
-            string opponentsTip = "Sets the number of AI opponents you must face";
-            if (GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
-                opponentsTip += ". On a large scale galaxy, this might also affect research cost of technologies.";
-
-            AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  _ => P.GalaxySize.ToString(), tip:galaxySizeTip);
-            AddOption("{SolarSystems} : ", OnNumberStarsClicked, _ => P.StarsCount.ToString(), tip:solarSystemsTip);
-            AddOption("{Opponents} : ",  OnNumOpponentsClicked,  _ => P.NumOpponents.ToString(), tip:opponentsTip);
-            ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, _ => GetModeText().Text, tip:GetModeTip());
-            AddOption("{Pacing} : ", OnPacingClicked, _ => (P.Pace == 1f) ? "1x" : $"{P.Pace:0.##}x slower", tip:GameText.TheGamesPaceModifiesThe);
-            AddOption("{Difficulty} : ", OnDifficultyClicked, _ => P.Difficulty.ToString(),
-                tip:"Hard and above increase AI Aggressiveness and gives them extra bonuses");
-            AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, _ => P.ExtraRemnant.ToString(),
-                tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare.");
-
             RectF description = new(traitsList.Right + 5, traitsList.Y, chooseRace.W, traitsList.H);
             DescriptionTextList = Add(new UITextBox(description, useBorder:false, DescriptionTextFont));
             DescriptionTextList.ItemsList.SetBackground(new Menu1(description));
@@ -220,16 +186,18 @@ namespace Ship_Game
 
             Picker = Add(new UIColorPicker(new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
             Picker.Visible = false;
+            // the cruiser goes under the picker, above the buttons
+            int previewTop = ScreenHeight / 2 + 290;
+            ShipPreview = Add(new ShipColorPreview(new Rectangle(ScreenWidth / 2 - 310, previewTop, 620, ScreenHeight - 50 - previewTop),
+                Picker, TransientContent, () => SelectedData, () => P.PlayerHullColors));
 
             const int containerMarginBottom = 10;
             const int containerPaddingLeft = 10;
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
                 .SetLocalPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
-            SelectOpponentsBtn = DescriptionTextList.Button(ButtonStyle.BigDip, "", OnSelectOpponentsClicked);
-            SelectOpponentsBtn.SetLocalPos(containerPaddingLeft + 150, DescriptionTextList.Height + containerMarginBottom);
 
-            Button(ButtonStyle.Military, ScreenWidth - 180, ScreenHeight - 40, GameText.Engage, click: OnEngageClicked);
-            Button(ButtonStyle.BigDip, 10, ScreenHeight - 40, GameText.Abort, click: OnAbortClicked);
+            GameSetupButton = Button(ButtonStyle.Military, ScreenWidth - 180, ScreenHeight - 40, GameText.GameSetup, click: OnGameSetupClicked);
+            AbortButton = Button(ButtonStyle.BigDip, 10, ScreenHeight - 40, GameText.Abort, click: OnAbortClicked);
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
@@ -241,14 +209,6 @@ namespace Ship_Game
                 .SetLocalPos(ChooseRaceList.Width / 2 - 152, ChooseRaceList.Height + containerMarginBottom);
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked)
                 .SetLocalPos(ChooseRaceList.Width / 2 - 10, ChooseRaceList.Height + containerMarginBottom);
-
-            var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.H + 10);
-            Traits.ButtonBigDip(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked)
-                .SetLocalPos(Traits.Width / 2 + 94, Traits.Height + containerMarginBottom*3);
-            Traits.ButtonBigDip(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked)
-                .SetLocalPos(Traits.Width / 2 - 262, Traits.Height + containerMarginBottom*3);
-            Traits.Button(ButtonStyle.Default, GameText.RuleOptions, click: OnRuleOptionsClicked)
-                .SetLocalPos(Traits.Width / 2 - 84, Traits.Height + containerMarginBottom*3);
 
             ChooseRaceList.SlideInFromOffset(offset:new(-ChooseRaceList.Width, 0), TransitionOnTime);
             DescriptionTextList.SlideInFromOffset(offset:new(DescriptionTextList.Width, 0), TransitionOnTime);
@@ -296,12 +256,6 @@ namespace Ship_Game
                 
             list.AddSplit(label, input).Split = splitAt;
             return input;
-        }
-
-        int GetSystemsNum()
-        {
-            (int numStars, _) = GetNumStars(P.StarsCount, P.GalaxySize, P.NumOpponents);
-            return numStars;
         }
 
         public static (int NumStars, float StarNumModifier)
@@ -357,14 +311,9 @@ namespace Ship_Game
             TraitsList.SetItems(traits);
         }
 
-        void OnRuleOptionsClicked(UIButton b)
+        void OnGameSetupClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new RuleOptionsScreen(this, P));
-        }
-
-        void OnSelectOpponentsClicked(UIButton b)
-        {
-            ScreenManager.AddScreen(new SelectOpponentsScreen(this, P, SelectedData));
+            ScreenManager.AddScreen(new GameSetupScreen(this));
         }
 
         void OnAbortClicked(UIButton b)
@@ -389,105 +338,18 @@ namespace Ship_Game
             ScreenManager.AddScreen(new SaveRaceScreen(this, GetRacialTraits()));
         }
 
-        void OnLoadSetupClicked(UIButton b)
-        {
-            ScreenManager.AddScreen(new LoadNewGameSetupScreen(this));
-        }
-
-        void OnSaveSetupClicked(UIButton b)
-        {
-            ScreenManager.AddScreen(new SaveNewGameSetupScreen(this, P));
-        }
-
-        // If we had a left mouse click, increment forward, otherwise decrement
-        int OptionIncrement => Input.LeftMouseReleased ? 1 : -1;
-
-        void OnGalaxySizeClicked(UIButton b)
-        {
-            P.GalaxySize = P.GalaxySize.IncrementWithWrap(OptionIncrement);
-        }
-
-        LocalizedText GetModeText()
-        {
-            switch (P.Mode)
-            {
-                default:
-                case GameMode.Random:        return GameText.RandomGameMode;
-                case GameMode.Sandbox:       return GameText.Sandbox;
-                case GameMode.Elimination:   return GameText.CapitalElimination;
-                case GameMode.Corners:       return GameText.Corners;
-                case GameMode.BigClusters:   return GameText.BigClustersGame;
-                case GameMode.SmallClusters: return GameText.SmallClustersGame;
-                case GameMode.Ring:           return GameText.RingGalaxyGame;
-                case GameMode.SpiralTwoArm:     return GameText.SpiralTwoArmGalaxyGame;
-                case GameMode.SpiralFourArm:    return GameText.SpiralFourArmGalaxyGame;
-                case GameMode.SpiralBarred:     return GameText.SpiralBarredGalaxyGame;
-                case GameMode.SpiralMagellanic: return GameText.SpiralMagellanicGalaxyGame;
-            }
-        }
-
-        LocalizedText GetModeTip()
-        {
-            switch (P.Mode)
-            {
-                default:
-                case GameMode.Random:         return GameText.InRandomGameMode;
-                case GameMode.Sandbox:        return GameText.InTheSandboxGameMode;
-                case GameMode.Elimination:    return GameText.InTheCapitalEliminationGame;
-                case GameMode.Corners:        return GameText.CornersIsARaceMatch;
-                case GameMode.BigClusters:    return GameText.EachEmpireStartsInA;
-                case GameMode.SmallClusters:  return GameText.TheGalaxyWillBeConsisted;
-                case GameMode.Ring:           return GameText.RingGalaxyGameTip;
-                case GameMode.SpiralTwoArm:     return GameText.SpiralTwoArmGalaxyGameTip;
-                case GameMode.SpiralFourArm:    return GameText.SpiralFourArmGalaxyGameTip;
-                case GameMode.SpiralBarred:     return GameText.SpiralBarredGalaxyGameTip;
-                case GameMode.SpiralMagellanic: return GameText.SpiralMagellanicGalaxyGameTip;
-            }
-        }
-
-        void OnGameModeClicked(UIButton b)
-        {
-            P.Mode = P.Mode.IncrementWithWrap(OptionIncrement);
-            if (P.Mode == GameMode.Corners) P.NumOpponents = 3;
-            ModeBtn.Tooltip = GetModeTip();
-        }
-
-        void OnNumberStarsClicked(UIButton b)
-        {
-            P.StarsCount = P.StarsCount.IncrementWithWrap(OptionIncrement);
-        }
-
-        void OnNumOpponentsClicked(UIButton b)
-        {
-            int maxOpponents = P.Mode == GameMode.Corners ? 3 : GlobalStats.Defaults.MaxOpponents;
-            P.NumOpponents += OptionIncrement;
-            if (P.NumOpponents > maxOpponents) P.NumOpponents = 1;
-            else if (P.NumOpponents < 1)       P.NumOpponents = maxOpponents;
-            SelectOpponentsBtn.Visible = P.NumOpponents != maxOpponents;
-            VerifySelectedOpponents();
-        }
-
-        void OnPacingClicked(UIButton b)
-        {
-            P.Pace += OptionIncrement*0.5f;
-            if (P.Pace > 10f) P.Pace = 1f;
-            if (P.Pace < 1f) P.Pace = 10f;
-        }
-        
-        void OnDifficultyClicked(UIButton b)
-        {
-            P.Difficulty = P.Difficulty.IncrementWithWrap(OptionIncrement);
-        }
-        
-        void OnExtraRemnantClicked(UIButton b)
-        {
-            P.ExtraRemnant = P.ExtraRemnant.IncrementWithWrap(OptionIncrement);
-        }
-
         public override bool HandleInput(InputState input)
         {
             if (Picker.Visible)
-                return Picker.HandleInput(input);
+            {
+                if (ShipPreview.HandleInput(input))
+                    return true;
+                Color before = PlayerColor;
+                bool captured = Picker.HandleInput(input);
+                if (PlayerColor != before)
+                    PickPlayerColor(PlayerColor);
+                return captured;
+            }
 
             if (FlagRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
@@ -562,15 +424,14 @@ namespace Ship_Game
             EnvMenu.UpdateArchetype(SelectedData, RaceSummary);
         }
 
-        void VerifySelectedOpponents()
+        public void VerifySelectedOpponents()
         {
-            P.SelectedOpponents.Remove(SelectedData);
-            if (P.SelectedOpponents.Count > P.NumOpponents)
-                for (int i = P.SelectedOpponents.Count - 1; i >= P.NumOpponents; --i)
-                    P.SelectedOpponents.RemoveAt(i);
+            P.DropOpponent(SelectedData);
+            for (int i = P.SelectedOpponents.Count - 1; i >= P.NumOpponents; --i)
+                P.DropOpponent(P.SelectedOpponents[i]);
         }
 
-        void OnEngageClicked(UIButton b)
+        public void Engage()
         {
             if (P.Mode == GameMode.Elimination)
                 P.EliminationMode = true;
@@ -607,31 +468,12 @@ namespace Ship_Game
         public override void Update(float fixedDeltaTime)
         {
             CreateRaceSummary();
-            UpdateSelectedOpponentsButton();
             base.Update(fixedDeltaTime);
-        }
-
-        void UpdateSelectedOpponentsButton()
-        {
-            if (P.SelectedOpponents.Count > 0)
-            {
-                SelectOpponentsBtn.Style = ButtonStyle.Military;
-                SelectOpponentsBtn.Text = $"Select Opponents ({P.SelectedOpponents.Count}/{P.NumOpponents})";
-            }
-            else
-            {
-                SelectOpponentsBtn.Style = ButtonStyle.BigDip;
-                SelectOpponentsBtn.Text = $"Select Opponents";
-            }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            int numSystems = GetSystemsNum();
-            NumSystemsLabel.Text = $"Solar Systems: {numSystems}";
-            ShowPerformanceWarning(numSystems);
-            ShowExtraPlanetsNum(P.ExtraPlanets);
 
             batch.SafeBegin();
             base.Draw(batch, elapsed);
@@ -642,32 +484,6 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
 
             batch.SafeEnd();
-        }
-
-        void ShowExtraPlanetsNum(int extraPlanets)
-        {
-            ExtraPlanetsLabel.Visible = extraPlanets > 0;
-            ExtraPlanetsLabel.Text = $"Extra Planets: {extraPlanets}";
-        }
-
-        void ShowPerformanceWarning(int numSystems)
-        {
-            PerformanceWarning.Visible = numSystems >= 100;
-            if (numSystems >= 200)
-            {
-                PerformanceWarning.Color = NumSystemsLabel.Color = Color.Orange;
-                PerformanceWarning.Text = "Warning, performance issues are expected mid to late game.";
-            }
-            else if (numSystems >= 100)
-            {
-                PerformanceWarning.Color = NumSystemsLabel.Color = Color.Yellow;
-                PerformanceWarning.Text = "Warning, you might experience performance issues late game.";
-
-            }
-            else
-            {
-                NumSystemsLabel.Color = Color.SteelBlue;
-            }
         }
 
         class SelectedTraitsSummary : UIElementV2

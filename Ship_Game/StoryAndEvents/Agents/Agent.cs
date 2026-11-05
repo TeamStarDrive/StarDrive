@@ -41,11 +41,12 @@ namespace Ship_Game
         {
         }
 
-        public void AssignMission(AgentMission mission, Empire owner, string targetEmpire)
+        // false when the treasury cannot pay the mission's fee, which leaves the agent as it was
+        public bool AssignMission(AgentMission mission, Empire owner, string targetEmpire)
         {
             (int turns, int cost) = ResourceManager.AgentMissionData.GetTurnsAndCost(mission);
             if (cost > 0 && cost > owner.Money)
-                return; // Do not go into negative money, cost > 0 check is for 0 mission cost which can be done in negative
+                return false; // Do not go into negative money, cost > 0 check is for 0 mission cost which can be done in negative
 
             if (Mission == AgentMission.Undercover && mission != AgentMission.Undercover)
             {
@@ -59,8 +60,9 @@ namespace Ship_Game
             owner.AI.DeductSpyBudget(cost);
 
             Mission = mission;
-            TargetEmpire = targetEmpire;
+            TargetEmpire = mission == AgentMission.Training ? "" : targetEmpire; // training has no target to roll against
             TurnsRemaining = turns;
+            return true;
         }
 
         bool ReassignedDueToVictimDefeated(Empire us, Empire victim)
@@ -98,6 +100,13 @@ namespace Ship_Game
 
             if (Mission == AgentMission.Defending)
                 return;
+
+            // a mole holds no mission turns; it only comes home once its target is defeated
+            if (Mission == AgentMission.Undercover)
+            {
+                ReassignedDueToVictimDefeated(us, us.Universe.GetEmpireByName(TargetEmpire));
+                return;
+            }
 
             TurnsRemaining -= 1;
             if (TurnsRemaining > 0)
@@ -299,7 +308,7 @@ namespace Ship_Game
             MissionResolve aftermath = new MissionResolve(us, victim);
             if (victim == null || victim.Money <= 0)
             {
-                aftermath.CustomMessage = $"Name  {Localizer.Token(GameText.CouldNotRob)} {TargetEmpire} {Localizer.Token(GameText.NbecauseTheyHaveNoMoney)}";
+                aftermath.CustomMessage = $"{Name} {Localizer.Token(GameText.CouldNotRob)} {TargetEmpire} {Localizer.Token(GameText.NbecauseTheyHaveNoMoney)}";
                 aftermath.ShouldAddXp = false;
                 return aftermath;
             }
@@ -325,8 +334,8 @@ namespace Ship_Game
                     Robberies++;
                     aftermath.RelationDamage  = 10;
                     aftermath.DamageReason    = "Caught Spying";
-                    aftermath.MessageToVictim = $"{amount} {Localizer.Token(GameText.CreditsWereStolenFromOur)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.Stole)} {amount} {Localizer.Token(GameText.CreditsFrom)} {TargetEmpire}";
+                    aftermath.MessageToVictim = $"{amount/2} {Localizer.Token(GameText.CreditsWereStolenFromOur)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.Stole)} {amount/2} {Localizer.Token(GameText.CreditsFrom)} {TargetEmpire}";
 
                     break;
                 case SpyMissionStatus.Failed:
@@ -336,8 +345,8 @@ namespace Ship_Game
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
                 case SpyMissionStatus.FailedBadly:
-                    aftermath.Message = GameText.WeFoiledAnEnemyPlot2;
-                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeKilledAnEnemyAgent2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.Message = GameText.WasUnableToStealAny;
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.AgentInjured    = true;
                     aftermath.RelationDamage  = 15;
                     aftermath.DamageReason    = "Caught Spying";
@@ -500,20 +509,23 @@ namespace Ship_Game
             }
 
             aftermath.PerformPostMissionActions(us.Universe, this, xpToAdd, missionStatus);
-            RepeatMission(us);
+            if (us.data.AgentList.Contains(this)) // a killed or retired agent repeats nothing
+                RepeatMission(us);
         }
 
         void RepeatMission(Empire us)
         {
             if (Mission == AgentMission.Undercover)
                 return;  // do not repeat mission for undercover agents, they are moles now.
+            if (Mission == AgentMission.Recovering)
+                return; // an injured agent sits out its recovery first
 
             if (us.isPlayer && us.data.SpyMissionRepeat)
             {
                 if (Mission != AgentMission.Training || Mission == AgentMission.Training && IsNovice)
                 {
-                    AssignMission(Mission, us, TargetEmpire);
-                    return;
+                    if (us.Universe.GetEmpireByName(TargetEmpire)?.IsDefeated != true && AssignMission(Mission, us, TargetEmpire))
+                        return;
                 }
             }
 

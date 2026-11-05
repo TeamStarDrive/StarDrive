@@ -38,7 +38,7 @@ public sealed class LoadNewGameSetupScreen : GenericLoadSaveScreen
             try
             {
                 SetupSave data = SaveNewGameSetupScreen.Load(file);
-                if (data.Name.IsEmpty())
+                if (data.Name.IsEmpty() || data.Settings == null)
                     continue;
 
                 string info = data.Date;

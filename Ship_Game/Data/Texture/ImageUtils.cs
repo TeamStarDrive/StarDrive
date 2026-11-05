@@ -104,10 +104,27 @@ namespace Ship_Game.Data.Texture
             return tex;
         }
 
-        public static Texture2D LoadDds(GraphicsDevice device, string filename)
+        public static Texture2D LoadDds(GraphicsDevice device, string filename, bool keepDxt1 = false)
         {
             using FileStream fs = File.OpenRead(filename);
-            var dds = new DxtReader(fs);
+            DxtReader dds;
+            try
+            {
+                dds = new DxtReader(fs, keepDxt1);
+            }
+            catch (Exception e) when (e is not OutOfMemoryException)
+            {
+                throw new Exception($"Load DDS {filename} failed: {e.Message}", e);
+            }
+            if (dds.MissingBytes > 0)
+                Log.Warning($"LoadDds '{filename}': the file is {dds.MissingBytes} bytes short of its image, which loads blank there");
+            // the GPU decodes each DXT1 texel as the decoding and premultiplying below do: opaque, or transparent black
+            if (dds.Dxt1Blocks != null)
+            {
+                var dxt1 = new Texture2D(device, dds.Width, dds.Height, false, SurfaceFormat.Dxt1);
+                dxt1.SetData(dds.Dxt1Blocks, 0, dds.Dxt1BaseLevelSize);
+                return dxt1;
+            }
             if (dds.DecodedImage.Length == 0 || dds.Width == 0 || dds.Height == 0)
                 throw new Exception($"Load DDS {filename} failed: DxtReader produced no pixels");
             // DxtReader's internal buffer is over-sized; trim to base-level pixel count.

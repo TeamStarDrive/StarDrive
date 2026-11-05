@@ -202,7 +202,7 @@ namespace Ship_Game.Gameplay
             DamagePerSecond = GetDamagePerSecond();
         }
 
-        float GetDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
+        float GetDamagePerSecond()
         {
             IWeaponTemplate wOrMirv = this;
             if (IsMirv)
@@ -215,7 +215,7 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            // TODO: This is all duplicated in `ModuleSelection.cs` and needs to be rewritten!
+            // TODO: DamagePerSecondWithTechs repeats this with the empire's bonuses, though it counts no PowerDamage for a beam
             float dps;
             if (IsBeam)
             {
@@ -396,6 +396,31 @@ namespace Ship_Game.Gameplay
                 damageAmount += damageAmount * owner.Level * 0.05f;
 
             return damageAmount;
+        }
+
+        // what one projectile or beam tick deals with the empire's weapon technologies, before crew levels, as combat applies them
+        public static float DamageWithTechs(IWeaponTemplate w, EmpireData empire)
+        {
+            float damage = w.DamageAmount;
+            if (w.OrdinanceRequiredToFire > 0f)
+                damage += damage * empire.OrdnanceEffectivenessBonus;
+            for (int i = 0; i < w.ActiveWeaponTags.Length; ++i)
+                damage += damage * empire.GetStatBonusForWeaponTag(WeaponStat.Damage, w.ActiveWeaponTags[i]);
+            return damage;
+        }
+
+        // damage per second at full rate of fire with the empire's weapon technologies, counting salvos, projectiles and warheads
+        public static float DamagePerSecondWithTechs(IWeaponTemplate w, EmpireData empire)
+        {
+            IWeaponTemplate wOrMirv = w.IsMirv ? ResourceManager.GetWeaponTemplateOrNull(w.MirvWeapon) ?? w : w;
+            float damage = DamageWithTechs(wOrMirv, empire);
+            if (w.IsBeam)
+                return damage * w.BeamDuration * 60f / w.NetFireDelay;
+
+            float dps = w.SalvoCount.LowerBound(1) / w.NetFireDelay * w.ProjectileCount * damage;
+            if (wOrMirv != w)
+                dps *= wOrMirv.ProjectileCount.LowerBound(1);
+            return dps;
         }
 
         public static float GetActualRange(Empire owner, IWeaponTemplate t)

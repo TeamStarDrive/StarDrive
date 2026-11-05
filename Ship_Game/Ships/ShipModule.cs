@@ -1394,16 +1394,17 @@ namespace Ship_Game.Ships
         {
             if (Regenerate > 0 && HealthPercent < 0.99f)
             {
+                bool unpowered = !Powered && PowerDraw > 0f;
                 if (!Active)
                 {
-                    // Module is destroyed and might "jump start" its regeneration
-                    if (Random.RollDice(TechLevel))
+                    // a destroyed module comes back only while power reaches its slot, at 20% plus its tech level a second
+                    if (!unpowered && Random.RollDice(20 + TechLevel))
                         SetHealth(Health + Regenerate, "Regenerate");
                 }
                 else
                 {
                     // If the module is not powered and needs power, the regeneration is 10%
-                    float regeneration = !Powered && PowerDraw > 0f ? Regenerate * 0.1f : Regenerate;
+                    float regeneration = unpowered ? Regenerate * 0.1f : Regenerate;
                     SetHealth(Health + regeneration, "Regenerate");
                 }
             }
@@ -1531,7 +1532,7 @@ namespace Ship_Game.Ships
             def += TroopCapacity * 50;
             def += BonusRepairRate * bonuses.RepairRateMod * 0.5f;
             def += AmplifyShields * 0.05f; // div 20
-            def += Regenerate / (10 * RepairDifficulty).LowerBound(0.1f);
+            def += Regenerate * 0.1f; // div 10
 
             return def;
         }
