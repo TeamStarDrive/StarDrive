@@ -897,6 +897,20 @@ public class ShipPartsTests : StarDriveTest
     }
 
     [TestMethod]
+    [DataRow(-5f, 5f, 1)]
+    [DataRow(5f, -5f, 2)]
+    public void OfTwoPartsOverAThrusterTheOneOnTopTakesIt(float firstZ, float secondZ, int onTop)
+    {
+        var triangles = new Microsoft.Xna.Framework.Vector3[][]
+        {
+            System.Array.Empty<Microsoft.Xna.Framework.Vector3>(),
+            new Microsoft.Xna.Framework.Vector3[] { new(-10f, -10f, firstZ), new(10f, -10f, firstZ), new(0f, 10f, firstZ) },
+            new Microsoft.Xna.Framework.Vector3[] { new(-10f, -10f, secondZ), new(10f, -10f, secondZ), new(0f, 10f, secondZ) },
+        };
+        Assert.AreEqual(onTop, ShipHull.PartUnder(triangles, new(0f, 0f, 0f)), "the part nearer the camera above, its z the lower");
+    }
+
+    [TestMethod]
     public void AThrusterOnAPlateNotWholeIsOutTillThePlateIsWholeAgain()
     {
         SetupGunboats();
@@ -1058,12 +1072,15 @@ public class ShipPartsTests : StarDriveTest
         Assert.IsNotNull(midLeft, "one for the middle-left plate");
         CollectionAssert.AreEqual(new[] { 0f, 0f, 0f, 0f, 0f, 1f, 0f }, backLeft.So.PartShown, "each draws only its own plate");
         CollectionAssert.AreEqual(new[] { 0f, 0f, 0f, 1f, 0f, 0f, 0f }, midLeft.So.PartShown, "each draws only its own plate");
+        Assert.AreEqual(1, backLeft.So.RenderableMeshes.Count, "setup: the gunboat's model is one mesh");
+        Assert.AreEqual("2667+128", Runs(backLeft.So.RenderableMeshes[0], backLeft.So.PartShown), "the back-left plate's triangles only");
+        Assert.AreEqual("2301+61", Runs(midLeft.So.RenderableMeshes[0], midLeft.So.PartShown), "the middle-left plate's triangles only");
         foreach (HullPartDebris plate in debris)
         {
             Assert.AreEqual(model.World, plate.So.World, "where the ship's model drew it");
             Assert.AreEqual(0f, plate.So.EmissiveScale, "its lights out");
             SDGraphics.Vector2 push = plate.Drift - ship.Velocity;
-            Assert.IsTrue(push.Length() >= 15f && push.Length() <= 30f, $"it keeps the ship's velocity and drifts off at 15 to 30 a second: {push.Length()}");
+            Assert.IsTrue(push.Length() >= 15f && push.Length() <= 30f, $"it drifts off at 15 to 30 a second: {push.Length()}");
             Assert.IsTrue(push.Dot(plate.Position.ToVec2() - ship.Position) > 0f, "outward from the ship");
         }
 
@@ -1071,6 +1088,18 @@ public class ShipPartsTests : StarDriveTest
         ship.Update(TestSimStep);
         Assert.IsTrue(ship.PartShown[5] > 0f, "setup: counted again, the plate coming back");
         Assert.AreEqual(2, Debris().Length, "a plate already lost throws off nothing more");
+    }
+
+    [TestMethod]
+    public void AThrownOffPlateKeepsItsShipsVelocity()
+    {
+        Ship ship = GunboatOnScreen(dying: false, out SceneObject model);
+        ship.Velocity = new(300f, -200f);
+        ship.ThrowOffParts(1u << 5, model);
+        Assert.AreEqual(1, Debris().Length, "setup: the plate thrown off");
+        HullPartDebris plate = Debris()[0];
+        SDGraphics.Vector2 push = plate.Drift - new SDGraphics.Vector2(300f, -200f);
+        Assert.IsTrue(push.Length() >= 15f && push.Length() <= 30f, $"the ship's velocity and a push of 15 to 30 a second: {push.Length()}");
     }
 
     [TestMethod]
