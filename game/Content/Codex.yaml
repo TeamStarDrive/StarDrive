@@ -136,6 +136,8 @@
     -
       UID: warfare_combat_stances
     -
+      UID: warfare_repair
+    -
       UID: warfare_ship_death
       Children:
         -

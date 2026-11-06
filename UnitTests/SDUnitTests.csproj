@@ -184,6 +184,7 @@
     <Compile Include="Ships\ScrapLandingTests.cs" />
     <Compile Include="Ships\RefitLandingTests.cs" />
     <Compile Include="Ships\RepairDroneCooldownTests.cs" />
+    <Compile Include="Ships\RepairDroneBeamTests.cs" />
     <Compile Include="Ships\BuilderShuttleLandingTests.cs" />
     <Compile Include="Ships\HomeDefenseLandingTests.cs" />
     <Compile Include="Ships\SupplyShuttleLandingTests.cs" />

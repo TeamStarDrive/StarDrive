@@ -422,6 +422,9 @@ namespace Ship_Game
     {
         [StarData] readonly DroneAI AI;
 
+        // a repair drone's beam mends a ship fighting or just hit at this share of its rate
+        const float InCombatDroneRepairShare = 0.2f;
+
         [StarDataConstructor] DroneBeam() {}
 
         [StarDataDeserialized]
@@ -448,7 +451,7 @@ namespace Ship_Game
                 if (moduleToRepair != null)
                 {
                     bool inCombat = moduleToRepair.GetParent().IsInRecentCombat;
-                    float repairModifier = inCombat ? GlobalStats.Defaults.InCombatSelfRepairModifier : 1f;
+                    float repairModifier = inCombat ? InCombatDroneRepairShare : 1f;
                     float repairAmount = -DamageAmount * repairModifier * timeStep.FixedTime;
 
                     moduleToRepair.Repair(repairAmount);

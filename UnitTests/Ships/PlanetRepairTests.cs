@@ -41,7 +41,6 @@ public class PlanetRepairTests : StarDriveTest
     [TestMethod]
     public void AHitStopsRepairForFiveSecondsOfPlayNotOfRealTime()
     {
-        Assert.IsFalse(GlobalStats.Defaults.UseCombatRepair, "setup: no repair in combat");
         TestShip ship = SpawnShip("Vulcan Scout", Player, new Vector2(0, -300_000));
         ship.SetLastDamagedBy(EnemyWorld);
         Assert.IsFalse(ship.CanRepair, "just hit, it does not repair");

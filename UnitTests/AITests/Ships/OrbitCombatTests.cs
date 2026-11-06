@@ -39,39 +39,40 @@ public class OrbitCombatTests : StarDriveTest
         return ship.CurrentRepairPerSecond;
     }
 
+    float HealthGainedAtHalfHealth(TestShip ship)
+    {
+        foreach (ShipModule m in ship.Modules)
+            m.SetHealth(m.ActualMaxHealth * 0.5f, "Test");
+        float before = ship.Health;
+        RunObjectsSim(3f);
+        return ship.Health - before;
+    }
+
     [TestMethod]
     public void AShipThatLeavesOrbitToFightIsNotRepairedByThePlanetUntilItIsBackInOrbit()
     {
-        bool combatRepair = GlobalStats.Defaults.UseCombatRepair;
-        GlobalStats.Defaults.UseCombatRepair = true; // so a ship that left orbit to fight still repairs, and the planet's share shows
-        try
-        {
-            OurWorld.GeodeticManager.AffectNearbyShips();
-            float planetRepair = OurWorld.GeodeticManager.RepairRatePerSecond;
-            AssertGreaterThan(planetRepair, 0f, "setup: our world must repair ships");
+        OurWorld.GeodeticManager.AffectNearbyShips();
+        AssertGreaterThan(OurWorld.GeodeticManager.RepairRatePerSecond, 0f, "setup: our world must repair ships");
 
-            TestShip ship = OrbitOurWorld(OurWorld.Position + new Vector2(OurWorld.Radius + 500, 0));
-            RunSimWhile((60, fatal: true), () => !ship.IsOrbiting(OurWorld));
-            float orbitRepair = RepairPerSecondAtHalfHealth(ship);
+        TestShip ship = OrbitOurWorld(OurWorld.Position + new Vector2(OurWorld.Radius + 500, 0));
+        RunSimWhile((60, fatal: true), () => !ship.IsOrbiting(OurWorld));
+        float orbitRepair = RepairPerSecondAtHalfHealth(ship);
+        AssertTrue(ship.RepairPlanet == OurWorld, "setup: in orbit the planet is its repair planet");
 
-            TestShip enemy = SpawnShipNoCombatHoldPos("Terran-Prototype", Enemy, ship.Position + new Vector2(0, 3000));
-            enemy.AI.SetCombatTriggerDelay(1000f);
-            RunSimWhile((10, fatal: true), () => !ship.InCombat);
-            AssertFalse(ship.AI.IsInOrbit, "a ship that left orbit to fight must not count as in orbit");
-            AssertEqual(1f, (orbitRepair - planetRepair) * GlobalStats.Defaults.InCombatSelfRepairModifier, RepairPerSecondAtHalfHealth(ship),
-                        "the planet must not repair a ship that left orbit to fight, which repairs itself at the in-combat rate");
+        TestShip enemy = SpawnShipNoCombatHoldPos("Terran-Prototype", Enemy, ship.Position + new Vector2(0, 3000));
+        enemy.AI.SetCombatTriggerDelay(1000f);
+        RunSimWhile((10, fatal: true), () => !ship.InCombat);
+        AssertFalse(ship.AI.IsInOrbit, "a ship that left orbit to fight must not count as in orbit");
+        AssertTrue(ship.RepairPlanet == null, "so the planet is not its repair planet");
+        AssertEqual(0.01f, 0f, HealthGainedAtHalfHealth(ship), "a ship fighting gets no repair, the planet's nor its own");
 
-            enemy.Die(null, cleanupOnly: true);
-            RunSimWhile((60, fatal: true), () => ship.InCombat || !ship.IsOrbiting(OurWorld));
-            AssertTrue(ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.Plan == ShipAI.Plan.Orbit,
-                       "the orbit order must outlast the fight");
-            AssertEqual(1f, orbitRepair, RepairPerSecondAtHalfHealth(ship),
-                        "back in orbit after the fight, the planet repairs it again");
-        }
-        finally
-        {
-            GlobalStats.Defaults.UseCombatRepair = combatRepair;
-        }
+        enemy.Die(null, cleanupOnly: true);
+        RunSimWhile((60, fatal: true), () => ship.InCombat || !ship.IsOrbiting(OurWorld));
+        AssertTrue(ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.Plan == ShipAI.Plan.Orbit,
+                   "the orbit order must outlast the fight");
+        AssertTrue(ship.RepairPlanet == OurWorld, "back in orbit the planet is its repair planet again");
+        AssertEqual(1f, orbitRepair, RepairPerSecondAtHalfHealth(ship),
+                    "back in orbit after the fight, the planet repairs it again");
     }
 
     [TestMethod]
