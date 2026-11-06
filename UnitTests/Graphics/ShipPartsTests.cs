@@ -487,7 +487,7 @@ public class ShipPartsTests : StarDriveTest
     [DataRow(4)]
     [DataRow(5)]
     [DataRow(6)]
-    public void ADeathPastThreeQuartersLosesThePlateByTheShareDeadPastIt(int plate)
+    public void ADeathPastThreeQuartersLosesThePlateByTheShareDeadPastItAndTheLastByHalf(int plate)
     {
         SetupGunboats(sureRolls: false);
         Ship ship = SpawnGunboat();
@@ -497,11 +497,12 @@ public class ShipPartsTests : StarDriveTest
         int before = 0, killed = 0;
         while (before + modules[killed].Area <= 0.75f * area)
             before += modules[killed++].Area;
-        float past = (before + modules[killed].Area) / (float)area - 0.75f;
-        AssertLossRate(past, LossRate(ship, System.MemoryExtensions.AsSpan(modules, 0, killed).ToArray(), modules[killed], tries), tries,
-                       $"the death taking the plate to {before + modules[killed].Area} of {area} dead");
+        int dead = before + modules[killed].Area;
+        float chance = dead == area ? 0.5f : dead / (float)area - 0.75f;
+        AssertLossRate(chance, LossRate(ship, System.MemoryExtensions.AsSpan(modules, 0, killed).ToArray(), modules[killed], tries), tries,
+                       $"the death taking the plate to {dead} of {area} dead");
 
-        AssertLossRate(0.25f, LossRate(ship, System.MemoryExtensions.AsSpan(modules, 1).ToArray(), modules[0], tries), tries,
+        AssertLossRate(0.5f, LossRate(ship, System.MemoryExtensions.AsSpan(modules, 1).ToArray(), modules[0], tries), tries,
                        "the death of its last module");
     }
 
