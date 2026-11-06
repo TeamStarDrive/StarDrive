@@ -56,6 +56,7 @@ Globals:
   DisableRemnantStory: false
   DisablePirates: false
   EnableSalvageOps: false # salvageable derelicts and salvage ships; not inherited from vanilla, turn it on once the mod has salvage designs
+  EnableHullPlates: false # hull plates that ships lose in battle; not inherited from vanilla, turn it on once the mod's hull models are cut into plates
   AIUsesPlayerDesigns: true
   EnableRandomizedAIFleetSizes: true  
 

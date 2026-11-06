@@ -401,9 +401,12 @@ public class ShipPartsTests : StarDriveTest
         }
     }
 
+    readonly bool EnableHullPlates = GlobalStats.Defaults.EnableHullPlates;
+
     [TestCleanup]
     public override void Cleanup()
     {
+        GlobalStats.Defaults.EnableHullPlates = EnableHullPlates;
         if (Universe != null)
         {
             Universe.Particles?.Dispose();
@@ -671,6 +674,56 @@ public class ShipPartsTests : StarDriveTest
             Kill(m);
         Assert.IsNull(ship.PartShownNow(), "every module on the back-left plate dead, it stays on");
         Assert.IsFalse(ship.UnderLostPart(ModulesOf(ship, 5, out int _)[0]), "and its modules show their damage");
+    }
+
+    [TestMethod]
+    public void WithTheGlobalsFlagOffNoPlateComesOffEvenWithTheBoxTicked()
+    {
+        SetupGunboats();
+        GlobalStats.Defaults.EnableHullPlates = false;
+        UState.P.DisableHullPlates = false;
+        Ship ship = SpawnGunboat();
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        Assert.IsNull(ship.PartShownNow(), "every module on the back-left plate dead, it stays on");
+    }
+
+    [TestMethod]
+    public void WithTheGlobalsFlagOffAGameSavedWithAPlateLostPlaysInOnePiece()
+    {
+        SetupGunboats();
+        const System.Reflection.BindingFlags instance = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        Ship ship = SpawnGunboat();
+        typeof(Ship).GetField("LostPartLow", instance)!.SetValue(ship, new[] { -1, -1, -1, 0, -1, -1, -1 }); // as saved with the middle-left plate lost
+        typeof(Ship).GetField("PartsOutdated", instance)!.SetValue(ship, true); // as a loaded ship starts
+        var d = new Derelict(SpawnGunboat(240_000f), null, salvageable: false, seen: false);
+        typeof(Derelict).GetField(nameof(Derelict.PartShown), instance)!.SetValue(d, new[] { 1f, 1f, 1f, 0f, 1f, 1f, 1f });
+        GlobalStats.Defaults.EnableHullPlates = false;
+
+        Assert.IsNull(ship.WholePartsNow(out _), "the ship plays whole, and dies whole");
+        Assert.IsNull(d.PartShownNow, "as does the derelict");
+        Ship recovered = Ship.CreateRecoveredShip(UState, d, Player, model: null);
+        Assert.IsTrue(System.Array.Exists(ModulesOf(recovered, 3, out int _), m => m.Active), "and its recovery leaves modules alive under the plate it had lost");
+    }
+
+    [TestMethod]
+    public void AModTurnsHullPlatesOnItselfAndTheRuleOptionTurnsThemOff()
+    {
+        Assert.IsFalse(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Content/Globals.yaml")).EnableHullPlates, "vanilla ships with hull plates off");
+        Assert.IsTrue(GlobalStats.VanillaDefaults.EnableHullPlates, "setup: the tests turn them on");
+        Assert.IsFalse(new GamePlayGlobals().EnableHullPlates, "a mod does not inherit the flag");
+
+        var p = new Ship_Game.Universe.UniverseParams();
+        Assert.IsFalse(p.DisableHullPlates, "with the flag on the Hull Plates box starts ticked");
+        Assert.IsTrue(p.HullPlates, "so hull plates are on");
+        p.DisableHullPlates = true;
+        Assert.IsFalse(p.HullPlates, "unticked, it turns them off");
+
+        GlobalStats.Defaults.EnableHullPlates = false;
+        p = new Ship_Game.Universe.UniverseParams();
+        Assert.IsTrue(p.DisableHullPlates, "with the flag off it starts unticked");
+        p.DisableHullPlates = false;
+        Assert.IsFalse(p.HullPlates, "and ticking it cannot turn them on");
     }
 
     [TestMethod]

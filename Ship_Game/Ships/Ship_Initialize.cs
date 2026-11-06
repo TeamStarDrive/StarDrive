@@ -334,8 +334,8 @@ namespace Ship_Game.Ships
                 ship.Level = 0;
                 ship.KillAllTroops();
                 ship.CalcTroopBoardingDefense();
-                ship.TakeRecoveryDamage(d.PartShown);
-                ship.KeepLostParts(d.PartShown, d.InsidesHeat);
+                ship.TakeRecoveryDamage(d.PartShownNow);
+                ship.KeepLostParts(d.PartShownNow, d.InsidesHeat);
                 ship.SetOrdnance(0f);
                 ship.PowerCurrent = 0f;
                 ship.FlickerLightsOn();

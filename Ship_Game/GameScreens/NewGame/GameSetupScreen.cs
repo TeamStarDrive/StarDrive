@@ -107,7 +107,7 @@ namespace Ship_Game.GameScreens.NewGame
             if (ScreenHeight >= 1050)
             {
                 bool salvageOpsEnabled = GlobalStats.Defaults.EnableSalvageOps;
-                var extensions = new (Expression<Func<bool>> Binding, string Icon, GameText Title, GameText Tooltip, bool Locked)[]
+                var extensions = new Array<(Expression<Func<bool>> Binding, string Icon, GameText Title, GameText Tooltip, bool Locked)>
                 {
                     (() => Params.Pirates, "Pirates", GameText.PiratesExtension, GameText.PiratesExtensionTip, false),
                     (() => Params.RemnantStory, "RemnantStory", GameText.RemnantStoryExtension, GameText.RemnantStoryExtensionTip, false),
@@ -116,14 +116,15 @@ namespace Ship_Game.GameScreens.NewGame
                     (() => Params.MiningOps, "MiningOps", GameText.MiningOpsExtension, GameText.MiningOpsExtensionTip, false),
                     (() => Params.SalvageOps, "SalvageOps", GameText.SalvageOpsExtension,
                      salvageOpsEnabled ? GameText.SalvageOpsExtensionTip : GameText.DisableSalvageOpsModTip, !salvageOpsEnabled),
-                    (() => Params.HullPlates, "HullPlates", GameText.HullPlatesExtension, GameText.HullPlatesExtensionTip, false),
                 };
+                if (GlobalStats.Defaults.EnableHullPlates) // shown only while its Globals flag is on
+                    extensions.Add((() => Params.HullPlates, "HullPlates", GameText.HullPlatesExtension, GameText.HullPlatesExtensionTip, false));
                 const int pitch = 54, buttonSpace = 8 + 39;
-                bool oneColumn = 40 + (extensions.Length - 1) * pitch + ExtensionToggle.IconHeight + buttonSpace <= extensionsPanel.Height;
-                int columns = oneColumn ? 1 : 2, rows = (extensions.Length + columns - 1) / columns;
+                bool oneColumn = 40 + (extensions.Count - 1) * pitch + ExtensionToggle.IconHeight + buttonSpace <= extensionsPanel.Height;
+                int columns = oneColumn ? 1 : 2, rows = (extensions.Count + columns - 1) / columns;
                 int columnWidth = (extensionsPanel.Width - 2 * pad) / columns;
                 int firstRow = oneColumn ? 40 : 44, rowPitch = oneColumn ? pitch : 70;
-                for (int i = 0; i < extensions.Length; ++i)
+                for (int i = 0; i < extensions.Count; ++i)
                 {
                     var e = extensions[i];
                     var pos = new Vector2(extensionsPanel.X + pad + i / rows * columnWidth, extensionsPanel.Y + firstRow + i % rows * rowPitch);

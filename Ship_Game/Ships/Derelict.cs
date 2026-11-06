@@ -139,6 +139,8 @@ public sealed class Derelict
     [StarData] public readonly string ShipName;
     // each hull part shown, 1, or not, 0: the parts the ship had whole at its death, which a recovered ship keeps; null while no part is lost
     [StarData] internal readonly float[] PartShown;
+    // its parts as the game plays them: whole with hull plates off, whatever a save made with them on had lost
+    internal float[] PartShownNow => Universe.P.HullPlates ? PartShown : null;
     // the ship that took its place at a ship's depth, set on the sim thread and read on the UI thread; not saved, as the derelict is gone from then on
     public Ship RecoveredAs { get; private set; }
     public int NumSmokeSources => Smoke.Length;
@@ -649,7 +651,7 @@ public sealed class Derelict
         so.World = World(Rotation, Scale);
         so.EmissiveScale = 0f;
         so.HullTint = Owner.HullTint;
-        so.PartShown = PartShown;
+        so.PartShown = PartShownNow;
         so.InsidesHeat = InsidesHeat;
         so.Visibility = GlobalStats.ShipVisibility;
         So = so;

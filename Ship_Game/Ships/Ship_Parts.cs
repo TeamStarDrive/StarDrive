@@ -53,6 +53,13 @@ namespace Ship_Game.Ships
             {
                 if (hull.ModelInOnePiece || HullPlatesOff)
                     PartsOutdated = false; // until a module comes back
+                if (HullPlatesOff)
+                {
+                    LostPartLow = null; // it plays in one piece, whatever a save made with hull plates on had lost
+                    PartShown = null;
+                    PartsHit = 0u;
+                    InsidesHeat = InsidesHeatAtLoss = 1f;
+                }
                 return 0u;
             }
             if (!Grid.GetParts(out int[] area))

@@ -98,12 +98,14 @@ public class UniverseParams
     [StarData] public bool FixedPlayerCreditCharge;
     [StarData] public bool DisableResearchStations;
     [StarData] public bool DisableMiningOps;
-    [StarData] public bool DisableSalvageOps;
+    [StarData(NoDefaults = true)] public bool DisableSalvageOps; // always written, as a load starts from the Globals flag
     [StarData] bool SavedWithSalvageOps; // set as it is saved, so a game saved before salvage ops existed loads with them off
-    [StarData] public bool DisableHullPlates; // a game saved before the switch existed loads with hull plates on
+    // always written, as a load starts from the Globals flag; a game saved before the switch existed takes hull plates from it
+    [StarData(NoDefaults = true)] public bool DisableHullPlates;
 
-    // the Globals flag, vanilla's or a mod's, is a hard switch: with it off they stay off whatever the rule option says
+    // the Globals flags, vanilla's or a mod's, are hard switches: with one off its feature stays off whatever the rule option says
     public bool SalvageOps { get => !DisableSalvageOps && GlobalStats.Defaults.EnableSalvageOps; set => DisableSalvageOps = !value; }
+    public bool HullPlates { get => !DisableHullPlates && GlobalStats.Defaults.EnableHullPlates; set => DisableHullPlates = !value; }
 
     // the Game Extensions boxes, ticked while the feature is on
     public bool Pirates { get => !DisablePirates; set => DisablePirates = !value; }
@@ -111,7 +113,6 @@ public class UniverseParams
     public bool Infiltration { get => !UseLegacyEspionage; set => UseLegacyEspionage = !value; }
     public bool ResearchStations { get => !DisableResearchStations; set => DisableResearchStations = !value; }
     public bool MiningOps { get => !DisableMiningOps; set => DisableMiningOps = !value; }
-    public bool HullPlates { get => !DisableHullPlates; set => DisableHullPlates = !value; }
 
     [StarDataSerialize]
     StarDataDynamicField[] OnSerialize()
@@ -141,6 +142,7 @@ public class UniverseParams
         DisableRemnantStory = s.DisableRemnantStory;
         DisablePirates = s.DisablePirates;
         DisableSalvageOps = !s.EnableSalvageOps;
+        DisableHullPlates = !s.EnableHullPlates;
         EnableRandomizedAIFleetSizes = s.EnableRandomizedAIFleetSizes;
     }
 

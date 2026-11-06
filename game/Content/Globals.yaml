@@ -59,6 +59,7 @@ Globals:
   DisableRemnantStory: false
   DisablePirates: false
   EnableSalvageOps: true # salvageable derelicts and salvage ships; mods do not inherit it and set it themselves
+  EnableHullPlates: false # hull plates that ships lose in battle, on hulls whose models are cut into plates; mods do not inherit it and set it themselves
   AIUsesPlayerDesigns: true
   EnableRandomizedAIFleetSizes: false # Allows Ai to slightly alter fleet sizes within range specified in FleetBuildRatios.yaml
 

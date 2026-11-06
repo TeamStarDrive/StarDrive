@@ -1207,6 +1207,27 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
+        public void ABoxTickedWithItsGlobalsFlagOnStaysTickedThroughALoadWithTheFlagOff()
+        {
+            bool salvageOps = GlobalStats.Defaults.EnableSalvageOps;
+            bool hullPlates = GlobalStats.Defaults.EnableHullPlates;
+            try
+            {
+                var instance = new UniverseParams { DisableSalvageOps = false, DisableHullPlates = false }; // ticked at the new game
+                GlobalStats.Defaults.EnableSalvageOps = false;
+                GlobalStats.Defaults.EnableHullPlates = false;
+                var result = SerDes(instance);
+                Assert.IsFalse(result.DisableSalvageOps, "loaded with the flag off, the Salvage Ops box stays ticked for when the flag is back on");
+                Assert.IsFalse(result.DisableHullPlates, "as does the Hull Plates box");
+            }
+            finally
+            {
+                GlobalStats.Defaults.EnableSalvageOps = salvageOps;
+                GlobalStats.Defaults.EnableHullPlates = hullPlates;
+            }
+        }
+
+        [TestMethod]
         public void CanSerializeShipDesign()
         {
             CreateUniverseAndPlayerEmpire();
