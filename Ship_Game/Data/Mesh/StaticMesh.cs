@@ -10,7 +10,9 @@ namespace Ship_Game.Data.Mesh;
 
 using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
+using XnaVector4 = Microsoft.Xna.Framework.Vector4;
 
 // Phase 2.8.C: native MonoGame rendering wired (SceneObject + RenderableMesh fed
 // from RawMeshes via MeshImporter; ModelMesh path operates on the new MeshPart
@@ -38,6 +40,83 @@ public sealed class StaticMesh : IDisposable
     // Object-space, concatenated across groups; consumed by ShipHull
     // to build a per-module surface-Z map for damage-VFX placement.
     public XnaVector3[] VertexPositions;
+
+    // a model cut into parts names each object with its part number first, "03_MidLeft"; part 0 is the core, which stays
+    public const int MaxParts = 32; // a ship's lost parts fit one uint
+    public int NumParts; // highest part number + 1, 0 for a model in one piece
+    // each part's object-space triangles, three corners each, for the hull's part map
+    public XnaVector3[][] PartTriangles;
+
+    // a part coming back grows out from the model's middle seen from above: each part's nearest and farthest reach from it
+    XnaVector2[] PartReach;
+    // the model's middle in .xy and one over its half size in .zw, which scale the reach to its outline
+    XnaVector4 ReachShape;
+
+    void FindPartReach()
+    {
+        if (PartReach != null || PartTriangles == null || NumParts == 0)
+            return;
+        var min = new XnaVector3(float.MaxValue);
+        var max = new XnaVector3(float.MinValue);
+        foreach (XnaVector3[] corners in PartTriangles)
+            foreach (XnaVector3 c in corners)
+            {
+                min = XnaVector3.Min(min, c);
+                max = XnaVector3.Max(max, c);
+            }
+        var middle = new XnaVector2((min.X + max.X) * 0.5f, (min.Y + max.Y) * 0.5f);
+        var inverseHalf = new XnaVector2(2f / Math.Max(max.X - min.X, 0.001f), 2f / Math.Max(max.Y - min.Y, 0.001f));
+        XnaVector2 Scaled(XnaVector3 c) => (new XnaVector2(c.X, c.Y) - middle) * inverseHalf;
+
+        var reach = new XnaVector2[PartTriangles.Length];
+        for (int part = 0; part < reach.Length; ++part)
+        {
+            XnaVector3[] corners = PartTriangles[part];
+            float nearest = float.MaxValue, farthest = 0f;
+            for (int t = 0; t + 2 < corners.Length; t += 3)
+            {
+                XnaVector2 a = Scaled(corners[t]), b = Scaled(corners[t + 1]), c = Scaled(corners[t + 2]);
+                nearest = Math.Min(nearest, DistanceToMiddle(a, b, c));
+                farthest = Math.Max(farthest, Math.Max(a.Length(), Math.Max(b.Length(), c.Length())));
+            }
+            reach[part] = corners.Length < 3 ? new(0f, 1f) : new(nearest, farthest);
+        }
+        ReachShape = new(middle.X, middle.Y, inverseHalf.X, inverseHalf.Y);
+        PartReach = reach;
+    }
+
+    // how far a flat triangle comes to the origin: 0 over it, else to its nearest edge; one seen edge-on, as a wall from above, is a line
+    internal static float DistanceToMiddle(XnaVector2 a, XnaVector2 b, XnaVector2 c)
+    {
+        float Side(XnaVector2 p, XnaVector2 q) => p.X * q.Y - p.Y * q.X; // the origin's side of the edge p to q
+        float ab = Side(a, b), bc = Side(b, c), ca = Side(c, a);
+        bool flat = Math.Abs(ab + bc + ca) < 1e-6f; // twice its area
+        if (!flat && ((ab >= 0f && bc >= 0f && ca >= 0f) || (ab <= 0f && bc <= 0f && ca <= 0f)))
+            return 0f;
+        return Math.Min(ToEdge(a, b), Math.Min(ToEdge(b, c), ToEdge(c, a)));
+    }
+
+    static float ToEdge(XnaVector2 p, XnaVector2 q)
+    {
+        XnaVector2 e = q - p;
+        float along = e.LengthSquared() > 0f ? Math.Clamp(-XnaVector2.Dot(p, e) / e.LengthSquared(), 0f, 1f) : 0f;
+        return (p + e * along).Length();
+    }
+
+    // the part number at the start of an object's name, the whole name or before an underscore, -1 when it has none
+    public static int PartIdOf(string objectName)
+    {
+        if (objectName.IsEmpty() || !char.IsAsciiDigit(objectName[0]))
+            return -1;
+        int id = 0, i = 0;
+        for (; i < objectName.Length && char.IsAsciiDigit(objectName[i]); ++i)
+        {
+            id = id * 10 + (objectName[i] - '0');
+            if (id >= MaxParts)
+                return -1;
+        }
+        return i == objectName.Length || objectName[i] == '_' ? id : -1;
+    }
 
     public StaticMesh(string name, in BoundingBox bounds)
     {
@@ -139,6 +218,7 @@ public sealed class StaticMesh : IDisposable
             }
             else
             {
+                FindPartReach();
                 foreach (MeshData mesh in RawMeshes)
                 {
                     so.Add(new RenderableMesh(so,
@@ -151,7 +231,13 @@ public sealed class StaticMesh : IDisposable
                         PrimitiveType.TriangleList,
                         mesh.PrimitiveCount,
                         0, mesh.VertexCount,
-                        0, mesh.VertexStride));
+                        0, mesh.VertexStride)
+                    {
+                        PartStart = mesh.PartStart,
+                        PartPrimitives = mesh.PartPrimitives,
+                        PartReach = mesh.PartStart != null ? PartReach : null,
+                        ReachShape = ReachShape,
+                    });
                 }
             }
 

@@ -8,9 +8,9 @@ using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {
-    public sealed class SpaceJunk
+    public class SpaceJunk
     {
-        readonly UniverseState Universe;
+        protected readonly UniverseState Universe;
         public SceneObject So;
         public Vector3 Position;
         Vector3 RotationRadians;
@@ -31,6 +31,11 @@ namespace Ship_Game
 
         public SpaceJunk()
         {
+        }
+
+        protected SpaceJunk(UniverseState universe)
+        {
+            Universe = universe;
         }
 
         public SpaceJunk(UniverseState universe, Vector2 parentPos, Vector2 parentVel,
@@ -170,9 +175,7 @@ namespace Ship_Game
         {
             if (!CanSpawn(universe))
                 return;
-            var junk = new SpaceJunk(universe, position.ToVec2(), Vector2.Zero, maxSize, ignite: false, constructorId, tetherPlanet: null, parentZ: position.Z);
-            universe.Screen.AddObject(junk.So);
-            universe.JunkList.Add(junk);
+            Add(universe, new SpaceJunk(universe, position.ToVec2(), Vector2.Zero, maxSize, ignite: false, constructorId, tetherPlanet: null, parentZ: position.Z));
         }
 
         /**
@@ -197,38 +200,40 @@ namespace Ship_Game
             AddJunk(universe, howMuchJunk, position, velocity, maxSize, ignite, constructorId, tetherPlanet);
         }
 
-        // a small piece pulled off something that is no game object, as a stripped derelict: at its depth, at just this velocity; the caller checks it is on screen
-        public static void SpawnJunk(UniverseState universe, Vector3 position, Vector2 velocity, float maxSize)
+        // a small piece pulled off something that is no game object, as a stripped derelict: at its depth, at just this velocity, sinking at sinkSpeed; the caller checks it is on screen
+        public static void SpawnJunk(UniverseState universe, Vector3 position, Vector2 velocity, float maxSize, float sinkSpeed = 0f)
         {
             if (!CanSpawn(universe))
                 return;
             var junk = new SpaceJunk(universe, position.ToVec2(), Vector2.Zero, maxSize, ignite: false, constructorId: 0, tetherPlanet: null, parentZ: position.Z);
-            junk.Velocity = new Vector3(velocity, 0f);
-            universe.Screen.AddObject(junk.So);
-            universe.JunkList.Add(junk);
+            junk.Velocity = new Vector3(velocity, sinkSpeed);
+            Add(universe, junk);
         }
+
+        // with more than this many pieces flying, no new one comes
+        public const int MaxJunk = 1000;
 
         static bool CanSpawn(UniverseState universe)
         {
-            if (universe.JunkList.Count > 1000)
+            if (universe.JunkList.Count > MaxJunk)
                 return false; // don't allow too much junk
 
             return ResourceManager.NumJunkModels > 0; // junk models are not loaded in Unit Tests
         }
 
+        // ships add junk from their parallel updates
+        protected static void Add(UniverseState universe, SpaceJunk junk)
+        {
+            universe.Screen.AddObject(junk.So);
+            lock (universe.JunkList)
+                universe.JunkList.Add(junk);
+        }
+
         static void AddJunk(UniverseState universe, int howMuchJunk, Vector2 position, Vector2 velocity,
                             float maxSize, bool ignite, int constructorId, Planet tetherPlanet)
         {
-            var junk = new SpaceJunk[howMuchJunk];
             for (int i = 0; i < howMuchJunk; i++)
-            {
-                junk[i] = new SpaceJunk(universe, position, velocity, maxSize, ignite, constructorId, tetherPlanet);
-            }
-
-            // now add to scene
-            foreach (SpaceJunk j in junk)
-                universe.Screen.AddObject(j.So);
-            universe.JunkList.AddRange(junk);
+                Add(universe, new SpaceJunk(universe, position, velocity, maxSize, ignite, constructorId, tetherPlanet));
         }
 
         public void TryReset(int id)
@@ -267,7 +272,7 @@ namespace Ship_Game
             }
         }
 
-        public void Update(FixedSimTime timeStep)
+        public virtual void Update(FixedSimTime timeStep)
         {
             Duration -= timeStep.FixedTime;
             if (Duration <= 0f || !Universe.Screen.IsActive)
@@ -314,7 +319,8 @@ namespace Ship_Game
 
         public void RemoveFromScene()
         {
-            Universe.JunkList.Remove(this);
+            lock (Universe.JunkList)
+                Universe.JunkList.Remove(this);
             RemoveSceneObject();
         }
 

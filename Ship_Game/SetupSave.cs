@@ -16,6 +16,8 @@ public sealed class SetupSave
     [StarData] public UniverseParams Settings;
     // the salvage ops box was unlocked as it was saved, so its tick is the player's; otherwise a new game takes salvage ops from the Globals flag
     [StarData] public bool SalvageOpsChosen;
+    // the same for the hull plates box
+    [StarData] public bool HullPlatesChosen;
 
     public SetupSave()
     {
@@ -28,6 +30,7 @@ public sealed class SetupSave
         Version = SavedGame.SaveGameVersion;
         Settings = settings;
         SalvageOpsChosen = GlobalStats.Defaults.EnableSalvageOps;
+        HullPlatesChosen = GlobalStats.Defaults.EnableHullPlates;
 
         DateTime now = DateTime.Now;
         string date = now.ToString("M/d/yyyy");
@@ -35,11 +38,13 @@ public sealed class SetupSave
         Date = date + " " + time;
     }
 
-    // the settings a new game starts from: the Globals flag decides salvage ops unless the box was the player's and the flag is on
+    // the settings a new game starts from: each Globals flag decides its feature unless the box was the player's and the flag is on
     public UniverseParams SettingsToStart()
     {
         if (Settings != null && (!SalvageOpsChosen || !GlobalStats.Defaults.EnableSalvageOps))
             Settings.DisableSalvageOps = !GlobalStats.Defaults.EnableSalvageOps;
+        if (Settings != null && (!HullPlatesChosen || !GlobalStats.Defaults.EnableHullPlates))
+            Settings.DisableHullPlates = !GlobalStats.Defaults.EnableHullPlates;
         return Settings;
     }
 }

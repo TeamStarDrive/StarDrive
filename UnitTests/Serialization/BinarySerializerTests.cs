@@ -1132,8 +1132,18 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void CanSerializeUniverseParams()
         {
-            var instance = new UniverseParams { DisableSalvageOps = true, DisableBoardingWarning = true, DisableTechLeechWarning = true }; // off their defaults, so they must be written
-            var result = SerDes(instance);
+            bool hullPlates = GlobalStats.Defaults.EnableHullPlates;
+            GlobalStats.Defaults.EnableHullPlates = true; // so the Hull Plates box starts ticked
+            UniverseParams instance, result;
+            try
+            {
+                instance = new UniverseParams { DisableSalvageOps = true, DisableBoardingWarning = true, DisableTechLeechWarning = true, DisableHullPlates = true }; // off their defaults, so they must be written
+                result = SerDes(instance);
+            }
+            finally
+            {
+                GlobalStats.Defaults.EnableHullPlates = hullPlates;
+            }
             AssertEqual(instance.Difficulty, result.Difficulty);
             AssertEqual(instance.StarsCount, result.StarsCount);
             AssertEqual(instance.GalaxySize, result.GalaxySize);
@@ -1181,6 +1191,7 @@ namespace UnitTests.Serialization
             AssertEqual(instance.DisableResearchStations, result.DisableResearchStations);
             AssertEqual(instance.DisableMiningOps, result.DisableMiningOps);
             AssertEqual(instance.DisableSalvageOps, result.DisableSalvageOps);
+            AssertEqual(instance.DisableHullPlates, result.DisableHullPlates);
             AssertEqual(instance.PrioitizeProjectors, result.PrioitizeProjectors);
         }
 
@@ -1202,6 +1213,27 @@ namespace UnitTests.Serialization
             {
                 GlobalStats.Defaults.DisablePirates = pirates;
                 GlobalStats.Defaults.DisableRemnantStory = remnantStory;
+            }
+        }
+
+        [TestMethod]
+        public void ABoxTickedWithItsGlobalsFlagOnStaysTickedThroughALoadWithTheFlagOff()
+        {
+            bool salvageOps = GlobalStats.Defaults.EnableSalvageOps;
+            bool hullPlates = GlobalStats.Defaults.EnableHullPlates;
+            try
+            {
+                var instance = new UniverseParams { DisableSalvageOps = false, DisableHullPlates = false }; // ticked at the new game
+                GlobalStats.Defaults.EnableSalvageOps = false;
+                GlobalStats.Defaults.EnableHullPlates = false;
+                var result = SerDes(instance);
+                Assert.IsFalse(result.DisableSalvageOps, "loaded with the flag off, the Salvage Ops box stays ticked for when the flag is back on");
+                Assert.IsFalse(result.DisableHullPlates, "as does the Hull Plates box");
+            }
+            finally
+            {
+                GlobalStats.Defaults.EnableSalvageOps = salvageOps;
+                GlobalStats.Defaults.EnableHullPlates = hullPlates;
             }
         }
 

@@ -13,20 +13,16 @@ public partial class Ship
     public float HealPerTurn; // Troops Healing
 
     public GameObject LastDamagedBy { get; private set; }
-    float LastDamagedTime;
-    
+    // the universe's game seconds at the last hit; never hit, it was long ago
+    double LastDamagedTime = double.NegativeInfinity;
+
     public float CurrentRepairPerSecond { get; private set; }
 
-    /// <summary>
-    /// Total seconds elapsed since we were last damaged by another GameObject
-    /// such as a Projectile
-    /// </summary>
-    public float TimeSinceLastDamage => GameBase.Base.TotalElapsed - LastDamagedTime;
+    // game seconds since it was last hit, by a projectile, a blast or a star's radiation; a pause or the game speed does not count
+    public float TimeSinceLastDamage => Universe == null ? float.PositiveInfinity : (float)(Universe.SimSeconds - LastDamagedTime);
     
-    /// <summary>
-    /// If CombatRepair is turned off, then ships in conflict cannot repair themselves
-    /// </summary>
-    public bool CanRepair => GlobalStats.Defaults.UseCombatRepair || !IsInRecentCombat;
+    // a ship fighting or just hit gets no repair, its own or a colony's; regenerating modules still heal
+    public bool CanRepair => !IsInRecentCombat;
 
     const float RecentlyDamagedSeconds = 5f;
 
@@ -54,14 +50,6 @@ public partial class Ship
         {
             int repairLevel = Level;
             float repair = RepairRate;
-
-            // sometimes ships Priority escape from combat, turning InCombat=false
-            // even if other ships are attacking us, so we check if we were recently damaged
-            // and in that case, the repair penalty still applies
-            if (IsInRecentCombat) // reduces repair rate while in combat
-            {
-                repair *= GlobalStats.Defaults.InCombatSelfRepairModifier;
-            }
 
             float planetRepair = 0f;
             Planet p = RepairPlanet;
@@ -118,7 +106,7 @@ public partial class Ship
     public void SetLastDamagedBy(GameObject damagedBy)
     {
         LastDamagedBy = damagedBy;
-        LastDamagedTime = GameBase.Base.TotalElapsed;
+        LastDamagedTime = Universe?.SimSeconds ?? 0.0;
     }
 
     /// <param name="repairAmount">How many HP-s to repair</param>

@@ -21,6 +21,8 @@ namespace Ship_Game.AI.ShipMovement
 
         const float WayPointProximity = 500f;
         const float OrbitalSpeedLimit = 300f;
+        // nearer the planet than this a ship leaves warp, and closes in on its orbit at sublight only; farther out it heads for the planet
+        const float WarpExitDistance = 7500f;
         const float OrbitLeft  = RadMath.PI / -36; // 5 degree steps
         const float OrbitRight = RadMath.PI / +36;
 
@@ -105,11 +107,18 @@ namespace Ship_Game.AI.ShipMovement
                 return;
             }
 
-            // we are getting close, exit hyperspace
-            if (Owner.engineState == Ship.MoveState.Warp && distance < 7500f)
+            // we are getting close, exit hyperspace, or give up a jump about to start
+            if (Owner.IsSpoolingOrInWarp && distance < WarpExitDistance)
             {
                 Owner.HyperspaceReturn();
                 Owner.AI.ClearWayPoints(); // Especially needed for player freighters (check `IsIdleFreighter`)
+            }
+
+            // in warp it holds its course for the planet, turning for its orbit only once out of warp
+            if (Owner.engineState == Ship.MoveState.Warp)
+            {
+                ThrustTowardsPlanet(orbitTarget, timeStep);
+                return;
             }
 
             // if no enemies near us, then consider the following MAGIC STOP optimization:
@@ -160,7 +169,10 @@ namespace Ship_Game.AI.ShipMovement
                     precisionSpeed = Math.Max(precisionSpeed, 100);
                 }
 
-                AI.ThrustOrWarpToPos(OrbitPos, timeStep, precisionSpeed);
+                if (distance < WarpExitDistance) // a jump from here would be cut short at once
+                    AI.SubLightMoveTowardsPosition(OrbitPos, timeStep, precisionSpeed, autoSlowDown: false);
+                else // farther out it heads for the planet, as it does in warp, so a jump keeps its course
+                    AI.ThrustOrWarpToPos(orbitTarget.Position, timeStep, precisionSpeed);
             }
         }
 

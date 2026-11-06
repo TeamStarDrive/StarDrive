@@ -74,6 +74,8 @@ namespace Ship_Game.Data.Mesh
             // bone palette per-frame via SceneObject.AnimationPlayer.
             bool isSkinned = mesh->NumSkinnedBones > 0;
             Map<long, LightingEffect> materials = GetMaterials(mesh, modelName, isSkinned);
+            if (!isSkinned && HasParts(mesh))
+                return LoadParts(mesh, modelName, materials, extractVertexPositions);
 
             var rawMeshes = new Array<MeshData>();
             var positions = extractVertexPositions ? new Array<Vector3>() : null;
@@ -124,22 +126,203 @@ namespace Ship_Game.Data.Mesh
             };
         }
 
-        // Same MeshToObject transform the renderer applies to vertices, so
-        // collected positions live in the same space as SceneObject bounds.
-        static unsafe void ExtractObjectSpacePositions(SdVertexData data, in Matrix transform, Array<Vector3> dst)
+        static unsafe bool HasParts(SdMesh* mesh)
         {
-            int posOffset = -1;
-            byte posFormat = 0;
+            for (int i = 0; i < mesh->NumGroups; ++i)
+                if (StaticMesh.PartIdOf(SDMeshGetGroup(mesh, i)->Name.AsString) > 0)
+                    return true;
+            return false;
+        }
+
+        // a model cut into numbered parts loads as one mesh per material with its parts in order, so an intact ship draws each at once
+        unsafe StaticMesh LoadParts(SdMesh* mesh, string modelName, Map<long, LightingEffect> materials, bool extractVertexPositions)
+        {
+            var members = new Array<(int Part, int Group)>();
+            int numParts = 0;
+            for (int i = 0; i < mesh->NumGroups; ++i)
+            {
+                SdMeshGroup* g = SDMeshGetGroup(mesh, i);
+                SdVertexData data = SDMeshGroupGetData(g);
+                if (data.VertexCount == 0 || data.IndexCount == 0)
+                    continue;
+                int part = StaticMesh.PartIdOf(g->Name.AsString);
+                if (part < 0)
+                {
+                    Log.Warning($"ImportStaticMesh '{modelName}': object '{g->Name.AsString}' has no part number below {StaticMesh.MaxParts}, so it stays with the core");
+                    part = 0;
+                }
+                members.Add((part, i));
+                numParts = Math.Max(numParts, part + 1);
+            }
+            members.Sort((a, b) => a.Part != b.Part ? a.Part.CompareTo(b.Part) : a.Group.CompareTo(b.Group));
+
+            var positions = extractVertexPositions ? new Array<Vector3>() : null;
+            var partTriangles = new Array<Vector3>[numParts]; // always, as a cached model serves every later load
+            var rawMeshes = new Array<MeshData>();
+            var merged = new bool[members.Count];
+            XnaBoundingBox bounds = default;
+            for (int first = 0; first < members.Count; ++first)
+            {
+                if (merged[first])
+                    continue;
+                SdMeshGroup* g0 = SDMeshGetGroup(mesh, members[first].Group);
+                SdVertexData d0 = SDMeshGroupGetData(g0);
+                VertexDeclaration declaration = d0.CreateDeclaration();
+
+                // the groups drawn with this one: same material, transform and vertex layout
+                var batch = new Array<int>();
+                for (int k = first; k < members.Count; ++k)
+                {
+                    if (merged[k])
+                        continue;
+                    SdMeshGroup* g = SDMeshGetGroup(mesh, members[k].Group);
+                    SdVertexData d = SDMeshGroupGetData(g);
+                    if (g->Mat != g0->Mat || g->Transform != g0->Transform || !SameLayout(d, d0))
+                        continue;
+                    merged[k] = true;
+                    batch.Add(k);
+                }
+
+                int vertexCount = 0, indexCount = 0;
+                foreach (int k in batch)
+                {
+                    SdVertexData d = SDMeshGroupGetData(SDMeshGetGroup(mesh, members[k].Group));
+                    vertexCount += d.VertexCount;
+                    indexCount += d.IndexCount;
+                }
+
+                var vertices = new byte[vertexCount * d0.VertexStride];
+                var indices = new int[indexCount];
+                var partStart = new int[numParts];
+                var partPrimitives = new int[numParts];
+                BoundingSphere sphere = default;
+                int vertexBase = 0, indexBase = 0;
+                foreach (int k in batch)
+                {
+                    int part = members[k].Part;
+                    SdMeshGroup* g = SDMeshGetGroup(mesh, members[k].Group);
+                    SdVertexData d = SDMeshGroupGetData(g);
+                    new ReadOnlySpan<byte>(d.VertexData, d.VertexCount * d.VertexStride).CopyTo(vertices.AsSpan(vertexBase * d0.VertexStride));
+                    if (partPrimitives[part] == 0)
+                        partStart[part] = indexBase;
+                    for (int i = 0; i < d.IndexCount; ++i)
+                        indices[indexBase + i] = d.IndexData[i] + vertexBase;
+                    partPrimitives[part] += d.IndexCount / 3;
+                    sphere = sphere.Radius > 0f ? BoundingSphere.CreateMerged(sphere, g->Bounds) : g->Bounds;
+
+                    var bb = XnaBoundingBox.CreateFromSphere(g->Bounds); // per object, as a model in one piece
+                    if (g->Transform != Matrix.Identity)
+                    {
+                        bb.Min = Vector3.Transform(bb.Min, g->Transform);
+                        bb.Max = Vector3.Transform(bb.Max, g->Transform);
+                    }
+                    bounds = bounds == default ? bb : XnaBoundingBox.CreateMerged(bounds, bb);
+
+                    if (positions != null)
+                        ExtractObjectSpacePositions(d, g->Transform, positions);
+                    AddTriangles(d, g->Transform, partTriangles[part] ??= new());
+                    vertexBase += d.VertexCount;
+                    indexBase += d.IndexCount;
+                }
+
+                rawMeshes.Add(new MeshData
+                {
+                    Name              = SDMeshGetGroup(mesh, members[batch[0]].Group)->Name.AsString,
+                    Effect            = materials[(long)g0->Mat],
+                    IndexBuffer       = CreateIndexBuffer(indices, vertexCount),
+                    VertexBuffer      = CreateVertexBuffer(vertices, declaration, vertexCount),
+                    VertexDeclaration = declaration,
+                    PrimitiveCount    = indexCount / 3,
+                    VertexCount       = vertexCount,
+                    VertexStride      = d0.VertexStride,
+                    ObjectSpaceBoundingSphere = sphere,
+                    MeshToObject      = g0->Transform,
+                    PartStart         = partStart,
+                    PartPrimitives    = partPrimitives,
+                });
+            }
+
+            var triangles = new Vector3[numParts][];
+            for (int part = 0; part < numParts; ++part)
+                triangles[part] = partTriangles[part]?.ToArray() ?? Empty<Vector3>.Array;
+            return new StaticMesh(mesh->Name.AsString, bounds)
+            {
+                RawMeshes = rawMeshes,
+                VertexPositions = positions?.ToArray(),
+                NumParts = numParts,
+                PartTriangles = triangles,
+            };
+        }
+
+        static unsafe bool SameLayout(in SdVertexData a, in SdVertexData b)
+        {
+            if (a.VertexStride != b.VertexStride || a.LayoutCount != b.LayoutCount)
+                return false;
+            for (int i = 0; i < a.LayoutCount; ++i)
+                if (a.Layout[i].Offset != b.Layout[i].Offset || a.Layout[i].NativeFormat != b.Layout[i].NativeFormat
+                    || a.Layout[i].NativeUsage != b.Layout[i].NativeUsage)
+                    return false;
+            return true;
+        }
+
+        IndexBuffer CreateIndexBuffer(int[] indices, int vertexCount)
+        {
+            if (vertexCount <= ushort.MaxValue + 1)
+            {
+                var shorts = new ushort[indices.Length];
+                for (int i = 0; i < indices.Length; ++i)
+                    shorts[i] = (ushort)indices[i];
+                var buf16 = new IndexBuffer(Device, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+                buf16.SetData(shorts);
+                return buf16;
+            }
+            var buf = new IndexBuffer(Device, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
+            buf.SetData(indices);
+            return buf;
+        }
+
+        VertexBuffer CreateVertexBuffer(byte[] vertices, VertexDeclaration declaration, int vertexCount)
+        {
+            var buf = new VertexBuffer(Device, declaration, vertexCount, BufferUsage.WriteOnly);
+            buf.SetData(vertices);
+            return buf;
+        }
+
+        // each triangle's three corners in object space, as the renderer places them
+        static unsafe void AddTriangles(SdVertexData data, in Matrix transform, Array<Vector3> dst)
+        {
+            int posOffset = PositionOffset(data);
+            if (posOffset < 0)
+                return;
+            bool identity = transform == Matrix.Identity;
+            byte* basePtr = data.VertexData + posOffset;
+            for (int i = 0; i < data.IndexCount; ++i)
+            {
+                var pos = *(Vector3*)(basePtr + data.IndexData[i] * data.VertexStride);
+                dst.Add(identity ? pos : Vector3.Transform(pos, transform));
+            }
+        }
+
+        // the byte offset of the position in a vertex, -1 when it has none the importer can read
+        static unsafe int PositionOffset(in SdVertexData data)
+        {
             for (int i = 0; i < data.LayoutCount; ++i)
             {
                 if (data.Layout[i].NativeUsage == 0) // SDElementUsage::Position
                 {
-                    posOffset = data.Layout[i].Offset;
-                    posFormat = data.Layout[i].NativeFormat;
-                    break;
+                    byte format = data.Layout[i].NativeFormat;
+                    return format is 2 or 3 ? data.Layout[i].Offset : -1; // Vector3 / Vector4
                 }
             }
-            if (posOffset < 0 || (posFormat != 2 && posFormat != 3)) // Vector3 / Vector4
+            return -1;
+        }
+
+        // Same MeshToObject transform the renderer applies to vertices, so
+        // collected positions live in the same space as SceneObject bounds.
+        static unsafe void ExtractObjectSpacePositions(SdVertexData data, in Matrix transform, Array<Vector3> dst)
+        {
+            int posOffset = PositionOffset(data);
+            if (posOffset < 0)
                 return;
 
             bool identity = transform == Matrix.Identity;

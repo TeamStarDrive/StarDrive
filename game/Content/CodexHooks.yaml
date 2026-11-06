@@ -335,7 +335,7 @@ ThisModuleHasSelfRegeneration: design_armor_and_shields
 TheMoreComplexTheModule: design_armor_and_shields
 IndicatesTheBonusToOutofcombat: design_armor_and_shields
 TT_HitPoints: design_armor_and_shields
-TT_RepairRate: design_armor_and_shields
+TT_RepairRate: warfare_repair
 TT_EmpProtection: design_armor_and_shields
 IndicatesTheAmountOfEmp2: design_armor_and_shields
 IndicatesShieldBubblesResistanceTo: design_armor_and_shields

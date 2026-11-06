@@ -41,6 +41,10 @@ public sealed class Derelict
     public const float SmokeSourcesPerModule = 0.2f;
     public const int MinSmokeSources = 6;
     public const float SmokeThinSeconds = 60f;
+    // the embers in its torn insides cool over this many turns, times the production pace, as its lifetime is
+    public const int InsidesCoolTurns = 50;
+    // the least the embers in torn insides glow, on a derelict cooled down or a ship's part nearly back
+    public const float MinInsidesHeat = 0.1f;
     // the breakup's small blasts, with their volume and limit in AudioConfig.yaml
     public const string BreakupBlastSound = "sd_derelict_breakup";
     // a recovery's sounds, with their volumes in AudioConfig.yaml: each break-in turn's static, a plain failure's as the derelict gives way, and a success's as it rises
@@ -133,6 +137,10 @@ public sealed class Derelict
     [StarData] public Empire RecoveredFor { get; private set; }
     // the ship's name at its death, which a recovered ship keeps
     [StarData] public readonly string ShipName;
+    // each hull part shown, 1, or not, 0: the parts the ship had whole at its death, which a recovered ship keeps; null while no part is lost
+    [StarData] internal readonly float[] PartShown;
+    // its parts as the game plays them: whole with hull plates off, whatever a save made with them on had lost
+    internal float[] PartShownNow => Universe.P.HullPlates ? PartShown : null;
     // the ship that took its place at a ship's depth, set on the sim thread and read on the UI thread; not saved, as the derelict is gone from then on
     public Ship RecoveredAs { get; private set; }
     public int NumSmokeSources => Smoke.Length;
@@ -171,6 +179,12 @@ public sealed class Derelict
         float spin = 50f / ship.SurfaceArea;
         Spin = new(random.Float(-1f, 1f) * spin, random.Float(-1f, 1f) * spin, random.Float(-1f, 1f) * spin);
         BreakupSeconds = random.Float(MinBreakupSeconds, MaxBreakupSeconds);
+        PartShown = ship.WholePartsNow(out uint partsLostNow);
+        if (so != null)
+        {
+            so.PartShown = PartShown;
+            so.InsidesHeat = InsidesHeat;
+        }
         Smoke = PickSmokeSources(ship);
 
         KnownBy = new bool[Universe.NumEmpires];
@@ -206,6 +220,8 @@ public sealed class Derelict
         GameAudio.PlaySfxAsync("sd_explosion_ship_det_small", ship.SoundEmitter);
         SpaceJunk.SpawnJunk(Universe, (int)(Radius * 0.03f), Position, DriftVelocity, ship,
                             maxSize: Radius * 0.1f, ignite: true);
+        if (so != null && partsLostNow != 0u)
+            ship.ThrowOffParts(partsLostNow, so);
     }
 
     [StarDataConstructor]
@@ -562,7 +578,7 @@ public sealed class Derelict
         return r > RadMath.PI ? r - RadMath.TwoPI : r;
     }
 
-    // dead modules first, then damaged ones; conduits only spark, so they are left out
+    // dead modules first, then damaged ones; conduits only spark, and a module under a lost part went with it, so they are left out
     static SmokeSource[] PickSmokeSources(Ship ship)
     {
         var dead = new Array<ShipModule>();
@@ -571,7 +587,7 @@ public sealed class Derelict
         for (int i = 0; i < modules.Length; ++i)
         {
             ShipModule m = modules[i];
-            if (!m.CanVisualizeDamage || m.ModuleType == ShipModuleType.PowerConduit)
+            if (!m.CanVisualizeDamage || m.ModuleType == ShipModuleType.PowerConduit || ship.UnderLostPart(m))
                 continue;
             if (!m.Active)
                 dead.Add(m);
@@ -605,6 +621,9 @@ public sealed class Derelict
     // salvageable or drifting, it slows linearly to a stop
     public Vector2 VelocityNow => DriftVelocity * (1f - Age / StopSeconds).Clamped(0f, 1f);
 
+    // how hot the embers in its torn insides still glow, 1 at its death, MinInsidesHeat once cooled down
+    public float InsidesHeat => (1f - Age / (InsidesCoolTurns * Universe.ProductionPace * Universe.P.TurnTimer)).Clamped(MinInsidesHeat, 1f);
+
     // where it comes to rest: slowing linearly, it covers half its speed times the time left
     public Vector2 RestPosition => Position + VelocityNow * ((StopSeconds - Age) * 0.5f);
 
@@ -632,6 +651,8 @@ public sealed class Derelict
         so.World = World(Rotation, Scale);
         so.EmissiveScale = 0f;
         so.HullTint = Owner.HullTint;
+        so.PartShown = PartShownNow;
+        so.InsidesHeat = InsidesHeat;
         so.Visibility = GlobalStats.ShipVisibility;
         So = so;
         Universe.Screen.AddObject(so);
@@ -692,6 +713,7 @@ public sealed class Derelict
         so.World = World(rotation, scale);
         so.EmissiveScale = Age < BreakupSeconds ? LightsAtDeath * FluorescentLight.Level(FluorescentLight.TurnOff, Age / BreakupSeconds) : 0f;
         so.HullTint = Owner.HullTint; // a derelict keeps its last owner's color
+        so.InsidesHeat = InsidesHeat;
 
         ParticleManager particles = Universe.Screen.Particles;
         if (dt <= 0f || particles == null)

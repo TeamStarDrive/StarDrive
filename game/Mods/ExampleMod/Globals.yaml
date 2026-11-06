@@ -31,11 +31,10 @@ Globals:
   # gameplay: repair
   BaseShipyardRepair: 10.0 # # repair multiplier of ship repair per turn from planetary buildings (per SECOND)
   BonusRepairPerColonyLevel: 0.1 # +bonus based on colony level, 0.1 would be +10% increase per level
-  InCombatRepairModifier: 0.5 # repair rate modifier when a ship or planet is in combat
+  InCombatRepairModifier: 0.5 # share of a colony's ship repair while there is fighting near the colony
   BonusColonyEMPRecovery: 5.0 # multiplier of EMP damage removed from shipyard repair when orbiting a colony
   SelfRepairMultiplier: 1.0 # base repair rate from ship command/engineering modules per SECOND
   BonusRepairPerCrewLevel: 0.2 # +bonus rate based on crew level, 0.2 would be +20% increase per each crew level
-  InCombatSelfRepairModifier: 0.2 # repair rate modifier for command/engineering self repair when in combat
   ShieldPowerMultiplier: 1.0 # Global multiplier for Shields
   ProjectileHitpointsMultiplier: 1.0 # Global multiplier for Projectile Hit Points (mainly affects missiles)
   ConstructionShipOrbitalDiscount: 100 # When building orbitals, constructor ship cost over this threshold will be added to the gross orbital cost
@@ -52,10 +51,10 @@ Globals:
   EnableShipTechLineFocusing: true
   UseDestroyers: false
   EnableECM: false
-  UseCombatRepair: false
   DisableRemnantStory: false
   DisablePirates: false
   EnableSalvageOps: false # salvageable derelicts and salvage ships; not inherited from vanilla, turn it on once the mod has salvage designs
+  EnableHullPlates: false # hull plates that ships lose in battle; not inherited from vanilla, turn it on once the mod's hull models are cut into plates
   AIUsesPlayerDesigns: true
   EnableRandomizedAIFleetSizes: true  
 

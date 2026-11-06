@@ -103,23 +103,33 @@ namespace Ship_Game.GameScreens.NewGame
             MidGameWarning = labelFont.ParseText("Warning, performance issues are expected mid to late game.", warningWidth);
 
             AddHeading(extensionsPanel, GameText.GameExtensions);
-            // the six icons fit from 1050 high; below it the extensions are switched in Rule Options
+            // the icons stand in one column where the panel fits them all, else in two, from 1050 high; below it the extensions are switched in Rule Options
             if (ScreenHeight >= 1050)
             {
-                int extensionCount = 0;
-                ExtensionToggle AddExtension(Expression<Func<bool>> binding, string icon, GameText title, GameText tooltip)
-                {
-                    var pos = new Vector2(extensionsPanel.X + pad, extensionsPanel.Y + 40 + extensionCount++ * 54);
-                    return Add(new ExtensionToggle(pos, extensionsPanel.Width - 2 * pad, binding, icon, title, tooltip));
-                }
-                AddExtension(() => Params.Pirates, "Pirates", GameText.PiratesExtension, GameText.PiratesExtensionTip);
-                AddExtension(() => Params.RemnantStory, "RemnantStory", GameText.RemnantStoryExtension, GameText.RemnantStoryExtensionTip);
-                AddExtension(() => Params.Infiltration, "Infiltration", GameText.InfiltrationExtension, GameText.InfiltrationExtensionTip);
-                AddExtension(() => Params.ResearchStations, "ResearchStations", GameText.ResearchStationsExtension, GameText.ResearchStationsExtensionTip);
-                AddExtension(() => Params.MiningOps, "MiningOps", GameText.MiningOpsExtension, GameText.MiningOpsExtensionTip);
                 bool salvageOpsEnabled = GlobalStats.Defaults.EnableSalvageOps;
-                AddExtension(() => Params.SalvageOps, "SalvageOps", GameText.SalvageOpsExtension,
-                             salvageOpsEnabled ? GameText.SalvageOpsExtensionTip : GameText.DisableSalvageOpsModTip).Locked = !salvageOpsEnabled;
+                var extensions = new Array<(Expression<Func<bool>> Binding, string Icon, GameText Title, GameText Tooltip, bool Locked)>
+                {
+                    (() => Params.Pirates, "Pirates", GameText.PiratesExtension, GameText.PiratesExtensionTip, false),
+                    (() => Params.RemnantStory, "RemnantStory", GameText.RemnantStoryExtension, GameText.RemnantStoryExtensionTip, false),
+                    (() => Params.Infiltration, "Infiltration", GameText.InfiltrationExtension, GameText.InfiltrationExtensionTip, false),
+                    (() => Params.ResearchStations, "ResearchStations", GameText.ResearchStationsExtension, GameText.ResearchStationsExtensionTip, false),
+                    (() => Params.MiningOps, "MiningOps", GameText.MiningOpsExtension, GameText.MiningOpsExtensionTip, false),
+                    (() => Params.SalvageOps, "SalvageOps", GameText.SalvageOpsExtension,
+                     salvageOpsEnabled ? GameText.SalvageOpsExtensionTip : GameText.DisableSalvageOpsModTip, !salvageOpsEnabled),
+                };
+                if (GlobalStats.Defaults.EnableHullPlates) // shown only while its Globals flag is on
+                    extensions.Add((() => Params.HullPlates, "HullPlates", GameText.HullPlatesExtension, GameText.HullPlatesExtensionTip, false));
+                const int pitch = 54, buttonSpace = 8 + 39;
+                bool oneColumn = 40 + (extensions.Count - 1) * pitch + ExtensionToggle.IconHeight + buttonSpace <= extensionsPanel.Height;
+                int columns = oneColumn ? 1 : 2, rows = (extensions.Count + columns - 1) / columns;
+                int columnWidth = (extensionsPanel.Width - 2 * pad) / columns;
+                int firstRow = oneColumn ? 40 : 44, rowPitch = oneColumn ? pitch : 70;
+                for (int i = 0; i < extensions.Count; ++i)
+                {
+                    var e = extensions[i];
+                    var pos = new Vector2(extensionsPanel.X + pad + i / rows * columnWidth, extensionsPanel.Y + firstRow + i % rows * rowPitch);
+                    Add(new ExtensionToggle(pos, columnWidth, e.Binding, e.Icon, e.Title, e.Tooltip)).Locked = e.Locked;
+                }
             }
             Button(ButtonStyle.Default, extensionsPanel.X + extensionsPanel.Width / 2 - 84, extensionsPanel.Bottom - 39,
                    GameText.RuleOptions, click: OnRuleOptionsClicked);

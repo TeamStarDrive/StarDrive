@@ -1329,7 +1329,18 @@ public class DerelictTests : StarDriveTest
         AssertGreaterThan(d.Production, 0f, "setup: it has production to salvage");
         typeof(Derelict).GetProperty(nameof(Derelict.ProductionLeft))!.SetValue(d, d.Production * 0.5f); // partly salvaged
 
-        UniverseScreen loaded = SaveAndLoad();
+        ShipHull hull = d.Design.BaseHull;
+        Vector2 hullOffset = hull.MeshOffset;
+        UniverseScreen loaded;
+        try
+        {
+            hull.MeshOffset = new Vector2(0f, -16f); // one the loaded derelict can only take from its hull
+            loaded = SaveAndLoad();
+        }
+        finally
+        {
+            hull.MeshOffset = hullOffset;
+        }
         Derelict[] after = loaded.UState.Derelicts.ToArray();
         AssertEqual(1, after.Length, "the salvageable derelict comes back");
         Derelict back = after[0];
@@ -1344,7 +1355,7 @@ public class DerelictTests : StarDriveTest
         AssertEqual(0.01f, d.Production, back.Production, "the production it started with");
         AssertEqual(0.01f, d.ProductionLeft, back.ProductionLeft, "and what was left of it");
         Assert.AreSame(ResourceManager.Ships.GetDesign(d.Design.Name), back.Design, "of the loaded game's own design");
-        AssertEqual(new Vector2(0f, -16f), MeshOffsetOf(back), "its model offset on its hull, as the Dreadnought hull sets it");
+        AssertEqual(new Vector2(0f, -16f), MeshOffsetOf(back), "its model offset on its hull, as the hull sets it");
         AssertEqual(Player.Id, back.Owner.Id, "and owner");
         AssertTrue(back.IsKnownBy(loaded.UState.GetEmpireById(Enemy.Id)), "the enemy still knows of it");
         AssertTrue(back.IsKnownBy(loaded.UState.Player), "and so does the player");

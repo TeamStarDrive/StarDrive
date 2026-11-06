@@ -298,10 +298,13 @@ namespace Ship_Game.Ships
 
             var textPos = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
             int integrity = (int)(ship.InternalSlotsHealthPercent * 100);
-
-            float repairPerSec = ship.CurrentRepairPerSecond;
-            float timeUntilRepaired = (ship.HealthMax - ship.Health) / repairPerSec;
-            string integrityText = $"{integrity}% (+{(int)repairPerSec}HP/s ETA:{timeUntilRepaired.TimeString()})";
+            string integrityText = $"{integrity}%";
+            if (ship.CanRepair) // a ship fighting or just hit gets no repair, so it shows no rate
+            {
+                float repairPerSec = ship.CurrentRepairPerSecond;
+                float timeUntilRepaired = (ship.HealthMax - ship.Health) / repairPerSec;
+                integrityText += $" (+{(int)repairPerSec}HP/s ETA:{timeUntilRepaired.TimeString()})";
+            }
             batch.DrawString(Fonts.Arial12, integrityText, textPos, Color.White);
             numStatus++;
         }

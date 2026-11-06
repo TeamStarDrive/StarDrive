@@ -2,6 +2,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.AI;
+using Ship_Game.AI.ShipMovement;
 using Ship_Game.Ships;
 using UnitTests.Ships;
 using Matrix = SDGraphics.Matrix;
@@ -38,39 +39,40 @@ public class OrbitCombatTests : StarDriveTest
         return ship.CurrentRepairPerSecond;
     }
 
+    float HealthGainedAtHalfHealth(TestShip ship)
+    {
+        foreach (ShipModule m in ship.Modules)
+            m.SetHealth(m.ActualMaxHealth * 0.5f, "Test");
+        float before = ship.Health;
+        RunObjectsSim(3f);
+        return ship.Health - before;
+    }
+
     [TestMethod]
     public void AShipThatLeavesOrbitToFightIsNotRepairedByThePlanetUntilItIsBackInOrbit()
     {
-        bool combatRepair = GlobalStats.Defaults.UseCombatRepair;
-        GlobalStats.Defaults.UseCombatRepair = true; // the harness never advances TotalElapsed, so every ship reads as recently hit
-        try
-        {
-            OurWorld.GeodeticManager.AffectNearbyShips();
-            float planetRepair = OurWorld.GeodeticManager.RepairRatePerSecond;
-            AssertGreaterThan(planetRepair, 0f, "setup: our world must repair ships");
+        OurWorld.GeodeticManager.AffectNearbyShips();
+        AssertGreaterThan(OurWorld.GeodeticManager.RepairRatePerSecond, 0f, "setup: our world must repair ships");
 
-            TestShip ship = OrbitOurWorld(OurWorld.Position + new Vector2(OurWorld.Radius + 500, 0));
-            RunSimWhile((60, fatal: true), () => !ship.IsOrbiting(OurWorld));
-            float orbitRepair = RepairPerSecondAtHalfHealth(ship);
+        TestShip ship = OrbitOurWorld(OurWorld.Position + new Vector2(OurWorld.Radius + 500, 0));
+        RunSimWhile((60, fatal: true), () => !ship.IsOrbiting(OurWorld));
+        float orbitRepair = RepairPerSecondAtHalfHealth(ship);
+        AssertTrue(ship.RepairPlanet == OurWorld, "setup: in orbit the planet is its repair planet");
 
-            TestShip enemy = SpawnShipNoCombatHoldPos("Terran-Prototype", Enemy, ship.Position + new Vector2(0, 3000));
-            enemy.AI.SetCombatTriggerDelay(1000f);
-            RunSimWhile((10, fatal: true), () => !ship.InCombat);
-            AssertFalse(ship.AI.IsInOrbit, "a ship that left orbit to fight must not count as in orbit");
-            AssertEqual(1f, orbitRepair - planetRepair, RepairPerSecondAtHalfHealth(ship),
-                        "the planet must not repair a ship that left orbit to fight");
+        TestShip enemy = SpawnShipNoCombatHoldPos("Terran-Prototype", Enemy, ship.Position + new Vector2(0, 3000));
+        enemy.AI.SetCombatTriggerDelay(1000f);
+        RunSimWhile((10, fatal: true), () => !ship.InCombat);
+        AssertFalse(ship.AI.IsInOrbit, "a ship that left orbit to fight must not count as in orbit");
+        AssertTrue(ship.RepairPlanet == null, "so the planet is not its repair planet");
+        AssertEqual(0.01f, 0f, HealthGainedAtHalfHealth(ship), "a ship fighting gets no repair, the planet's nor its own");
 
-            enemy.Die(null, cleanupOnly: true);
-            RunSimWhile((60, fatal: true), () => ship.InCombat || !ship.IsOrbiting(OurWorld));
-            AssertTrue(ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.Plan == ShipAI.Plan.Orbit,
-                       "the orbit order must outlast the fight");
-            AssertEqual(1f, orbitRepair, RepairPerSecondAtHalfHealth(ship),
-                        "back in orbit after the fight, the planet repairs it again");
-        }
-        finally
-        {
-            GlobalStats.Defaults.UseCombatRepair = combatRepair;
-        }
+        enemy.Die(null, cleanupOnly: true);
+        RunSimWhile((60, fatal: true), () => ship.InCombat || !ship.IsOrbiting(OurWorld));
+        AssertTrue(ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.Plan == ShipAI.Plan.Orbit,
+                   "the orbit order must outlast the fight");
+        AssertTrue(ship.RepairPlanet == OurWorld, "back in orbit the planet is its repair planet again");
+        AssertEqual(1f, orbitRepair, RepairPerSecondAtHalfHealth(ship),
+                    "back in orbit after the fight, the planet repairs it again");
     }
 
     [TestMethod]
@@ -143,7 +145,7 @@ public class OrbitCombatTests : StarDriveTest
     [TestMethod]
     public void ShipsSentToOrbitTogetherDoNotStackOnOneOrbitPoint()
     {
-        Universe.Frustum = new BoundingFrustum(Matrix.CreateOrthographicOffCenter(0, 1_000_000, 1_000_000, 0, -10_000, 10_000));
+        ViewOurSystem();
         Vector2 start = OurWorld.Position + new Vector2(6000, 0);
         TestShip a = OrbitOurWorld(start);
         TestShip b = OrbitOurWorld(start);
@@ -153,5 +155,94 @@ public class OrbitCombatTests : StarDriveTest
         float closest = float.MaxValue;
         RunObjectsSim(10f, () => closest = Math.Min(closest, a.Position.Distance(b.Position)));
         AssertGreaterThan(closest, a.Radius + b.Radius, "two ships orbiting one planet must not sit on top of each other");
+    }
+
+    // our world's system on screen; test universes start at planet view, close enough that ships fly their visible orbits
+    void ViewOurSystem()
+    {
+        Universe.Frustum = new BoundingFrustum(Matrix.CreateOrthographicOffCenter(0, 1_000_000, 1_000_000, 0, -10_000, 10_000));
+    }
+
+    static Vector2 OrbitPosOf(TestShip ship)
+    {
+        var orbit = (OrbitPlan)typeof(ShipAI).GetField("Orbit", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(ship.AI);
+        return orbit!.OrbitPos;
+    }
+
+    // a warship sent to orbit our world, this far out across the planet from its orbit point, or with its orbit point off to its side
+    TestShip SendToOrbitFromAcrossOurWorld(float distance, bool orbitPointToTheSide = false)
+    {
+        TestShip ship = SpawnShip("Terran-Prototype", Player, OurWorld.Position + new Vector2(distance, 0));
+        AssertGreaterThan(ship.MaxFTLSpeed, 0f, "setup: a ship that can warp");
+        ship.OrderToOrbit(OurWorld, clearOrders: true, MoveOrder.Aggressive);
+        AssertTrue(ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.Plan == ShipAI.Plan.Orbit,
+                   "setup: a warship goes straight into the orbit plan, with no move to the planet first");
+        RunObjectsSim(TestSimStep.FixedTime);
+        Vector2 toOrbitPoint = (OrbitPosOf(ship) - OurWorld.Position).Normalized();
+        ship.Position = OurWorld.Position + (orbitPointToTheSide ? new Vector2(-toOrbitPoint.Y, toOrbitPoint.X) : -toOrbitPoint) * distance;
+        return ship;
+    }
+
+    // on its way into orbit: whether the ship spooled outside 7500 of the planet, the jumps it made, and the steps it spooled or warped within 7500
+    (bool SpooledFar, int Jumps, int JumpStepsNear) FlyIntoOrbit(TestShip ship)
+    {
+        bool spooledFar = false, wasInWarp = false;
+        int jumps = 0, jumpStepsNear = 0;
+        RunSimWhile((240, fatal: true), () => !ship.IsOrbiting(OurWorld), () =>
+        {
+            AssertTrue(OurWorld.System.InFrustum && UState.IsSystemViewOrCloser, "setup: the ship flies the visible orbit, not the off-screen stop");
+            if (ship.IsInWarp && !wasInWarp)
+                ++jumps;
+            wasInWarp = ship.IsInWarp;
+            bool near = ship.Position.InRadius(OurWorld.Position, 7500f);
+            spooledFar |= ship.IsSpooling && !near;
+            if (ship.IsSpoolingOrInWarp && near)
+                ++jumpStepsNear;
+        });
+        return (spooledFar, jumps, jumpStepsNear);
+    }
+
+    [TestMethod]
+    public void AShipWarpingInToOrbitAPlanetOnScreenMakesNoJumpOnceNearIt()
+    {
+        ViewOurSystem();
+        TestShip ship = SendToOrbitFromAcrossOurWorld(60_000f);
+
+        (_, int jumps, int jumpStepsNear) = FlyIntoOrbit(ship);
+        AssertEqual(1, jumps, "one jump in from afar");
+        AssertEqual(0, jumpStepsNear, "out of warp near the planet, it closes in on its orbit at sublight");
+    }
+
+    [TestMethod]
+    public void AShipSentToOrbitABigPlanetFromNearByJumpsInOnce()
+    {
+        ViewOurSystem();
+        OurWorld.Radius = 2150f; // a big planet, its orbit point well off the line to its center
+        TestShip ship = SendToOrbitFromAcrossOurWorld(12_000f, orbitPointToTheSide: true);
+
+        (_, int jumps, int jumpStepsNear) = FlyIntoOrbit(ship);
+        AssertEqual(1, jumps, "one jump for the planet, not one after another cut short as each turns for the orbit point");
+        AssertEqual(0, jumpStepsNear, "then sublight to its orbit point");
+    }
+
+    [TestMethod]
+    public void AJumpSpooledJustOutsideTheWarpExitDistanceIsCalledOffOnceInside()
+    {
+        ViewOurSystem();
+        TestShip ship = SendToOrbitFromAcrossOurWorld(7550f);
+
+        (bool spooledFar, _, int jumpStepsNear) = FlyIntoOrbit(ship);
+        AssertTrue(spooledFar, "setup: just outside 7500 it spools for a jump for the planet");
+        AssertEqual(0, jumpStepsNear, "once inside 7500 the jump is called off, and it closes in at sublight");
+    }
+
+    [TestMethod]
+    public void AShipNearAPlanetOnScreenClosesInOnItsOrbitWithoutWarping()
+    {
+        ViewOurSystem();
+        TestShip ship = SendToOrbitFromAcrossOurWorld(7000f);
+        AssertGreaterThan(ship.Position.Distance(OrbitPosOf(ship)), 7500f, "setup: 7000 from the planet and more than 7500 from its orbit point");
+
+        AssertEqual(0, FlyIntoOrbit(ship).JumpStepsNear, "too near the planet for a jump, it closes in at sublight");
     }
 }

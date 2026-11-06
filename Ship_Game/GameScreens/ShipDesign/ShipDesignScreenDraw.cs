@@ -34,6 +34,7 @@ namespace Ship_Game
                 batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true);
 
                 DrawEmptySlots(batch);
+                DrawPartMap(batch);
                 DrawModules(batch);
                 DrawUnpoweredTex(batch);
                 DrawTacticalOverlays(batch);
@@ -169,6 +170,29 @@ namespace Ship_Game
                     string r = slot.HullRestrict.ToString();
                     DrawStringProjected(slot.WorldPos + new Vector2(8), 8f, Color.Navy, r, Fonts.Arial20Bold);
                 }
+            }
+        }
+
+        static readonly Color[] PartColors =
+        {
+            Color.Orange, Color.DeepSkyBlue, Color.LimeGreen, Color.Magenta, Color.Gold, Color.Cyan,
+            Color.Red, Color.MediumPurple, Color.SpringGreen, Color.HotPink, Color.Yellow, Color.DodgerBlue,
+        };
+
+        // the hull editor shows the part of a model cut into parts that each slot sits under, the core left plain
+        void DrawPartMap(SpriteBatch batch)
+        {
+            byte[,] map = HullEditMode ? CurrentHull?.PartMap : null;
+            if (map == null)
+                return;
+
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            {
+                int part = ShipHull.PartAt(map, slot.Pos);
+                if (part == 0)
+                    continue;
+                batch.FillRectangle(ProjectToScreenRectF(slot.WorldRect), PartColors[(part - 1) % PartColors.Length].Alpha(0.4f));
+                DrawStringProjected(slot.WorldPos + new Vector2(1.5f), 5f, Color.White, part.ToString(), shadow: true);
             }
         }
 

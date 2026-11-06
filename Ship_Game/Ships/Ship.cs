@@ -1322,12 +1322,13 @@ namespace Ship_Game.Ships
                 {
                     bool enableVisualizeDamage = PlanetCrash == null;
                     bool visibleForVisuals = visible && Universe.IsPlanetViewOrCloser && !IsInWarp;
+                    bool partsLost = PartShown != null;
                     for (int i = 0; i < ModuleSlotList.Length; ++i)
                     {
                         ShipModule m = ModuleSlotList[i];
                         m.UpdateEveryFrame(a);
                         if (enableVisualizeDamage && m.CanVisualizeDamage)
-                            m.UpdateDamageVisualization(timeStep, a.ParentScale, visibleForVisuals);
+                            m.UpdateDamageVisualization(timeStep, a.ParentScale, visibleForVisuals && !(partsLost && UnderLostPart(m)));
                     }
 
                     // Mining visuals are per-ship, not per-module — UpdateMiningVisuals

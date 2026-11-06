@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Reflection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -22,27 +23,44 @@ public class PlanetRepairTests : StarDriveTest
 
     float RepairPerSecond(Planet orbit, Vector2 spawnAt)
     {
-        bool combatRepair = GlobalStats.Defaults.UseCombatRepair;
-        GlobalStats.Defaults.UseCombatRepair = true; // the harness never advances TotalElapsed, so every ship reads as recently hit
+        TestShip ship = SpawnShip("Vulcan Scout", Player, spawnAt);
+        if (orbit != null)
+        {
+            orbit.GeodeticManager.AffectNearbyShips();
+            ship.OrderToOrbit(orbit, clearOrders: true);
+            RunSimWhile((60, fatal: true), () => !ship.AI.IsOrbiting(orbit));
+        }
+
+        foreach (ShipModule m in ship.Modules)
+            m.SetHealth(m.ActualMaxHealth * 0.5f, "Test");
+        RunObjectsSim(3f);
+        return ship.CurrentRepairPerSecond;
+    }
+
+    // A hit stops self-repair for 5 seconds of play; real time going by while paused does not count.
+    [TestMethod]
+    public void AHitStopsRepairForFiveSecondsOfPlayNotOfRealTime()
+    {
+        TestShip ship = SpawnShip("Vulcan Scout", Player, new Vector2(0, -300_000));
+        ship.SetLastDamagedBy(EnemyWorld);
+        Assert.IsFalse(ship.CanRepair, "just hit, it does not repair");
+
+        PropertyInfo realTime = typeof(GameBase).GetProperty(nameof(GameBase.TotalElapsed));
+        float realTimeNow = GameBase.Base.TotalElapsed;
         try
         {
-            TestShip ship = SpawnShip("Vulcan Scout", Player, spawnAt);
-            if (orbit != null)
-            {
-                orbit.GeodeticManager.AffectNearbyShips();
-                ship.OrderToOrbit(orbit, clearOrders: true);
-                RunSimWhile((60, fatal: true), () => !ship.AI.IsOrbiting(orbit));
-            }
-
-            foreach (ShipModule m in ship.Modules)
-                m.SetHealth(m.ActualMaxHealth * 0.5f, "Test");
-            RunObjectsSim(3f);
-            return ship.CurrentRepairPerSecond;
+            realTime!.SetValue(GameBase.Base, realTimeNow + 600f);
+            Assert.IsFalse(ship.CanRepair, "ten minutes paused do not count");
         }
         finally
         {
-            GlobalStats.Defaults.UseCombatRepair = combatRepair;
+            realTime!.SetValue(GameBase.Base, realTimeNow);
         }
+
+        RunObjectsSim(4f);
+        Assert.IsFalse(ship.CanRepair, "4 seconds of play on, it is still recently hit");
+        RunObjectsSim(1.5f);
+        Assert.IsTrue(ship.CanRepair, "after 5 seconds of play it repairs again");
     }
 
     float SelfRepair() => RepairPerSecond(null, new Vector2(0, -300_000));

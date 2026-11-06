@@ -72,6 +72,8 @@ namespace Ship_Game.Ships
             // a launching or landing ship's model waits for its next update, which gives it its launch or land look
             so.Visibility = IsLaunching || IsLanding ? ObjectVisibility.None : GlobalStats.ShipVisibility;
             so.HullTint = Loyalty.HullTint;
+            so.PartShown = PartShown;
+            so.InsidesHeat = InsidesHeat;
             ScreenManager.Instance.AddObject(so);
             ShipSO = so; // last, so the sim can only take out a model that is already in the scene
         }
@@ -189,6 +191,7 @@ namespace Ship_Game.Ships
                 UpdateEnginesAndVelocity(timeStep);
             }
             bool visibleToPlayer = IsVisibleToPlayer;
+            SceneObject moved = null; // the model placed by this update, which a part lost now flies off
             if (IsLaunching)
             {
                 LaunchShip.Update(visibleToPlayer, timeStep);
@@ -235,6 +238,7 @@ namespace Ship_Game.Ships
                     model.UpdateAnimation(timeStep.FixedTime);
 
                     UpdateThrusters(timeStep);
+                    moved = model;
                 }
                 else // auto-create scene objects if possible
                 {
@@ -245,12 +249,18 @@ namespace Ship_Game.Ships
             if (Dismantling && timeStep.FixedTime > 0f)
                 UpdateDismantling(timeStep, visibleToPlayer);
 
+            uint lostNow = PartsOutdated ? UpdateLostParts(timeRuns: timeStep.FixedTime > 0f) : 0u;
+
             SceneObject so = ShipSO; // the UI thread may take it out meanwhile
             if (so != null)
             {
                 so.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
                 so.HullTint = Loyalty.HullTint;
+                so.PartShown = PartShown;
+                so.InsidesHeat = InsidesHeat;
             }
+            if (lostNow != 0u && moved != null)
+                ThrowOffParts(lostNow, moved);
 
             SoundEmitter.Position = new Vector3(Position, 0);
 
@@ -393,10 +403,12 @@ namespace Ship_Game.Ships
             bool notPaused = timeStep.FixedTime > 0f;
 
             Vector3 direction3d = Direction3D;
+            float[] shown = PartShown;
+            byte[] thrusterParts = shown != null ? BaseHull.ThrusterParts : null;
 
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
-                Thruster thruster = ThrusterList[i];
+                Thruster thruster = ThrusterList[i]; // one that is out still moves, so it relights where its ship is
                 thruster.UpdatePosition(Position, YRotation, direction3d, deltaZ);
 
                 bool enginesOn = ThrustThisFrame == Thrust.Forward || ThrustThisFrame == Thrust.Reverse;
@@ -423,7 +435,7 @@ namespace Ship_Game.Ships
                     thruster.Update(direction3d, 0.1f, 1.0f / 500.0f, thrust0, thrust1);
                 }
 
-                if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused && ReactorsWork)
+                if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused && ReactorsWork && !ThrusterOut(i, shown, thrusterParts))
                 {
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
                     float thrustScale = thruster.Scale * shipScale / 32f;
@@ -475,6 +487,8 @@ namespace Ship_Game.Ships
             float scale = PlanetCrash?.Scale ?? 1;
             float scaledRadius = Radius * scale;
 
+            uint lostNow = PartsOutdated ? UpdateLostParts(timeRuns: timeStep.FixedTime > 0f) : 0u;
+
             SceneObject so = ShipSO; // the UI thread may take it out meanwhile
             if (visibleAndNotPaused && so != null)
             {
@@ -488,6 +502,10 @@ namespace Ship_Game.Ships
                 so.UpdateAnimation(timeStep.FixedTime);
                 so.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
                 so.HullTint = Loyalty.HullTint;
+                so.PartShown = PartShown;
+                so.InsidesHeat = InsidesHeat;
+                if (lostNow != 0u)
+                    ThrowOffParts(lostNow, so);
             }
 
             if (visibleAndNotPaused && !IsMeteor)
@@ -522,9 +540,11 @@ namespace Ship_Game.Ships
 
             SoundEmitter.Position = new Vector3(Position, 0);
 
+            bool partsLost = PartShown != null;
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
-                ModuleSlotList[i].UpdateWhileDying(timeStep, scale, visible);
+                ShipModule m = ModuleSlotList[i];
+                m.UpdateWhileDying(timeStep, scale, visible && !(partsLost && UnderLostPart(m)));
             }
         }
     }

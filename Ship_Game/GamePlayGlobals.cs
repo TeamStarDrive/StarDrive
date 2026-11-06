@@ -62,7 +62,7 @@ public class GamePlayGlobals
 
     // base amount of ship repair per SECOND from planetary buildings
     [StarData] public float BaseShipyardRepair = 100;
-    // repair rate multiplier when a ship or planet is in combat
+    // share of a colony's ship repair while there is fighting near the colony
     [StarData] public float InCombatRepairModifier = 0.5f;
     // +bonus based on colony level, 0.1 would be +10% increase per level
     [StarData] public float BonusRepairPerColonyLevel = 0.1f;
@@ -72,8 +72,6 @@ public class GamePlayGlobals
     [StarData] public float SelfRepairMultiplier = 1f;  
     // +bonus rate based on crew level, 0.2 would be +20% increase per each crew level
     [StarData] public float BonusRepairPerCrewLevel = 0.2f;
-    // repair rate modifier for command/engineering self repair when in combat
-    [StarData] public float InCombatSelfRepairModifier = 0.2f;
     // Shield power multiply
     [StarData] public float ShieldPowerMultiplier = 1f;
     // Projectile Hit Points Multiplier
@@ -90,7 +88,6 @@ public class GamePlayGlobals
     [StarData] public float ExoticRatioStorage = 0.1f;
 
     // feature flags
-    [StarData] public bool UseCombatRepair;
     [StarData] public bool EnableECM;
     [StarData] public bool UseDestroyers;
     [StarData] public bool ReconDropDown;
@@ -106,6 +103,8 @@ public class GamePlayGlobals
     [StarData] public bool DisablePirates;
     // salvageable derelicts and salvage ships; off, the Disable Salvage Ops rule option is locked on
     [StarData] public bool EnableSalvageOps;
+    // hull plates that ships lose in battle; off, the Hull Plates rule option is hidden
+    [StarData] public bool EnableHullPlates;
     [StarData] public bool AIUsesPlayerDesigns = true; // Can AI use player designs? This will make the AI stronger.
     // changes how upkeep is calculated, default:false means upkeep depends on ship cost
     // setting this to true means upkeep depends on number of hull design slots
@@ -145,6 +144,7 @@ public class GamePlayGlobals
             foreach (var field in typeof(GamePlayGlobals).GetFields())
                 field.SetValue(this, field.GetValue(GlobalStats.VanillaDefaults));
             EnableSalvageOps = false; // a mod turns it on itself, once it has salvage designs
+            EnableHullPlates = false; // a mod turns it on itself, once its hull models are cut into plates
         }
     }
 

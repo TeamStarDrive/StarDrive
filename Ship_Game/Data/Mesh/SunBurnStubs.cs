@@ -132,6 +132,9 @@ namespace SynapseGaming.LightingSystem.Core
         SceneState LastFrameState;
         Effects.Forward.LightingEffect SharedFx;
 
+        // a face is drawn only where strictly nearer than what is there, so one at the same depth step never shows through
+        static readonly DepthStencilState NearerOnly = new() { DepthBufferFunction = CompareFunction.Less };
+
         // Phase 3.8.B: optional per-frame shadow map. Owner (UniverseScreen
         // / future ShipDesigner) constructs the component, calls
         // LoadContent, and assigns here. RenderScene runs the depth pre-
@@ -234,8 +237,19 @@ namespace SynapseGaming.LightingSystem.Core
                 if (iso is not Rendering.SceneObject so || !so.HasMeshes) continue;
                 if (so.Visibility == ObjectVisibility.None) continue;
 
-                DrawRenderables(so);
-                DrawModelMeshes(so);
+                float[] shown = so.PartShown; // read once, as the sim thread swaps it
+                Matrix world = so.World; // and moves it
+                DrawRenderables(so, world, shown, insides: false);
+                if (shown != null)
+                {
+                    // a model with a part off shows its insides, burnt, only where they are nearer than its outside: through the gap
+                    Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullClockwiseFace);
+                    GraphicsDevice.DepthStencilState = NearerOnly;
+                    DrawRenderables(so, world, shown, insides: true);
+                    Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullCounterClockwiseFace);
+                    Ship_Game.Graphics.RenderStates.EnableDepthWrite(GraphicsDevice);
+                }
+                DrawModelMeshes(so, world);
             }
         }
 
@@ -266,12 +280,14 @@ namespace SynapseGaming.LightingSystem.Core
                     if (iso is not Rendering.SceneObject so || !so.HasMeshes) continue;
                     if (so.Visibility == ObjectVisibility.None) continue;
 
+                    float[] shown = so.PartShown;
                     foreach (Rendering.RenderableMesh rm in so.RenderableMeshes)
                     {
                         if (rm.PrimitiveCount == 0 || rm.VertexBuffer == null || rm.IndexBuffer == null)
                             continue;
-                        ShadowMap.DrawCaster(so.World * rm.World, rm.VertexBuffer, rm.IndexBuffer,
-                            rm.PrimitiveType, rm.BaseVertex, rm.StartIndex, rm.PrimitiveCount);
+                        for (int part = 0; rm.NextShownRun(shown, ref part, out int start, out int primitives);)
+                            ShadowMap.DrawCaster(so.World * rm.World, rm.VertexBuffer, rm.IndexBuffer,
+                                rm.PrimitiveType, rm.BaseVertex, start, primitives);
                     }
 
                     foreach ((ModelMesh mesh, Effect _) in so.AddedModelMeshes)
@@ -422,7 +438,8 @@ namespace SynapseGaming.LightingSystem.Core
             dst.SpecularColor = src.SpecularColor;
         }
 
-        void DrawRenderables(Rendering.SceneObject so)
+        // insides: draw a model's back faces as its burnt insides, else its outside
+        void DrawRenderables(Rendering.SceneObject so, in Matrix world, float[] shown, bool insides)
         {
             foreach (Rendering.RenderableMesh rm in so.RenderableMeshes)
             {
@@ -434,9 +451,11 @@ namespace SynapseGaming.LightingSystem.Core
                 // planet-halo custom shader) are passed through with caller-set
                 // matrices (stays the legacy contract).
                 var fx = (rm.Effect as Effects.Forward.LightingEffect) ?? SharedFx;
-                fx.World = so.World * rm.World;
+                fx.World = world * rm.World;
                 fx.EmissiveScale = so.EmissiveScale; // effects are shared by every ship of a model
                 fx.HullTint = so.HullTint;
+                fx.InsidesBurnt = insides;
+                fx.InsidesHeat = so.InsidesHeat;
 
                 // Phase 2.8.C hotfix #5: per-mesh effects (PlanetType.Material,
                 // ship Materials, etc.) need View/Projection from the current
@@ -481,13 +500,34 @@ namespace SynapseGaming.LightingSystem.Core
                 foreach (EffectPass pass in fx.CurrentTechnique.Passes)
                 {
                     pass.Apply();
-                    GraphicsDevice.DrawIndexedPrimitives(rm.PrimitiveType,
-                        rm.BaseVertex, rm.StartIndex, rm.PrimitiveCount);
+                    for (int part = 0; rm.NextShownRun(shown, ref part, out int start, out int primitives);)
+                        GraphicsDevice.DrawIndexedPrimitives(rm.PrimitiveType, rm.BaseVertex, start, primitives);
                 }
+                DrawPartsComingBack(fx, rm, shown);
             }
         }
 
-        void DrawModelMeshes(Rendering.SceneObject so)
+        // each part coming back is drawn as much as its share shown, grown out from the model's middle
+        void DrawPartsComingBack(Effects.Forward.LightingEffect fx, Rendering.RenderableMesh rm, float[] shown)
+        {
+            EffectTechnique dissolve = fx.DissolveTechnique;
+            if (dissolve == null)
+                return;
+            fx.ReachShape = rm.ReachShape;
+            for (int part = 0; rm.NextPartComingBack(shown, ref part, out int start, out int primitives, out float share);)
+            {
+                fx.ShareShown = share;
+                fx.PartReach = rm.PartReach != null ? rm.PartReach[part - 1] : new(0f, 1f); // the part just found
+                foreach (EffectPass pass in dissolve.Passes)
+                {
+                    pass.Apply();
+                    GraphicsDevice.DrawIndexedPrimitives(rm.PrimitiveType, rm.BaseVertex, start, primitives);
+                }
+            }
+            fx.ShareShown = 1f;
+        }
+
+        void DrawModelMeshes(Rendering.SceneObject so, in Matrix world)
         {
             foreach ((ModelMesh mesh, Effect effect) in so.AddedModelMeshes)
             {
@@ -495,9 +535,10 @@ namespace SynapseGaming.LightingSystem.Core
                 // Note: parent-bone hierarchy walk omitted for Phase 2 simplicity.
                 // Submeshes inherit SceneObject.World only; bone-aware composite
                 // is a Phase 3 cleanup if/when skeletal hierarchies return.
-                fx.World = so.World;
+                fx.World = world;
                 fx.EmissiveScale = so.EmissiveScale;
                 fx.HullTint = so.HullTint;
+                fx.InsidesBurnt = false;
                 if (fx != SharedFx) // see DrawRenderables for hotfix #5
                 {
                     fx.View = SharedFx.View;
@@ -596,6 +637,10 @@ namespace SynapseGaming.LightingSystem.Rendering
         public float EmissiveScale { get; set; } = 1f;
         // the owner's color on the model's tint-mapped paint, W = 0 for the bare texture
         public Vector4 HullTint { get; set; }
+        // how much of each part of a model cut into parts is shown, 1 whole, below 1 left out; null draws the model whole
+        public float[] PartShown { get; set; }
+        // how hot the embers in the burnt insides of a model with a part off still glow, 1 just torn open, 0 cold
+        public float InsidesHeat { get; set; } = 1f;
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }
 
@@ -616,6 +661,39 @@ namespace SynapseGaming.LightingSystem.Rendering
 
         public void Add(ModelMesh m, Effect e) { if (m != null) ModelMeshes.Add((m, e)); }
         public void Add(RenderableMesh m) { if (m != null) Renderables.Add(m); }
+
+        // another object drawing the same meshes, placed and shown on its own, as a hull part flying off its ship
+        public SceneObject CopyMeshes()
+        {
+            var copy = new SceneObject(Name)
+            {
+                ObjectType = ObjectType,
+                WorldBoundingBox = WorldBoundingBox,
+                ObjectBoundingSphere = ObjectBoundingSphere,
+                World = World,
+                EmissiveScale = EmissiveScale,
+                HullTint = HullTint,
+                InsidesHeat = InsidesHeat,
+                Visibility = Visibility,
+                AnimationPlayer = AnimationPlayer,
+            };
+            foreach (RenderableMesh rm in Renderables)
+            {
+                copy.Add(new RenderableMesh(copy, rm.Effect, rm.World, rm.BoundingSphere, rm.IndexBuffer, rm.VertexBuffer,
+                                            rm.VertexDeclaration, rm.StreamOffset, rm.PrimitiveType, rm.PrimitiveCount,
+                                            rm.BaseVertex, rm.NumVertices, rm.StartIndex, rm.VertexStride)
+                {
+                    PartStart = rm.PartStart,
+                    PartPrimitives = rm.PartPrimitives,
+                    PartReach = rm.PartReach,
+                    ReachShape = rm.ReachShape,
+                    DiffuseTexture = rm.DiffuseTexture,
+                });
+            }
+            foreach ((ModelMesh mesh, Effect effect) in ModelMeshes)
+                copy.Add(mesh, effect);
+            return copy;
+        }
         public void UpdateAnimation(float deltaTime)
         {
             AnimationPlayer?.Update(deltaTime);
@@ -641,6 +719,12 @@ namespace SynapseGaming.LightingSystem.Rendering
         public int NumVertices { get; }
         public int StartIndex { get; }
         public int VertexStride { get; }
+        // a model cut into parts: each part's first index and triangle count, in part order; null for a model in one piece
+        public int[] PartStart { get; init; }
+        public int[] PartPrimitives { get; init; }
+        // each part's nearest and farthest reach from the model's middle, which a part coming back grows out along, and the middle and size it is measured by
+        public Vector2[] PartReach { get; init; }
+        public Vector4 ReachShape { get; init; }
 
         // Material data — Phase 2 only uses DiffuseTexture; reserve MaterialOverrides
         // dict for Phase 3 normal-map / specular / emissive additions.
@@ -668,6 +752,62 @@ namespace SynapseGaming.LightingSystem.Rendering
             StartIndex = startIndex;
             VertexStride = vertexStride;
         }
+
+        // the next run of shown parts from part on, as one index range, since the parts lie in part order; a model in one piece is one run
+        public bool NextShownRun(float[] shown, ref int part, out int startIndex, out int primitives)
+        {
+            if (PartStart == null || shown == null)
+            {
+                startIndex = StartIndex;
+                primitives = PrimitiveCount;
+                bool first = part == 0;
+                part = int.MaxValue;
+                return first && primitives > 0;
+            }
+
+            startIndex = 0;
+            primitives = 0;
+            for (; part < PartStart.Length; ++part)
+            {
+                if (PartPrimitives[part] == 0)
+                    continue;
+                if (part < shown.Length && shown[part] < 1f)
+                {
+                    if (primitives > 0)
+                    {
+                        ++part;
+                        return true;
+                    }
+                    continue;
+                }
+                if (primitives == 0)
+                    startIndex = PartStart[part];
+                primitives += PartPrimitives[part];
+            }
+            return primitives > 0;
+        }
+
+        // the next part from part on that is coming back, neither whole nor gone, and the share of it shown
+        public bool NextPartComingBack(float[] shown, ref int part, out int startIndex, out int primitives, out float share)
+        {
+            startIndex = 0;
+            primitives = 0;
+            share = 0f;
+            if (PartStart == null || shown == null)
+                return false;
+            for (; part < PartStart.Length && part < shown.Length; ++part)
+            {
+                float s = shown[part];
+                if (s <= 0f || s >= 1f || PartPrimitives[part] == 0)
+                    continue;
+                startIndex = PartStart[part];
+                primitives = PartPrimitives[part];
+                share = s;
+                ++part;
+                return true;
+            }
+            return false;
+        }
     }
 
     public sealed class MeshData : IDisposable
@@ -683,6 +823,9 @@ namespace SynapseGaming.LightingSystem.Rendering
         public VertexBuffer VertexBuffer { get; set; }
         public IndexBuffer IndexBuffer { get; set; }
         public Effect Effect { get; set; }
+        // a model cut into parts: each part's first index and triangle count, in part order; null for a model in one piece
+        public int[] PartStart { get; set; }
+        public int[] PartPrimitives { get; set; }
         public void Dispose()
         {
             VertexDeclaration?.Dispose(); VertexDeclaration = null;
@@ -892,7 +1035,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // ── EffectParameter handles (cached at ctor) ────────────────────────
         readonly EffectParameter pWorld, pView, pProjection;
         readonly EffectParameter pDiffuseColor, pEmissiveColor, pSpecularColor;
-        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pHullTint, pAlpha, pEyePosition;
+        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pHullTint, pPartLook, pPartReach, pReachShape, pAlpha, pEyePosition;
         readonly EffectParameter pLightingEnabled, pTextureEnabled, pFogEnabled;
         readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled, pTintMapEnabled;
         readonly EffectParameter pAmbientLightColor;
@@ -951,6 +1094,22 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
 
         // the owner's color for the next draw's tint-mapped paint, W = 0 for none; the renderer sets it from each SceneObject
         public Vector4 HullTint { get; set; }
+
+        // the share of a part coming back the next draw shows, 1 for a whole model; the renderer sets it per part
+        public float ShareShown { get; set; } = 1f;
+
+        // the next draw shades back faces as the burnt insides of a hull torn open
+        public bool InsidesBurnt { get; set; }
+
+        // how hot the next draw's burnt insides still glow, 1 just torn open, 0 cold; the renderer sets it from each SceneObject
+        public float InsidesHeat { get; set; } = 1f;
+
+        // the next draw's part coming back grows out across this reach from the model's middle, measured by its middle and size; the renderer sets both
+        public Vector2 PartReach { get; set; } = new(0f, 1f);
+        public Vector4 ReachShape { get; set; } = new(0f, 0f, 1f, 1f);
+
+        // draws a part coming back, as much as its share shown; null for a shader without it
+        public EffectTechnique DissolveTechnique { get; }
 
         // View setter caches the inverse-view eye position so OnApply doesn't
         // re-invert per drawn mesh. View typically changes once per frame
@@ -1040,6 +1199,9 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pSpecularAmount     = Parameters["SpecularAmount"];
             pEmissiveScale      = Parameters["EmissiveScale"];
             pHullTint           = Parameters["HullTint"];
+            pPartLook           = Parameters["PartLook"];
+            pPartReach          = Parameters["PartReach"];
+            pReachShape         = Parameters["ReachShape"];
             pAlpha              = Parameters["Alpha"];
             pEyePosition        = Parameters["EyePosition"];
             pLightingEnabled    = Parameters["LightingEnabled"];
@@ -1123,6 +1285,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             DirectionalLight0 = new DirectionalLight(pDl0Direction, pDl0Diffuse, pDl0Specular, null);
             DirectionalLight1 = new DirectionalLight(pDl1Direction, pDl1Diffuse, pDl1Specular, null);
             DirectionalLight2 = new DirectionalLight(pDl2Direction, pDl2Diffuse, pDl2Specular, null);
+            DissolveTechnique = Techniques["Dissolve"];
 
             EnableDefaultLighting();
         }
@@ -1212,6 +1375,9 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             // legacy XNB materials (which never wrote Specular) unchanged.
             pSpecularAmount?.SetValue(SpecularAmount > 0 ? SpecularAmount : 1.0f);
             pEmissiveScale?.SetValue(EmissiveScale);
+            pPartLook?.SetValue(new Vector4(ShareShown, InsidesBurnt ? 1f : 0f, InsidesHeat, 0f));
+            pPartReach?.SetValue(new Vector4(PartReach, 0f, 0f));
+            pReachShape?.SetValue(ReachShape);
             pAlpha?.SetValue(Alpha);
 
             // EyePosition is cached on the View setter — see _view/_eyePosition

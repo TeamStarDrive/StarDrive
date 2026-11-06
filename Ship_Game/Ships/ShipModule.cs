@@ -1116,6 +1116,18 @@ namespace Ship_Game.Ships
             }
         }
 
+        // a module under a hull part just lost goes with it, quietly: dead with no blast, debris or sound, as its part's own blast shows it
+        internal void DieWithItsPart()
+        {
+            if (!Active)
+                return;
+            ShieldPower = 0f;
+            Shield?.RemoveLight(Parent.Universe.Screen);
+            Active = false;
+            SetHealth(0f, "Part lost");
+            Parent.OnModuleDeath(this);
+        }
+
         // a recovered ship's module back at this share of its health, dead at none, quietly: no blast, debris or sound, and its shield empty; one alive keeps at least 1 health, below which a module dies
         internal void SetRecoveredHealth(float share)
         {
@@ -1390,9 +1402,10 @@ namespace Ship_Game.Ships
             return 1 + damagePriority * moduleImportance;
         }
 
+        // none regenerates under a hull part lost until repairs make the part whole again
         public void RegenerateSelf()
         {
-            if (Regenerate > 0 && HealthPercent < 0.99f)
+            if (Regenerate > 0 && HealthPercent < 0.99f && !Parent.UnderLostPart(this))
             {
                 bool unpowered = !Powered && PowerDraw > 0f;
                 if (!Active)

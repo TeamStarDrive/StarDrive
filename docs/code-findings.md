@@ -795,21 +795,20 @@ as designed and must not be "fixed".
    repair sentences now say "your own or an ally's colony". What it was: a player Vulcan Scout
    orbiting an enemy homeworld repaired at **440/s against 40/s** in deep space, and the same at the
    homeworld of an empire it was at peace with; its own homeworld, the control, adds exactly the
-   planet's rate. The test turns
-   `UseCombatRepair` on because the harness never advances `GameBase.TotalElapsed`, so every ship
-   there reads as recently damaged; that the states below are out of combat comes from reading the
-   code. `Ship.Repair` (`Ship_Repair.cs` ~59) takes the tether or the orbit target with no owner
-   check, and the planet also clears EMP and lifts the repair level to `p.Level + p.NumShipyards`.
+   planet's rate. A ship repairs at a colony only out of combat, and none of these ships is in
+   combat or recently hit, which counts in game seconds since the last hit. `Ship.Repair`
+   (`Ship_Repair.cs` ~59) takes the tether or the orbit target with no owner check, and the planet
+   also clears EMP and lifts the repair level to `p.Level + p.NumShipyards`.
    Supply does check: `GeodeticManager.AffectNearbyShips` serves only the owner and its allies, and
    `IsSuitableForPlanetaryRearm` reads the same pair.
-   **Reachable out of combat**, the only time repair runs (`UseCombatRepair` is false in vanilla and
-   every shipped mod): the default right-click on any planet is `OrderToOrbit` with no owner check,
-   so any foreign world at peace and any enemy colony with nothing firing; a bomber whose target
-   stops being attackable is parked in orbit on purpose (`DoBombard`, "Stay in Orbit"); a troop ship
-   that has launched all its troops orbits the planet it is invading; and a boarded orbital keeps
-   its tether to the old owner's planet, because boarding never untethers. A planet that loses its
-   owner also keeps its last `RepairRatePerSecond`, since only `AffectNearbyShips` sets it and that
-   returns early without an owner, so it repaired at the dead colony's rate until the next load;
+   **Reachable out of combat**, the only time a ship repairs at a colony: the default right-click
+   on any planet is `OrderToOrbit` with no owner check, so any foreign world at peace and any enemy
+   colony with nothing firing; a bomber whose target stops being attackable is parked in orbit on
+   purpose (`DoBombard`, "Stay in Orbit"); a troop ship that has launched all its troops orbits the
+   planet it is invading; and a boarded orbital keeps its tether to the old owner's planet, because
+   boarding never untethers. A planet that loses its owner also keeps its last
+   `RepairRatePerSecond`, since only `AffectNearbyShips` sets it and that returns early without an
+   owner, so it repaired at the dead colony's rate until the next load;
    the owner gate closes that case as well, and the stale rate itself is harmless now. The EMP
    sentence in `CodexWarfareCombatBasicsText` said "orbiting a friendly colony", so the EMP
    clearing that rides on the same block matches it; `15e9fc81f` reworded it to "orbiting your own

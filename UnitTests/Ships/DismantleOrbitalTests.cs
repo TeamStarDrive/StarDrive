@@ -165,13 +165,9 @@ public class DismantleOrbitalTests : StarDriveTest
         Ship station = Orbital(PatrolStation);
         Ship control = Orbital(PatrolStation);
         station.AI.OrderScrapShip();
-        FieldInfo damagedAt = typeof(Ship).GetField("LastDamagedTime", BindingFlags.Instance | BindingFlags.NonPublic);
         foreach (Ship s in new[] { station, control })
-        {
             foreach (ShipModule m in s.Modules)
                 m.SetHealth(m.ActualMaxHealth * 0.5f, "Test");
-            damagedAt.SetValue(s, -100f); // out of combat long enough to repair
-        }
         float health = station.Health;
         AssertEqual(0.01f, health, control.Health, "setup: both are damaged alike");
 

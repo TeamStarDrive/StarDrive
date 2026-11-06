@@ -334,7 +334,8 @@ namespace Ship_Game.Ships
                 ship.Level = 0;
                 ship.KillAllTroops();
                 ship.CalcTroopBoardingDefense();
-                ship.TakeRecoveryDamage();
+                ship.TakeRecoveryDamage(d.PartShownNow);
+                ship.KeepLostParts(d.PartShownNow, d.InsidesHeat);
                 ship.SetOrdnance(0f);
                 ship.PowerCurrent = 0f;
                 ship.FlickerLightsOn();
@@ -353,12 +354,16 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        // each module quietly at its share of its health by the recovery's rules, the hull's edge read as designed, then its outline, power, stats and shields again
-        void TakeRecoveryDamage()
+        // each module quietly at its share of its health by the recovery's rules, dead under a hull part its derelict lost, the hull's edge read as designed, then its outline, power, stats and shields again
+        void TakeRecoveryDamage(float[] derelictShown)
         {
             bool designRepairs = DerelictRecovery.DesignRepairs(ModuleSlotList);
             for (int i = 0; i < ModuleSlotList.Length; ++i)
-                ModuleSlotList[i].SetRecoveredHealth(DerelictRecovery.HealthOnRecovery(ModuleSlotList[i], designRepairs));
+            {
+                ShipModule m = ModuleSlotList[i];
+                float health = DerelictRecovery.HealthOnRecovery(m, designRepairs);
+                m.SetRecoveredHealth(UnderPartLostBy(derelictShown, m) ? 0f : health);
+            }
 
             Externals = new ExternalSlotGrid(GetGridState());
             RecalculatePower();

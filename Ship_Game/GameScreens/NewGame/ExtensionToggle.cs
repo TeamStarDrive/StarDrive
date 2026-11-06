@@ -12,7 +12,8 @@ namespace Ship_Game.GameScreens.NewGame;
 // a game extension as its icon and name, either of which turns it on or off: lit while on, dimmed while off, rimmed in gold under the mouse
 public sealed class ExtensionToggle : UIElementV2
 {
-    const int IconWidth = 58, IconHeight = 49, TextPadding = 12;
+    public const int IconWidth = 58, IconHeight = 49;
+    const int TextPadding = 12;
     static readonly Color OffColor = new(120, 120, 120);
     static readonly Color LockedColor = new(80, 80, 80);
 

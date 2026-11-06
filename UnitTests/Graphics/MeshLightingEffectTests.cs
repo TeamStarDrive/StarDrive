@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -297,6 +298,186 @@ public class MeshLightingEffectTests : StarDriveTest
         Assert.IsTrue(bareBlue < tintedBlue / 5, $"the bare cube drew with the tinted cube's color: {bareBlue} vs {tintedBlue}");
     }
 
+    // a white box drawn by the scene's renderer onto a 64x64 magenta target, its parts as given; inParts makes it all part 1; gameDepth draws as the universe does, 16-bit depth from a near plane at 100; chrome makes it a glossy material lit from the eye
+    static Color[] RenderBoxInScene(float[] partShown, Vector3 eye, Vector3 target, Vector3 size, bool inParts = false,
+                                    Vector3 moved = default, float heat = 1f, bool gameDepth = false, bool chrome = false)
+    {
+        GraphicsDevice device = Game.GraphicsDevice;
+        (StaticMesh mesh, VertexBuffer vb, IndexBuffer ib) = BuildBox(device, size);
+        if (inParts)
+        {
+            mesh.RawMeshes[0].PartStart = new[] { 0, 0 };
+            mesh.RawMeshes[0].PartPrimitives = new[] { 0, 12 };
+            mesh.NumParts = 2;
+            mesh.PartTriangles = new[] { System.Array.Empty<Vector3>(), BoxTriangles(size) };
+        }
+        using var fx = new LightingEffect(device) { TextureEnabled = false, DiffuseColor = Vector3.One };
+        if (chrome)
+        {
+            fx.SpecularAmount = 6f;
+            fx.SpecularPower = 64f;
+        }
+        SceneObject so = mesh.CreateSceneObject(effect: fx);
+        so.World = Matrix.CreateScale(1f, 1f, -1f) * Matrix.CreateTranslation(moved); // mirrored, so its faces wind as a ship model's
+        so.Visibility = ObjectVisibility.Rendered;
+        so.PartShown = partShown;
+        so.InsidesHeat = heat;
+
+        using var scene = new SceneInterface(Game.Graphics);
+        if (chrome)
+            scene.LightManager.Submit(new SynapseGaming.LightingSystem.Lights.DirectionalLight
+                { Direction = Vector3.Normalize(target - eye), DiffuseColor = Vector3.One, Intensity = 1f, Enabled = true });
+        var state = new SceneState();
+        Matrix view = Matrix.CreateLookAt(eye + moved, target + moved, Vector3.Up);
+        Matrix projection = gameDepth ? Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1.0f, 100f, 100_000f)
+                                      : Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1.0f, 0.1f, 1000f);
+        state.BeginFrameRendering(ref view, ref projection, 0f, null, false);
+        scene.BeginFrameRendering(state);
+        scene.ObjectManager.Submit(so);
+
+        using var rt = new RenderTarget2D(device, 64, 64, mipMap: false, SurfaceFormat.Color, gameDepth ? DepthFormat.Depth16 : DepthFormat.Depth24);
+        RenderTargetBinding[] previousTargets = device.GetRenderTargets();
+        try
+        {
+            device.SetRenderTarget(rt);
+            device.Clear(Color.Magenta);
+            scene.RenderScene();
+        }
+        finally
+        {
+            device.SetRenderTargets(previousTargets);
+            vb.Dispose();
+            ib.Dispose();
+        }
+        var pixels = new Color[rt.Width * rt.Height];
+        rt.GetData(pixels);
+        return pixels;
+    }
+
+    static readonly Vector3 Cube = new(40f);
+
+    // the box's triangles, three corners each, as a model's part triangles are kept
+    static Vector3[] BoxTriangles(Vector3 size)
+    {
+        VertexPositionNormalTextureBump[] vertices = ForwardRendererTests.BuildCubeVertices();
+        short[] indices = ForwardRendererTests.BuildCubeIndices();
+        var corners = new Vector3[indices.Length];
+        for (int i = 0; i < indices.Length; ++i)
+            corners[i] = vertices[indices[i]].Position * size;
+        return corners;
+    }
+
+    // the white of the box's lit outside, not its burnt insides or the background
+    static bool LitWhite(Color px) => px.R > 50 && System.Math.Abs(px.R - px.G) < 25 && System.Math.Abs(px.R - px.B) < 25;
+
+    static bool Ember(Color px) => px.R > 120 && px.R > px.B * 2 + 40;
+    static bool Charred(Color px) => px.R + px.G + px.B < 90;
+
+    // the pixels of two pictures that differ by more than a little
+    static int Differing(Color[] a, Color[] b)
+        => a.Zip(b).Count(p => System.Math.Abs(p.First.R - p.Second.R) > 8 || System.Math.Abs(p.First.G - p.Second.G) > 8
+                               || System.Math.Abs(p.First.B - p.Second.B) > 8);
+
+    static readonly Vector3 FarAway = new(30_000f, -20_000f, 0f);
+
+    // A model with a part off shows its insides where nothing else is in front, as through the gap, burnt.
+    [TestMethod]
+    public void AModelWithAPartOffShowsItsInsidesBurnt()
+    {
+        Color[] whole = RenderBoxInScene(null, Vector3.Zero, -Vector3.UnitZ, Cube);
+        Assert.IsTrue(whole.All(px => px == Color.Magenta), "a whole model draws no insides");
+
+        Color[] open = RenderBoxInScene(new[] { 1f }, Vector3.Zero, -Vector3.UnitZ, Cube);
+        Assert.IsFalse(open.Any(px => px == Color.Magenta), "one with a part off draws its insides");
+        Assert.IsTrue(open.Count(Ember) > 0, $"embers glowing red and orange: {open.Count(Ember)} of {open.Length}");
+        Assert.IsTrue(open.Count(Charred) > open.Length / 2, $"on charred metal: {open.Count(Charred)} of {open.Length}");
+
+        Color[] movedAway = RenderBoxInScene(new[] { 1f }, Vector3.Zero, -Vector3.UnitZ, Cube, moved: FarAway);
+        Assert.IsTrue(Differing(open, movedAway) < open.Length / 100, $"the embers stay on the hull as it moves: {Differing(open, movedAway)} pixels differ");
+    }
+
+    // Insides cooled out are charred metal with no embers.
+    [TestMethod]
+    public void CooledInsidesGlowNoMore()
+    {
+        Color[] cold = RenderBoxInScene(new[] { 1f }, Vector3.Zero, -Vector3.UnitZ, Cube, heat: 0f);
+        Assert.AreEqual(0, cold.Count(Ember), "no embers");
+        Assert.IsTrue(cold.Count(Charred) > cold.Length * 9 / 10, $"all charred metal: {cold.Count(Charred)} of {cold.Length}");
+    }
+
+    // Charred insides keep their own dull shine, even inside a hull of polished chrome.
+    [TestMethod]
+    public void BurntInsidesShineAlikeOnAnyHull()
+    {
+        Color[] chrome = RenderBoxInScene(new[] { 1f }, Vector3.Zero, -Vector3.UnitZ, Cube, heat: 0f, chrome: true);
+        int brightest = chrome.Max(px => System.Math.Max(px.R, System.Math.Max(px.G, px.B)));
+        Assert.IsTrue(brightest < 100, $"no glint off the charred metal under a light from the eye: brightest {brightest}");
+    }
+
+    // Its outside is drawn as it was whole.
+    [TestMethod]
+    public void AModelWithAPartOffLooksTheSameFromOutside()
+    {
+        var eye = new Vector3(30f, 40f, 100f);
+        Color[] whole = RenderBoxInScene(null, eye, Vector3.Zero, Cube);
+        Color[] open = RenderBoxInScene(new[] { 1f }, eye, Vector3.Zero, Cube);
+        Assert.IsTrue(whole.Count(px => px != Color.Magenta) > 500, "setup: the cube fills much of the view");
+        CollectionAssert.AreEqual(whole, open, "its outside as before");
+    }
+
+    // Even where its insides lie within the game's coarse depth step of its outside, as at a hull's rim, they never show through.
+    [TestMethod]
+    public void AModelWithAPartOffLooksTheSameFromOutsideAtTheGamesDepth()
+    {
+        var plate = new Vector3(8000f, 8000f, 4f);
+        var eye = new Vector3(0f, 0f, 15_000f);
+        Color[] whole = RenderBoxInScene(null, eye, Vector3.Zero, plate, gameDepth: true);
+        Color[] open = RenderBoxInScene(new[] { 1f }, eye, Vector3.Zero, plate, gameDepth: true);
+        Assert.IsTrue(whole.Count(px => px != Color.Magenta) > 1000, "setup: the plate fills much of the view");
+        CollectionAssert.AreEqual(whole, open, "its outside as before, no inside showing through");
+    }
+
+    // A part coming back is drawn as much as it is repaired, growing out from the model's middle behind a ragged edge.
+    [TestMethod]
+    public void APartComingBackDrawsMoreOfItselfAsMoreOfItIsRepaired()
+    {
+        var eye = new Vector3(0f, 0f, 100f);
+        int Front(float share) => RenderBoxInScene(new[] { 1f, share }, eye, Vector3.Zero, Cube, inParts: true).Count(LitWhite);
+        int whole = Front(1f);
+        Assert.IsTrue(whole > 500, $"setup: the part drawn whole fills much of the view: {whole}");
+        Assert.AreEqual(0, Front(0f), "a part lost draws nothing");
+        int quarter = Front(0.25f), half = Front(0.5f), threeQuarters = Front(0.75f);
+        Assert.IsTrue(0 < quarter && quarter < half && half < threeQuarters && threeQuarters < whole,
+                      $"more of it as more comes back: {quarter}, {half}, {threeQuarters} of {whole}");
+        Assert.IsTrue(half > whole / 4 && half < whole * 3 / 4, $"about half at half repaired: {half} of {whole}");
+
+        Color[] here = RenderBoxInScene(new[] { 1f, 0.5f }, eye, Vector3.Zero, Cube, inParts: true);
+        int middle = 0, middleBack = 0, corners = 0, cornersBack = 0;
+        for (int y = 0; y < 64; ++y)
+        {
+            for (int x = 0; x < 64; ++x)
+            {
+                float dx = x - 31.5f, dy = y - 31.5f, r = System.MathF.Sqrt(dx * dx + dy * dy);
+                bool back = LitWhite(here[y * 64 + x]);
+                if (r < 6f)
+                {
+                    ++middle;
+                    if (back) ++middleBack;
+                }
+                else if (r > 22f && System.Math.Abs(dx) < 18f && System.Math.Abs(dy) < 18f)
+                {
+                    ++corners;
+                    if (back) ++cornersBack;
+                }
+            }
+        }
+        Assert.AreEqual(middle, middleBack, "half repaired, the part is back next to the model's middle");
+        Assert.AreEqual(0, cornersBack, "and not yet at its far corners");
+
+        Color[] movedAway = RenderBoxInScene(new[] { 1f, 0.5f }, eye, Vector3.Zero, Cube, inParts: true, moved: FarAway);
+        Assert.IsTrue(Differing(here, movedAway) < here.Length / 100, $"its ragged edge stays on the hull as it moves: {Differing(here, movedAway)} pixels differ");
+    }
+
     // an unlit cube painted mid gray under a solid tint map, read at its center
     static Color CenterPixelOfGrayPaint(int maskValue, Vector4 hullTint)
     {
@@ -414,8 +595,13 @@ public class MeshLightingEffectTests : StarDriveTest
         => RenderUnitCubeWith(configure, new Vector3(0, 0, 3));
 
     static (StaticMesh Mesh, VertexBuffer Vertices, IndexBuffer Indices) BuildUnitCube(GraphicsDevice device)
+        => BuildBox(device, Vector3.One);
+
+    static (StaticMesh Mesh, VertexBuffer Vertices, IndexBuffer Indices) BuildBox(GraphicsDevice device, Vector3 size)
     {
         VertexPositionNormalTextureBump[] vertices = ForwardRendererTests.BuildCubeVertices();
+        for (int i = 0; i < vertices.Length; ++i)
+            vertices[i].Position *= size;
         short[] indices = ForwardRendererTests.BuildCubeIndices();
 
         var vb = new VertexBuffer(device, VertexPositionNormalTextureBump.VertexDeclaration,
@@ -437,7 +623,7 @@ public class MeshLightingEffectTests : StarDriveTest
         };
 
         var mesh = new StaticMesh("UnitCube",
-            new BoundingBox(new Vector3(-0.5f), new Vector3(0.5f)));
+            new BoundingBox(size * -0.5f, size * 0.5f));
         mesh.RawMeshes.Add(meshData);
         return (mesh, vb, ib);
     }
