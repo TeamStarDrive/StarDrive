@@ -3836,7 +3836,7 @@ namespace Ship_Game
         BroadsideFlakCannon = 4098,
         /// <summary>This broadside-mounted cannon is capable of delivering a higher-powered kinetic</summary>
         ThisBroadsidemountedCannonIsCapable = 4099,
-        /// <summary>The delay between auto saves. This is measured in unpaused,</summary>
+        /// <summary>The delay between auto saves, in real seconds played while</summary>
         TheDelayBetweenAutoSaves = 4100,
         /// <summary>Remnant Presence</summary>
         RemnantPresence = 4101,
@@ -6398,7 +6398,7 @@ namespace Ship_Game
         DragToTurn = 7283,
         /// <summary>Hull Plates</summary>
         HullPlatesExtension = 7284,
-        /// <summary>Frigates and bigger ships can lose hull plates in battle, and the plates grow back as the ship is repaired.</summary>
+        /// <summary>Ships can lose hull plates in battle, and the plates grow back as the ship is repaired.</summary>
         HullPlatesExtensionTip = 7285,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,

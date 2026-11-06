@@ -177,7 +177,7 @@ Tokens: 461. Already hooked: 398.
 | 162 | `SendAutomaticErrorReportsTo` | Send automatic error reports to Blackbox developers. | MainMenu/OptionsScreen.cs |  |  |
 | 163 | `TT_EngineTrails` | This will enable engine trails for moving ships, disabling this will improve performance | MainMenu/OptionsScreen.cs |  |  |
 | 164 | `TT_MaxDynamicLightSources` | This will set an upper bound limit for dynamic 3D Light Sources for projectile hits or explosions. Setting this lower will greatly improve performance during... | MainMenu/OptionsScreen.cs |  |  |
-| 165 | `TheDelayBetweenAutoSaves` | The delay between auto saves. This is measured in unpaused, game relative seconds. --Common Durations-- 60 = 1 Minute 300 = 5 Minutes (Default) 600 = 10 Minutes | MainMenu/OptionsScreen.cs |  |  |
+| 165 | `TheDelayBetweenAutoSaves` | The delay between auto saves, in real seconds played while the game is not paused. --Common Durations-- 60 = 1 Minute 300 = 5 Minutes (Default) 600 = 10 Minutes | MainMenu/OptionsScreen.cs |  |  |
 | 166 | `ThisWillPreventAsteroidsFrom` | This will prevent asteroids from being generated in new games, offering performance improvements in mid to late game. This will not affect current games or e... | MainMenu/OptionsScreen.cs |  |  |
 | 167 | `WhenActiveArcsInThe` | When active, arcs in the shipyard can only be moved by ALT-clicking them, preventing accidental rotation while providing immediate control of arcs when using... | MainMenu/OptionsScreen.cs |  | warfare_ship_design |
 | 168 | `ZoomWillCenterOnSelected` | Zoom will center on selected object. | MainMenu/OptionsScreen.cs |  | overview_controls |
