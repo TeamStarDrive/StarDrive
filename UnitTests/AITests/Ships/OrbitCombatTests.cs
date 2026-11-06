@@ -42,7 +42,7 @@ public class OrbitCombatTests : StarDriveTest
     public void AShipThatLeavesOrbitToFightIsNotRepairedByThePlanetUntilItIsBackInOrbit()
     {
         bool combatRepair = GlobalStats.Defaults.UseCombatRepair;
-        GlobalStats.Defaults.UseCombatRepair = true; // the harness never advances TotalElapsed, so every ship reads as recently hit
+        GlobalStats.Defaults.UseCombatRepair = true; // so a ship that left orbit to fight still repairs, and the planet's share shows
         try
         {
             OurWorld.GeodeticManager.AffectNearbyShips();
@@ -57,8 +57,8 @@ public class OrbitCombatTests : StarDriveTest
             enemy.AI.SetCombatTriggerDelay(1000f);
             RunSimWhile((10, fatal: true), () => !ship.InCombat);
             AssertFalse(ship.AI.IsInOrbit, "a ship that left orbit to fight must not count as in orbit");
-            AssertEqual(1f, orbitRepair - planetRepair, RepairPerSecondAtHalfHealth(ship),
-                        "the planet must not repair a ship that left orbit to fight");
+            AssertEqual(1f, (orbitRepair - planetRepair) * GlobalStats.Defaults.InCombatSelfRepairModifier, RepairPerSecondAtHalfHealth(ship),
+                        "the planet must not repair a ship that left orbit to fight, which repairs itself at the in-combat rate");
 
             enemy.Die(null, cleanupOnly: true);
             RunSimWhile((60, fatal: true), () => ship.InCombat || !ship.IsOrbiting(OurWorld));

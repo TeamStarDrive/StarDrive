@@ -188,6 +188,7 @@ namespace Ship_Game
                 return;
 
             TotalTime.Start();
+            UState.SimSeconds += timeStep.FixedTime;
 
             bool isRunning = timeStep.FixedTime > 0f;
 

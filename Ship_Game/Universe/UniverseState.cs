@@ -65,6 +65,8 @@ namespace Ship_Game.Universe
         [StarData] public bool NoEliminationVictory;
         [StarData] public float GameSpeed = 1f;
         [StarData] public float StarDate = 1000f;
+        // game seconds simulated since this universe was made or loaded, untouched by pauses and the game speed; not saved
+        public double SimSeconds;
 
         [StarData] public Vector3d CamPos;
 

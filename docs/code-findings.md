@@ -795,10 +795,8 @@ as designed and must not be "fixed".
    repair sentences now say "your own or an ally's colony". What it was: a player Vulcan Scout
    orbiting an enemy homeworld repaired at **440/s against 40/s** in deep space, and the same at the
    homeworld of an empire it was at peace with; its own homeworld, the control, adds exactly the
-   planet's rate. The test turns
-   `UseCombatRepair` on because the harness never advances `GameBase.TotalElapsed`, so every ship
-   there reads as recently damaged; that the states below are out of combat comes from reading the
-   code. `Ship.Repair` (`Ship_Repair.cs` ~59) takes the tether or the orbit target with no owner
+   planet's rate. The test runs with the game's own setting, `UseCombatRepair` off: none of these
+   ships is in combat or recently hit, which counts in game seconds since the last hit. `Ship.Repair` (`Ship_Repair.cs` ~59) takes the tether or the orbit target with no owner
    check, and the planet also clears EMP and lifts the repair level to `p.Level + p.NumShipyards`.
    Supply does check: `GeodeticManager.AffectNearbyShips` serves only the owner and its allies, and
    `IsSuitableForPlanetaryRearm` reads the same pair.
