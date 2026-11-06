@@ -67,29 +67,23 @@ public partial class UniverseScreen
 
     void CheckForPendingSaves()
     {
-        GameBase game = GameBase.Base;
+        float now = GameBase.Base.TotalElapsed;
+        if (!UState.Paused && LastSaveCheckTime > 0f) // a gap with no sim turns, behind a full screen or a minimized window, is not play
+            PlayedSinceSave += Math.Min(now - LastSaveCheckTime, 1f);
+        LastSaveCheckTime = now;
 
         if (PendingSaveName.NotEmpty())
         {
             SaveAsync(PendingSaveName);
             PendingSaveName = null;
-
-            // reset auto-save timer since we just saved the game
-            LastAutosaveTime = game.TotalElapsed;
+            PlayedSinceSave = 0f; // a save of the player's resets the autosave timer
         }
-        else
+        else if (PlayedSinceSave >= GlobalStats.AutoSaveFreq)
         {
-            if (LastAutosaveTime == 0f)
-                LastAutosaveTime = game.TotalElapsed;
-
-            float timeSinceLastAutoSave = (game.TotalElapsed - LastAutosaveTime);
-            if (timeSinceLastAutoSave >= GlobalStats.AutoSaveFreq)
-            {
-                LastAutosaveTime = game.TotalElapsed;
-                string saveName = "Autosave" + Auto;
-                if (++Auto > 3) Auto = 1;
-                SaveAsync(saveName, resetLogOnComplete: true);
-            }
+            PlayedSinceSave = 0f;
+            string saveName = "Autosave" + Auto;
+            if (++Auto > 3) Auto = 1;
+            SaveAsync(saveName, resetLogOnComplete: true);
         }
     }
 }

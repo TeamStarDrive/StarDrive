@@ -33,7 +33,9 @@ namespace Ship_Game
         public readonly UniverseState UState;
 
         public string StarDateString => UState.StarDate.StarDateString();
-        public float LastAutosaveTime = 0;
+        // real seconds played unpaused since the last save: an autosave comes once they reach AutoSaveFreq, so a paused game makes none
+        float PlayedSinceSave;
+        float LastSaveCheckTime;
 
         public Background bg;
 
