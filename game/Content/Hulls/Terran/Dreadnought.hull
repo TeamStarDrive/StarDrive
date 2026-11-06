@@ -4,16 +4,16 @@ VisibleName=Dreadnought
 Role=capital
 Style=Terran
 Size=40,64
-MeshOffset=0,-16
+MeshOffset=0,0
 IconPath=ShipIcons/10e
 ModelPath=Model/Ships/Terran/Battleship/Battleship
 Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=84,397,-4,240
-Thruster=-86,401,-4,237
-Thruster=0,406,-10,411
+Thruster=89,479,-9,240
+Thruster=-89,479,-9,237
+Thruster=0,497,-12,411
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |IO |___|___|IO |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |IO |IO |IO |IO |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___
