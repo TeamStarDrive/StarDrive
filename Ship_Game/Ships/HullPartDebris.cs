@@ -12,7 +12,7 @@ using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game.Ships
 {
-    // a hull part blown off a ship, flying off as its model drew it: it drifts out turning flat, burns and smokes, blasts a few times and breaks into junk
+    // a hull part blown off a ship, flying off as its model drew it: it drifts out turning flat and sinking, burns and smokes, blasts a few times and breaks into junk that sinks on
     public sealed class HullPartDebris : SpaceJunk
     {
         // its flight, after which it breaks into junk with a flash
@@ -32,8 +32,10 @@ namespace Ship_Game.Ships
         // it turns flat at up to this many radians a second and tilts no more than this, so its top stays toward the camera
         public const float MaxTurnSpeed = 0.6f;
         public const float MaxTilt = 0.35f;
+        // it sinks away from the camera at this speed all its flight, and so does the junk it breaks into
+        public const float SinkSpeed = 100f;
         const float FireParticles = 20f;
-        const float SmokeParticles = 8f;
+        const float SmokeParticles = 16f;
 
         readonly XnaMatrix BrokeOff; // the ship's model as drawn when the part broke off
         readonly XnaVector3 Center;  // the part's center in the model, which it turns about
@@ -108,7 +110,8 @@ namespace Ship_Game.Ships
                 return;
             }
             Vector2 moved = Drift * Age;
-            Position = new Vector3(StartPos.X + moved.X, StartPos.Y + moved.Y, StartPos.Z);
+            float sunk = SinkSpeed * Age;
+            Position = new Vector3(StartPos.X + moved.X, StartPos.Y + moved.Y, StartPos.Z + sunk);
             bool shown = Universe.IsSystemViewOrCloser && Universe.Screen.IsInFrustum(Position, Radius);
             if (Age >= Lifetime)
             {
@@ -127,7 +130,7 @@ namespace Ship_Game.Ships
                            * XnaMatrix.CreateRotationY(TiltY * MathF.Sin(WobbleY * Age))
                            * XnaMatrix.CreateRotationX(TiltX * MathF.Sin(WobbleX * Age));
             So.World = XnaMatrix.CreateTranslation(-Center) * turn * XnaMatrix.CreateTranslation(Center)
-                     * BrokeOff * XnaMatrix.CreateTranslation(moved.X, moved.Y, 0f);
+                     * BrokeOff * XnaMatrix.CreateTranslation(moved.X, moved.Y, sunk);
             So.Visibility = GlobalStats.ShipVisibility;
 
             if (Age < FireSeconds)
@@ -155,7 +158,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < pieces; ++i)
             {
                 Vector3 at = Position + random.Vector2D(Radius * 0.5f).ToVec3();
-                SpawnJunk(Universe, at, Drift + random.Direction2D() * random.Float(20f, 60f), Radius * 0.25f);
+                SpawnJunk(Universe, at, Drift + random.Direction2D() * random.Float(20f, 60f), Radius * 0.25f, SinkSpeed);
             }
         }
     }

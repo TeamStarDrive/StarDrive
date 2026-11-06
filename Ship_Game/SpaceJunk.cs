@@ -200,13 +200,13 @@ namespace Ship_Game
             AddJunk(universe, howMuchJunk, position, velocity, maxSize, ignite, constructorId, tetherPlanet);
         }
 
-        // a small piece pulled off something that is no game object, as a stripped derelict: at its depth, at just this velocity; the caller checks it is on screen
-        public static void SpawnJunk(UniverseState universe, Vector3 position, Vector2 velocity, float maxSize)
+        // a small piece pulled off something that is no game object, as a stripped derelict: at its depth, at just this velocity, sinking at sinkSpeed; the caller checks it is on screen
+        public static void SpawnJunk(UniverseState universe, Vector3 position, Vector2 velocity, float maxSize, float sinkSpeed = 0f)
         {
             if (!CanSpawn(universe))
                 return;
             var junk = new SpaceJunk(universe, position.ToVec2(), Vector2.Zero, maxSize, ignite: false, constructorId: 0, tetherPlanet: null, parentZ: position.Z);
-            junk.Velocity = new Vector3(velocity, 0f);
+            junk.Velocity = new Vector3(velocity, sinkSpeed);
             Add(universe, junk);
         }
 

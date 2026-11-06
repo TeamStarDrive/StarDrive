@@ -1338,7 +1338,7 @@ public class ShipPartsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AThrownOffPlateDriftsOutTurningFlatAndGoesAtTheEndOfItsFlight()
+    public void AThrownOffPlateDriftsOutTurningFlatAndSinkingAndGoesAtTheEndOfItsFlight()
     {
         Ship ship = GunboatOnScreen(dying: false, out SceneObject _);
         foreach (ShipModule m in ModulesOf(ship, 5, out int _))
@@ -1358,7 +1358,8 @@ public class ShipPartsTests : StarDriveTest
             Microsoft.Xna.Framework.Vector3 drawnAt = Microsoft.Xna.Framework.Vector3.Transform(center, plate.So.World);
             AssertEqual(0.1f, start.X + moved.X, drawnAt.X, "its model drifts at its velocity, turning about the plate's center");
             AssertEqual(0.1f, start.Y + moved.Y, drawnAt.Y, "its model drifts at its velocity, turning about the plate's center");
-            AssertEqual(0.1f, start.Z, drawnAt.Z, "in the plane it broke off in");
+            AssertEqual(0.1f, start.Z + 100f * plate.Age, drawnAt.Z, "sinking away from the camera at 100 a second");
+            AssertEqual(0.1f, start.Z + 100f * plate.Age, plate.Position.Z, "its place too, where its fire and smoke follow it");
             float upNow = Microsoft.Xna.Framework.Vector3.Dot(up, Microsoft.Xna.Framework.Vector3.Normalize(plate.So.World.Backward));
             Assert.IsTrue(upNow >= leastUp - 0.0001f, $"its top stays toward the camera, tilted no more than 0.35 each way: {upNow} at {plate.Age}");
         }
@@ -1375,5 +1376,41 @@ public class ShipPartsTests : StarDriveTest
             plate.Update(TestSimStep);
         Assert.IsFalse(UState.JunkList.Contains(plate), "gone at the end of its flight");
         Assert.IsNull(plate.So, "and out of the scene");
+    }
+
+    [TestMethod]
+    public void AThrownOffPlateBreaksIntoJunkThatSinksOnWithIt()
+    {
+        var junkModels = (SDUtils.Array<Ship_Game.Data.Mesh.StaticMesh>)typeof(ResourceManager)
+            .GetField("JunkModels", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!.GetValue(null);
+        typeof(ResourceManager).GetMethod("LoadJunk", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!.Invoke(null, null);
+        try
+        {
+            Assert.IsTrue(ResourceManager.NumJunkModels > 0, "setup: the junk models, which the tests leave out");
+            Ship ship = GunboatOnScreen(dying: false, out SceneObject _);
+            foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+                Kill(m);
+            ship.Update(TestSimStep);
+            HullPartDebris plate = Debris()[0];
+            while (plate.Age < plate.Lifetime - 0.1f)
+                plate.Update(TestSimStep);
+            var before = new System.Collections.Generic.HashSet<SpaceJunk>(UState.JunkList);
+            for (int i = 0; i < 60 && UState.JunkList.Contains(plate); ++i)
+                plate.Update(TestSimStep);
+            Assert.IsFalse(UState.JunkList.Contains(plate), "setup: the plate broke up");
+
+            SpaceJunk[] pieces = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(UState.JunkList, j => !before.Contains(j)));
+            Assert.IsTrue(pieces.Length >= 3 && pieces.Length <= 5, $"it breaks into 3 to 5 pieces: {pieces.Length}");
+            foreach (SpaceJunk piece in pieces)
+            {
+                float z = piece.Position.Z;
+                piece.Update(TestSimStep);
+                AssertEqual(0.01f, z + 100f / 60f, piece.Position.Z, "each sinks on at 100 a second");
+            }
+        }
+        finally
+        {
+            junkModels.Clear();
+        }
     }
 }
