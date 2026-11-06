@@ -18,9 +18,11 @@ namespace Ship_Game.Ships
         // its flight, after which it breaks into junk with a blast
         public const float MinSeconds = 8f;
         public const float MaxSeconds = 12f;
-        // its speed outward from the ship, on top of the ship's velocity
+        // its speed outward from the ship's middle, on top of what it keeps of the ship's velocity
         public const float MinSpeed = 15f;
         public const float MaxSpeed = 30f;
+        // the blast takes this share of the ship's velocity off it and throws it outward faster by this share of the ship's speed
+        public const float BlastShare = 0.2f;
         // its secondary blasts, at random times in its flight
         public const int MinBlasts = 1;
         public const int MaxBlasts = 3;
@@ -70,7 +72,7 @@ namespace Ship_Game.Ships
 
             Vector2 outward = new Vector2(start.X, start.Y) - ship.Position;
             outward = outward.Length() > 0.01f ? outward.Normalized() : random.Direction2D();
-            Drift = ship.Velocity + outward * random.Float(MinSpeed, MaxSpeed);
+            Drift = ship.Velocity * (1f - BlastShare) + outward * (random.Float(MinSpeed, MaxSpeed) + BlastShare * ship.Velocity.Length());
             TurnSpeed = random.Float(-MaxTurnSpeed, MaxTurnSpeed);
             TiltX = random.Float(-MaxTilt, MaxTilt);
             TiltY = random.Float(-MaxTilt, MaxTilt);

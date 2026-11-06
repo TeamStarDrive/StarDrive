@@ -54,7 +54,7 @@ public class ShipPartsTests : StarDriveTest
     [TestMethod]
     public void AModelInOnePieceHasNoParts()
     {
-        StaticMesh mesh = Content.LoadStaticMesh("Model/Ships/Terran/Hunter/Fighter1.fbx"); // a corvette's, which no cut reaches
+        StaticMesh mesh = Content.LoadStaticMesh("Model/Ships/Terran/Hunter/Fighter1.fbx"); // a corvette's, left in one piece
         Assert.AreEqual(0, mesh.NumParts);
         Assert.IsNull(mesh.RawMeshes[0].PartStart);
     }
@@ -1391,8 +1391,10 @@ public class ShipPartsTests : StarDriveTest
         {
             Assert.AreEqual(model.World, plate.So.World, "where the ship's model drew it");
             Assert.AreEqual(0f, plate.So.EmissiveScale, "its lights out");
-            SDGraphics.Vector2 push = plate.Drift - ship.Velocity;
-            Assert.IsTrue(push.Length() >= 15f && push.Length() <= 30f, $"it drifts off at 15 to 30 a second: {push.Length()}");
+            SDGraphics.Vector2 push = plate.Drift - ship.Velocity * 0.8f;
+            float blast = 0.2f * ship.Velocity.Length();
+            Assert.IsTrue(push.Length() >= 15f + blast - 0.01f && push.Length() <= 30f + blast + 0.01f,
+                          $"it drifts off at 15 to 30 a second and a fifth of its ship's speed: {push.Length()}");
             Assert.IsTrue(push.Dot(plate.Position.ToVec2() - ship.Position) > 0f, "outward from the ship");
         }
 
@@ -1403,15 +1405,16 @@ public class ShipPartsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AThrownOffPlateKeepsItsShipsVelocity()
+    public void AThrownOffPlateKeepsFourFifthsOfItsShipsVelocityAndFliesOutFasterByAFifthOfItsSpeed()
     {
         Ship ship = GunboatOnScreen(dying: false, out SceneObject model);
-        ship.Velocity = new(300f, -200f);
+        ship.Velocity = new(300f, -200f); // 360.6 a second
         ship.ThrowOffParts(1u << 5, model);
         Assert.AreEqual(1, Debris().Length, "setup: the plate thrown off");
         HullPartDebris plate = Debris()[0];
-        SDGraphics.Vector2 push = plate.Drift - new SDGraphics.Vector2(300f, -200f);
-        Assert.IsTrue(push.Length() >= 15f && push.Length() <= 30f, $"the ship's velocity and a push of 15 to 30 a second: {push.Length()}");
+        SDGraphics.Vector2 push = plate.Drift - new SDGraphics.Vector2(240f, -160f);
+        Assert.IsTrue(push.Length() >= 87.1f && push.Length() <= 102.2f, $"four fifths of the ship's velocity and a push of 15 to 30 a second plus 72.1: {push.Length()}");
+        Assert.IsTrue(push.Dot(plate.Position.ToVec2() - ship.Position) > 0f, "outward from the ship");
     }
 
     [TestMethod]
