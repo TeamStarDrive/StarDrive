@@ -58,7 +58,6 @@ namespace UnitTests
             // SaveActiveMod, so the developer's real mod selection is untouched.
             GlobalStats.SetActiveModNoSave(null);
             GlobalStats.VanillaDefaults.EnableSalvageOps = true; // the tests run with salvage ops on, whatever vanilla ships
-            GlobalStats.VanillaDefaults.EnableHullPlates = true; // and with hull plates on
 
             // Same user-config leak hazard: the AUTO / AUTOFAST builds set
             // RestrictAIPlayerInteraction=true and persist it to the user config.

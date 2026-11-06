@@ -51,7 +51,7 @@ public class ShipPartsTests : StarDriveTest
     [TestMethod]
     public void AModelInOnePieceHasNoParts()
     {
-        StaticMesh mesh = Content.LoadStaticMesh("Model/Ships/Terran/Battleship/Battleship.fbx");
+        StaticMesh mesh = Content.LoadStaticMesh("Model/Ships/Terran/Hunter/Fighter1.fbx"); // a corvette's, which no cut reaches
         Assert.AreEqual(0, mesh.NumParts);
         Assert.IsNull(mesh.RawMeshes[0].PartStart);
     }
@@ -403,6 +403,11 @@ public class ShipPartsTests : StarDriveTest
 
     readonly bool EnableHullPlates = GlobalStats.Defaults.EnableHullPlates;
 
+    public ShipPartsTests()
+    {
+        GlobalStats.Defaults.EnableHullPlates = true; // these tests play with hull plates on, as a mod that turns them on does
+    }
+
     [TestCleanup]
     public override void Cleanup()
     {
@@ -710,7 +715,7 @@ public class ShipPartsTests : StarDriveTest
     public void AModTurnsHullPlatesOnItselfAndTheRuleOptionTurnsThemOff()
     {
         Assert.IsFalse(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Content/Globals.yaml")).EnableHullPlates, "vanilla ships with hull plates off");
-        Assert.IsTrue(GlobalStats.VanillaDefaults.EnableHullPlates, "setup: the tests turn them on");
+        Assert.IsTrue(GlobalStats.VanillaDefaults.EnableHullPlates, "setup: these tests turn them on");
         Assert.IsFalse(new GamePlayGlobals().EnableHullPlates, "a mod does not inherit the flag");
 
         var p = new Ship_Game.Universe.UniverseParams();

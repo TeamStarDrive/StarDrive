@@ -117,8 +117,11 @@ public class SerializationRegressionTests : StarDriveTest
         }
     }
 
+    // the base game ships with hull plates off: these tests play a game with the Globals flag on, as a mod that turns it on
+    static void WithHullPlatesOn(Action test) => WithHullPlatesFlag(true, () => { test(); return true; });
+
     [TestMethod]
-    public void ASetupSavedBeforeTheHullPlatesMarkStartsHullPlatesFromTheGlobalsFlag()
+    public void ASetupSavedBeforeTheHullPlatesMarkStartsHullPlatesFromTheGlobalsFlag() => WithHullPlatesOn(() =>
     {
         string path = SavedFile(new SetupSave(new() { DisableHullPlates = true }) { Name = "Saved before the mark" });
         string[] lines = File.ReadAllLines(path);
@@ -129,33 +132,33 @@ public class SerializationRegressionTests : StarDriveTest
         SetupSave load = SaveNewGameSetupScreen.Load(new(path));
         AssertTrue(load.Settings.DisableHullPlates, "setup: the setup holds the box unticked");
         AssertFalse(load.SettingsToStart().DisableHullPlates, "a new game from it has hull plates on, as the Globals flag does");
-    }
+    });
 
     [TestMethod]
-    public void ASetupKeepsTheHullPlatesBoxThePlayerUnticked()
+    public void ASetupKeepsTheHullPlatesBoxThePlayerUnticked() => WithHullPlatesOn(() =>
     {
         var save = new SetupSave(new() { DisableHullPlates = true }) { Name = "Unticked by the player" };
         AssertTrue(save.HullPlatesChosen, "setup: with hull plates on in Globals the box is the player's");
         AssertTrue(SavedAndLoaded(save).SettingsToStart().DisableHullPlates, "a new game from it keeps hull plates off");
-    }
+    });
 
     [TestMethod]
-    public void ASetupSavedWhileTheGlobalsFlagWasOffLeavesHullPlatesToTheFlag()
+    public void ASetupSavedWhileTheGlobalsFlagWasOffLeavesHullPlatesToTheFlag() => WithHullPlatesOn(() =>
     {
         SetupSave save = WithHullPlatesFlag(false, () => new SetupSave(new()) { Name = "Saved with the flag off" });
         AssertTrue(save.Settings.DisableHullPlates, "setup: with the flag off the box was locked unticked");
         AssertFalse(SavedAndLoaded(save).SettingsToStart().DisableHullPlates, "once the flag is on, a new game from it has hull plates on");
-    }
+    });
 
     [TestMethod]
-    public void WhileTheGlobalsFlagIsOffEverySetupStartsWithTheHullPlatesBoxUnticked()
+    public void WhileTheGlobalsFlagIsOffEverySetupStartsWithTheHullPlatesBoxUnticked() => WithHullPlatesOn(() =>
     {
         SetupSave load = SavedAndLoaded(new SetupSave(new() { DisableHullPlates = false }) { Name = "Ticked by the player" });
         AssertTrue(load.HullPlatesChosen, "setup: the box was the player's");
         AssertFalse(load.Settings.DisableHullPlates, "setup: the player ticked it");
         AssertTrue(WithHullPlatesFlag(false, () => load.SettingsToStart().DisableHullPlates),
                    "loaded in a mod with the flag off, as a vanilla setup can be, the box is unticked");
-    }
+    });
 
     // The save list draws the player's flag straight from the header, using FlagIndex == -1
     // to mean "written before the field existed, fall back to the race-name lookup".

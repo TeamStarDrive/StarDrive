@@ -1132,8 +1132,18 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void CanSerializeUniverseParams()
         {
-            var instance = new UniverseParams { DisableSalvageOps = true, DisableBoardingWarning = true, DisableTechLeechWarning = true, DisableHullPlates = true }; // off their defaults, so they must be written
-            var result = SerDes(instance);
+            bool hullPlates = GlobalStats.Defaults.EnableHullPlates;
+            GlobalStats.Defaults.EnableHullPlates = true; // so the Hull Plates box starts ticked
+            UniverseParams instance, result;
+            try
+            {
+                instance = new UniverseParams { DisableSalvageOps = true, DisableBoardingWarning = true, DisableTechLeechWarning = true, DisableHullPlates = true }; // off their defaults, so they must be written
+                result = SerDes(instance);
+            }
+            finally
+            {
+                GlobalStats.Defaults.EnableHullPlates = hullPlates;
+            }
             AssertEqual(instance.Difficulty, result.Difficulty);
             AssertEqual(instance.StarsCount, result.StarsCount);
             AssertEqual(instance.GalaxySize, result.GalaxySize);
