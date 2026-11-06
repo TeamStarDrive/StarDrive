@@ -743,6 +743,63 @@ public class ShipPartsTests : StarDriveTest
         Assert.AreEqual(0f, recovered.PartShownNow()?[3], "the plate comes back with its repairs from none");
     }
 
+    // a gunboat recovered from a derelict that lost its middle-left plate, in a game that has not drawn the hull yet
+    Ship RecoveredBeforeItsHullsModelLoads()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        var d = new Derelict(ship, null, salvageable: false, seen: false);
+        const System.Reflection.BindingFlags instance = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        typeof(Derelict).GetField(nameof(Derelict.PartShown), instance)!
+                        .SetValue(d, new[] { 1f, 1f, 1f, 0f, 1f, 1f, 1f }); // as the killing blow takes the middle-left plate
+
+        var triangles = typeof(ShipHull).GetField("PartTriangles", instance)!;
+        object loadedTriangles = triangles.GetValue(ship.BaseHull);
+        try
+        {
+            triangles.SetValue(ship.BaseHull, null);
+            typeof(ModuleGridFlyweight).GetField("Parts", instance)!.SetValue(ship.Grid, null);
+            Ship recovered = Ship.CreateRecoveredShip(UState, d, Player, model: null);
+            Assert.IsNull(recovered.PartShownNow(), "setup: its parts cannot be counted");
+            return recovered;
+        }
+        finally
+        {
+            triangles.SetValue(ship.BaseHull, loadedTriangles);
+        }
+    }
+
+    [TestMethod]
+    public void AShipRecoveredBeforeItsHullsModelLoadsKeepsTheModulesItCameBackWith()
+    {
+        Ship recovered = RecoveredBeforeItsHullsModelLoads();
+        ShipModule[] under = ModulesOf(recovered, 3, out int _);
+        ShipModule[] alive = System.Array.FindAll(under, m => m.Active);
+        Assert.IsTrue(alive.Length > 0, "setup: the recovery leaves modules alive under the plate, as it could not place them");
+        Assert.IsTrue(alive.Length < under.Length, "setup: and its damage kills some");
+        foreach (ShipModule m in alive)
+            Repair(m); // repaired before any ship of the hull is drawn
+
+        float[] shown = recovered.PartShownNow();
+        foreach (ShipModule m in alive)
+            Assert.IsTrue(m.Active, $"the {m.UID} at {m.Pos} stays once the hull's parts are known");
+        Assert.IsTrue(recovered.Active && !recovered.Dying, "and the ship lives on");
+        Assert.AreEqual(0f, shown?[3], "the plate shows lost, to come back with its repairs");
+    }
+
+    [TestMethod]
+    public void AShipRecoveredBeforeItsHullsModelLoadsAndRepairedUnderItsLostPlateHasThePlateWhole()
+    {
+        Ship recovered = RecoveredBeforeItsHullsModelLoads();
+        ShipModule[] under = ModulesOf(recovered, 3, out int _);
+        Assert.IsTrue(System.Array.Exists(under, m => !m.Active), "setup: the recovery's damage kills modules under the plate");
+        foreach (ShipModule m in under)
+            Repair(m); // all of them, before any ship of the hull is drawn
+
+        Assert.IsNull(recovered.PartShownNow(), "once the hull's parts are known the plate is whole");
+        Assert.IsNull(ShipField(recovered, "LostPartLow"), "and nothing of it is kept lost");
+    }
+
     [TestMethod]
     public void NoModuleRegeneratesOnAPlateNotWhole()
     {
@@ -1054,6 +1111,30 @@ public class ShipPartsTests : StarDriveTest
         float[] shown = after.PartShownNow();
         Assert.IsNotNull(shown, "the deaths count after loading");
         Assert.AreEqual(0f, shown[3], "and the plate is lost");
+    }
+
+    [TestMethod]
+    public void WhileTheGameStandsStillNoPlateIsLostAndALoadedShipShowsTheOnesItLost()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        foreach (ShipModule m in ModulesOf(ship, 3, out int _))
+            Kill(m);
+        ship.Update(FixedSimTime.Zero); // paused, or saving
+        Assert.IsNull(ship.PartShown, "standing still, the dead plate stays on");
+        Assert.IsNull(ShipField(ship, "LostPartLow"), "and nothing a save writes changes");
+        Assert.AreNotEqual(0u, (uint)ShipField(ship, "PartsHit"), "its deaths wait for time to run");
+        ship.Update(TestSimStep);
+        Assert.AreEqual(0f, ship.PartShown?[3], "the first update with time running loses it");
+
+        const System.Reflection.BindingFlags instance = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        Ship loaded = SpawnGunboat(240_000f);
+        foreach (ShipModule m in ModulesOf(loaded, 3, out int _))
+            Kill(m); // gone with the plate
+        typeof(Ship).GetField("LostPartLow", instance)!.SetValue(loaded, new[] { -1, -1, -1, 0, -1, -1, -1 }); // as saved with the middle-left plate lost
+        typeof(Ship).GetField("PartsOutdated", instance)!.SetValue(loaded, true); // as a loaded ship starts
+        loaded.Update(FixedSimTime.Zero); // a loaded game starts paused
+        Assert.AreEqual(0f, loaded.PartShown?[3], "a loaded ship shows the plate it lost while the game stands still");
     }
 
     [TestMethod]

@@ -45,8 +45,8 @@ namespace Ship_Game.Ships
             PartsOutdated = true;
         }
 
-        // a part may be lost by the roll of an update with a death under it, and comes back as its modules do; a part with no modules stays on; returns the parts it lost
-        uint UpdateLostParts()
+        // a part may be lost by the roll of an update with a death under it, and comes back as its modules do; a part with no modules stays on; returns the parts it lost. Standing still, paused or saving, it loses none and kills no module, and with hull plates on changes nothing a save writes
+        uint UpdateLostParts(bool timeRuns = true)
         {
             ShipHull hull = BaseHull;
             if (hull.NumParts == 0 || HullPlatesOff)
@@ -62,22 +62,16 @@ namespace Ship_Game.Ships
                 }
                 return 0u;
             }
+            if (!timeRuns && (PartShown != null || LostPartLow == null))
+                return 0u; // what shows is as counted, or no part is lost
             if (!Grid.GetParts(out int[] area))
                 return 0u;
-            PartsOutdated = false; // before the count, so a module dying meanwhile is counted on the next update
-            uint hit = Interlocked.Exchange(ref PartsHit, 0u);
+            if (timeRuns)
+                PartsOutdated = false; // before the count, so a module dying meanwhile is counted on the next update
+            uint hit = timeRuns ? Interlocked.Exchange(ref PartsHit, 0u) : 0u;
 
             int numParts = area.Length;
             int[] saved = LostPartLow?.Length == numParts ? LostPartLow : null; // one saved with another cut of the model starts over
-            if (saved != null && Active && !Dying)
-            {
-                uint recovered = 0u;
-                for (int part = 1; part < numParts; ++part)
-                    if (saved[part] == int.MaxValue)
-                        recovered |= 1u << part;
-                if (recovered != 0u)
-                    KillModulesUnder(recovered); // a recovered ship's parts its derelict lost, where its hull's parts were not known at the recovery
-            }
 
             Span<int> alive = stackalloc int[numParts];
             for (int i = 0; i < ModuleSlotList.Length; ++i)
@@ -120,12 +114,13 @@ namespace Ship_Game.Ships
                 leastBack = Math.Min(leastBack, shown[part]);
                 anyLost = true;
             }
-            if (lostNow != 0u || !anyLost)
+            if (timeRuns && (lostNow != 0u || !anyLost))
                 InsidesHeatAtLoss = 1f;
             InsidesHeat = anyLost ? Math.Max(Derelict.MinInsidesHeat, InsidesHeatAtLoss * (1f - leastBack)) : 1f;
 
             // a new array only when it changes, as a save or the UI may be reading the one there
-            LostPartLow = !anyLost ? null : saved != null && low.SequenceEqual(saved) ? saved : low.ToArray();
+            if (timeRuns)
+                LostPartLow = !anyLost ? null : saved != null && low.SequenceEqual(saved) ? saved : low.ToArray();
             PartShown = !anyLost ? null : PartShown is { } before && shown.SequenceEqual(before) ? before : shown.ToArray();
             if (lostNow != 0u && Active && !Dying)
                 KillModulesUnder(lostNow);

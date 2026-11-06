@@ -249,7 +249,7 @@ namespace Ship_Game.Ships
             if (Dismantling && timeStep.FixedTime > 0f)
                 UpdateDismantling(timeStep, visibleToPlayer);
 
-            uint lostNow = PartsOutdated ? UpdateLostParts() : 0u;
+            uint lostNow = PartsOutdated ? UpdateLostParts(timeRuns: timeStep.FixedTime > 0f) : 0u;
 
             SceneObject so = ShipSO; // the UI thread may take it out meanwhile
             if (so != null)
@@ -487,7 +487,7 @@ namespace Ship_Game.Ships
             float scale = PlanetCrash?.Scale ?? 1;
             float scaledRadius = Radius * scale;
 
-            uint lostNow = PartsOutdated ? UpdateLostParts() : 0u;
+            uint lostNow = PartsOutdated ? UpdateLostParts(timeRuns: timeStep.FixedTime > 0f) : 0u;
 
             SceneObject so = ShipSO; // the UI thread may take it out meanwhile
             if (visibleAndNotPaused && so != null)
