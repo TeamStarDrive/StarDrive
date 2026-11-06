@@ -12,14 +12,12 @@ using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game.Ships
 {
-    // a hull part blown off a ship, flying off as its model drew it: it drifts out turning flat and sinking, burns and smokes, blasts a few times and breaks into junk that sinks on
+    // a hull part blown off a ship, flying off as its model drew it: it drifts out turning flat and sinking, burns and smokes all its flight, blasts a few times and breaks into junk that sinks on
     public sealed class HullPartDebris : SpaceJunk
     {
-        // its flight, after which it breaks into junk with a flash
+        // its flight, after which it breaks into junk with a blast
         public const float MinSeconds = 8f;
         public const float MaxSeconds = 12f;
-        // it burns this long, and smokes all its flight
-        public const float FireSeconds = 3f;
         // its speed outward from the ship, on top of the ship's velocity
         public const float MinSpeed = 15f;
         public const float MaxSpeed = 30f;
@@ -33,7 +31,7 @@ namespace Ship_Game.Ships
         public const float MaxTurnSpeed = 0.6f;
         public const float MaxTilt = 0.35f;
         // it sinks away from the camera at this speed all its flight, and so does the junk it breaks into
-        public const float SinkSpeed = 100f;
+        public const float SinkSpeed = 50f;
         const float FireParticles = 20f;
         const float SmokeParticles = 16f;
 
@@ -47,7 +45,7 @@ namespace Ship_Game.Ships
         public float Age { get; private set; }
         int BlastsLeft;
         float NextBlast;
-        ParticleEmitter Fire;
+        readonly ParticleEmitter Fire;
         readonly ParticleEmitter Smoke;
 
         // the part flies off the ship's model as drawn now, with a blast where it was
@@ -133,10 +131,7 @@ namespace Ship_Game.Ships
                      * BrokeOff * XnaMatrix.CreateTranslation(moved.X, moved.Y, sunk);
             So.Visibility = GlobalStats.ShipVisibility;
 
-            if (Age < FireSeconds)
-                Fire?.Update(dt, Position);
-            else
-                Fire = null;
+            Fire?.Update(dt, Position);
             Smoke?.Update(dt, Position);
 
             if (BlastsLeft > 0 && (NextBlast -= dt) <= 0f)
@@ -149,10 +144,11 @@ namespace Ship_Game.Ships
             }
         }
 
-        // a flash, and the few pieces of junk it leaves, flying on from it
+        // a blast as at its break off, and the few pieces of junk it leaves, flying on from it
         void BreakUp()
         {
             Universe.Screen.Particles?.Flash.AddParticle(Position);
+            ExplosionManager.AddExplosion(Universe.Screen, Position, Drift, Radius * 0.6f, 2.5f, ExplosionType.Projectile);
             RandomBase random = Universe.Random;
             int pieces = random.Int(MinPieces, MaxPieces);
             for (int i = 0; i < pieces; ++i)

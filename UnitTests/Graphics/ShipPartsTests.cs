@@ -1627,8 +1627,8 @@ public class ShipPartsTests : StarDriveTest
             Microsoft.Xna.Framework.Vector3 drawnAt = Microsoft.Xna.Framework.Vector3.Transform(center, plate.So.World);
             AssertEqual(0.1f, start.X + moved.X, drawnAt.X, "its model drifts at its velocity, turning about the plate's center");
             AssertEqual(0.1f, start.Y + moved.Y, drawnAt.Y, "its model drifts at its velocity, turning about the plate's center");
-            AssertEqual(0.1f, start.Z + 100f * plate.Age, drawnAt.Z, "sinking away from the camera at 100 a second");
-            AssertEqual(0.1f, start.Z + 100f * plate.Age, plate.Position.Z, "its place too, where its fire and smoke follow it");
+            AssertEqual(0.1f, start.Z + 50f * plate.Age, drawnAt.Z, "sinking away from the camera at 50 a second");
+            AssertEqual(0.1f, start.Z + 50f * plate.Age, plate.Position.Z, "its place too, where its fire and smoke follow it");
             float upNow = Microsoft.Xna.Framework.Vector3.Dot(up, Microsoft.Xna.Framework.Vector3.Normalize(plate.So.World.Backward));
             Assert.IsTrue(upNow >= leastUp - 0.0001f, $"its top stays toward the camera, tilted no more than 0.35 each way: {upNow} at {plate.Age}");
         }
@@ -1674,7 +1674,7 @@ public class ShipPartsTests : StarDriveTest
             {
                 float z = piece.Position.Z;
                 piece.Update(TestSimStep);
-                AssertEqual(0.01f, z + 100f / 60f, piece.Position.Z, "each sinks on at 100 a second");
+                AssertEqual(0.01f, z + 50f / 60f, piece.Position.Z, "each sinks on at 50 a second");
             }
         }
         finally
