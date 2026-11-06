@@ -1163,24 +1163,166 @@ public class ShipPartsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ADerelictsTornInsidesCoolOutOverItsFirstMinute()
+    public void APlateLostToTheBlowThatMakesADerelictFliesOffGlowingHot()
     {
         Ship ship = GunboatOnScreen(dying: false, out SceneObject model);
+        ShipModule[] mid = ModulesOf(ship, 3, out int midArea);
+        Assert.AreEqual(10, midArea, "setup: the middle-left plate's ten slots");
+        Assert.AreEqual(1, mid[0].Area, "setup: its smallest module on one");
+        foreach (ShipModule m in mid)
+            Kill(m);
+        ship.Update(TestSimStep);
+        for (int i = 1; i < mid.Length; ++i)
+            Repair(mid[i]);
+        ship.Update(TestSimStep);
+        AssertEqual(0.0001f, 0.1f, model.InsidesHeat, "setup: the plate 9 of 10 back, the ship's model glows at a tenth");
+
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m); // the killing blow, with no update to count it
+        _ = new Derelict(ship, model, salvageable: false, seen: true);
+        HullPartDebris backLeft = System.Array.Find(Debris(), x => x.So.PartShown[5] == 1f);
+        Assert.IsNotNull(backLeft, "setup: the back-left plate flies off the derelict");
+        Assert.AreEqual(1f, backLeft.So.InsidesHeat, "glowing hot from the blow, not as the ship's model glowed");
+        Assert.AreEqual(1f, model.InsidesHeat, "as the derelict's model, just made");
+    }
+
+    [TestMethod]
+    [DataRow(1f, 1f, 125f, 226f, 500f)]
+    [DataRow(3f, 2f, 250f, 451f, 1000f)]
+    public void ADerelictsTornInsidesCoolOverItsFirstFiftyTurnsTimesTheProductionPaceToATenthOfTheirGlow(float pace, float productionPace, float halfCooled, float atATenth, float longAfter)
+    {
+        Ship ship = GunboatOnScreen(dying: false, out SceneObject model);
+        UState.P.Pace = pace;
+        Assert.AreEqual(5, UState.P.TurnTimer, "setup: 5 seconds a turn");
+        Assert.AreEqual(productionPace, UState.ProductionPace, "setup: the production pace");
         foreach (ShipModule m in ModulesOf(ship, 5, out int _))
             Kill(m);
-        var d = new Derelict(ship, model, salvageable: false, seen: true);
+        var d = new Derelict(ship, model, salvageable: true, seen: true);
         Assert.AreEqual(0f, d.PartShown?[5], "setup: the derelict has lost the plate");
         Assert.AreEqual(1f, d.InsidesHeat, "its insides glow hot at its death");
 
-        while (d.Age < 30f)
-            d.Update(TestSimStep);
-        AssertEqual(0.01f, 0.5f, d.InsidesHeat, "half cooled after half a minute");
+        var second = new FixedSimTime(1f);
+        while (d.Age < halfCooled)
+            d.Update(second);
+        AssertEqual(0.01f, 0.5f, d.InsidesHeat, "half cooled after 25 turns times the production pace");
         AssertEqual(0.0001f, d.InsidesHeat, model.InsidesHeat, "its model glowing as hot");
 
-        while (d.Age < 61f)
-            d.Update(TestSimStep);
-        Assert.AreEqual(0f, d.InsidesHeat, "cold after a minute");
-        Assert.AreEqual(0f, model.InsidesHeat, "its model too");
+        while (d.Age < atATenth)
+            d.Update(second);
+        AssertEqual(0.0001f, 0.1f, d.InsidesHeat, "down to a tenth of its glow before 50 turns times the production pace");
+
+        while (d.Age < longAfter)
+            d.Update(second);
+        AssertEqual(0.0001f, 0.1f, d.InsidesHeat, "and no less long after");
+        AssertEqual(0.0001f, 0.1f, model.InsidesHeat, "its model too");
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void AShipOnScreenGivesItsModelTheHeatOfItsTornInsides(bool dying)
+    {
+        Ship ship = GunboatOnScreen(dying, out SceneObject model);
+        ShipModule[] plate = ModulesOf(ship, 5, out int area);
+        Assert.AreEqual(5, area, "setup: the back-left plate's five slots");
+        Assert.AreEqual(5, plate.Length, "setup: a module on each");
+        foreach (ShipModule m in plate)
+            Kill(m);
+        ship.Update(TestSimStep);
+        Assert.AreEqual(0f, model.PartShown?[5], "setup: the ship's model leaves the plate out");
+
+        Repair(plate[0]);
+        Repair(plate[1]);
+        ship.Update(TestSimStep);
+        AssertEqual(0.0001f, 0.6f, model.InsidesHeat, dying ? "a dying ship's model glows as its ship, two of five slots back" : "the model glows as its ship, two of five slots back");
+    }
+
+    [TestMethod]
+    public void ARecoveredShipsTornInsidesStartAsHotAsItsDerelictsAndCoolOnAsItIsRepaired()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        Assert.AreEqual(5, UState.P.TurnTimer, "setup: 5 seconds a turn");
+        Assert.AreEqual(1f, UState.ProductionPace, "setup: the normal pace");
+        ShipModule[] plate = ModulesOf(ship, 5, out int _);
+        foreach (ShipModule m in plate)
+            Kill(m);
+        var d = new Derelict(ship, null, salvageable: true, seen: false);
+        var second = new FixedSimTime(1f);
+        while (d.Age < 100f)
+            d.Update(second);
+        AssertEqual(0.0001f, 0.6f, d.InsidesHeat, "setup: the derelict cooled for 20 turns");
+
+        Ship recovered = Ship.CreateRecoveredShip(UState, d, Player, model: null);
+        Assert.AreEqual(0f, recovered.PartShownNow()?[5], "setup: the recovered ship has its derelict's lost plate");
+        AssertEqual(0.0001f, 0.6f, recovered.InsidesHeat, "its insides glow as hot as its derelict's did");
+
+        ShipModule[] back = ModulesOf(recovered, 5, out int _);
+        Repair(back[0]);
+        Repair(back[1]);
+        recovered.PartShownNow();
+        AssertEqual(0.0001f, 0.36f, recovered.InsidesHeat, "two of its five slots back, cooling on from there by as much");
+
+        UState.Objects.Update(TestSimStep); // in its empire's list, to be saved
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.ShipPartsHeat", throwOnError: true);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+        Ship after = loaded.UState.Objects.FindShip(recovered.Id);
+        after.PartShownNow();
+        AssertEqual(0.0001f, 0.36f, after.InsidesHeat, "a save keeps how hot they glowed at its recovery");
+
+        int other = 0;
+        for (int part = 1; part < 7 && other == 0; ++part)
+            if (part != 5 && System.Array.Exists(ModulesOf(recovered, part, out int _), m => m.Active))
+                other = part;
+        Assert.IsTrue(other > 0, "setup: a module alive under another plate");
+        foreach (ShipModule m in ModulesOf(recovered, other, out int _))
+            if (m.Active)
+                Kill(m);
+        Assert.IsTrue(recovered.Active && !recovered.Dying, "setup: the ship lives through it");
+        Assert.AreEqual(0f, recovered.PartShownNow()[other], "setup: the other plate lost in a fight");
+        Assert.AreEqual(1f, recovered.InsidesHeat, "a plate lost anew glows hot");
+    }
+
+    [TestMethod]
+    public void AShipsTornInsidesGlowByItsLostPlateLeastBackDownToATenth()
+    {
+        Ship ship = GunboatOnScreen(dying: false, out SceneObject model);
+        ShipModule[] back = ModulesOf(ship, 5, out int backArea);
+        ShipModule[] front = ModulesOf(ship, 1, out int frontArea);
+        Assert.AreEqual(5, backArea, "setup: the back-left plate's five slots");
+        Assert.AreEqual(5, back.Length, "setup: a module on each");
+        Assert.AreEqual(16, frontArea, "setup: the front-left plate's sixteen slots");
+        Assert.AreEqual(1, front[0].Area, "setup: its smallest module on one");
+
+        foreach (ShipModule m in back)
+            Kill(m);
+        ship.PartShownNow();
+        Assert.AreEqual(1f, ship.InsidesHeat, "a plate just lost glows hot");
+
+        Repair(back[0]);
+        Repair(back[1]);
+        Repair(back[2]);
+        ship.PartShownNow();
+        AssertEqual(0.0001f, 0.4f, ship.InsidesHeat, "three of its five slots back, it has cooled by as much");
+
+        foreach (ShipModule m in front)
+            Kill(m);
+        ship.PartShownNow();
+        Assert.AreEqual(1f, ship.InsidesHeat, "another plate just lost glows hot again");
+
+        for (int i = 1; i < front.Length; ++i)
+            Repair(front[i]);
+        ship.PartShownNow();
+        AssertEqual(0.0001f, 0.4f, ship.InsidesHeat, "the lost plate least back sets the glow");
+
+        Repair(back[3]);
+        Repair(back[4]);
+        Assert.IsTrue(ship.Active, "setup: the ship lives through it");
+        UState.Objects.Update(TestSimStep);
+        AssertEqual(0.0001f, 0.1f, ship.InsidesHeat, "the other plate 15 of 16 back, it glows no less than a tenth");
+        AssertEqual(0.0001f, 0.1f, model.InsidesHeat, "its model glowing as hot");
     }
 
     [TestMethod]

@@ -19,6 +19,11 @@ namespace Ship_Game.Ships
         // how much of each hull part shows, 1 whole, below 1 lost and coming back with its repairs since; null while no part is lost
         public float[] PartShown { get; private set; }
 
+        // how hot the embers in its torn insides glow: from InsidesHeatAtLoss down by the share of the lost part least back, never under Derelict.MinInsidesHeat
+        public float InsidesHeat { get; private set; } = 1f;
+        // how hot its lost parts' insides glowed when lost: 1 in a fight, a recovered ship's derelict's at its recovery till it loses a part anew
+        [StarData(DefaultValue = 1f)] float InsidesHeatAtLoss = 1f;
+
         // a module died or came back since the parts were counted, or they never were
         bool PartsOutdated = true;
         // the parts a module died under since the parts were counted, each bit a part, saved so a death just before a save still counts
@@ -70,6 +75,7 @@ namespace Ship_Game.Ships
             Span<float> shown = stackalloc float[numParts];
             shown.Fill(1f);
             bool anyLost = false;
+            float leastBack = 1f;
             uint lostNow = 0u;
             for (int part = 1; part < numParts; ++part)
             {
@@ -91,8 +97,12 @@ namespace Ship_Game.Ships
                 }
                 low[part] = lowest = Math.Min(lowest, alive[part]);
                 shown[part] = (alive[part] - lowest) / (float)(area[part] - lowest);
+                leastBack = Math.Min(leastBack, shown[part]);
                 anyLost = true;
             }
+            if (lostNow != 0u || !anyLost)
+                InsidesHeatAtLoss = 1f;
+            InsidesHeat = anyLost ? Math.Max(Derelict.MinInsidesHeat, InsidesHeatAtLoss * (1f - leastBack)) : 1f;
 
             // a new array only when it changes, as a save or the UI may be reading the one there
             LostPartLow = !anyLost ? null : saved != null && low.SequenceEqual(saved) ? saved : low.ToArray();
@@ -151,8 +161,8 @@ namespace Ship_Game.Ships
             return (uint)part < (uint)shown.Length && shown[part] < 1f;
         }
 
-        // a recovered ship's lost parts are its derelict's, each coming back with its repairs from then on; the recovery's damage takes none
-        void KeepLostParts(float[] derelictShown)
+        // a recovered ship's lost parts are its derelict's, each coming back with its repairs from then on, their insides as hot as its; the recovery's damage takes none
+        void KeepLostParts(float[] derelictShown, float derelictHeat)
         {
             if (derelictShown == null)
                 return;
@@ -162,6 +172,7 @@ namespace Ship_Game.Ships
                 if (derelictShown[part] < 1f)
                     low[part] = int.MaxValue; // its alive area at the next count
             LostPartLow = low;
+            InsidesHeatAtLoss = derelictHeat;
             PartsOutdated = true;
         }
     }

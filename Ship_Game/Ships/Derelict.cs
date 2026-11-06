@@ -41,8 +41,10 @@ public sealed class Derelict
     public const float SmokeSourcesPerModule = 0.2f;
     public const int MinSmokeSources = 6;
     public const float SmokeThinSeconds = 60f;
-    // the embers in its torn insides cool out over this time
-    public const float InsidesCoolSeconds = 60f;
+    // the embers in its torn insides cool over this many turns, times the production pace, as its lifetime is
+    public const int InsidesCoolTurns = 50;
+    // the least the embers in torn insides glow, on a derelict cooled down or a ship's part nearly back
+    public const float MinInsidesHeat = 0.1f;
     // the breakup's small blasts, with their volume and limit in AudioConfig.yaml
     public const string BreakupBlastSound = "sd_derelict_breakup";
     // a recovery's sounds, with their volumes in AudioConfig.yaml: each break-in turn's static, a plain failure's as the derelict gives way, and a success's as it rises
@@ -177,7 +179,10 @@ public sealed class Derelict
         BreakupSeconds = random.Float(MinBreakupSeconds, MaxBreakupSeconds);
         PartShown = ship.WholePartsNow(out uint partsLostNow);
         if (so != null)
+        {
             so.PartShown = PartShown;
+            so.InsidesHeat = InsidesHeat;
+        }
         Smoke = PickSmokeSources(ship);
 
         KnownBy = new bool[Universe.NumEmpires];
@@ -614,8 +619,8 @@ public sealed class Derelict
     // salvageable or drifting, it slows linearly to a stop
     public Vector2 VelocityNow => DriftVelocity * (1f - Age / StopSeconds).Clamped(0f, 1f);
 
-    // how hot the embers in its torn insides still glow, 1 at its death, 0 once cooled out
-    public float InsidesHeat => (1f - Age / InsidesCoolSeconds).Clamped(0f, 1f);
+    // how hot the embers in its torn insides still glow, 1 at its death, MinInsidesHeat once cooled down
+    public float InsidesHeat => (1f - Age / (InsidesCoolTurns * Universe.ProductionPace * Universe.P.TurnTimer)).Clamped(MinInsidesHeat, 1f);
 
     // where it comes to rest: slowing linearly, it covers half its speed times the time left
     public Vector2 RestPosition => Position + VelocityNow * ((StopSeconds - Age) * 0.5f);

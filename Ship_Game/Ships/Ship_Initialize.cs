@@ -335,7 +335,7 @@ namespace Ship_Game.Ships
                 ship.KillAllTroops();
                 ship.CalcTroopBoardingDefense();
                 ship.TakeRecoveryDamage();
-                ship.KeepLostParts(d.PartShown);
+                ship.KeepLostParts(d.PartShown, d.InsidesHeat);
                 ship.SetOrdnance(0f);
                 ship.PowerCurrent = 0f;
                 ship.FlickerLightsOn();

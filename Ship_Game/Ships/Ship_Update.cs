@@ -73,6 +73,7 @@ namespace Ship_Game.Ships
             so.Visibility = IsLaunching || IsLanding ? ObjectVisibility.None : GlobalStats.ShipVisibility;
             so.HullTint = Loyalty.HullTint;
             so.PartShown = PartShown;
+            so.InsidesHeat = InsidesHeat;
             ScreenManager.Instance.AddObject(so);
             ShipSO = so; // last, so the sim can only take out a model that is already in the scene
         }
@@ -256,6 +257,7 @@ namespace Ship_Game.Ships
                 so.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
                 so.HullTint = Loyalty.HullTint;
                 so.PartShown = PartShown;
+                so.InsidesHeat = InsidesHeat;
             }
             if (lostNow != 0u && moved != null)
                 ThrowOffParts(lostNow, moved);
@@ -501,6 +503,7 @@ namespace Ship_Game.Ships
                 so.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
                 so.HullTint = Loyalty.HullTint;
                 so.PartShown = PartShown;
+                so.InsidesHeat = InsidesHeat;
                 if (lostNow != 0u)
                     ThrowOffParts(lostNow, so);
             }
