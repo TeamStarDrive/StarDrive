@@ -238,17 +238,18 @@ namespace SynapseGaming.LightingSystem.Core
                 if (so.Visibility == ObjectVisibility.None) continue;
 
                 float[] shown = so.PartShown; // read once, as the sim thread swaps it
-                DrawRenderables(so, shown, insides: false);
+                Matrix world = so.World; // and moves it
+                DrawRenderables(so, world, shown, insides: false);
                 if (shown != null)
                 {
                     // a model with a part off shows its insides, burnt, only where they are nearer than its outside: through the gap
                     Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullClockwiseFace);
                     GraphicsDevice.DepthStencilState = NearerOnly;
-                    DrawRenderables(so, shown, insides: true);
+                    DrawRenderables(so, world, shown, insides: true);
                     Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullCounterClockwiseFace);
                     Ship_Game.Graphics.RenderStates.EnableDepthWrite(GraphicsDevice);
                 }
-                DrawModelMeshes(so);
+                DrawModelMeshes(so, world);
             }
         }
 
@@ -438,7 +439,7 @@ namespace SynapseGaming.LightingSystem.Core
         }
 
         // insides: draw a model's back faces as its burnt insides, else its outside
-        void DrawRenderables(Rendering.SceneObject so, float[] shown, bool insides)
+        void DrawRenderables(Rendering.SceneObject so, in Matrix world, float[] shown, bool insides)
         {
             foreach (Rendering.RenderableMesh rm in so.RenderableMeshes)
             {
@@ -450,7 +451,7 @@ namespace SynapseGaming.LightingSystem.Core
                 // planet-halo custom shader) are passed through with caller-set
                 // matrices (stays the legacy contract).
                 var fx = (rm.Effect as Effects.Forward.LightingEffect) ?? SharedFx;
-                fx.World = so.World * rm.World;
+                fx.World = world * rm.World;
                 fx.EmissiveScale = so.EmissiveScale; // effects are shared by every ship of a model
                 fx.HullTint = so.HullTint;
                 fx.InsidesBurnt = insides;
@@ -526,7 +527,7 @@ namespace SynapseGaming.LightingSystem.Core
             fx.ShareShown = 1f;
         }
 
-        void DrawModelMeshes(Rendering.SceneObject so)
+        void DrawModelMeshes(Rendering.SceneObject so, in Matrix world)
         {
             foreach ((ModelMesh mesh, Effect effect) in so.AddedModelMeshes)
             {
@@ -534,7 +535,7 @@ namespace SynapseGaming.LightingSystem.Core
                 // Note: parent-bone hierarchy walk omitted for Phase 2 simplicity.
                 // Submeshes inherit SceneObject.World only; bone-aware composite
                 // is a Phase 3 cleanup if/when skeletal hierarchies return.
-                fx.World = so.World;
+                fx.World = world;
                 fx.EmissiveScale = so.EmissiveScale;
                 fx.HullTint = so.HullTint;
                 fx.InsidesBurnt = false;
