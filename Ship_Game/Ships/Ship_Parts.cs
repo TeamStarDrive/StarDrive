@@ -106,13 +106,16 @@ namespace Ship_Game.Ships
                     HullPartDebris.ThrowOff(this, model, part);
         }
 
-        // a thruster on a part not whole is out, as is its engine trail
+        // a thruster on a lost part lights again once this much of the part is back
+        public const float ThrusterBackShare = 0.75f;
+
+        // a thruster on a lost part is out, as is its engine trail, till ThrusterBackShare of the part is back
         internal static bool ThrusterOut(int thruster, float[] shown, byte[] thrusterParts)
         {
             if (shown == null || thrusterParts == null || (uint)thruster >= (uint)thrusterParts.Length)
                 return false;
             int part = thrusterParts[thruster];
-            return part < shown.Length && shown[part] < 1f;
+            return part < shown.Length && shown[part] < ThrusterBackShare;
         }
 
         // how much of each hull part shows, counted again if a module died or came back since; on the sim thread, or for a ship that died

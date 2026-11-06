@@ -118,7 +118,7 @@ namespace Ship_Game.Ships
         sealed record ThrusterPartList(XnaVector3[][] Triangles, Vector2 MeshOffset, Vector3[] Positions, byte[] Parts);
         ThrusterPartList ThrusterPartsFound;
 
-        // the part each thruster sits on, which takes it out while not whole; null until the model loads, or for a model in one piece
+        // the part each thruster sits on, which takes it out while lost till Ship.ThrusterBackShare of it is back; null until the model loads, or for a model in one piece
         public byte[] ThrusterParts
         {
             get

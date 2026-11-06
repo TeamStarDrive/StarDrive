@@ -946,7 +946,7 @@ public class ShipPartsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AThrusterOnAPlateNotWholeIsOutTillThePlateIsWholeAgain()
+    public void AThrusterOnALostPlateIsOutTillThreeQuartersOfThePlateIsBack()
     {
         SetupGunboats();
         Ship ship = SpawnGunboat();
@@ -954,7 +954,9 @@ public class ShipPartsTests : StarDriveTest
         Assert.AreEqual(6, thrusterParts[0], "setup: the first thruster rides the back-right plate");
         Assert.AreEqual(5, thrusterParts[1], "setup: the second the back-left one");
 
-        ShipModule[] plate = ModulesOf(ship, 5, out int _);
+        ShipModule[] plate = ModulesOf(ship, 5, out int area);
+        Assert.AreEqual(5, area, "setup: the back-left plate's five slots");
+        Assert.AreEqual(5, plate.Length, "setup: a module on each");
         foreach (ShipModule m in plate)
             Kill(m);
         float[] shown = ship.PartShownNow();
@@ -962,14 +964,19 @@ public class ShipPartsTests : StarDriveTest
         Assert.IsFalse(Ship.ThrusterOut(0, shown, thrusterParts), "the one on the plate still on burns on");
 
         Repair(plate[0]);
+        Repair(plate[1]);
+        Repair(plate[2]);
         shown = ship.PartShownNow();
-        Assert.IsTrue(shown[5] > 0f && shown[5] < 1f, "setup: the plate is coming back");
-        Assert.IsTrue(Ship.ThrusterOut(1, shown, thrusterParts), "its thruster stays out while it comes back");
+        AssertEqual(0.0001f, 0.6f, shown[5], "setup: three of its five slots back");
+        Assert.IsTrue(Ship.ThrusterOut(1, shown, thrusterParts), "its thruster stays out while less than three quarters of the plate is back");
 
-        foreach (ShipModule m in plate)
-            Repair(m);
+        Repair(plate[3]);
         shown = ship.PartShownNow();
-        Assert.IsFalse(Ship.ThrusterOut(1, shown, thrusterParts), "and burns again once the plate is whole");
+        AssertEqual(0.0001f, 0.8f, shown[5], "setup: four of its five slots back");
+        Assert.IsFalse(Ship.ThrusterOut(1, shown, thrusterParts), "and burns again once three quarters of it is back, before it is whole");
+
+        Assert.IsFalse(Ship.ThrusterOut(1, new[] { 1f, 1f, 1f, 1f, 1f, 0.75f, 1f }, thrusterParts), "it burns from three quarters back");
+        Assert.IsTrue(Ship.ThrusterOut(1, new[] { 1f, 1f, 1f, 1f, 1f, 0.74f, 1f }, thrusterParts), "but not short of it");
     }
 
     [TestMethod]
