@@ -6396,6 +6396,10 @@ namespace Ship_Game
         ChooseOpponentsHint = 7282,
         /// <summary>Drag to turn</summary>
         DragToTurn = 7283,
+        /// <summary>Hull Plates</summary>
+        HullPlatesExtension = 7284,
+        /// <summary>Frigates and bigger ships can lose hull plates in battle, and the plates grow back as the ship is repaired.</summary>
+        HullPlatesExtensionTip = 7285,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

@@ -499,15 +499,15 @@ public class ShipPartsTests : StarDriveTest
             before += modules[killed++].Area;
         int dead = before + modules[killed].Area;
         float chance = dead == area ? 0.5f : dead / (float)area - 0.75f;
-        AssertLossRate(chance, LossRate(ship, System.MemoryExtensions.AsSpan(modules, 0, killed).ToArray(), modules[killed], tries), tries,
+        AssertLossRate(chance, LossRate(ship, modules, System.MemoryExtensions.AsSpan(modules, 0, killed).ToArray(), modules[killed], tries), tries,
                        $"the death taking the plate to {dead} of {area} dead");
 
-        AssertLossRate(0.5f, LossRate(ship, System.MemoryExtensions.AsSpan(modules, 1).ToArray(), modules[0], tries), tries,
+        AssertLossRate(0.5f, LossRate(ship, modules, System.MemoryExtensions.AsSpan(modules, 1).ToArray(), modules[0], tries), tries,
                        "the death of its last module");
     }
 
-    // how often the last module's death loses the plate, the others dead: real dice for that roll, none that succeed between them
-    static float LossRate(Ship ship, ShipModule[] others, ShipModule last, int tries)
+    // how often the last module's death loses the plate, the others dead: real dice for that roll, none that succeed between them; a lost plate takes the rest of its modules, all repaired before the next try
+    static float LossRate(Ship ship, ShipModule[] plate, ShipModule[] others, ShipModule last, int tries)
     {
         Empire owner = ship.Loyalty;
         Ship_Game.Utils.RandomBase dice = owner.Random;
@@ -527,7 +527,7 @@ public class ShipPartsTests : StarDriveTest
             if (gone)
             {
                 ++lost;
-                foreach (ShipModule m in others)
+                foreach (ShipModule m in plate)
                     Repair(m);
                 Assert.IsNull(ship.PartShownNow(), "setup: repaired whole");
                 foreach (ShipModule m in others)
@@ -578,31 +578,150 @@ public class ShipPartsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ALostPlateComesBackByItsRepairsSinceItsLowest()
+    public void ALostPlateTakesTheModulesStillOnItQuietlyAndComesBackByItsRepairs()
     {
         SetupGunboats();
         Ship ship = SpawnGunboat();
+        Ship attacker = SpawnGunboat(220_000f);
         const int plate = 1;
         ShipModule[] modules = ModulesOf(ship, plate, out int area);
-        int alive = area, living = modules.Length;
-        while (ship.PartShownNow() == null) // the biggest first, leaving small ones
+        var offThePlate = new System.Collections.Generic.Dictionary<ShipModule, float>();
+        foreach (ShipModule m in ship.Modules)
+            if (ship.Grid.PartOf(m.Pos) != plate)
+                offThePlate[m] = m.Health;
+        // a module on the plate, the only one of its kind there, next to modules off it, made to blast as it dies
+        ShipModule blaster = System.Array.Find(modules, c => System.Array.FindAll(modules, m => m.UID == c.UID).Length == 1
+            && System.Array.Exists(ship.Modules, m => ship.Grid.PartOf(m.Pos) != plate && System.Math.Abs(m.Pos.X - c.Pos.X) <= 1 && System.Math.Abs(m.Pos.Y - c.Pos.Y) <= 1));
+        Assert.IsNotNull(blaster, "setup: a module on the plate beside modules off it");
+        var damage = typeof(ShipModuleFlyweight).GetField(nameof(ShipModuleFlyweight.ExplosionDamage))!;
+        var reach = typeof(ShipModuleFlyweight).GetField(nameof(ShipModuleFlyweight.ExplosionRadius))!;
+        object keptDamage = damage.GetValue(blaster.Flyweight), keptReach = reach.GetValue(blaster.Flyweight);
+        damage.SetValue(blaster.Flyweight, 2000);
+        reach.SetValue(blaster.Flyweight, 24);
+        try
         {
-            Kill(modules[--living]);
-            alive -= modules[living].Area;
+            int dead = 0;
+            for (int i = modules.Length - 1; i >= 0 && dead <= 0.75f * area; --i) // the biggest first, sparing the blaster, with no count between
+            {
+                if (modules[i] == blaster)
+                    continue;
+                Kill(modules[i]);
+                dead += modules[i].Area;
+            }
+            Assert.IsTrue(dead > 0.75f * area, "setup: more than three quarters of the plate dead");
+            Assert.IsTrue(blaster.Active && blaster.Explodes, "setup: the module that blasts as it dies still alive on the plate");
+            ship.SetLastDamagedBy(attacker); // so a death in a fight would blast
+            Assert.AreEqual(0f, ship.PartShownNow()?[plate], "setup: the plate is lost");
+
+            foreach (ShipModule m in modules)
+                Assert.IsFalse(m.Active, $"the {m.UID} at {m.Pos} went with its plate");
+            Assert.IsTrue(ship.Active, "the ship lives on");
+            foreach (var (m, health) in offThePlate)
+                Assert.AreEqual(health, m.Health, $"no blast reaches the {m.UID} at {m.Pos} off the plate");
         }
+        finally
+        {
+            damage.SetValue(blaster.Flyweight, keptDamage);
+            reach.SetValue(blaster.Flyweight, keptReach);
+        }
+        Assert.AreEqual(0f, ship.PartShownNow()[plate], "the lost plate shows nothing");
 
-        ShipModule last = modules[0];
-        Kill(last);
-        int lowest = alive - last.Area;
-        Assert.IsTrue(lowest > 0, "setup: its lowest is above none, so a repair counts from there");
-        Assert.AreEqual(0f, ship.PartShownNow()[plate], "dying on, the lost plate shows nothing");
-
-        Repair(last);
-        AssertEqual(0.0001f, (alive - lowest) / (float)(area - lowest), ship.PartShownNow()[plate],
-                    "a repair brings it back by its share of what was dead at its lowest");
-        for (int i = living; i < modules.Length; ++i)
-            Repair(modules[i]);
+        Repair(modules[0]);
+        AssertEqual(0.0001f, modules[0].Area / (float)area, ship.PartShownNow()[plate], "a repair brings it back by its share of the plate");
+        foreach (ShipModule m in modules)
+            Repair(m);
         Assert.IsNull(ship.PartShownNow(), "repaired whole, the plate is on again");
+    }
+
+    [TestMethod]
+    public void AModuleGoneWithItsPlateDiesWithoutABlast()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        Ship attacker = SpawnGunboat(220_000f);
+        ShipModule blaster = System.Array.Find(ship.Modules, m => m.Explodes);
+        Assert.IsNotNull(blaster, "setup: a module that blasts as it dies");
+        ship.SetLastDamagedBy(attacker);
+        var before = new System.Collections.Generic.Dictionary<ShipModule, float>();
+        foreach (ShipModule m in ship.Modules)
+            if (m != blaster)
+                before[m] = m.Health;
+
+        blaster.DieWithItsPart();
+        Assert.IsFalse(blaster.Active, "it dies");
+        Assert.AreEqual(0f, blaster.Health, "with no health left");
+        foreach (var (m, health) in before)
+            Assert.AreEqual(health, m.Health, $"no blast reaches the {m.UID} at {m.Pos}");
+
+        Ship other = SpawnGunboat(240_000f);
+        ShipModule same = System.Array.Find(other.Modules, m => m.Pos == blaster.Pos);
+        other.SetLastDamagedBy(attacker);
+        float othersHealth = other.Health;
+        same.Die(attacker, false);
+        Assert.IsTrue(othersHealth - other.Health > same.ActualMaxHealth + 1f, "setup: a death in a fight blasts the modules around it");
+    }
+
+    [TestMethod]
+    public void WithHullPlatesSwitchedOffNoPlateComesOff()
+    {
+        SetupGunboats();
+        UState.P.HullPlates = false;
+        Ship ship = SpawnGunboat();
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        Assert.IsNull(ship.PartShownNow(), "every module on the back-left plate dead, it stays on");
+        Assert.IsFalse(ship.UnderLostPart(ModulesOf(ship, 5, out int _)[0]), "and its modules show their damage");
+    }
+
+    [TestMethod]
+    public void ARecoveredShipHasNoModuleAliveUnderAPlateItsDerelictLost()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        var d = new Derelict(ship, null, salvageable: false, seen: false);
+        Assert.IsNull(d.PartShown, "setup: the ship died whole");
+        typeof(Derelict).GetField(nameof(Derelict.PartShown), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                        .SetValue(d, new[] { 1f, 1f, 1f, 0f, 1f, 1f, 1f }); // as the killing blow takes the middle-left plate with its modules still alive
+
+        Ship recovered = Ship.CreateRecoveredShip(UState, d, Player, model: null);
+        foreach (ShipModule m in ModulesOf(recovered, 3, out int _))
+            Assert.IsFalse(m.Active, $"the {m.UID} at {m.Pos} is gone with the plate");
+        Assert.IsTrue(System.Array.Exists(ModulesOf(recovered, 4, out int _), m => m.Active), "setup: the recovery leaves modules alive on the same plate the other side");
+        Assert.AreEqual(0f, recovered.PartShownNow()?[3], "the plate comes back with its repairs from none");
+    }
+
+    [TestMethod]
+    public void NoModuleRegeneratesOnAPlateNotWhole()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        ShipModule onPlate = System.Array.Find(ModulesOf(ship, 5, out int _), m => m.UID == "SteelArmorSmall");
+        ShipModule offPlate = System.Array.Find(ModulesOf(ship, 1, out int _), m => m.UID == "SteelArmorSmall");
+        Assert.IsNotNull(onPlate, "setup: armor on the back-left plate");
+        Assert.IsNotNull(offPlate, "setup: the same armor on the front-left one");
+        var regenerate = typeof(ShipModuleFlyweight).GetField(nameof(ShipModuleFlyweight.Regenerate))!;
+        object kept = regenerate.GetValue(onPlate.Flyweight);
+        regenerate.SetValue(onPlate.Flyweight, 50f);
+        try
+        {
+            foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+                Kill(m);
+            Assert.IsNotNull(ship.PartShownNow(), "setup: the plate is lost");
+            offPlate.SetHealth(offPlate.ActualMaxHealth * 0.5f, "Test");
+
+            for (int i = 0; i < 20; ++i)
+            {
+                onPlate.RegenerateSelf();
+                offPlate.RegenerateSelf();
+            }
+            Assert.IsFalse(onPlate.Active, "a module on the lost plate stays dead");
+            Assert.AreEqual(0f, onPlate.Health, "and regains no health");
+            Assert.IsTrue(offPlate.Health > offPlate.ActualMaxHealth * 0.5f, "setup: the same module off it regenerates");
+        }
+        finally
+        {
+            regenerate.SetValue(onPlate.Flyweight, kept);
+        }
     }
 
     [TestMethod]

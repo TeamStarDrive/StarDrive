@@ -29,11 +29,14 @@ namespace Ship_Game.Ships
         // the parts a module died under since the parts were counted, each bit a part, saved so a death just before a save still counts
         [StarData] uint PartsHit;
 
+        // a game with the Hull Plates extension switched off plays every ship as if its model were in one piece
+        bool HullPlatesOff => Universe?.P.HullPlates == false;
+
         // a module died: its part may be lost at the next count, and any part while the hull's model has not loaded; nothing on a hull in one piece
         void MarkPartHit(ShipModule m)
         {
             ShipHull hull = BaseHull;
-            if (hull.ModelInOnePiece)
+            if (hull.ModelInOnePiece || HullPlatesOff)
                 return;
             int part = Grid.PartOf(m.Pos);
             if (part < 0 && hull.NumParts > 0 && Grid.GetParts(out _))
@@ -46,9 +49,9 @@ namespace Ship_Game.Ships
         uint UpdateLostParts()
         {
             ShipHull hull = BaseHull;
-            if (hull.NumParts == 0)
+            if (hull.NumParts == 0 || HullPlatesOff)
             {
-                if (hull.ModelInOnePiece)
+                if (hull.ModelInOnePiece || HullPlatesOff)
                     PartsOutdated = false; // until a module comes back
                 return 0u;
             }
@@ -58,6 +61,17 @@ namespace Ship_Game.Ships
             uint hit = Interlocked.Exchange(ref PartsHit, 0u);
 
             int numParts = area.Length;
+            int[] saved = LostPartLow?.Length == numParts ? LostPartLow : null; // one saved with another cut of the model starts over
+            if (saved != null && Active && !Dying)
+            {
+                uint recovered = 0u;
+                for (int part = 1; part < numParts; ++part)
+                    if (saved[part] == int.MaxValue)
+                        recovered |= 1u << part;
+                if (recovered != 0u)
+                    KillModulesUnder(recovered); // a recovered ship's parts its derelict lost, where its hull's parts were not known at the recovery
+            }
+
             Span<int> alive = stackalloc int[numParts];
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
@@ -66,7 +80,6 @@ namespace Ship_Game.Ships
                     alive[Grid.PartOf(m.Pos)] += m.Area;
             }
 
-            int[] saved = LostPartLow?.Length == numParts ? LostPartLow : null; // one saved with another cut of the model starts over
             Span<int> low = stackalloc int[numParts];
             if (saved != null)
                 saved.CopyTo(low);
@@ -107,7 +120,29 @@ namespace Ship_Game.Ships
             // a new array only when it changes, as a save or the UI may be reading the one there
             LostPartLow = !anyLost ? null : saved != null && low.SequenceEqual(saved) ? saved : low.ToArray();
             PartShown = !anyLost ? null : PartShown is { } before && shown.SequenceEqual(before) ? before : shown.ToArray();
+            if (lostNow != 0u && Active && !Dying)
+                KillModulesUnder(lostNow);
             return lostNow;
+        }
+
+        // the modules still alive under the parts just lost go with them, quietly, as long as the ship lives through it
+        void KillModulesUnder(uint parts)
+        {
+            for (int i = 0; i < ModuleSlotList.Length && Active && !Dying; ++i)
+            {
+                ShipModule m = ModuleSlotList[i];
+                if (m.Active && (parts & 1u << Grid.PartOf(m.Pos)) != 0)
+                    m.DieWithItsPart();
+            }
+        }
+
+        // a module under a part a derelict lost, once the hull's parts are known and the derelict's are of the same cut of the model
+        bool UnderPartLostBy(float[] derelictShown, ShipModule m)
+        {
+            if (derelictShown == null || !Grid.GetParts(out int[] area) || derelictShown.Length != area.Length)
+                return false;
+            int part = Grid.PartOf(m.Pos);
+            return derelictShown[part] < 1f;
         }
 
         // the parts just lost fly off the model as it is drawn now, for a ship the player sees

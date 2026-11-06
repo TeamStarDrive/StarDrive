@@ -1132,7 +1132,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void CanSerializeUniverseParams()
         {
-            var instance = new UniverseParams { DisableSalvageOps = true, DisableBoardingWarning = true, DisableTechLeechWarning = true }; // off their defaults, so they must be written
+            var instance = new UniverseParams { DisableSalvageOps = true, DisableBoardingWarning = true, DisableTechLeechWarning = true, DisableHullPlates = true }; // off their defaults, so they must be written
             var result = SerDes(instance);
             AssertEqual(instance.Difficulty, result.Difficulty);
             AssertEqual(instance.StarsCount, result.StarsCount);
@@ -1181,6 +1181,7 @@ namespace UnitTests.Serialization
             AssertEqual(instance.DisableResearchStations, result.DisableResearchStations);
             AssertEqual(instance.DisableMiningOps, result.DisableMiningOps);
             AssertEqual(instance.DisableSalvageOps, result.DisableSalvageOps);
+            AssertEqual(instance.DisableHullPlates, result.DisableHullPlates);
             AssertEqual(instance.PrioitizeProjectors, result.PrioitizeProjectors);
         }
 

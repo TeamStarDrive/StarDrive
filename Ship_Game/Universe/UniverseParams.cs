@@ -100,6 +100,7 @@ public class UniverseParams
     [StarData] public bool DisableMiningOps;
     [StarData] public bool DisableSalvageOps;
     [StarData] bool SavedWithSalvageOps; // set as it is saved, so a game saved before salvage ops existed loads with them off
+    [StarData] public bool DisableHullPlates; // a game saved before the switch existed loads with hull plates on
 
     // the Globals flag, vanilla's or a mod's, is a hard switch: with it off they stay off whatever the rule option says
     public bool SalvageOps { get => !DisableSalvageOps && GlobalStats.Defaults.EnableSalvageOps; set => DisableSalvageOps = !value; }
@@ -110,6 +111,7 @@ public class UniverseParams
     public bool Infiltration { get => !UseLegacyEspionage; set => UseLegacyEspionage = !value; }
     public bool ResearchStations { get => !DisableResearchStations; set => DisableResearchStations = !value; }
     public bool MiningOps { get => !DisableMiningOps; set => DisableMiningOps = !value; }
+    public bool HullPlates { get => !DisableHullPlates; set => DisableHullPlates = !value; }
 
     [StarDataSerialize]
     StarDataDynamicField[] OnSerialize()
