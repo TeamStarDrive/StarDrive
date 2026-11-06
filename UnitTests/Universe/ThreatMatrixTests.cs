@@ -51,6 +51,21 @@ public class ThreatMatrixTests : StarDriveTest
         ThirdMajor.UpdateRelationships(false);
     }
     
+    [TestMethod]
+    public void AnAstronomersEmpireKnowsOfTheRemnantsInItsExploredSystemsWithoutSeeingThem()
+    {
+        CreateAMinorFaction("Remnant");
+        Planet guarded = AddDummyPlanet(new(400_000, 400_000));
+        Ship guardian = SpawnShip(SCOUT_NAME, Faction, guarded.Position + new Vector2(2000));
+        guarded.System.NewGameAddRemnantShipToList(guardian); // as the remnants' new game setup places them
+        AssertFalse(guardian.KnownByEmpires.KnownByPlayer(UState), "setup: no one has seen the guardian");
+
+        Player.Threats.UpdateRemnantPresenceAstronomers(guarded.System);
+        Player.Threats.Update(new(time: 0f)); // as the remnants' setup does
+        AssertGreaterThan(Player.KnownEnemyStrengthIn(guarded.System), 0f, "the empire knows of the remnants there");
+        AssertFalse(guardian.KnownByEmpires.KnownByPlayer(UState), "without seeing them, so none shows while the new game waits paused");
+    }
+
     protected void DebugVisualizeThreats(Empire owner)
     {
         var vis = new ThreatMatrixVisualization(this, owner);

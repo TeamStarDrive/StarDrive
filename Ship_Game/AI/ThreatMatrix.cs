@@ -282,10 +282,9 @@ public sealed partial class ThreatMatrix
     // in the system so it wont send lone colony ships
     public void UpdateRemnantPresenceAstronomers(SolarSystem s)
     {
+        // known as threats, never marked seen: a ship marked seen shows to the player till the paused start runs on
         for (int i = 0; i < s.ShipList.Count; i++)
-        {
-            Ship ship = s.ShipList[i];
-            SetSeen(ship, fromBackgroundThread: false);
-        }
+            if (s.ShipList[i].Loyalty != Owner)
+                Seen.Add(s.ShipList[i]);
     }
 }
