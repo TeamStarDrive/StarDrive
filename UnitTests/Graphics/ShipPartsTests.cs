@@ -498,7 +498,7 @@ public class ShipPartsTests : StarDriveTest
     [DataRow(4)]
     [DataRow(5)]
     [DataRow(6)]
-    public void ADeathPastThreeQuartersLosesThePlateByTheShareDeadPastItAndTheLastByHalf(int plate)
+    public void ADeathPastThreeQuartersLosesThePlateByTheShareDeadPastItAndTheLastWithNoRoll(int plate)
     {
         SetupGunboats(sureRolls: false);
         Ship ship = SpawnGunboat();
@@ -509,15 +509,22 @@ public class ShipPartsTests : StarDriveTest
         while (before + modules[killed].Area <= 0.75f * area)
             before += modules[killed++].Area;
         int dead = before + modules[killed].Area;
-        float chance = dead == area ? 0.5f : dead / (float)area - 0.75f;
-        AssertLossRate(chance, LossRate(ship, modules, System.MemoryExtensions.AsSpan(modules, 0, killed).ToArray(), modules[killed], tries), tries,
-                       $"the death taking the plate to {dead} of {area} dead");
+        if (dead < area)
+            AssertLossRate(dead / (float)area - 0.75f, LossRate(ship, modules, System.MemoryExtensions.AsSpan(modules, 0, killed).ToArray(), modules[killed], tries), tries,
+                           $"the death taking the plate to {dead} of {area} dead");
 
-        AssertLossRate(0.5f, LossRate(ship, modules, System.MemoryExtensions.AsSpan(modules, 1).ToArray(), modules[0], tries), tries,
-                       "the death of its last module");
+        FixedDice never = NeverDice();
+        SetDice(ship.Loyalty, never);
+        for (int i = 1; i < modules.Length; ++i)
+            Kill(modules[i]);
+        Assert.IsNull(ship.PartShownNow(), "setup: with all but its last module dead the rolls fail");
+        int rolls = never.Count;
+        Kill(modules[0]);
+        Assert.AreEqual(0f, ship.PartShownNow()?[plate], "the death of its last module loses the plate");
+        Assert.AreEqual(rolls, never.Count, "with no roll");
     }
 
-    // how often the last module's death loses the plate, the others dead: real dice for that roll, none that succeed between them; a lost plate takes the rest of its modules, all repaired before the next try
+    // how often one module's death loses the plate, the others given dead first: real dice for that roll, none that succeed between them; a lost plate takes the rest of its modules, all repaired before the next try
     static float LossRate(Ship ship, ShipModule[] plate, ShipModule[] others, ShipModule last, int tries)
     {
         Empire owner = ship.Loyalty;
@@ -569,7 +576,7 @@ public class ShipPartsTests : StarDriveTest
         ShipModule[] modules = ModulesOf(ship, 1, out int area);
         int together = modules.Length - 3; // its three biggest die in one update
         int dead = 0;
-        for (int i = 0; i < together && dead + modules[i].Area <= 0.75f * area; ++i)
+        for (int i = 1; i < together && dead + modules[i].Area <= 0.75f * area; ++i) // its smallest lives, so the plate goes by a roll
         {
             dead += modules[i].Area;
             Kill(modules[i]);
@@ -584,6 +591,7 @@ public class ShipPartsTests : StarDriveTest
             dead += modules[i].Area;
         }
         Assert.IsTrue(dead > 0.75f * area, "setup: they take it past three quarters");
+        Assert.IsTrue(modules[0].Active, "setup: with a module alive under it");
         ship.PartShownNow();
         Assert.AreEqual(1, dice.Count, "three deaths under it in one update roll once");
     }

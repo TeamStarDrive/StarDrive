@@ -8,10 +8,8 @@ namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-        // a hull part can go once more than this share of its slot area is dead: an update with a death under it rolls the share dead past it
+        // a hull part can go once more than this share of its slot area is dead: an update with a death under it rolls the share dead past it, and with all of it dead it goes with no roll
         public const float PartLossDeadShare = 0.75f;
-        // the roll instead once all of a hull part's slot area is dead
-        public const float AllDeadPartLossChance = 0.5f;
 
         // each hull part's slot area alive at its lowest since it was lost, -1 while it is on; null while no part is lost
         [StarData] int[] LostPartLow;
@@ -45,7 +43,7 @@ namespace Ship_Game.Ships
             PartsOutdated = true;
         }
 
-        // a part may be lost by the roll of an update with a death under it, and comes back as its modules do; a part with no modules stays on; returns the parts it lost. Standing still, paused or saving, it loses none and kills no module, and with hull plates on changes nothing a save writes
+        // a part may be lost at the count of an update with a death under it, by a roll unless all of it is dead, and comes back as its modules do; a part with no modules stays on; returns the parts it lost. Standing still, paused or saving, it loses none and kills no module, and with hull plates on changes nothing a save writes
         uint UpdateLostParts(bool timeRuns = true)
         {
             ShipHull hull = BaseHull;
@@ -98,9 +96,12 @@ namespace Ship_Game.Ships
                 {
                     if ((hit & 1u << part) == 0 || area[part] == 0)
                         continue;
-                    float chance = alive[part] == 0 ? AllDeadPartLossChance : (area[part] - alive[part]) / (float)area[part] - PartLossDeadShare;
-                    if (chance <= 0f || !Loyalty.Random.RollDice(100f * chance))
-                        continue;
+                    if (alive[part] > 0)
+                    {
+                        float chance = (area[part] - alive[part]) / (float)area[part] - PartLossDeadShare;
+                        if (chance <= 0f || !Loyalty.Random.RollDice(100f * chance))
+                            continue;
+                    }
                     lowest = alive[part];
                     lostNow |= 1u << part;
                 }
