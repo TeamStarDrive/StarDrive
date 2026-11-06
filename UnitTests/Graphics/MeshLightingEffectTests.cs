@@ -308,6 +308,8 @@ public class MeshLightingEffectTests : StarDriveTest
         {
             mesh.RawMeshes[0].PartStart = new[] { 0, 0 };
             mesh.RawMeshes[0].PartPrimitives = new[] { 0, 12 };
+            mesh.NumParts = 2;
+            mesh.PartTriangles = new[] { System.Array.Empty<Vector3>(), BoxTriangles(size) };
         }
         using var fx = new LightingEffect(device) { TextureEnabled = false, DiffuseColor = Vector3.One };
         if (chrome)
@@ -353,6 +355,20 @@ public class MeshLightingEffectTests : StarDriveTest
     }
 
     static readonly Vector3 Cube = new(40f);
+
+    // the box's triangles, three corners each, as a model's part triangles are kept
+    static Vector3[] BoxTriangles(Vector3 size)
+    {
+        VertexPositionNormalTextureBump[] vertices = ForwardRendererTests.BuildCubeVertices();
+        short[] indices = ForwardRendererTests.BuildCubeIndices();
+        var corners = new Vector3[indices.Length];
+        for (int i = 0; i < indices.Length; ++i)
+            corners[i] = vertices[indices[i]].Position * size;
+        return corners;
+    }
+
+    // the white of the box's lit outside, not its burnt insides or the background
+    static bool LitWhite(Color px) => px.R > 50 && System.Math.Abs(px.R - px.G) < 25 && System.Math.Abs(px.R - px.B) < 25;
 
     static bool Ember(Color px) => px.R > 120 && px.R > px.B * 2 + 40;
     static bool Charred(Color px) => px.R + px.G + px.B < 90;
@@ -421,14 +437,12 @@ public class MeshLightingEffectTests : StarDriveTest
         CollectionAssert.AreEqual(whole, open, "its outside as before, no inside showing through");
     }
 
-    // A part coming back is drawn in specks, more of them the more of it is repaired.
+    // A part coming back is drawn as much as it is repaired, growing out from the model's middle behind a ragged edge.
     [TestMethod]
     public void APartComingBackDrawsMoreOfItselfAsMoreOfItIsRepaired()
     {
         var eye = new Vector3(0f, 0f, 100f);
-        // the front face lit white, not the burnt insides seen through its gaps
-        int Front(float share) => RenderBoxInScene(new[] { 1f, share }, eye, Vector3.Zero, Cube, inParts: true)
-                                  .Count(px => px.R > 50 && System.Math.Abs(px.R - px.G) < 25 && System.Math.Abs(px.R - px.B) < 25);
+        int Front(float share) => RenderBoxInScene(new[] { 1f, share }, eye, Vector3.Zero, Cube, inParts: true).Count(LitWhite);
         int whole = Front(1f);
         Assert.IsTrue(whole > 500, $"setup: the part drawn whole fills much of the view: {whole}");
         Assert.AreEqual(0, Front(0f), "a part lost draws nothing");
@@ -438,8 +452,30 @@ public class MeshLightingEffectTests : StarDriveTest
         Assert.IsTrue(half > whole / 4 && half < whole * 3 / 4, $"about half at half repaired: {half} of {whole}");
 
         Color[] here = RenderBoxInScene(new[] { 1f, 0.5f }, eye, Vector3.Zero, Cube, inParts: true);
+        int middle = 0, middleBack = 0, corners = 0, cornersBack = 0;
+        for (int y = 0; y < 64; ++y)
+        {
+            for (int x = 0; x < 64; ++x)
+            {
+                float dx = x - 31.5f, dy = y - 31.5f, r = System.MathF.Sqrt(dx * dx + dy * dy);
+                bool back = LitWhite(here[y * 64 + x]);
+                if (r < 6f)
+                {
+                    ++middle;
+                    if (back) ++middleBack;
+                }
+                else if (r > 22f && System.Math.Abs(dx) < 18f && System.Math.Abs(dy) < 18f)
+                {
+                    ++corners;
+                    if (back) ++cornersBack;
+                }
+            }
+        }
+        Assert.AreEqual(middle, middleBack, "half repaired, the part is back next to the model's middle");
+        Assert.AreEqual(0, cornersBack, "and not yet at its far corners");
+
         Color[] movedAway = RenderBoxInScene(new[] { 1f, 0.5f }, eye, Vector3.Zero, Cube, inParts: true, moved: FarAway);
-        Assert.IsTrue(Differing(here, movedAway) < here.Length / 100, $"the specks stay on the hull as it moves: {Differing(here, movedAway)} pixels differ");
+        Assert.IsTrue(Differing(here, movedAway) < here.Length / 100, $"its ragged edge stays on the hull as it moves: {Differing(here, movedAway)} pixels differ");
     }
 
     // an unlit cube painted mid gray under a solid tint map, read at its center

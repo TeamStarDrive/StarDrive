@@ -77,6 +77,10 @@ float  EmissiveScale   = 1.0;
 float4 HullTint        = float4(1, 1, 1, 0);
 // see MeshLighting.fx
 float4 PartLook        = float4(1, 0, 1, 0);
+// see MeshLighting.fx
+float4 PartReach       = float4(0, 1, 0, 0);
+// see MeshLighting.fx
+float4 ReachShape      = float4(0, 0, 1, 1);
 float  Alpha           = 1.0;
 float3 EyePosition     = float3(0, 0, 0);
 
@@ -389,7 +393,7 @@ float ValueNoise(float3 p)
                 lerp(lerp(g, h, f.x), lerp(k, m, f.x), f.y), f.z);
 }
 
-// a part coming back shows a speck where this is below its share shown
+// the specks along the ragged edge of a part coming back
 float SpeckNoise(float3 p)
 {
     float n = 0.65 * ValueNoise(p / 7.0) + 0.35 * ValueNoise(p / 2.5);
@@ -581,7 +585,9 @@ technique Default
 // see MeshLighting.fx
 float4 PSDissolve(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
 {
-    clip(PartLook.x - SpeckNoise(input.PositionOS));
+    float2 d = (input.PositionOS.xy - ReachShape.xy) * ReachShape.zw;
+    float reach = saturate((length(d) - PartReach.x) / max(PartReach.y - PartReach.x, 0.0001));
+    clip(PartLook.x - lerp(reach, SpeckNoise(input.PositionOS), 0.3));
     return PSDefault(input, isFront);
 }
 

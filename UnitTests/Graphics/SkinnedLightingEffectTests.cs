@@ -180,9 +180,9 @@ public class SkinnedLightingEffectTests : StarDriveTest
         Assert.IsTrue(charred > burnt.Length / 2, $"on charred metal: {charred} of {burnt.Length}");
     }
 
-    // Animated hulls draw a part coming back in specks like static hulls do.
+    // Animated hulls draw a part coming back as much as it is repaired, like static hulls do.
     [TestMethod]
-    public void SkinnedLightingEffect_DrawsAPartComingBackInSpecks()
+    public void SkinnedLightingEffect_DrawsAPartComingBackAsMuchAsItIsRepaired()
     {
         int Drawn(float share) => RenderSkinnedCube(fx =>
         {
@@ -190,6 +190,8 @@ public class SkinnedLightingEffectTests : StarDriveTest
             fx.View = Matrix.CreateLookAt(new Vector3(0f, 0f, 90f), Vector3.Zero, Vector3.Up);
             fx.CurrentTechnique = fx.DissolveTechnique;
             fx.ShareShown = share;
+            fx.ReachShape = new Vector4(0f, 0f, 1f / 20f, 1f / 20f); // as the renderer sets them for a part that is the whole cube
+            fx.PartReach = new Vector2(0f, 1.4142f);
         }, size: 40f).Count(px => px != Color.Magenta);
         using (var fx = new SkinnedLightingEffect(Game.GraphicsDevice))
             Assert.IsNotNull(fx.DissolveTechnique, "setup: the skinned effect can dissolve");

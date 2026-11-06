@@ -346,6 +346,15 @@ public class ShipPartsTests : StarDriveTest
     }
 
     [TestMethod]
+    [DataRow(-1f, -1f, 1f, -1f, 0f, 1f, 0f, DisplayName = "a triangle over the middle touches it")]
+    [DataRow(2f, -1f, 2f, 1f, 3f, 0f, 2f, DisplayName = "one off to the side comes as near as its nearest edge, not corner")]
+    [DataRow(2f, 0f, 3f, 0f, 4f, 0f, 2f, DisplayName = "a wall seen edge-on from above, in line with the middle, comes as near as its nearest end")]
+    public void APartComingBackGrowsFromItsPointNearestTheModelsMiddle(float ax, float ay, float bx, float by, float cx, float cy, float nearest)
+    {
+        AssertEqual(0.0001f, nearest, StaticMesh.DistanceToMiddle(new(ax, ay), new(bx, by), new(cx, cy)), "how near the triangle comes to the middle");
+    }
+
+    [TestMethod]
     public void AModelInOnePieceHasNoPartComingBack()
     {
         var rm = new RenderableMesh(null, null, default, default, null, null, null, 0,
