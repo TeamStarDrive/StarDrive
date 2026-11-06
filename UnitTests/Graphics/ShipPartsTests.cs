@@ -22,6 +22,9 @@ public class ShipPartsTests : StarDriveTest
     [DataRow("32_Fin", -1)]
     [DataRow("Core", -1)]
     [DataRow("Mesh.021", -1)]
+    [DataRow("3D_Hull", -1)]
+    [DataRow("01 - Default", -1)]
+    [DataRow("4x4", -1)]
     [DataRow("", -1)]
     public void APartNumberStartsTheObjectName(string objectName, int part)
     {

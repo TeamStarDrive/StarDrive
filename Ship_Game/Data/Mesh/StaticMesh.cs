@@ -103,19 +103,19 @@ public sealed class StaticMesh : IDisposable
         return (p + e * along).Length();
     }
 
-    // the part number at the start of an object's name, -1 when it has none
+    // the part number at the start of an object's name, the whole name or before an underscore, -1 when it has none
     public static int PartIdOf(string objectName)
     {
         if (objectName.IsEmpty() || !char.IsAsciiDigit(objectName[0]))
             return -1;
-        int id = 0;
-        for (int i = 0; i < objectName.Length && char.IsAsciiDigit(objectName[i]); ++i)
+        int id = 0, i = 0;
+        for (; i < objectName.Length && char.IsAsciiDigit(objectName[i]); ++i)
         {
             id = id * 10 + (objectName[i] - '0');
             if (id >= MaxParts)
                 return -1;
         }
-        return id;
+        return i == objectName.Length || objectName[i] == '_' ? id : -1;
     }
 
     public StaticMesh(string name, in BoundingBox bounds)
