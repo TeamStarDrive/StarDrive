@@ -90,7 +90,7 @@ public sealed class ParticleVertexBuffer : IDisposable
             {
                 ref ParticleVertex particle = ref Particles[FirstActive * 4];
                 float particleAge = totalSimulationTime - particle.Time;
-                if (particleAge < particleDuration)
+                if (particleAge >= 0f && particleAge < particleDuration) // one stamped by another screen's later clock goes too, or it holds up all behind it
                     break;
                 
                 // Move the particle from the active to the retired queue.
