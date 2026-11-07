@@ -196,72 +196,68 @@ namespace Ship_Game.Ships
             return whole;
         }
 
-        // a module coming back alive under a lost part, on a ship the player sees, sets off this many small flashes at random points on the part, one every RevivalFlashGap seconds
-        public const int RevivalFlashes = 10;
-        public const float RevivalFlashGap = 0.05f;
-        // a flash is this share of its part's radius across, a quarter of the part's width, within these sizes
-        public const float RevivalFlashShare = 0.5f;
-        public const float MinRevivalFlash = 15f;
-        public const float MaxRevivalFlash = 60f;
-        const float BeamFlashSize = 200f; // the BeamFlash particle's size in Particles.yaml
+        // a repair under a lost part, on a ship the player sees, sets off this many small flashes at random points on the part, one every RepairFlashGap seconds, sized as a blown-off part's; a repair there while they go off sets off no more
+        public const int RepairFlashes = 10;
+        public const float RepairFlashGap = 0.05f;
 
-        // the parts a module came back alive under while lost since the ship's last update, each bit a part
-        uint PartsRevived;
-        // each run of flashes going off, its part, the flashes it has left and the seconds to its next; null while none is; only the ship's own update reads and writes them
-        Array<(int Part, int Left, float Next)> RevivalFlashRuns;
+        // the parts a module was repaired under while lost since the ship's last update, each bit a part
+        uint PartsRepaired;
+        // each run of flashes going off, its part, the flashes it has left and the seconds to its next; null till its first run, then kept for the next; only the ship's own update reads and writes them
+        Array<(int Part, int Left, float Next)> RepairFlashRuns;
 
-        // a module came back alive under a lost part, maybe in another ship's update, as by a repair drone's beam
-        void MarkPartRevived(ShipModule m)
+        // a module was repaired under a lost part, maybe on another thread, as by a repair drone's beam
+        internal void MarkPartRepaired(ShipModule m)
         {
             if (!HullPlatesOff && UnderLostPart(m, out int part))
-                Interlocked.Or(ref PartsRevived, 1u << part);
+                Interlocked.Or(ref PartsRepaired, 1u << part);
         }
 
-        // the modules come back alive under a part in an update start a run of flashes on it, the first now, beside any other run, while the game runs; model, the ship's as placed by this update, null while the player does not see it, it launches or lands or its model is not made yet, which drops them
-        void UpdateRevivalFlashes(float dt, SceneObject model)
+        // a part repaired under in an update starts a run of flashes on it, the first now, unless one is going off on it, beside those on other parts, while the game runs; model, the ship's as placed by this update, null while the player does not see it, it launches or lands or its model is not made yet, which drops them
+        void UpdateRepairFlashes(float dt, SceneObject model)
         {
-            if (dt <= 0f || (PartsRevived == 0u && RevivalFlashRuns == null))
+            if (dt <= 0f || (PartsRepaired == 0u && (RepairFlashRuns == null || RepairFlashRuns.Count == 0)))
                 return;
-            uint revived = Interlocked.Exchange(ref PartsRevived, 0u);
+            uint repaired = Interlocked.Exchange(ref PartsRepaired, 0u);
             ParticleManager particles = Universe.Screen?.Particles;
             if (model == null || particles == null)
             {
-                RevivalFlashRuns = null;
+                RepairFlashRuns?.Clear();
                 return;
             }
-            if (revived != 0u)
+            Array<(int Part, int Left, float Next)> runs = RepairFlashRuns;
+            for (int i = 0; runs != null && i < runs.Count; ++i)
+                repaired &= ~(1u << runs[i].Part);
+            if (repaired != 0u)
+            {
+                runs ??= RepairFlashRuns = new();
                 for (int part = 1; part < StaticMesh.MaxParts; ++part)
-                    if ((revived & 1u << part) != 0)
-                        (RevivalFlashRuns ??= new()).Add((part, RevivalFlashes, dt)); // its first flash in this update
-
-            Array<(int Part, int Left, float Next)> runs = RevivalFlashRuns;
+                    if ((repaired & 1u << part) != 0)
+                        runs.Add((part, RepairFlashes, dt)); // its first flash in this update
+            }
             if (runs == null)
                 return;
             for (int i = runs.Count - 1; i >= 0; --i)
             {
                 (int part, int left, float next) = runs[i];
-                for (next -= dt; next <= 0f && left > 0; next += RevivalFlashGap) // as many as are due, at a sim rate under 20 a second
+                for (next -= dt; next <= 0f && left > 0; next += RepairFlashGap) // as many as are due, at a sim rate under 20 a second
                 {
                     --left;
-                    RevivalFlash(part, model, particles);
+                    RepairFlash(part, model, particles);
                 }
                 if (left > 0)
                     runs[i] = (part, left, next);
                 else
                     runs.RemoveAt(i);
             }
-            if (runs.Count == 0)
-                RevivalFlashRuns = null;
         }
 
-        // a small flash at a random point on the part as the ship's model is placed, moving with the ship
-        void RevivalFlash(int part, SceneObject model, ParticleManager particles)
+        // a small flash at a random point on the part as the ship's model is placed, sent off at the ship's velocity
+        void RepairFlash(int part, SceneObject model, ParticleManager particles)
         {
             if (!BaseHull.RandomPointOnPart(part, particles.Random, out XnaVector3 p, out float radius))
                 return;
             XnaVector3 at = XnaVector3.Transform(p, model.World);
-            float size = (radius * RevivalFlashShare).Clamped(MinRevivalFlash, MaxRevivalFlash);
-            particles.BeamFlash.AddParticle(new Vector3(at.X, at.Y, at.Z), Velocity.ToVec3(), size / BeamFlashSize, Color.White);
+            particles.Flash.AddParticle(new Vector3(at.X, at.Y, at.Z), Velocity.ToVec3(), HullPartDebris.FlashScale(radius), Color.White);
         }
 
         // a module under a lost part shows no damage until the part is whole again

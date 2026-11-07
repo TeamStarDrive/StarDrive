@@ -40,7 +40,7 @@ namespace Ship_Game.Ships
         public const float FlashPointRadius = 40f;
         public const int MinFlashPoints = 2;
         public const int MaxFlashPoints = 5;
-        // a flash is this share of its radius across, a quarter of its width, within these sizes
+        // a flash on a part, flying off or under repair, is this share of its radius across, a quarter of its width, within these sizes
         public const float FlashShare = 0.5f;
         public const float MinFlashSize = 15f;
         public const float MaxFlashSize = 60f;
@@ -73,6 +73,9 @@ namespace Ship_Game.Ships
         // the points a part of this radius flashes from
         public static int FlashPointsFor(float radius)
             => ((int)MathF.Round(radius / FlashPointRadius, MidpointRounding.AwayFromZero)).Clamped(MinFlashPoints, MaxFlashPoints);
+
+        // the Flash particle's scale for a flash on a part of this radius
+        public static float FlashScale(float radius) => (radius * FlashShare).Clamped(MinFlashSize, MaxFlashSize) / FlashParticleSize;
 
         // the part flies off the ship's model as drawn now, with a blast where it was
         public static void ThrowOff(Ship ship, SceneObject model, int part)
@@ -122,8 +125,7 @@ namespace Ship_Game.Ships
                 particles.Flash.AddParticle(StartPos);
 
                 Plumes = EmittersOnPart(ship, part, random, particles.SmokePlume, NumPlumes, PlumeParticles, size, out PlumePoints);
-                float flash = (Radius * FlashShare).Clamped(MinFlashSize, MaxFlashSize) / FlashParticleSize;
-                Flashes = EmittersOnPart(ship, part, random, particles.Flash, FlashPointsFor(Radius), FlashParticles, flash, out FlashPoints);
+                Flashes = EmittersOnPart(ship, part, random, particles.Flash, FlashPointsFor(Radius), FlashParticles, FlashScale(Radius), out FlashPoints);
             }
             ExplosionManager.AddExplosion(universe.Screen, StartPos, Drift, Radius * BreakOffBlastShare, 2.5f, ExplosionType.Projectile);
         }

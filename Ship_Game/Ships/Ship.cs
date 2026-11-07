@@ -2103,7 +2103,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule module = ModuleSlotList[i];
-                module.Repair(module.Health + module.Health * bonus);
+                module.Repair(module.Health + module.Health * bonus, techBonus: true);
             }
         }
 

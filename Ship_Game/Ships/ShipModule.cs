@@ -1353,7 +1353,8 @@ namespace Ship_Game.Ships
             }
         }
 
-        public float Repair(float repairAmount)
+        // a repair, not a health tech's bonus, under a lost hull part flashes on it
+        public float Repair(float repairAmount, bool techBonus = false)
         {
             if (Health >= ActualMaxHealth || repairAmount <= 0)
                 return repairAmount;
@@ -1364,6 +1365,8 @@ namespace Ship_Game.Ships
 
             float repairLeft = (repairAmount - actualRepair).Clamped(0, repairAmount);
             SetHealth(Health + actualRepair, "Repair");
+            if (!techBonus)
+                Parent.MarkPartRepaired(this);
             VisualizeRepair();
 
             var u = Parent.Universe;
