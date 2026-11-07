@@ -74,7 +74,7 @@ namespace Ship_Game
 
         bool HandleInputNotLookingAtPlanet(InputState input)
         {
-            if (input.DeepSpaceBuildWindow)       InputOpenDeepSpaceBuildWindow();
+            if (input.DeepSpaceBuildWindow && !(Debug && input.IsCtrlKeyDown)) InputOpenDeepSpaceBuildWindow(); // Ctrl + 'B' in debug blows a part off
             if (input.FTLOverlay)                 ToggleUIComponent("sd_ui_accept_alt3", ref ShowingFTLOverlay);
             if (input.RangeOverlay)               ToggleUIComponent("sd_ui_accept_alt3", ref ShowingRangeOverlay);
             if (input.BlueprintsSceen)            ScreenManager.AddScreen(new BlueprintsScreen(this, Player));
@@ -149,6 +149,12 @@ namespace Ship_Game
                         SelectedShip.DebugBlowSmallestExplodingModule();
                     else
                         SelectedShip.DebugBlowBiggestExplodingModule();
+                }
+
+                if (input.DebugBlowOffPart) // Ctrl + 'B': a random hull part still on comes off, its modules all dead
+                {
+                    Ship ship = SelectedShip;
+                    RunOnSimThread(() => ship.DebugBlowOffRandomPart());
                 }
             }
             else if (SelectedPlanet != null && input.DebugKillShip)
