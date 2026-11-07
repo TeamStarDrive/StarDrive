@@ -34,8 +34,17 @@ namespace Ship_Game.Ships
         public const float MaxTilt = 0.35f;
         // it sinks away from the camera at this speed all its flight, and so does the junk it breaks into
         public const float SinkSpeed = 50f;
+        // thick smoke rises from one point on it for each this much of its radius, from MinPlumes to MaxPlumes, each at a random point on its surface
+        public const float PlumeRadius = 40f;
+        public const int MinPlumes = 2;
+        public const int MaxPlumes = 5;
+        // its blasts at its break off and its break-up, each this share of its radius
+        public const float BreakOffBlastShare = 0.6f;
+        public const float BreakUpBlastShare = 0.9f;
+        const float BreakUpLight = 4f;
         const float FireParticles = 20f;
         const float SmokeParticles = 16f;
+        const float PlumeParticles = 12f;
 
         readonly XnaMatrix BrokeOff; // the ship's model as drawn when the part broke off
         readonly XnaVector3 Center;  // the part's center in the model, which it turns about
@@ -49,6 +58,13 @@ namespace Ship_Game.Ships
         float NextBlast;
         readonly ParticleEmitter Fire;
         readonly ParticleEmitter Smoke;
+        readonly ParticleEmitter[] Plumes;
+        readonly XnaVector3[] PlumePoints; // in the model, turning with it
+        bool WasHidden; // its emitters stayed where it was last shown
+
+        // the points thick smoke rises from on a part of this radius
+        public static int PlumesFor(float radius)
+            => ((int)MathF.Round(radius / PlumeRadius, MidpointRounding.AwayFromZero)).Clamped(MinPlumes, MaxPlumes);
 
         // the part flies off the ship's model as drawn now, with a blast where it was
         public static void ThrowOff(Ship ship, SceneObject model, int part)
@@ -96,8 +112,18 @@ namespace Ship_Game.Ships
                 Fire = particles.Fire.NewEmitter(FireParticles, StartPos, size);
                 Smoke = particles.JunkSmoke.NewEmitter(SmokeParticles, StartPos, size);
                 particles.Flash.AddParticle(StartPos);
+
+                int plumes = PlumesFor(Radius);
+                PlumePoints = new XnaVector3[plumes];
+                Plumes = new ParticleEmitter[plumes];
+                for (int i = 0; i < plumes; ++i)
+                {
+                    PlumePoints[i] = ship.BaseHull.RandomPointOnPart(part, random, out XnaVector3 point, out float _) ? point : center;
+                    XnaVector3 at = XnaVector3.Transform(PlumePoints[i], BrokeOff);
+                    Plumes[i] = particles.SmokePlume.NewEmitter(PlumeParticles, new Vector3(at.X, at.Y, at.Z), size);
+                }
             }
-            ExplosionManager.AddExplosion(universe.Screen, StartPos, Drift, Radius * 0.6f, 2.5f, ExplosionType.Projectile);
+            ExplosionManager.AddExplosion(universe.Screen, StartPos, Drift, Radius * BreakOffBlastShare, 2.5f, ExplosionType.Projectile);
         }
 
         public override void Update(FixedSimTime timeStep)
@@ -123,6 +149,7 @@ namespace Ship_Game.Ships
             if (!shown)
             {
                 So.Visibility = ObjectVisibility.None; // not left hanging where it was last placed
+                WasHidden = true;
                 return;
             }
 
@@ -133,8 +160,18 @@ namespace Ship_Game.Ships
                      * BrokeOff * XnaMatrix.CreateTranslation(moved.X, moved.Y, sunk);
             So.Visibility = GlobalStats.ShipVisibility;
 
-            Fire?.Update(dt, Position);
-            Smoke?.Update(dt, Position);
+            float emitting = WasHidden ? 0f : dt; // back in view, its emitters move to it without throwing puffs across the gap
+            WasHidden = false;
+            Fire?.Update(emitting, Position);
+            Smoke?.Update(emitting, Position);
+            if (Plumes != null)
+            {
+                for (int i = 0; i < Plumes.Length; ++i)
+                {
+                    XnaVector3 at = XnaVector3.Transform(PlumePoints[i], So.World);
+                    Plumes[i].Update(emitting, new Vector3(at.X, at.Y, at.Z));
+                }
+            }
 
             if (BlastsLeft > 0 && (NextBlast -= dt) <= 0f)
             {
@@ -146,11 +183,11 @@ namespace Ship_Game.Ships
             }
         }
 
-        // a blast as at its break off, and the few pieces of junk it leaves, flying on from it
+        // a blast bigger than its break off's, and the few pieces of junk it leaves, flying on from it
         void BreakUp()
         {
             Universe.Screen.Particles?.Flash.AddParticle(Position);
-            ExplosionManager.AddExplosion(Universe.Screen, Position, Drift, Radius * 0.6f, 2.5f, ExplosionType.Projectile);
+            ExplosionManager.AddExplosion(Universe.Screen, Position, Drift, Radius * BreakUpBlastShare, BreakUpLight, ExplosionType.Projectile);
             RandomBase random = Universe.Random;
             int pieces = random.Int(MinPieces, MaxPieces);
             for (int i = 0; i < pieces; ++i)

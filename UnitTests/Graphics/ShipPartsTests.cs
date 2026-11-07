@@ -1728,6 +1728,52 @@ public class ShipPartsTests : StarDriveTest
     }
 
     [TestMethod]
+    [DataRow(20f, 2)]
+    [DataRow(47f, 2)]
+    [DataRow(100f, 3)]
+    [DataRow(140f, 4)]
+    [DataRow(180f, 5)]
+    [DataRow(400f, 5)]
+    public void ABlownOffPlateSmokesFromAPointForEachFortyOfItsRadiusFromTwoToFive(float radius, int plumes)
+    {
+        Assert.AreEqual(plumes, HullPartDebris.PlumesFor(radius), $"a radius of {radius}, a half rounding up");
+    }
+
+    [TestMethod]
+    public void AThrownOffPlateSmokesThickFromPointsOnItTurningWithItAndThinFromItsCenter()
+    {
+        Ship ship = GunboatOnScreen(dying: false, out SceneObject _);
+        var plumes = new CountingParticle();
+        var thin = new CountingParticle();
+        Universe.Particles.SmokePlume = plumes;
+        Universe.Particles.JunkSmoke = thin;
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        ship.Update(TestSimStep);
+        HullPartDebris plate = Debris()[0];
+        Assert.IsTrue(ship.BaseHull.GetPartBounds(5, out Microsoft.Xna.Framework.Vector3 center, out float radius, out int _), "setup: the plate's bounds in the model");
+        Assert.AreEqual(2, HullPartDebris.PlumesFor(radius), "setup: a plate of its size smokes from two points");
+
+        var points = new System.Collections.Generic.List<Microsoft.Xna.Framework.Vector3>();
+        for (int step = 0, seen = 0; step < 60; ++step)
+        {
+            plate.Update(TestSimStep);
+            Microsoft.Xna.Framework.Matrix toModel = Microsoft.Xna.Framework.Matrix.Invert(plate.So.World);
+            for (; seen < plumes.Placed.Count; ++seen)
+            {
+                SDGraphics.Vector3 puff = plumes.Placed[seen].Position;
+                var inModel = Microsoft.Xna.Framework.Vector3.Transform(new Microsoft.Xna.Framework.Vector3(puff.X, puff.Y, puff.Z), toModel);
+                Assert.IsTrue((inModel - center).Length() <= radius + 0.01f, $"on the plate as it is drawn: {(inModel - center).Length()} from its center, {radius} its radius");
+                if (!points.Exists(p => (p - inModel).Length() < 3f))
+                    points.Add(inModel);
+            }
+        }
+        Assert.AreEqual(2, points.Count, "from two points fixed on the plate as it turns and drifts");
+        Assert.IsTrue(plumes.Added >= 20 && plumes.Added <= 24, $"12 puffs a second from each: {plumes.Added}");
+        Assert.IsTrue(thin.Added >= 14 && thin.Added <= 16, $"and its thin smoke from its center still, 16 a second: {thin.Added}");
+    }
+
+    [TestMethod]
     public void AThrownOffPlateDriftsOutTurningFlatAndSinkingAndGoesAtTheEndOfItsFlight()
     {
         Ship ship = GunboatOnScreen(dying: false, out SceneObject _);
