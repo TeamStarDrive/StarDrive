@@ -47,7 +47,7 @@ namespace Ship_Game.GameScreens.NewGame
         public GameSetupScreen(RaceDesignScreen raceScreen) : base(raceScreen, toPause: null)
         {
             IsPopup = true;
-            TransitionOnTime = 0.75f;
+            TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
             RaceScreen = raceScreen;
             OnExit += SlideOut;
