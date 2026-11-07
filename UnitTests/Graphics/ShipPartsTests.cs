@@ -1734,42 +1734,59 @@ public class ShipPartsTests : StarDriveTest
     [DataRow(140f, 4)]
     [DataRow(180f, 5)]
     [DataRow(400f, 5)]
-    public void ABlownOffPlateSmokesFromAPointForEachFortyOfItsRadiusFromTwoToFive(float radius, int plumes)
+    public void ABlownOffPlateFlashesFromAPointForEachFortyOfItsRadiusFromTwoToFive(float radius, int points)
     {
-        Assert.AreEqual(plumes, HullPartDebris.PlumesFor(radius), $"a radius of {radius}, a half rounding up");
+        Assert.AreEqual(points, HullPartDebris.FlashPointsFor(radius), $"a radius of {radius}, a half rounding up");
     }
 
     [TestMethod]
-    public void AThrownOffPlateSmokesThickFromPointsOnItTurningWithItAndThinFromItsCenter()
+    public void AThrownOffPlateSmokesThickAndFlashesWithoutABreakFromPointsOnItTurningWithItAndSmokesThinFromItsCenter()
     {
         Ship ship = GunboatOnScreen(dying: false, out SceneObject _);
         var plumes = new CountingParticle();
+        var flashes = new CountingParticle();
         var thin = new CountingParticle();
         Universe.Particles.SmokePlume = plumes;
+        Universe.Particles.Flash = flashes;
         Universe.Particles.JunkSmoke = thin;
         foreach (ShipModule m in ModulesOf(ship, 5, out int _))
             Kill(m);
         ship.Update(TestSimStep);
         HullPartDebris plate = Debris()[0];
         Assert.IsTrue(ship.BaseHull.GetPartBounds(5, out Microsoft.Xna.Framework.Vector3 center, out float radius, out int _), "setup: the plate's bounds in the model");
-        Assert.AreEqual(2, HullPartDebris.PlumesFor(radius), "setup: a plate of its size smokes from two points");
+        Assert.AreEqual(2, HullPartDebris.FlashPointsFor(radius), "setup: a plate of its size flashes from two points");
 
-        var points = new System.Collections.Generic.List<Microsoft.Xna.Framework.Vector3>();
-        for (int step = 0, seen = 0; step < 60; ++step)
+        var plumePoints = new System.Collections.Generic.List<Microsoft.Xna.Framework.Vector3>();
+        var flashPoints = new System.Collections.Generic.List<Microsoft.Xna.Framework.Vector3>();
+        int seenPuffs = 0, seenFlashes = 0, withoutAFlash = 0, longestWithout = 0;
+        void Gather(CountingParticle particles, ref int seen, System.Collections.Generic.List<Microsoft.Xna.Framework.Vector3> points, Microsoft.Xna.Framework.Matrix toModel)
         {
-            plate.Update(TestSimStep);
-            Microsoft.Xna.Framework.Matrix toModel = Microsoft.Xna.Framework.Matrix.Invert(plate.So.World);
-            for (; seen < plumes.Placed.Count; ++seen)
+            for (; seen < particles.Placed.Count; ++seen)
             {
-                SDGraphics.Vector3 puff = plumes.Placed[seen].Position;
-                var inModel = Microsoft.Xna.Framework.Vector3.Transform(new Microsoft.Xna.Framework.Vector3(puff.X, puff.Y, puff.Z), toModel);
+                SDGraphics.Vector3 at = particles.Placed[seen].Position;
+                var inModel = Microsoft.Xna.Framework.Vector3.Transform(new Microsoft.Xna.Framework.Vector3(at.X, at.Y, at.Z), toModel);
                 Assert.IsTrue((inModel - center).Length() <= radius + 0.01f, $"on the plate as it is drawn: {(inModel - center).Length()} from its center, {radius} its radius");
                 if (!points.Exists(p => (p - inModel).Length() < 3f))
                     points.Add(inModel);
             }
         }
-        Assert.AreEqual(2, points.Count, "from two points fixed on the plate as it turns and drifts");
+        for (int step = 0; step < 60; ++step)
+        {
+            int flashesBefore = flashes.Placed.Count;
+            plate.Update(TestSimStep);
+            Microsoft.Xna.Framework.Matrix toModel = Microsoft.Xna.Framework.Matrix.Invert(plate.So.World);
+            Gather(plumes, ref seenPuffs, plumePoints, toModel);
+            Gather(flashes, ref seenFlashes, flashPoints, toModel);
+            withoutAFlash = flashes.Placed.Count == flashesBefore ? withoutAFlash + 1 : 0;
+            longestWithout = System.Math.Max(longestWithout, withoutAFlash);
+        }
+        Assert.AreEqual(2, plumePoints.Count, "thick smoke from two points fixed on the plate as it turns and drifts");
         Assert.IsTrue(plumes.Added >= 20 && plumes.Added <= 24, $"12 puffs a second from each: {plumes.Added}");
+        Assert.AreEqual(2, flashPoints.Count, "flashes from two points fixed on it too");
+        Assert.IsTrue(flashes.Placed.Count >= 18 && flashes.Placed.Count <= 20, $"10 flashes a second from each: {flashes.Placed.Count}");
+        Assert.IsTrue(longestWithout <= 7, $"a new one before 0.15 s, the shortest a flash shows, so without a break: {longestWithout} updates without one");
+        foreach (var flash in flashes.Placed)
+            AssertEqual(0.0001f, 0.1167f, flash.Scale, "each a quarter of the plate's width across, half its radius of 46.7, at Flash's 200 a side");
         Assert.IsTrue(thin.Added >= 14 && thin.Added <= 16, $"and its thin smoke from its center still, 16 a second: {thin.Added}");
     }
 
