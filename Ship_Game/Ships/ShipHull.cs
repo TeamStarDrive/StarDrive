@@ -9,6 +9,7 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships.Legacy;
+using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
@@ -164,17 +165,54 @@ namespace Ship_Game.Ships
             numParts = triangles?.Length ?? 0;
             if (triangles == null || (uint)part >= (uint)triangles.Length || triangles[part].Length == 0)
                 return false;
+            BoundsOf(triangles[part], out center, out radius);
+            return true;
+        }
+
+        static void BoundsOf(XnaVector3[] corners, out XnaVector3 center, out float radius)
+        {
             var min = new XnaVector3(float.MaxValue);
             var max = new XnaVector3(float.MinValue);
-            foreach (XnaVector3 v in triangles[part])
+            foreach (XnaVector3 v in corners)
             {
                 min = XnaVector3.Min(min, v);
                 max = XnaVector3.Max(max, v);
             }
             center = (min + max) * 0.5f;
             radius = (max - min).Length() * 0.5f;
+        }
+
+        // a random point on a part's surface in the model, each triangle as likely as its area, and the radius about the part's center that holds it; false before the model loads, or for a part with no triangles
+        public bool RandomPointOnPart(int part, RandomBase random, out XnaVector3 point, out float radius)
+        {
+            point = default;
+            radius = 0f;
+            XnaVector3[][] triangles = PartTriangles;
+            if (triangles == null || (uint)part >= (uint)triangles.Length || triangles[part].Length < 3)
+                return false;
+            XnaVector3[] corners = triangles[part];
+            BoundsOf(corners, out XnaVector3 _, out radius);
+
+            float total = 0f;
+            for (int i = 0; i + 2 < corners.Length; i += 3)
+                total += TwiceArea(corners, i);
+            float pick = random.Float() * total;
+            int t = 0;
+            while (t + 5 < corners.Length && (pick -= TwiceArea(corners, t)) > 0f)
+                t += 3;
+
+            float u = random.Float(), v = random.Float();
+            if (u + v > 1f)
+            {
+                u = 1f - u;
+                v = 1f - v;
+            }
+            point = corners[t] + (corners[t + 1] - corners[t]) * u + (corners[t + 2] - corners[t]) * v;
             return true;
         }
+
+        static float TwiceArea(XnaVector3[] corners, int i)
+            => XnaVector3.Cross(corners[i + 1] - corners[i], corners[i + 2] - corners[i]).Length();
 
         // the part whose surface is on top at a model point seen from above, as a module's, or for a point off the model's outline the part with the surface nearest it
         public static int PartUnder(XnaVector3[][] partTriangles, XnaVector3 p)

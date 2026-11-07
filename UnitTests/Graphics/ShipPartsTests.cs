@@ -4,6 +4,7 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
+using CountingParticle = UnitTests.Ships.MiningStationVisualsTests.CountingParticle;
 
 namespace UnitTests.Graphics;
 
@@ -1607,6 +1608,123 @@ public class ShipPartsTests : StarDriveTest
         ship.Update(TestSimStep);
         Assert.AreEqual(0f, ship.PartShown?[5], "the plate is lost");
         Assert.AreEqual(0, Debris().Length, "with no one to see it fly off");
+    }
+
+    // a gunboat seen up close with its back-left plate lost, the flashes it sets off counted
+    Ship GunboatOnScreenWithAPlateLost(out SceneObject model, out CountingParticle flashes)
+    {
+        Ship ship = GunboatOnScreen(dying: false, out model);
+        ship.SetLastDamagedBy(null); // just hit, so it does not repair itself and only the test brings its modules back
+        flashes = new CountingParticle();
+        Universe.Particles.BeamFlash = flashes;
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        ship.Update(TestSimStep);
+        Assert.AreEqual(0f, ship.PartShown?[5], "setup: the back-left plate is lost");
+        return ship;
+    }
+
+    void RunFor(Ship ship, float seconds)
+    {
+        for (int step = 1; step * TestSimStep.FixedTime <= seconds + 0.0001f; ++step)
+            ship.Update(TestSimStep);
+    }
+
+    // the ship runs for the seconds given, each flash it sets off checked to lie on the back-left plate as its model is placed and to move with it; when the last went off
+    float RunCheckingFlashes(Ship ship, SceneObject model, CountingParticle flashes, float seconds)
+    {
+        Assert.IsTrue(ship.BaseHull.GetPartBounds(5, out Microsoft.Xna.Framework.Vector3 center, out float radius, out int _), "setup: the plate's bounds in the model");
+        float lastAt = -1f;
+        int checkedFlashes = flashes.Placed.Count;
+        for (int step = 1; step * TestSimStep.FixedTime <= seconds + 0.0001f; ++step)
+        {
+            ship.Update(TestSimStep);
+            for (; checkedFlashes < flashes.Placed.Count; ++checkedFlashes)
+            {
+                var flash = flashes.Placed[checkedFlashes];
+                Microsoft.Xna.Framework.Vector3 plate = Microsoft.Xna.Framework.Vector3.Transform(center, model.World);
+                float off = (new Microsoft.Xna.Framework.Vector3(flash.Position.X, flash.Position.Y, flash.Position.Z) - plate).Length();
+                Assert.IsTrue(off <= radius + 0.01f, $"on the plate as the ship's model is placed: {off} from its center, {radius} its radius");
+                AssertEqual(0.001f, ship.Velocity.X, flash.Velocity.X, "moving with the ship");
+                AssertEqual(0.001f, ship.Velocity.Y, flash.Velocity.Y, "moving with the ship");
+                lastAt = step * TestSimStep.FixedTime;
+            }
+        }
+        return lastAt;
+    }
+
+    [TestMethod]
+    public void AModuleBackAliveUnderALostPlateSetsOffTenSmallFlashesOnItOverHalfASecondAndAnotherItsOwnAlongside()
+    {
+        Ship ship = GunboatOnScreenWithAPlateLost(out SceneObject model, out CountingParticle flashes);
+        ShipModule[] under = ModulesOf(ship, 5, out int _);
+        Assert.IsTrue(under.Length >= 3, "setup: three modules under the plate");
+        ship.Velocity = new(120f, -40f);
+
+        Repair(under[0]);
+        float lastAt = RunCheckingFlashes(ship, model, flashes, 1f);
+        Assert.AreEqual(10, flashes.Added, "ten flashes for the module back");
+        Assert.IsTrue(lastAt > 0.4f && lastAt <= 0.5f, $"one every 0.05 s, the last within half a second: {lastAt}");
+        foreach (var flash in flashes.Placed)
+            AssertEqual(0.0001f, 0.1167f, flash.Scale, "a quarter of the plate's width across, half its radius of 46.7, at BeamFlash's 200 a side");
+        Assert.IsTrue(System.Linq.Enumerable.Any(flashes.Placed, f => f.Position != flashes.Placed[0].Position), "each at a random point of its own");
+
+        Repair(under[1]);
+        RunCheckingFlashes(ship, model, flashes, 0.2f);
+        Repair(under[2]);
+        lastAt = RunCheckingFlashes(ship, model, flashes, 1f);
+        Assert.AreEqual(30, flashes.Added, "another module back while its flashes go off adds its own ten");
+        Assert.IsTrue(lastAt > 0.4f && lastAt <= 0.5f, $"the last within half a second of the third module back: {lastAt}");
+    }
+
+    [TestMethod]
+    public void AModuleBackUnderAPlateStillOnOrWithHullPlatesOffSetsOffNoFlashes()
+    {
+        Ship ship = GunboatOnScreenWithAPlateLost(out SceneObject _, out CountingParticle flashes);
+        ShipModule onPlateOn = ModulesOf(ship, 6, out int _)[0];
+        Kill(onPlateOn);
+        ship.Update(TestSimStep);
+        Assert.AreEqual(1f, ship.PartShown?[6], "setup: the plate it is under stays on");
+        Repair(onPlateOn);
+        RunFor(ship, 1f);
+        Assert.AreEqual(0, flashes.Added, "a module back under a plate still on sets off none");
+
+        GlobalStats.Defaults.EnableHullPlates = false;
+        Repair(ModulesOf(ship, 5, out int _)[0]);
+        RunFor(ship, 1f);
+        Assert.IsNull(ship.PartShown, "setup: with hull plates off the ship plays in one piece");
+        Assert.AreEqual(0, flashes.Added, "nor one under the plate it had lost");
+    }
+
+    [TestMethod]
+    public void AModuleBackUnderALostPlateOfAShipOffScreenSetsOffNoFlashesThenOrOnceSeen()
+    {
+        Ship ship = GunboatOnScreenWithAPlateLost(out SceneObject _, out CountingParticle flashes);
+        ship.InFrustum = false;
+        Repair(ModulesOf(ship, 5, out int _)[0]);
+        RunFor(ship, 0.5f);
+        Assert.AreEqual(0, flashes.Added, "none where no one sees it");
+        ShowOnScreen(ship);
+        RunFor(ship, 1f);
+        Assert.AreEqual(0, flashes.Added, "nor once it is seen again: they are not saved up");
+    }
+
+    [TestMethod]
+    public void AtTenSimUpdatesASecondAModuleBackStillSetsOffItsTenFlashesOverHalfASecond()
+    {
+        Ship ship = GunboatOnScreenWithAPlateLost(out SceneObject _, out CountingParticle flashes);
+        var tenth = new FixedSimTime(0.1f);
+        Repair(ModulesOf(ship, 5, out int _)[0]);
+        ship.Update(tenth);
+        Assert.AreEqual(1, flashes.Added, "the first at once");
+        for (int i = 0; i < 4; ++i)
+            ship.Update(tenth);
+        Assert.AreEqual(9, flashes.Added, "then two an update, one every 0.05 s");
+        ship.Update(tenth);
+        Assert.AreEqual(10, flashes.Added, "the tenth half a second after the first");
+        for (int i = 0; i < 10; ++i)
+            ship.Update(tenth);
+        Assert.AreEqual(10, flashes.Added, "and no more");
     }
 
     [TestMethod]

@@ -49,6 +49,7 @@ namespace Ship_Game.Ships
         {
             ShipStatusChanged = true; // update ship status sometime in the future (can be 1 second)
             StrengthOutdated = true;
+            MarkPartRevived(m);
             PartsOutdated = true;
             if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
                 ShouldRecalculatePower = true;

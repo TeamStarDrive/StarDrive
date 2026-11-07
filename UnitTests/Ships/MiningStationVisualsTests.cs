@@ -197,6 +197,8 @@ public class MiningStationVisualsTests : StarDriveTest
     internal sealed class CountingParticle : IParticle
     {
         public int Added;
+        // each particle AddParticle added with a velocity, scale and color: where, how fast and how big
+        public readonly Array<(Vector3 Position, Vector3 Velocity, float Scale)> Placed = new();
 
         public string Name => "Counting";
         public int ParticleId => 0;
@@ -209,7 +211,11 @@ public class MiningStationVisualsTests : StarDriveTest
         public void AddParticle(in Vector3 position) => ++Added;
         public void AddParticle(in Vector3 position, float scale) => ++Added;
         public void AddParticle(in Vector3 position, in Vector3 velocity) => ++Added;
-        public void AddParticle(in Vector3 position, in Vector3 velocity, float scale, Color color) => ++Added;
+        public void AddParticle(in Vector3 position, in Vector3 velocity, float scale, Color color)
+        {
+            ++Added;
+            Placed.Add((position, velocity, scale));
+        }
         public void AddMultipleParticles(int numParticles, in Vector3 position) => Added += numParticles;
         public void AddMultipleParticles(int numParticles, in Vector3 position, float scale) => Added += numParticles;
         public void AddMultipleParticles(int numParticles, in Vector3 position, in Vector3 velocity) => Added += numParticles;

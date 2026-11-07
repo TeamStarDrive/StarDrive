@@ -191,7 +191,7 @@ namespace Ship_Game.Ships
                 UpdateEnginesAndVelocity(timeStep);
             }
             bool visibleToPlayer = IsVisibleToPlayer;
-            SceneObject moved = null; // the model placed by this update, which a part lost now flies off
+            SceneObject moved = null; // the model placed by this update, which a part lost now flies off and a part's modules coming back flash on
             if (IsLaunching)
             {
                 LaunchShip.Update(visibleToPlayer, timeStep);
@@ -261,6 +261,7 @@ namespace Ship_Game.Ships
             }
             if (lostNow != 0u && moved != null)
                 ThrowOffParts(lostNow, moved);
+            UpdateRevivalFlashes(timeStep.FixedTime, moved);
 
             SoundEmitter.Position = new Vector3(Position, 0);
 
