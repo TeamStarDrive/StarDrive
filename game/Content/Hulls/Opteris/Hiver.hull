@@ -4,16 +4,16 @@ VisibleName=Hiver
 Role=battleship
 Style=Opteris
 Size=30,44
-MeshOffset=0,0
+MeshOffset=0,12
 IconPath=ShipIcons/Hiver
 ModelPath=Model/Ships/Opteris/Ship19e
 Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=79,248,1,132
-Thruster=-94,250,2,132
-Thruster=-2,302,8,322
+Thruster=80,272,0,132
+Thruster=-80,272,0,132
+Thruster=0,319,8,322
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |___|___|O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|O  |IO |IO |IO |O  |O  |IO |IO |IO |O  |___|___|___|___|___|___|___|___|___|___
