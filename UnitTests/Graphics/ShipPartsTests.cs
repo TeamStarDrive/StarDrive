@@ -653,6 +653,98 @@ public class ShipPartsTests : StarDriveTest
         Assert.IsNull(ship.PartShownNow(), "repaired whole, the plate is on again");
     }
 
+    static Microsoft.Xna.Framework.Vector3[] Quad(float x0, float x1, float z) => new Microsoft.Xna.Framework.Vector3[]
+    {
+        new(x0, 0f, z), new(x1, 0f, z), new(x1, 100f, z),
+        new(x0, 0f, z), new(x1, 100f, z), new(x0, 100f, z),
+    };
+
+    [TestMethod]
+    public void PartsTouchWhereTheirSurfacesMeetAndAPartTouchingNothingHangsOnTheCore()
+    {
+        var triangles = new[] { Quad(0f, 100f, 0f), Quad(100f, 150f, 0f), Quad(150f, 200f, 0f), Quad(400f, 450f, 0f), Quad(10f, 90f, -30f) };
+        uint[] links = ShipHull.FindPartLinks(triangles, out uint loose);
+        Assert.AreEqual(0b11010u, links[0], "the core touches the plate beside it, and the two touching nothing hang on it");
+        Assert.AreEqual(0b00101u, links[1], "the plate beside the core touches it and the plate beyond");
+        Assert.AreEqual(0b00010u, links[2], "the plate beyond touches only the one between");
+        Assert.AreEqual(0b00001u, links[3], "a plate far off touches nothing, so it hangs on the core");
+        Assert.AreEqual(0b00001u, links[4], "as does one 30 above the core");
+        Assert.AreEqual(0b11000u, loose, "the two that touched nothing");
+    }
+
+    const string LightCruiserDesign = "TEST_Terran-Prototype";
+
+    // a Light Cruiser, whose plate 3 hangs only on plate 5, and the modules under each
+    Ship SpawnLightCruiser(out ShipModule[] hanging, out ShipModule[] holding)
+    {
+        CreateUniverseAndPlayerEmpire();
+        LoadStarterShips(LightCruiserDesign);
+        SetDice(Player, SureDice());
+        Ship ship = SpawnShip(LightCruiserDesign, Player, new(200_000f, 200_000f));
+        Assert.IsTrue(ship.BaseHull.LoadModel(out SceneObject _, Content), "setup: its hull's model loads");
+        Assert.IsTrue(ship.Grid.GetParts(out int[] _), "setup: its hull knows its parts");
+        Assert.AreEqual(0b100000u, ship.BaseHull.PartLinks[3], "setup: plate 3 touches only plate 5");
+        hanging = System.Array.FindAll(ship.Modules, m => ship.Grid.PartOf(m.Pos) == 3);
+        holding = System.Array.FindAll(ship.Modules, m => ship.Grid.PartOf(m.Pos) == 5);
+        Assert.IsTrue(hanging.Length > 0 && holding.Length > 1, "setup: modules under both plates");
+        return ship;
+    }
+
+    [TestMethod]
+    public void APlateHangingOnlyOnALostPlateGoesWithItAndTakesItsModules()
+    {
+        Ship ship = SpawnLightCruiser(out ShipModule[] hanging, out ShipModule[] holding);
+        foreach (ShipModule m in holding)
+            Kill(m);
+        float[] whole = ship.WholePartsNow(out uint lostNow);
+        Assert.AreEqual(0b101000u, lostNow, "plate 5 and plate 3 on it are lost in the same count");
+        Assert.AreEqual(0f, whole[3], "plate 3 is off");
+        foreach (ShipModule m in hanging)
+            Assert.IsFalse(m.Active, $"the {m.UID} at {m.Pos} went with plate 3");
+        Assert.AreEqual(1f, whole[4], "plate 4, which hangs on plate 6, stays");
+        Assert.IsTrue(ship.Active, "the ship lives on");
+    }
+
+    [TestMethod]
+    public void APlateThatWentWithTheOneItHangsOnComesBackNoFasterThanThatOne()
+    {
+        Ship ship = SpawnLightCruiser(out ShipModule[] hanging, out ShipModule[] holding);
+        foreach (ShipModule m in holding)
+            Kill(m);
+        Assert.AreEqual(0f, ship.PartShownNow()?[3], "setup: plate 3 went with plate 5");
+        foreach (ShipModule m in hanging)
+            Repair(m);
+        Assert.AreEqual(0f, ship.PartShownNow()[3], "repaired whole, plate 3 shows nothing while plate 5 is off");
+
+        Repair(holding[0]);
+        float[] shown = ship.PartShownNow();
+        Assert.IsTrue(shown[5] > 0f && shown[5] < 1f, "setup: part of plate 5 back");
+        AssertEqual(0.0001f, shown[5], shown[3], "plate 3 shows as much as plate 5 does");
+
+        foreach (ShipModule m in holding)
+            Repair(m);
+        Assert.IsNull(ship.PartShownNow(), "with plate 5 whole, plate 3 is whole again too");
+    }
+
+    [TestMethod]
+    public void WhileTheGameStandsStillNoPlateGoesWithTheOneItHangsOn()
+    {
+        Ship ship = SpawnLightCruiser(out ShipModule[] hanging, out ShipModule[] holding);
+        foreach (ShipModule m in holding)
+            Kill(m); // gone with plate 5
+        const System.Reflection.BindingFlags instance = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        typeof(Ship).GetField("LostPartLow", instance)!.SetValue(ship, new[] { -1, -1, -1, -1, -1, 0, -1 }); // as saved with plate 5 lost and plate 3 on it whole
+        typeof(Ship).GetField("PartsOutdated", instance)!.SetValue(ship, true); // as a loaded ship starts
+        ship.Update(FixedSimTime.Zero); // a loaded game starts paused
+        Assert.AreEqual(0f, ship.PartShown?[5], "setup: plate 5 shows lost");
+        Assert.AreEqual(1f, ship.PartShown[3], "standing still, plate 3 stays on");
+        foreach (ShipModule m in hanging)
+            Assert.IsTrue(m.Active, $"and the {m.UID} at {m.Pos} on it lives");
+
+        ship.Update(TestSimStep);
+        Assert.AreEqual(0f, ship.PartShown?[3], "the first update with time running takes plate 3");
+    }
+
     [TestMethod]
     public void AModuleGoneWithItsPlateDiesWithoutABlast()
     {

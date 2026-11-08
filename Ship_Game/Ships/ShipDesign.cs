@@ -255,9 +255,9 @@ public sealed partial class ShipDesign : IShipDesign
         return true;
     }
 
-    public bool LoadModel(out SceneObject shipSO, GameContentManager content)
+    public bool LoadModel(out SceneObject shipSO, GameContentManager content, bool findPartLinks = false)
     {
-        return BaseHull.LoadModel(out shipSO, content);
+        return BaseHull.LoadModel(out shipSO, content, findPartLinks);
     }
 
     TacticalIcon TacticalIcon;

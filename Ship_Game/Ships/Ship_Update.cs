@@ -54,7 +54,7 @@ namespace Ship_Game.Ships
                 return; // allow creating invisible ships in Unit Tests, and a landed ship is out of sight
 
             //Log.Info($"CreateSO {Id} {Name}");
-            if (!ShipData.LoadModel(out SceneObject so, Universe.Screen.ContentManager))
+            if (!ShipData.LoadModel(out SceneObject so, Universe.Screen.ContentManager, findPartLinks: !HullPlatesOff))
                 return; // loading Ship SO failed
 
             // Modules installed before the mesh loaded got a SurfaceLift fallback;

@@ -156,6 +156,168 @@ namespace Ship_Game.Ships
             return true;
         }
 
+        // a touch cell's side at the least: two parts touch where their surfaces come within about four cells, some 9 units on a ship and more on a big model
+        const float MinTouchCell = 2f;
+
+        // each part's touching parts, with the model they were found for
+        sealed record PartLinkList(XnaVector3[][] Triangles, uint[] Links);
+        PartLinkList PartLinksFound;
+
+        // the parts each part touches, a bit each, 0 the core, a part reaching the core through none taken as touching it; a part stays on only while a chain of whole parts it touches reaches the core; null until the model loads, or for a model in one piece
+        public uint[] PartLinks
+        {
+            get
+            {
+                XnaVector3[][] triangles = PartTriangles;
+                if (triangles == null)
+                    return null;
+                PartLinkList found = PartLinksFound;
+                if (found == null || found.Triangles != triangles)
+                {
+                    found = new(triangles, FindPartLinks(triangles, out _));
+                    PartLinksFound = found;
+                }
+                return found.Links;
+            }
+        }
+
+        // the grid of touch cells over a model has about this many, never more than twice, its cells growing past MinTouchCell on a big model
+        const int MaxTouchCells = 1 << 20;
+
+        // points sampled over each part's surface fall in touch cells, and parts in the same or neighboring cells touch; loose, the parts that reached the core through none, now touching it
+        internal static uint[] FindPartLinks(XnaVector3[][] partTriangles, out uint loose)
+        {
+            int numParts = Math.Min(partTriangles.Length, StaticMesh.MaxParts);
+            var min = new XnaVector3(float.MaxValue);
+            var max = new XnaVector3(float.MinValue);
+            for (int part = 0; part < numParts; ++part)
+            {
+                foreach (XnaVector3 v in partTriangles[part])
+                {
+                    min = XnaVector3.Min(min, v);
+                    max = XnaVector3.Max(max, v);
+                }
+            }
+
+            var links = new uint[numParts];
+            if (min.X <= max.X)
+            {
+                XnaVector3 size = max - min;
+                var cells = new TouchCells(min, size);
+                for (int part = 0; part < numParts; ++part)
+                {
+                    XnaVector3[] corners = partTriangles[part];
+                    for (int t = 0; t + 2 < corners.Length; t += 3)
+                        cells.Mark(corners[t], corners[t + 1], corners[t + 2], 1u << part);
+                }
+                cells.Link(links);
+            }
+
+            uint reached = 1u;
+            for (uint grown = 1u; grown != 0u;)
+            {
+                grown = 0u;
+                for (int part = 0; part < numParts; ++part)
+                    if ((reached & 1u << part) != 0)
+                        grown |= links[part] & ~reached;
+                reached |= grown;
+            }
+            loose = 0u;
+            for (int part = 1; part < numParts; ++part)
+            {
+                if ((reached & 1u << part) != 0)
+                    continue;
+                loose |= 1u << part;
+                links[part] |= 1u;
+                links[0] |= 1u << part;
+            }
+            return links;
+        }
+
+        // each cell of a grid over a model, the parts whose surface passes through it, a bit each
+        sealed class TouchCells
+        {
+            readonly XnaVector3 Origin;
+            readonly float Size;
+            readonly int NX, NY, NZ;
+            readonly uint[] Parts;
+            readonly Array<int> Used = new();
+
+            public TouchCells(XnaVector3 origin, XnaVector3 extent)
+            {
+                Origin = origin;
+                Size = Math.Max(MinTouchCell, MathF.Cbrt((extent.X + 1f) * (extent.Y + 1f) * (extent.Z + 1f) / MaxTouchCells));
+                while (((long)(extent.X / Size) + 2) * ((long)(extent.Y / Size) + 2) * ((long)(extent.Z / Size) + 2) > 2L * MaxTouchCells)
+                    Size *= 1.25f; // a flat model's grid is wider than its volume says
+                NX = (int)(extent.X / Size) + 2;
+                NY = (int)(extent.Y / Size) + 2;
+                NZ = (int)(extent.Z / Size) + 2;
+                Parts = new uint[NX * NY * NZ];
+            }
+
+            // the cells a triangle passes through, sampled in rows from its longest edge to its far corner, no more than 0.7 of a cell apart
+            public void Mark(XnaVector3 a, XnaVector3 b, XnaVector3 c, uint bit)
+            {
+                float ab = (b - a).LengthSquared(), bc = (c - b).LengthSquared(), ca = (a - c).LengthSquared();
+                if (bc > ab && bc >= ca)
+                    (a, b, c) = (b, c, a);
+                else if (ca > ab && ca > bc)
+                    (a, b, c) = (c, a, b);
+                float step = Size * 0.7f;
+                float edge = (b - a).Length();
+                float height = edge > 0f ? XnaVector3.Cross(b - a, c - a).Length() / edge : (c - a).Length();
+                int rows = Math.Max(1, (int)MathF.Ceiling(height / step));
+                for (int r = 0; r <= rows; ++r)
+                {
+                    float t = r / (float)rows;
+                    XnaVector3 from = a + (c - a) * t, to = b + (c - b) * t;
+                    int points = Math.Max(1, (int)MathF.Ceiling((to - from).Length() / step));
+                    for (int i = 0; i <= points; ++i)
+                    {
+                        XnaVector3 p = (from + (to - from) * (i / (float)points) - Origin) / Size;
+                        int cell = Math.Clamp((int)p.X, 0, NX - 1) + NX * (Math.Clamp((int)p.Y, 0, NY - 1) + NY * Math.Clamp((int)p.Z, 0, NZ - 1));
+                        if (Parts[cell] == 0u)
+                            Used.Add(cell);
+                        Parts[cell] |= bit;
+                    }
+                }
+            }
+
+            // the parts in each cell touch those in it and in the cells around it
+            public void Link(uint[] links)
+            {
+                for (int i = 0; i < Used.Count; ++i)
+                {
+                    int cell = Used[i];
+                    uint parts = Parts[cell];
+                    LinkParts(links, parts, parts);
+                    int x = cell % NX, y = cell / NX % NY, z = cell / (NX * NY);
+                    for (int dz = 0; dz <= 1 && z + dz < NZ; ++dz) // each pair of neighbors once: those after it
+                    for (int dy = dz == 0 ? 0 : -1; dy <= 1; ++dy)
+                    for (int dx = dz == 0 && dy == 0 ? 1 : -1; dx <= 1; ++dx)
+                    {
+                        int nx = x + dx, ny = y + dy;
+                        if (nx >= 0 && nx < NX && ny >= 0 && ny < NY)
+                            LinkParts(links, parts, Parts[nx + NX * (ny + NY * (z + dz))]);
+                    }
+                }
+            }
+
+            static void LinkParts(uint[] links, uint a, uint b)
+            {
+                uint both = a | b;
+                if (b == 0u || (both & (both - 1)) == 0)
+                    return; // one part only
+                for (int part = 0; part < links.Length; ++part)
+                {
+                    if ((a & 1u << part) != 0)
+                        links[part] |= b & ~(1u << part);
+                    if ((b & 1u << part) != 0)
+                        links[part] |= a & ~(1u << part);
+                }
+            }
+        }
+
         // a part's center in the model, the radius about it that holds it, and the model's part count; false before the model loads, or for a part with no triangles
         public bool GetPartBounds(int part, out XnaVector3 center, out float radius, out int numParts)
         {
@@ -330,7 +492,8 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        public bool LoadModel(out SceneObject shipSO, GameContentManager content)
+        // findPartLinks, for a ship in a game with hull plates on: which parts touch is found with the model, not at a part's loss in a battle
+        public bool LoadModel(out SceneObject shipSO, GameContentManager content, bool findPartLinks = false)
         {
             shipSO = null;
             lock (HullSlots)
@@ -364,7 +527,10 @@ namespace Ship_Game.Ships
                         BuildSurfaceMap(positions);
                 }
 
-                PartTriangles = mesh.NumParts > 0 ? mesh.PartTriangles : null; // a reloaded hull may show another model
+                XnaVector3[][] triangles = mesh.NumParts > 0 ? mesh.PartTriangles : null;
+                if (findPartLinks && triangles != null && PartLinksFound?.Triangles != triangles)
+                    PartLinksFound = new(triangles, FindPartLinks(triangles, out _)); // before the parts show, so a ship counting them finds the links ready
+                PartTriangles = triangles; // a reloaded hull may show another model
                 ModelInOnePiece = PartTriangles == null;
                 return true;
             }

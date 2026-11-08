@@ -49,7 +49,7 @@ namespace Ship_Game.Ships
             PartsOutdated = true;
         }
 
-        // a part may be lost at the count of an update with a death under it, by a roll unless all of it is dead, and comes back as its modules do; a part with no modules stays on; returns the parts it lost. Standing still, paused or saving, it loses none and kills no module, and with hull plates on changes nothing a save writes
+        // a part may be lost at the count of an update with a death under it, by a roll unless all of it is dead, a part no longer tied to the core by whole parts it touches goes with it, and a lost part comes back as its modules do, no faster than the parts it hangs on; a part with no modules is lost only that way; returns the parts it lost. Standing still, paused or saving, it loses none and kills no module, and with hull plates on changes nothing a save writes
         uint UpdateLostParts(bool timeRuns = true)
         {
             ShipHull hull = BaseHull;
@@ -92,9 +92,7 @@ namespace Ship_Game.Ships
                 low.Fill(-1);
             Span<float> shown = stackalloc float[numParts];
             shown.Fill(1f);
-            bool anyLost = false;
-            float leastBack = 1f;
-            uint lostNow = 0u;
+            uint lostNow = 0u, lost = 0u, repaired = 0u;
             for (int part = 1; part < numParts; ++part)
             {
                 int lowest = low[part];
@@ -113,14 +111,21 @@ namespace Ship_Game.Ships
                 }
                 else if (alive[part] >= area[part])
                 {
-                    low[part] = -1;
+                    repaired |= 1u << part; // whole once a chain of whole parts it touches reaches the core
                     continue;
                 }
                 low[part] = lowest = Math.Min(lowest, alive[part]);
                 shown[part] = (alive[part] - lowest) / (float)(area[part] - lowest);
-                leastBack = Math.Min(leastBack, shown[part]);
-                anyLost = true;
+                lost |= 1u << part;
             }
+            if (lost != 0u || repaired != 0u)
+                HoldByTouchingParts(hull.PartLinks, low, alive, shown, timeRuns, ref lost, ref lostNow, repaired);
+
+            bool anyLost = lost != 0u;
+            float leastBack = 1f;
+            for (int part = 1; part < numParts; ++part)
+                if ((lost & 1u << part) != 0)
+                    leastBack = Math.Min(leastBack, shown[part]);
             if (timeRuns && (lostNow != 0u || !anyLost))
                 InsidesHeatAtLoss = 1f;
             InsidesHeat = anyLost ? Math.Max(Derelict.MinInsidesHeat, InsidesHeatAtLoss * (1f - leastBack)) : 1f;
@@ -132,6 +137,67 @@ namespace Ship_Game.Ships
             if (lostNow != 0u && Active && !Dying)
                 KillModulesUnder(lostNow);
             return lostNow;
+        }
+
+        // a whole part no chain of whole parts it touches ties to the core goes with the parts just lost, and a lost part shows no more than its best chain to the core does, staying lost, repaired, till that chain is whole; with no links found every part hangs on the core
+        static void HoldByTouchingParts(uint[] links, Span<int> low, Span<int> alive, Span<float> shown, bool timeRuns, ref uint lost, ref uint lostNow, uint repaired)
+        {
+            int numParts = low.Length;
+            if (links?.Length != numParts)
+            {
+                for (int part = 1; part < numParts; ++part)
+                    if ((repaired & 1u << part) != 0)
+                        low[part] = -1;
+                return;
+            }
+            Span<float> reach = stackalloc float[numParts];
+            ChainShown(links, shown, reach);
+            uint stranded = 0u;
+            for (int part = 1; part < numParts; ++part)
+            {
+                uint bit = 1u << part;
+                if ((repaired & bit) != 0)
+                {
+                    if (reach[part] >= 1f)
+                        low[part] = -1;
+                    else
+                        lost |= bit;
+                }
+                else if (low[part] < 0 && reach[part] < 1f && timeRuns)
+                {
+                    low[part] = alive[part];
+                    shown[part] = 0f;
+                    stranded |= bit;
+                }
+            }
+            lost |= stranded;
+            lostNow |= stranded;
+            ChainShown(links, shown, reach);
+            for (int part = 1; part < numParts; ++part)
+                if ((lost & 1u << part) != 0)
+                    shown[part] = Math.Min(shown[part], Math.Max(reach[part], 0f));
+        }
+
+        // each part's best chain of touching parts from the core, the least shown along it, -1 for none
+        static void ChainShown(uint[] links, Span<float> shown, Span<float> reach)
+        {
+            int numParts = reach.Length;
+            reach.Fill(-1f);
+            reach[0] = 1f;
+            uint done = 0u;
+            for (;;)
+            {
+                int next = -1;
+                for (int part = 0; part < numParts; ++part)
+                    if ((done & 1u << part) == 0 && reach[part] >= 0f && (next < 0 || reach[part] > reach[next]))
+                        next = part;
+                if (next < 0)
+                    return;
+                done |= 1u << next;
+                for (int part = 0; part < numParts; ++part)
+                    if ((links[next] & 1u << part) != 0 && (done & 1u << part) == 0)
+                        reach[part] = Math.Max(reach[part], Math.Min(reach[next], shown[part]));
+            }
         }
 
         // the modules still alive under the parts just lost go with them, quietly, as long as the ship lives through it
