@@ -4,7 +4,7 @@ VisibleName=Chitin
 Role=cruiser
 Style=Opteris
 Size=20,31
-MeshOffset=0,8
+MeshOffset=0,-2
 IconPath=ShipIcons/Chitin
 ModelPath=Model/Ships/Opteris/Ship19d
 SelectIcon=19d
@@ -12,8 +12,8 @@ Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=60,169,11,87
-Thruster=-57,168,10,87
+Thruster=48,176,8,87
+Thruster=-48,176,8,87
 Slots
 ___|___|___|___|___|___|___|___|O  |___|___|O  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|O  |O  |O  |___|___|O  |O  |O  |___|___|___|___|___|___
