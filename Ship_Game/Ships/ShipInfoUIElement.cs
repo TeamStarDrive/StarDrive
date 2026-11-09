@@ -215,10 +215,11 @@ namespace Ship_Game.Ships
                 DrawFTL(batch, mousePos, s, ref numStatus);
                 DrawInhibited(batch, mousePos, s, ref numStatus);
                 DrawEmp(batch, mousePos, s, ref numStatus);
-                DrawStructuralIntegrity(batch, mousePos, s, ref numStatus);
             }
             DrawCargoUsed(batch, mousePos, s, ref numStatus);
             DrawRefundLoad(batch, mousePos, s, ref numStatus);
+            if (HelperFunctions.DataVisibleToPlayer(s.Loyalty))
+                DrawStructuralIntegrity(batch, mousePos, s, ref numStatus); // last, as its repair rate runs on to the right
         }
 
         void DrawIconWithTooltip(SpriteBatch batch, SubTexture icon, Func<string> tooltip, Vector2 mousePos, Color color, int numStatus)
@@ -289,7 +290,8 @@ namespace Ship_Game.Ships
 
         void DrawStructuralIntegrity(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
-            if (ship.InternalSlotsHealthPercent > 0.999f)
+            // shown with I-slot damage, and with any damage while the ship repairs
+            if (ship.InternalSlotsHealthPercent > 0.999f && (ship.HealthPercent > 0.999f || !ship.CanRepair))
                 return;
 
             SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
@@ -303,7 +305,7 @@ namespace Ship_Game.Ships
             {
                 float repairPerSec = ship.CurrentRepairPerSecond;
                 float timeUntilRepaired = (ship.HealthMax - ship.Health) / repairPerSec;
-                integrityText += $" (+{(int)repairPerSec}HP/s ETA:{timeUntilRepaired.TimeString()})";
+                integrityText += $" +{(int)repairPerSec}/s {timeUntilRepaired.TimeString()}";
             }
             batch.DrawString(Fonts.Arial12, integrityText, textPos, Color.White);
             numStatus++;
