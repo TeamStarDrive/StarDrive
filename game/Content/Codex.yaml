@@ -138,6 +138,8 @@
     -
       UID: warfare_repair
     -
+      UID: warfare_hull_plates
+    -
       UID: warfare_ship_death
       Children:
         -

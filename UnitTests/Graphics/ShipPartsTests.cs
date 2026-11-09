@@ -495,7 +495,7 @@ public class ShipPartsTests : StarDriveTest
 
     public ShipPartsTests()
     {
-        GlobalStats.Defaults.EnableHullPlates = true; // these tests play with hull plates on, as a mod that turns them on does
+        GlobalStats.Defaults.EnableHullPlates = true; // these tests play with hull plates on, as vanilla does
     }
 
     [TestCleanup]
@@ -904,7 +904,7 @@ public class ShipPartsTests : StarDriveTest
     [TestMethod]
     public void AModTurnsHullPlatesOnItselfAndTheRuleOptionTurnsThemOff()
     {
-        Assert.IsFalse(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Content/Globals.yaml")).EnableHullPlates, "vanilla ships with hull plates off");
+        Assert.IsTrue(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Content/Globals.yaml")).EnableHullPlates, "vanilla ships with hull plates on");
         Assert.IsTrue(GlobalStats.VanillaDefaults.EnableHullPlates, "setup: these tests turn them on");
         Assert.IsFalse(new GamePlayGlobals().EnableHullPlates, "a mod does not inherit the flag");
 
@@ -1093,6 +1093,33 @@ public class ShipPartsTests : StarDriveTest
         Assert.IsNotNull(loaded, "setup: the save loads");
         Ship after = loaded.UState.Objects.FindShip(ship.Id);
         CollectionAssert.AreEqual(before, after.PartShownNow(), "the lost plate and its repairs since come back");
+    }
+
+    UniverseScreen SaveAndLoad()
+    {
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.ShipParts", throwOnError: true);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+        return loaded;
+    }
+
+    [TestMethod]
+    public void AGameSavedBeforeHullPlatesCameToTheBaseGameLoadsInOnePiece()
+    {
+        var p = new Ship_Game.Universe.UniverseParams(); // a load builds it as a new game does, then sets the fields its save has
+        Assert.IsTrue(p.HullPlates, "setup: built as for a new game, hull plates are on");
+        p.OnDeserialized(); // a save from before hull plates came to the base game has no mark of them
+        Assert.IsFalse(p.HullPlates, "a game saved before they came keeps its ships in one piece");
+    }
+
+    [TestMethod]
+    public void AGameSavedWithHullPlatesLoadsWithThemAsTheyWere()
+    {
+        SetupGunboats();
+        Assert.IsTrue(SaveAndLoad().UState.P.HullPlates, "saved on, they load on");
+        UState.P.DisableHullPlates = true;
+        Assert.IsFalse(SaveAndLoad().UState.P.HullPlates, "saved off, they load off");
     }
 
     [TestMethod]
