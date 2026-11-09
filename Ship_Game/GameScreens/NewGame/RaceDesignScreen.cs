@@ -57,7 +57,7 @@ namespace Ship_Game
 
         UIButton GameSetupButton;
         UIButton AbortButton;
-        // Game Setup's Back and Engage come out of these two
+        // Game Setup's Back and Engage stand where these two do
         public Vector2 AbortPos => AbortButton.Pos;
         public Vector2 GameSetupPos => GameSetupButton.Pos;
         public void ShowButtonRow(bool show) => GameSetupButton.Visible = AbortButton.Visible = show;

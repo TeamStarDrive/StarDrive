@@ -155,8 +155,8 @@ namespace Ship_Game.GameScreens.NewGame
             opponentBoxes.AddCheckbox(() => Params.OpponentHullColors, title: GameText.OpponentsHullColor, tooltip: GameText.OpponentsHullColorTip);
             SlideFrom(first, new Vector2(ScreenWidth - listX, 0));
 
-            BackButton = Button(ButtonStyle.BigDip, leftX, bottom + 10, GameText.Back, click: _ => ExitScreen());
-            EngageButton = Button(ButtonStyle.Military, listX + listWidth - 168, bottom + 10, GameText.Engage, click: _ => RaceScreen.Engage());
+            BackButton = Button(ButtonStyle.BigDip, RaceScreen.AbortPos, GameText.Back, click: _ => ExitScreen());
+            EngageButton = Button(ButtonStyle.Military, RaceScreen.GameSetupPos, GameText.Engage, click: _ => RaceScreen.Engage());
 
             Picker = Add(new UIColorPicker(new Rectangle(pickerX, top, pickerWidth, pickerHeight)));
             Picker.Visible = false;
@@ -167,10 +167,8 @@ namespace Ship_Game.GameScreens.NewGame
 
             for (int i = 0; i < Slides.Count; ++i)
                 Slides[i].Element.SlideInFromOffset(Slides[i].Offset, TransitionOnTime);
-            // Back and Engage come out of the race screen's Abort and Game Setup, which hide until this screen closes
+            // Back and Engage stand where the race screen's Abort and Game Setup do, which hide until this screen is gone
             RaceScreen.ShowButtonRow(false);
-            BackButton.SlideInFromOffset(RaceScreen.AbortPos - BackButton.Pos, TransitionOnTime);
-            EngageButton.SlideInFromOffset(RaceScreen.GameSetupPos - EngageButton.Pos, TransitionOnTime);
             base.LoadContent();
         }
 
@@ -181,10 +179,15 @@ namespace Ship_Game.GameScreens.NewGame
                 Slides.Add((Elements[i], offset));
         }
 
+        // a double click on Back stops at the race screen: its Abort comes back only once this screen is gone
+        public override void UnloadContent()
+        {
+            RaceScreen.ShowButtonRow(true);
+            base.UnloadContent();
+        }
+
         void SlideOut()
         {
-            BackButton.Visible = EngageButton.Visible = false; // they vanish as the race screen's own buttons come back
-            RaceScreen.ShowButtonRow(true);
             for (int i = 0; i < Slides.Count; ++i)
             {
                 UIElementV2 e = Slides[i].Element;
