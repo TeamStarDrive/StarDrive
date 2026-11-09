@@ -6400,6 +6400,8 @@ namespace Ship_Game
         HullPlatesExtension = 7284,
         /// <summary>Ships can lose hull plates in battle, and the plates grow back as the ship is repaired.</summary>
         HullPlatesExtensionTip = 7285,
+        /// <summary>Str: {0}</summary>
+        ShipStrengthShort = 7286,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
