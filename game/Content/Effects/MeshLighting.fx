@@ -99,7 +99,7 @@ float  SpecularAmount  = 1.0;
 float  EmissiveScale   = 1.0;
 // Per-draw owner's color for the hull paint the tint map (`_t`) marks; .w = 0 leaves the paint as it is.
 float4 HullTint        = float4(1, 1, 1, 0);
-// Per-draw look of a model cut into parts: .x share of a part coming back drawn; .y = 1 shades back faces as burnt insides; .z how hot their embers still glow.
+// Per-draw look of a model cut into parts: .x share of a part coming back drawn; .y = 1 shades back faces as the insides, burnt but for a part coming back's; .z how hot their embers still glow.
 float4 PartLook        = float4(1, 0, 1, 0);
 // Per-draw reach of a part coming back from the model's middle, .x its nearest point, .y its farthest; it grows out from the near side.
 float4 PartReach       = float4(0, 1, 0, 0);
@@ -298,6 +298,9 @@ float ComputeFogFactor(float dist)
 struct LightTerms { float3 Diffuse; float3 Specular; };
 // the specular power of the surface being shaded, the material's or the burnt insides'
 static float Shininess;
+// set by the Dissolve pass: how much a part coming back still shows bare, 1 under construction down to 0 painted, and 1 on the girders of its frame
+static float Building = 0.0;
+static float Girder = 0.0;
 LightTerms ComputeDirectional(
     float3 normalWS, float3 viewDirWS,
     float3 lightDir, float3 lightDiffuse, float3 lightSpecular)
@@ -527,7 +530,10 @@ Burnt BurntInside(float3 p, float heat)
 
 float4 PSDefault(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
 {
-    bool burnt = !isFront && PartLook.y > 0.5;
+    // seen from inside a model with a part off its insides are burnt, but a part under construction shows its steel and girders from inside too
+    bool fromInside = !isFront && PartLook.y > 0.5;
+    bool building = Building > 0.0 || Girder > 0.0;
+    bool burnt = fromInside && !building;
     Burnt inside = (Burnt)0;
     if (burnt)
         inside = BurntInside(input.PositionOS, PartLook.z);
@@ -535,6 +541,7 @@ float4 PSDefault(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
     float3 diffuseColor = burnt ? float3(1, 1, 1) : DiffuseColor;
 
     float4 texColor = TextureEnabled ? tex2D(TextureSampler, input.TexCoord) : float4(1, 1, 1, 1);
+    float shade = Luminance(texColor.rgb);
 
     // the owner's color takes the paint the tint map marks, at the texture's own brightness
     if (TintMapEnabled)
@@ -571,6 +578,16 @@ float4 PSDefault(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
         specularGain = float3(inside.Shine, inside.Shine, inside.Shine);
     }
 
+    // a part under construction is bare steel shaded as its texture, its frame dark girders, neither painted nor lit up
+    float build = !building ? 0.0 : fromInside ? 1.0 : max(Building, Girder);
+    if (build > 0.0)
+    {
+        float3 steel = Girder > 0.0 ? float3(0.20, 0.21, 0.23) : float3(0.30, 0.315, 0.335) * lerp(0.6, 1.35, shade);
+        texColor.rgb = lerp(texColor.rgb, steel, build);
+        emissive *= 1.0 - build;
+        specularGain = lerp(specularGain, Girder > 0.0 ? float3(0.25, 0.25, 0.25) : float3(0.35, 0.35, 0.35), build);
+    }
+
     float3 rgb;
     if (LightingEnabled)
     {
@@ -579,7 +596,7 @@ float4 PSDefault(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
         // world space using the TBN basis. Otherwise fall back to the
         // interpolated vertex normal — same as Phase A behavior.
         float3 normalWS;
-        if (burnt)
+        if (fromInside)
         {
             normalWS = -normalize(input.NormalWS);
         }
@@ -687,12 +704,25 @@ technique Default
     }
 }
 
-// a part coming back, as much as its share shown, growing out from the model's middle behind a ragged edge; its own technique so the whole-model shader keeps early depth
+// how far a part's frame runs ahead of its plating, in shares of its reach, and the frame's girder spacing and half width in model units
+static const float FrameLead = 0.25;
+static const float GirderSpacing = 8.0;
+static const float GirderHalfWidth = 0.9;
+
+// a part coming back, as much as its share shown, growing out from the model's middle behind a ragged edge, a frame of girders running ahead of bare steel that takes its paint over the last tenth; its own technique so the whole-model shader keeps early depth
 float4 PSDissolve(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
 {
     float2 d = (input.PositionOS.xy - ReachShape.xy) * ReachShape.zw;
     float reach = saturate((length(d) - PartReach.x) / max(PartReach.y - PartReach.x, 0.0001));
-    clip(PartLook.x - lerp(reach, SpeckNoise(input.PositionOS), 0.3));
+    float ahead = lerp(reach, SpeckNoise(input.PositionOS), 0.3) - PartLook.x;
+    if (ahead > 0.0)
+    {
+        clip(FrameLead - ahead);
+        float2 g = abs(frac(input.PositionOS.xy / GirderSpacing + 0.5) - 0.5) * GirderSpacing;
+        clip(GirderHalfWidth - min(g.x, g.y));
+        Girder = 1.0;
+    }
+    Building = 1.0 - smoothstep(0.9, 1.0, PartLook.x);
     return PSDefault(input, isFront);
 }
 
