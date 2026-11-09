@@ -595,7 +595,7 @@ namespace Ship_Game.Commands.Goals
             Emptied = d.Stripped;
         }
 
-        // a turn of breaking in, which steadies the derelict, then a turn's work at the recovery speed, the roll coming with the last of it; the shuttles fly a full turn's while it breaks in, and none with the last of the work; true when the derelict exploded
+        // a turn of breaking in, which steadies the derelict, then a turn's work at the recovery speed, the roll coming with the last of it; the shuttles fly once the work starts, none while it breaks in nor with the last of the work; true when the derelict exploded
         bool Recover(Ship platform, Derelict d)
         {
             if (RecoverySucceeded)
@@ -607,7 +607,6 @@ namespace Ship_Game.Commands.Goals
                 d.SteadyTo(BreakInDone / (float)DerelictRecovery.BreakInTurns);
                 d.ShowRecoveryWork(platform, DerelictRecovery.Progress(Owner, d, RecoveryWork));
                 UState.Derelicts.SoundBreakIn(d);
-                SendShuttles(platform, d, CargoShuttles.RecoveryShuttlesFor(speed));
                 return false;
             }
             d.SteadyTo(1f); // at once after a break-in of no turns

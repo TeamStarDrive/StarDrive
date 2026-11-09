@@ -1065,6 +1065,37 @@ public class SalvageRecoveryTests : SalvageOrderTest
     }
 
     [TestMethod]
+    public void NoShuttlesFlyWhileItBreaksInAndTheFirstTurnOfWorkSendsThem()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        Succeeds(d);
+        Player.data.SelectedTraitSet = "";
+        SalvageDerelict order = AtWork(d, recover: true);
+        Assert.IsTrue(DerelictRecovery.Work(Player, d) > 48f, "setup: work for more than two turns");
+        Turns(order, 1);
+        Ship platform = order.Platform;
+        SeesTheWork(order, d);
+        platform.InFrustum = true;
+        Universe.CargoShuttles.Update(Universe, TestSimStep);
+        AssertEqual(0, Universe.CargoShuttles.InFlight(null, platform), "setup: no shuttles out");
+
+        Turns(order, 1);
+        Universe.CargoShuttles.Update(Universe, TestSimStep);
+        Assert.IsTrue(order.BreakingIn, "setup: its platform still breaks in");
+        AssertEqual(0, Universe.CargoShuttles.InFlight(null, platform), "a turn of breaking in sends no shuttles");
+
+        Turns(order, 8);
+        Universe.CargoShuttles.Update(Universe, TestSimStep);
+        Assert.IsFalse(order.BreakingIn, "setup: broken in after ten turns");
+        AssertEqual(0, Universe.CargoShuttles.InFlight(null, platform), "nor does the last of them");
+
+        Turns(order, 1);
+        Universe.CargoShuttles.Update(Universe, TestSimStep);
+        AssertEqual(0.01f, 24f, order.RecoveryWork, "setup: a turn's work done");
+        AssertEqual(4, Universe.CargoShuttles.InFlight(null, platform), "the first turn of work sends a shuttle for every six slots of it");
+    }
+
+    [TestMethod]
     public void AFailedRollEndsTheWorksEffect()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
