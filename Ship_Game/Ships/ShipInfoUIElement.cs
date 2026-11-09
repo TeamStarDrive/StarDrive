@@ -348,8 +348,9 @@ namespace Ship_Game.Ships
 
         void DrawStructuralIntegrity(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
-            // shown with I-slot damage, and with any damage while the ship repairs
-            if (ship.InternalSlotsHealthPercent > 0.999f && (ship.HealthPercent > 0.999f || !ship.CanRepair))
+            // shown with I-slot damage, and with any damage while the ship repairs; one being dismantled never repairs
+            bool repairs = ship.CanRepair && !ship.Dismantling;
+            if (ship.InternalSlotsHealthPercent > 0.999f && (ship.HealthPercent > 0.999f || !repairs))
                 return;
 
             SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
@@ -359,7 +360,7 @@ namespace Ship_Game.Ships
             var textPos = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
             int integrity = (int)(ship.InternalSlotsHealthPercent * 100);
             string integrityText = $"{integrity}%";
-            if (ship.CanRepair) // a ship fighting or just hit gets no repair, so it shows no rate
+            if (repairs) // a ship fighting, just hit or being dismantled gets no repair, so it shows no rate
             {
                 float repairPerSec = ship.CurrentRepairPerSecond;
                 float timeUntilRepaired = (ship.HealthMax - ship.Health) / repairPerSec;
