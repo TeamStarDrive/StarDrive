@@ -25,7 +25,7 @@ public class HullColorTests : StarDriveTest
 {
     [TestMethod]
     [DataRow("Model/Ships/Vulfen/ship14_d.dds", "Model/Ships/Vulfen/ship14_t.dds")]
-    [DataRow("Model/Ships/Vulfen/ship14_d2.dds", "Model/Ships/Vulfen/ship14_t2.dds")]
+    [DataRow("Model/Ships/my_dir/hull_d2.dds", "Model/Ships/my_dir/hull_t2.dds")]
     [DataRow("mod models/Vulfar/ship13_d_0.dds", "mod models/Vulfar/ship13_t_0.dds")]
     [DataRow("Model/Ships/Terran/ship07_altglow_d.dds", "Model/Ships/Terran/ship07_altglow_t.dds")]
     [DataRow("Model/Ships/Kulrathi/SciFi_Ship_Escort-Diffuse.dds", "Model/Ships/Kulrathi/SciFi_Ship_Escort-Tint.dds")]

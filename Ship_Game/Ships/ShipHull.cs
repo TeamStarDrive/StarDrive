@@ -492,7 +492,7 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        // findPartLinks, for a ship in a game with hull plates on: which parts touch is found with the model, not at a part's loss in a battle
+        // findPartLinks, for a ship in a game with hull plates on: which parts touch is found with the model; a hull loaded without it finds them once, the first time a ship on it counts a part lost
         public bool LoadModel(out SceneObject shipSO, GameContentManager content, bool findPartLinks = false)
         {
             shipSO = null;

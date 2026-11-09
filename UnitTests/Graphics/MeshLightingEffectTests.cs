@@ -370,8 +370,6 @@ public class MeshLightingEffectTests : StarDriveTest
         return corners;
     }
 
-    // the white of the box's lit outside, not its burnt insides or the background
-
     static bool Ember(Color px) => px.R > 120 && px.R > px.B * 2 + 40;
     static bool Charred(Color px) => px.R + px.G + px.B < 90;
 
