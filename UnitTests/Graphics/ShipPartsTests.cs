@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
@@ -58,6 +60,90 @@ public class ShipPartsTests : StarDriveTest
         StaticMesh mesh = Content.LoadStaticMesh("Model/Ships/Terran/Hunter/Fighter1.fbx"); // a corvette's, left in one piece
         Assert.AreEqual(0, mesh.NumParts);
         Assert.IsNull(mesh.RawMeshes[0].PartStart);
+    }
+
+    [TestMethod]
+    public void AnAnimatedModelCutIntoPartsLoadsItsParts()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "ShipPartsTests_animated_parts.fbx");
+        AnimatedPartsModel.Write(path);
+        StaticMesh mesh = new MeshImporter(Content).ImportStaticMesh(path, "animated_parts");
+        File.Delete(path);
+
+        Assert.IsTrue(mesh.IsSkinned, "setup: the model has bones");
+        Assert.AreEqual(2, mesh.NumParts, "the core and one part");
+        CollectionAssert.AreEqual(new[] { 2, 2 }, mesh.RawMeshes[0].PartPrimitives, "each part's triangles");
+    }
+
+    // a square on each of two bones, 00_Core on the first and 01_Arm on the second, saved as an animated model is
+    sealed class AnimatedPartsModel : MeshInterface
+    {
+        AnimatedPartsModel() : base(null) { }
+
+        public static unsafe void Write(string path)
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            SdMesh* mesh = SDMeshCreateEmpty("animated_parts");
+            try
+            {
+                var identity = SDGraphics.Matrix.Identity;
+                var rest = new SdBonePose
+                {
+                    Translation = SDGraphics.Vector3.Zero,
+                    Orientation = Microsoft.Xna.Framework.Quaternion.Identity,
+                    Scale = SDGraphics.Vector3.One,
+                };
+                SDMeshAddBone(mesh, "Root", 0, -1, in identity);
+                SDMeshAddBone(mesh, "Arm", 1, 0, in identity);
+                SDMeshAddSkinnedBone(mesh, "Root", 0, -1, in rest, in identity);
+                SDMeshAddSkinnedBone(mesh, "Arm", 1, 0, in rest, in identity);
+                AddSquare(mesh, "00_Core", 0f, 0);
+                AddSquare(mesh, "01_Arm", 2f, 1);
+                Assert.IsTrue(SDMeshSave(mesh, path), "setup: the model saves");
+            }
+            finally
+            {
+                SDMeshClose(mesh);
+            }
+        }
+
+        static unsafe void AddSquare(SdMesh* mesh, string name, float x, byte bone)
+        {
+            const int stride = 32;
+            var layout = new SdVertexElement[]
+            {
+                new() { Offset = 0,  Size = 12, NativeFormat = 2, NativeUsage = 0 }, // position
+                new() { Offset = 12, Size = 4,  NativeFormat = 5, NativeUsage = 2 }, // bone indices
+                new() { Offset = 16, Size = 16, NativeFormat = 3, NativeUsage = 1 }, // bone weights
+            };
+            var corners = new[] { (x, 0f), (x + 1f, 0f), (x + 1f, 1f), (x, 1f) };
+            var vertices = new byte[corners.Length * stride];
+            for (int v = 0; v < corners.Length; ++v)
+            {
+                BitConverter.GetBytes(corners[v].Item1).CopyTo(vertices, v * stride);
+                BitConverter.GetBytes(corners[v].Item2).CopyTo(vertices, v * stride + 4);
+                vertices[v * stride + 12] = bone;
+                BitConverter.GetBytes(1f).CopyTo(vertices, v * stride + 16);
+            }
+            var indices = new ushort[] { 0, 1, 2, 0, 2, 3 };
+            var transform = SDGraphics.Matrix.Identity;
+            SdMeshGroup* group = SDMeshNewGroup(mesh, name, &transform);
+            fixed (ushort* pIndices = indices)
+            fixed (byte* pVertices = vertices)
+            fixed (SdVertexElement* pLayout = layout)
+            {
+                SdVertexData data;
+                data.VertexStride = stride;
+                data.LayoutCount = layout.Length;
+                data.IndexCount = indices.Length;
+                data.VertexCount = corners.Length;
+                data.IndexData = pIndices;
+                data.VertexData = pVertices;
+                data.Layout = pLayout;
+                SDMeshGroupSetData(group, data);
+            }
+        }
     }
 
     [TestMethod]

@@ -74,7 +74,7 @@ namespace Ship_Game.Data.Mesh
             // bone palette per-frame via SceneObject.AnimationPlayer.
             bool isSkinned = mesh->NumSkinnedBones > 0;
             Map<long, LightingEffect> materials = GetMaterials(mesh, modelName, isSkinned);
-            if (!isSkinned && HasParts(mesh))
+            if (HasParts(mesh))
                 return LoadParts(mesh, modelName, materials, extractVertexPositions);
 
             var rawMeshes = new Array<MeshData>();
