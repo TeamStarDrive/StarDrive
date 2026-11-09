@@ -311,7 +311,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdatePosition()
+        protected void UpdatePosition()
         {
             Vector2 source = Source;
             Vector2 target = ActualHitDestination;
@@ -465,6 +465,7 @@ namespace Ship_Game
                 }
             }
 
+            UpdatePosition(); // the spatial box follows the drone
             UpdateBeamMesh();
 
             if (Active && Duration < 0f && !Infinite)
