@@ -506,7 +506,7 @@
   TextureName: "Particle005.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 200
+  MaxParticles: 600 # shared by shield hits, bombs, dying, launching and landing ships and hull plates flying off or under repair, among others
   Duration: 0.3
   DurationRandomness: 1
   InheritOwnerVelocity: 1
