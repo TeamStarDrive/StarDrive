@@ -830,15 +830,19 @@ namespace Ship_Game.Ships
                            bool moduleExplosion = false)
         {
             float damageModifier = 1f;
+            float weaponEffect = 1f;
             if (source != null)
             {
-                damageModifier = HitsShields(source, moduleExplosion)
-                    ? source.DamageMod.GetShieldDamageMod(this)
-                    : source.DamageMod.GetArmorDamageMod(this);
+                IDamageModifier mod = source.DamageMod;
+                bool hitsShields = HitsShields(source, moduleExplosion);
+                damageModifier = hitsShields ? mod.GetShieldDamageMod(this) : mod.GetArmorDamageMod(this);
+                // a module's blast meets deflection with its raw damage, whatever weapon set it off
+                if (!moduleExplosion)
+                    weaponEffect = hitsShields ? mod.GetShieldEffect(this) : mod.GetArmorEffect(this);
             }
 
             float modifiedDamage = damageAmount * damageModifier;
-            if (!TryDamageModule(source, modifiedDamage, out float grossRemainder, beamModifier, moduleExplosion))
+            if (!TryDamageModule(source, modifiedDamage, damageAmount * weaponEffect, out float grossRemainder, beamModifier, moduleExplosion))
             {
                 damageRemainder = 0f;
                 if (source != null)
@@ -924,9 +928,10 @@ namespace Ship_Game.Ships
             Damage(source, damageAmount, out float _, beamModifier);
         }
 
-        // Note - this assumes that projectile effect of ignore shield was taken into account. 
-        bool TryDamageModule(GameObject source, float modifiedDamage, out float remainder, float beamModifier,
-                             bool moduleExplosion)
+        // Note - this assumes that projectile effect of ignore shield was taken into account.
+        // deflection meets the damage with the weapon's bonus or penalty against armor or shields, before the module's resistances
+        bool TryDamageModule(GameObject source, float modifiedDamage, float deflectionDamage, out float remainder,
+                             float beamModifier, bool moduleExplosion)
         {
             remainder = modifiedDamage;
             if (source != null)
@@ -947,7 +952,7 @@ namespace Ship_Game.Ships
                 if (proj?.EmpDamage > damageThreshold && !damagingShields && !moduleExplosion)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
-                if (modifiedDamage < damageThreshold && proj?.WeaponType != "Plasma")
+                if (deflectionDamage < damageThreshold && proj?.WeaponType != "Plasma")
                 {
                     // Shield-deflected shots still flash the bubble — without this the
                     // shield silently absorbs sub-threshold hits with no visual feedback.

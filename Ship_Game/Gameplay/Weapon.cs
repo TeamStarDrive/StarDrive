@@ -665,9 +665,12 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public float GetShieldEffect(ShipModule module) => EffectVsShields;
+        public float GetArmorEffect(ShipModule module) => module.Is(ShipModuleType.Armor) ? EffectVsArmor : 1f;
+
         public float GetShieldDamageMod(ShipModule module)
         {
-            float damageModifier = EffectVsShields;
+            float damageModifier = GetShieldEffect(module);
             if (Explodes) // Exploding projectiles supercede any other resistances 
             {
                 damageModifier *= 1f - module.ShieldExplosiveResist;
@@ -685,9 +688,7 @@ namespace Ship_Game.Gameplay
 
         public float GetArmorDamageMod(ShipModule module)
         {
-            float damageModifier = 1f;
-            if (module.Is(ShipModuleType.Armor)) 
-                damageModifier *= EffectVsArmor;
+            float damageModifier = GetArmorEffect(module);
 
             if (Explodes) // Exploding projectiles supercede any other resistances        
             {
