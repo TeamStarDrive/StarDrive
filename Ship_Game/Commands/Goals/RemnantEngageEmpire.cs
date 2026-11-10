@@ -187,7 +187,7 @@ namespace Ship_Game.Commands.Goals
             int numShipsNoBombers = Remnants.NumShipsInFleet(Fleet) - numBombersInFleet;
             Ship singleShip       = null;
 
-            float requiredStr = Remnants.RequiredAttackFleetStr(TargetEmpire);
+            float requiredStr = Remnants.RequiredRaidFleetStr(TargetEmpire, TargetPlanet);
             float missingStr = requiredStr - (Fleet != null ? FleetStrNoBombers : 0);
             if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, missingStr, out Array<Ship> ships))
                 if (!Remnants.CreateShip(Portal, missingBombers > 0 && !Portal.InCombat, numShipsNoBombers, out singleShip))
@@ -255,8 +255,8 @@ namespace Ship_Game.Commands.Goals
                 TargetEmpire = newVictim;
                 Task.TargetEmpire = newVictim;
 
-                // New target is too strong, need to get a new fleet
-                if (Remnants.RequiredAttackFleetStr(TargetEmpire) > Fleet.GetStrength())
+                // New target is too strong, need to get a new fleet; its next planet is the new target's
+                if (Remnants.RequiredRaidFleetStr(TargetEmpire, targetPlanet: null) > Fleet.GetStrength())
                     return ReturnToClosestPortalAndReroute();
             }
 

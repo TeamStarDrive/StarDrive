@@ -4,6 +4,7 @@ using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Fleets;
 
 namespace Ship_Game.Debug.Page;
@@ -98,7 +99,10 @@ public class RemnantsDebug : DebugPage
                 continue;
 
             Color color = fleet.FleetTask.TargetPlanet?.Owner?.EmpireColor ?? e.EmpireColor;
-            float wantedStr = fleet.FleetTask.TargetPlanet?.Owner != null ? e.Remnants.RequiredAttackFleetStr(fleet.FleetTask.TargetPlanet.Owner) : 0f;
+            Empire target = fleet.FleetTask.TargetEmpire ?? fleet.FleetTask.TargetPlanet?.Owner;
+            float wantedStr = target == null ? 0f
+                            : fleet.FleetTask.Type == MilitaryTask.TaskType.RemnantEngagement ? e.Remnants.RequiredRaidFleetStr(target, fleet.FleetTask.TargetPlanet)
+                            : e.Remnants.RequiredAttackFleetStr(target);
             Text.String(color,$"Target Planet: {fleet.FleetTask.TargetPlanet?.Name ?? ""}, Ships: {fleet.Ships.Count}" +
                               $", str/wanted: {fleet.GetStrength().String()}/{wantedStr.String()}, Task Step: {fleet.TaskStep}");
         }

@@ -703,9 +703,17 @@ namespace Ship_Game
             return Owner.Random.Item(planets);
         }
 
-        public float RequiredAttackFleetStr(Empire targetEmpire)
+        // a raid on an empire other than the player gathers this share of the strength its target's power calls for, never below its level's minimum, unless it goes for a colony of the player's
+        public const float AIEmpireRaidShare = 0.5f;
+
+        public float RequiredRaidFleetStr(Empire targetEmpire, Planet targetPlanet)
+            => RequiredFleetStr(targetEmpire, targetEmpire.isPlayer || targetPlanet?.Owner?.isPlayer == true ? 1f : AIEmpireRaidShare);
+
+        public float RequiredAttackFleetStr(Empire targetEmpire) => RequiredFleetStr(targetEmpire, 1f);
+
+        float RequiredFleetStr(Empire targetEmpire, float share)
         {
-            float str = targetEmpire.OffensiveStrength
+            float str = targetEmpire.OffensiveStrength * share
                 * Owner.DifficultyModifiers.RemnantRaidStrength / GlobalStats.Defaults.RemnantDesignStr;
             // Cap at the level-fraction ceiling, then floor at the level-appropriate
             // minimum. Ordered this way because the floor can exceed the ceiling for
