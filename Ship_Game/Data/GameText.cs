@@ -6396,9 +6396,9 @@ namespace Ship_Game
         ChooseOpponentsHint = 7282,
         /// <summary>Drag to turn</summary>
         DragToTurn = 7283,
-        /// <summary>Hull Plates</summary>
+        /// <summary>Hull Sections</summary>
         HullPlatesExtension = 7284,
-        /// <summary>Ships can lose hull plates in battle, and the plates grow back as the ship is repaired.</summary>
+        /// <summary>Ships can lose hull sections in battle, and the sections grow back as the ship is repaired.</summary>
         HullPlatesExtensionTip = 7285,
         /// <summary>Str: {0}</summary>
         ShipStrengthShort = 7286,
