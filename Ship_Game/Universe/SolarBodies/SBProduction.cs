@@ -497,18 +497,35 @@ namespace Ship_Game.Universe.SolarBodies
             return (int)Math.Ceiling(remaining / perTurn);
         }
 
-        // when the owner's colony ships go first, an Outpost or Capital goes ahead of them, and the rest behind
-        static int FrontRank(QueueItem q) => q.isBuilding && q.Building.IsCapitalOrOutpost ? 0
-                                           : q.isShip && q.Goal is MarkForColonization ? 1 : 2;
+        // when the owner's colony ships go first: an Outpost or Capital, then a food or production building the governor puts first, then the colony ships, then the rest
+        static int FrontRank(QueueItem q, bool foodFirst, bool productionFirst)
+        {
+            if (q.isBuilding)
+            {
+                if (q.Building.IsCapitalOrOutpost)
+                    return 0;
+                return foodFirst && q.Building.ProducesFood || productionFirst && q.Building.ProducesProduction ? 1 : 3;
+            }
+            return q.isShip && q.Goal is MarkForColonization ? 2 : 3;
+        }
+
+        static bool IsOutpostOrCapital(QueueItem q) => q.isBuilding && q.Building.IsCapitalOrOutpost;
+
+        // an Outpost or Capital in the first slot stays there, and nothing goes ahead of it
+        public bool IsFirstSlotLocked => ConstructionQueue.Count > 0 && IsOutpostOrCapital(ConstructionQueue[0]);
+
+        int FirstFreeSlot => IsFirstSlotLocked ? 1 : 0;
 
         // how many items at the front of the queue nothing else may go ahead of
         public int ItemsKeptFirst()
         {
             if (!Owner.ColonyShipsGoFirst)
-                return 0;
+                return FirstFreeSlot;
 
+            bool foodFirst = P.FoodBuildingsFirst;
+            bool productionFirst = P.ProductionBuildingsFirst;
             int n = 0;
-            while (n < ConstructionQueue.Count && FrontRank(ConstructionQueue[n]) < 2)
+            while (n < ConstructionQueue.Count && FrontRank(ConstructionQueue[n], foodFirst, productionFirst) < 3)
                 ++n;
             return n;
         }
@@ -523,9 +540,13 @@ namespace Ship_Game.Universe.SolarBodies
                 {
                     int totalFreighters = Owner.TotalFreighters;
                     if (Owner.ColonyShipsGoFirst)
-                        ConstructionQueue.Sort(q => (FrontRank(q), q.GetAndUpdatePriorityForAI(P, totalFreighters)));
+                    {
+                        bool foodFirst = P.FoodBuildingsFirst;
+                        bool productionFirst = P.ProductionBuildingsFirst;
+                        ConstructionQueue.Sort(q => (FrontRank(q, foodFirst, productionFirst), q.GetAndUpdatePriorityForAI(P, totalFreighters)));
+                    }
                     else
-                        ConstructionQueue.Sort(q => q.GetAndUpdatePriorityForAI(P, totalFreighters));
+                        ConstructionQueue.Sort(q => (IsOutpostOrCapital(q) ? 0 : 1, q.GetAndUpdatePriorityForAI(P, totalFreighters)));
                 }
                 else
                 {
@@ -540,7 +561,7 @@ namespace Ship_Game.Universe.SolarBodies
                     {
                         // prioritize projector bridges for the player, below the projectors
                         // already leading the queue so a road completes segment by segment
-                        int insertAt = 0;
+                        int insertAt = FirstFreeSlot;
                         while (insertAt < Count - 1 && ConstructionQueue[insertAt].QType == QueueItemType.RoadNode)
                             ++insertAt;
                         MoveTo(insertAt, Count - 1);
@@ -692,7 +713,8 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void Reorder(QueueItem item, int relativeChange)
+        // moves a dragged item to the row the drag left it at, as the list's own row keeps later drag steps in line
+        public void Reorder(QueueItem item, int newIndex)
         {
             lock (ConstructionQueue)
             {
@@ -700,11 +722,12 @@ namespace Ship_Game.Universe.SolarBodies
                 // while the dragging is in process and before the scroll list is updated.
                 // So we always need to double-check the itemIndex and newIndex
                 int oldIndex = ConstructionQueue.IndexOf(item);
-                if (oldIndex == -1)
+                int front = FirstFreeSlot;
+                if (oldIndex < front)
                     return;
 
-                int newIndex = oldIndex + relativeChange;
-                if ((uint)newIndex < ConstructionQueue.Count)
+                newIndex = newIndex.Clamped(front, ConstructionQueue.Count - 1);
+                if (newIndex != oldIndex)
                 {
                     ConstructionQueue.Reorder(oldIndex, newIndex);
                     QueueSnapshotDirty = true;
@@ -712,31 +735,42 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void Swap(int swapTo, int currentIndex)
+        // @return FALSE if nothing moved
+        public bool Swap(int swapTo, int currentIndex)
         {
             var cq = ConstructionQueue;
             lock (cq)
             {
                 swapTo = swapTo.Clamped(0, cq.Count - 1);
                 currentIndex = currentIndex.Clamped(0, cq.Count - 1);
+                if (swapTo == currentIndex || Math.Min(swapTo, currentIndex) < FirstFreeSlot)
+                    return false;
 
                 (cq[swapTo], cq[currentIndex]) = (cq[currentIndex], cq[swapTo]);
                 QueueSnapshotDirty = true;
+                return true;
             }
         }
 
-        public void MoveTo(int moveTo, int currentIndex)
+        // @return FALSE if nothing moved
+        public bool MoveTo(int moveTo, int currentIndex)
         {
             lock (ConstructionQueue)
             {
+                int front = FirstFreeSlot;
+                moveTo = Math.Max(moveTo, front);
+                if (currentIndex < front || moveTo == currentIndex)
+                    return false;
+
                 QueueItem item = ConstructionQueue[currentIndex];
                 ConstructionQueue.RemoveAt(currentIndex);
                 ConstructionQueue.Insert(moveTo, item);
                 QueueSnapshotDirty = true;
+                return true;
             }
         }
 
-        // the goal's item goes first in the queue
+        // the goal's item goes first in the queue, behind an Outpost or Capital
         public void MoveToFront(Goal goal)
         {
             lock (ConstructionQueue)
@@ -759,10 +793,11 @@ namespace Ship_Game.Universe.SolarBodies
 
             lock (ConstructionQueue)
             {
+                QueueItem last = ConstructionQueue[Count - 1];
                 if (Count > 1)
                     MoveTo(0, Count - 1);
 
-                ConstructionQueue[0].Rush = true;
+                last.Rush = true;
             }
         }
 

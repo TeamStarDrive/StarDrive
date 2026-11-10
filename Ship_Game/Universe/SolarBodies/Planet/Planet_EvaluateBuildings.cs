@@ -1010,21 +1010,26 @@ namespace Ship_Game
             }
         }
 
+        // a starving planet's governor puts a food building first
+        public bool FoodBuildingsFirst => !IsCybernetic && IsStarving;
+
+        // with taxes below 40%, a planet making little production or with more items queued than its level has its governor put a production building first
+        public bool ProductionBuildingsFirst => Owner.data.TaxRate < 0.4f && (Prod.NetIncome <= 1 || ConstructionQueue.Count > Level);
+
         void PrioritizeCriticalFoodBuildings()
         {
-            if (IsCybernetic || !IsStarving || PlayerAddedFirstConstructionItem)
+            if (!FoodBuildingsFirst || PlayerAddedFirstConstructionItem || Construction.IsFirstSlotLocked)
                 return;
 
-            int front = Construction.ItemsKeptFirst();
-            for (int i = front + 1; i < ConstructionQueue.Count; ++i)
+            for (int i = 1; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding)
                 {
                     if (q.Building.ProducesFood)
                     {
-                        Construction.MoveTo(front, i);
-                        Construction.RushProduction(front, 10);
+                        Construction.MoveTo(0, i);
+                        Construction.RushProduction(0, 10);
                         break;
                     }
 
@@ -1060,21 +1065,16 @@ namespace Ship_Game
 
         void PrioritizeCriticalProductionBuildings()
         {
-            if (Owner.data.TaxRate > 0.4 
-                || PlayerAddedFirstConstructionItem 
-                || Prod.NetIncome > 1 && ConstructionQueue.Count <= Level)
-            {
+            if (!ProductionBuildingsFirst || PlayerAddedFirstConstructionItem || Construction.IsFirstSlotLocked)
                 return;
-            }
 
-            int front = Construction.ItemsKeptFirst();
-            for (int i = front; i < ConstructionQueue.Count; ++i)
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding && q.Building.ProducesProduction)
                 {
-                    Construction.MoveTo(front, i);
-                    Construction.RushProduction(front, 10);
+                    Construction.MoveTo(0, i);
+                    Construction.RushProduction(0, 10);
                     break;
                 }
             }

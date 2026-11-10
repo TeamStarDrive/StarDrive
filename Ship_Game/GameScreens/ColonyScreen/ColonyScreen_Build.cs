@@ -236,7 +236,9 @@ namespace Ship_Game
 
         void OnConstructionItemReorder(ConstructionQueueScrollListItem item, int relativeChange)
         {
-            P.Construction.Reorder(item.Item, relativeChange);
+            int row = ConstructionQueue.AllEntries.IndexOf(item);
+            if (row >= 0)
+                P.Construction.Reorder(item.Item, row);
         }
 
         void OnConstructionItemHovered(ConstructionQueueScrollListItem item)
