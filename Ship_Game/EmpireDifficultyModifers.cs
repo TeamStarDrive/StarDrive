@@ -42,6 +42,7 @@
         public readonly float WarBaitPenaltyMultiplier; // Multiplier to the anger and trust loss of a colony offer that would set us against a neighbour
         public readonly float SalvageStationTrustLossVsPlayer; // Multiplier to the trust we lose in a player who builds a salvage platform in a system where we have a colony
         public readonly float RecoveryChance; // Multiplier to the player's chance to recover a derelict ship, 1 for the AI
+        public readonly bool ColonyShipsFirst; // AI only: a colony ship for a chosen planet goes first in the build queue, behind only an Outpost or Capital, unless at war with a major empire
 
         // A mod can set the general str of remnant designs. Default is 2 an this is a multiplier for starting fleet multiplier
         public readonly float RemnantStrModifier; 
@@ -155,6 +156,7 @@
                     MiningOpsTurnsPerRun = 7;
                     RemnantPortalCreationMod = 10;
                     CombatShipGoalsPerPlanet = 4;
+                    ColonyShipsFirst     = true;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus = 10;
@@ -202,6 +204,7 @@
                     MiningOpsTurnsPerRun = 5;
                     RemnantPortalCreationMod = 6;
                     CombatShipGoalsPerPlanet = 5;
+                    ColonyShipsFirst     = true;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus = 20;
@@ -252,6 +255,7 @@
                     MiningOpsTurnsPerRun = 3;
                     RemnantPortalCreationMod = 5;
                     CombatShipGoalsPerPlanet = 6;
+                    ColonyShipsFirst     = true;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 30;
@@ -284,6 +288,7 @@
                 TaskForceStrength  = 1f;
                 MiningOpsTurnsPerRun = 3;
                 ExpansionCheckInterval = 2;
+                ColonyShipsFirst   = false;
                 if (empire.Universe.P.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
                     CreditsMultiplier = 0.2f;
             }

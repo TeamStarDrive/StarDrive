@@ -1015,15 +1015,16 @@ namespace Ship_Game
             if (IsCybernetic || !IsStarving || PlayerAddedFirstConstructionItem)
                 return;
 
-            for (int i = 1; i < ConstructionQueue.Count; ++i)
+            int front = Construction.ItemsKeptFirst();
+            for (int i = front + 1; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding)
                 {
                     if (q.Building.ProducesFood)
                     {
-                        Construction.MoveTo(0, i);
-                        Construction.RushProduction(0, 10);
+                        Construction.MoveTo(front, i);
+                        Construction.RushProduction(front, 10);
                         break;
                     }
 
@@ -1066,13 +1067,14 @@ namespace Ship_Game
                 return;
             }
 
-            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            int front = Construction.ItemsKeptFirst();
+            for (int i = front; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding && q.Building.ProducesProduction)
                 {
-                    Construction.MoveTo(0, i);
-                    Construction.RushProduction(0, 10);
+                    Construction.MoveTo(front, i);
+                    Construction.RushProduction(front, 10);
                     break;
                 }
             }

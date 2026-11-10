@@ -464,8 +464,8 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         // Bumps a refit job to the front of the queue (for both player and AI) so the ship
-        // gets back into service fast - unless the current front item is about to finish, in
-        // which case the refit slots second so a nearly-complete build isn't bumped.
+        // gets back into service fast - behind the items kept first, and behind the item it
+        // would go ahead of if that one is about to finish, so a nearly-complete build isn't bumped.
         // Caller must hold the ConstructionQueue lock.
         void PromoteRefitToFront(QueueItem item)
         {
@@ -478,21 +478,39 @@ namespace Ship_Game.Universe.SolarBodies
 
             // The "about to finish" window scales with ProductionPace, same as build costs do.
             float turnsThreshold = 5 * P.Universe.ProductionPace;
-            int insertAt = TurnsToCompleteFirstItem() <= turnsThreshold ? 1 : 0;
+            int front = ItemsKeptFirst();
+            int next = refitIndex == front ? front + 1 : front;
+            int insertAt = next < Count && TurnsToComplete(next) <= turnsThreshold ? front + 1 : front;
             if (refitIndex != insertAt)
                 MoveTo(insertAt, refitIndex);
         }
 
-        // Turns the planet needs to finish the item currently at the front of the queue.
+        // Turns the planet needs to finish the item at this index.
         // Stored production is dumped into it first, then per-turn income covers the rest.
-        int TurnsToCompleteFirstItem()
+        int TurnsToComplete(int index)
         {
-            float remaining = (ConstructionQueue[0].ProductionNeeded - P.ProdHere).LowerBound(0);
+            float remaining = (ConstructionQueue[index].ProductionNeeded - P.ProdHere).LowerBound(0);
             if (remaining <= 0)
                 return 0; // the stockpile alone finishes it next turn
 
             float perTurn = P.CurrentProductionToQueue.LowerBound(0.01f);
             return (int)Math.Ceiling(remaining / perTurn);
+        }
+
+        // when the owner's colony ships go first, an Outpost or Capital goes ahead of them, and the rest behind
+        static int FrontRank(QueueItem q) => q.isBuilding && q.Building.IsCapitalOrOutpost ? 0
+                                           : q.isShip && q.Goal is MarkForColonization ? 1 : 2;
+
+        // how many items at the front of the queue nothing else may go ahead of
+        public int ItemsKeptFirst()
+        {
+            if (!Owner.ColonyShipsGoFirst)
+                return 0;
+
+            int n = 0;
+            while (n < ConstructionQueue.Count && FrontRank(ConstructionQueue[n]) < 2)
+                ++n;
+            return n;
         }
 
         void AddToQueueAndPrioritize(QueueItem item)
@@ -504,7 +522,10 @@ namespace Ship_Game.Universe.SolarBodies
                 if (!P.OwnerIsPlayer)
                 {
                     int totalFreighters = Owner.TotalFreighters;
-                    ConstructionQueue.Sort(q => q.GetAndUpdatePriorityForAI(P, totalFreighters));
+                    if (Owner.ColonyShipsGoFirst)
+                        ConstructionQueue.Sort(q => (FrontRank(q), q.GetAndUpdatePriorityForAI(P, totalFreighters)));
+                    else
+                        ConstructionQueue.Sort(q => q.GetAndUpdatePriorityForAI(P, totalFreighters));
                 }
                 else
                 {
@@ -599,7 +620,7 @@ namespace Ship_Game.Universe.SolarBodies
                     && q.DisplayName.Contains("Subspace Projector")
                     && q.Goal.BuildPosition == buildPos)
                 {
-                    MoveTo(0, i);
+                    MoveTo(ItemsKeptFirst(), i);
                     break;
                 }
             }
