@@ -497,7 +497,7 @@ namespace Ship_Game.Universe.SolarBodies
             return (int)Math.Ceiling(remaining / perTurn);
         }
 
-        // when the owner's colony ships go first: an Outpost or Capital, then a food or production building the governor puts first, then the colony ships, then the rest
+        // when the owner's colony ships go first: an Outpost or Capital, then a food or production building the governor puts first, then the colony ships that open a new system, then the rest
         static int FrontRank(QueueItem q, bool foodFirst, bool productionFirst)
         {
             if (q.isBuilding)
@@ -506,7 +506,7 @@ namespace Ship_Game.Universe.SolarBodies
                     return 0;
                 return foodFirst && q.Building.ProducesFood || productionFirst && q.Building.ProducesProduction ? 1 : 3;
             }
-            return q.isShip && q.Goal is MarkForColonization ? 2 : 3;
+            return q.isShip && q.Goal is MarkForColonization { OpensNewSystem: true } ? 2 : 3;
         }
 
         static bool IsOutpostOrCapital(QueueItem q) => q.isBuilding && q.Building.IsCapitalOrOutpost;

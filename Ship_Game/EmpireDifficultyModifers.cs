@@ -42,7 +42,7 @@
         public readonly float WarBaitPenaltyMultiplier; // Multiplier to the anger and trust loss of a colony offer that would set us against a neighbour
         public readonly float SalvageStationTrustLossVsPlayer; // Multiplier to the trust we lose in a player who builds a salvage platform in a system where we have a colony
         public readonly float RecoveryChance; // Multiplier to the player's chance to recover a derelict ship, 1 for the AI
-        public readonly bool ColonyShipsFirst; // AI only: a colony ship for a chosen planet goes first in the build queue, behind only an Outpost, a Capital or a food or production building the governor puts first, unless at war with a major empire
+        public readonly bool ColonyShipsFirst; // AI only: the colony ship of the earliest goal for a system the AI holds no planet in goes first in the build queue, behind only an Outpost, a Capital or a food or production building the governor puts first, unless at war with a major empire
 
         // A mod can set the general str of remnant designs. Default is 2 an this is a multiplier for starting fleet multiplier
         public readonly float RemnantStrModifier; 

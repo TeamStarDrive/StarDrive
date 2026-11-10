@@ -251,7 +251,7 @@ namespace Ship_Game
         public DifficultyModifiers DifficultyModifiers { get; private set; }
         public PersonalityModifiers PersonalityModifiers { get; private set; }
 
-        // our colony ships for a chosen planet go first in our build queues, unless we are at war with a major empire
+        // the colony ship of our earliest goal for a system we hold no planet in goes first in our build queues, unless we are at war with a major empire
         public bool ColonyShipsGoFirst => DifficultyModifiers.ColonyShipsFirst && !IsAtWarWithMajorEmpire;
 
         // per-faction pseudo-random source

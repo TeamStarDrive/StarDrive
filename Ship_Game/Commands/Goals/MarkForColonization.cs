@@ -138,6 +138,28 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
+        // the owner's earliest live goal for a system it holds no planet in, whose colony ship may go first in the build queue
+        public bool OpensNewSystem
+        {
+            get
+            {
+                SolarSystem system = TargetPlanet?.System;
+                if (system == null || system.HasPlanetsOwnedBy(Owner))
+                    return false;
+
+                var goals = Owner.AI.Goals;
+                for (int i = 0; i < goals.Count; i++)
+                {
+                    Goal g = goals[i];
+                    if (g == this)
+                        return true;
+                    if (g is MarkForColonization other && other.TargetPlanet?.System == system)
+                        return false;
+                }
+                return false;
+            }
+        }
+
         // the AI watches for others settling a target system that was empty or only ours
         bool ShouldCheckNewOwnersInSystem()
         {
@@ -227,7 +249,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet, portQuality: 1f,
-                                               goesFirst: Owner.ColonyShipsGoFirst))
+                                               goesFirst: Owner.ColonyShipsGoFirst && OpensNewSystem))
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = planet;

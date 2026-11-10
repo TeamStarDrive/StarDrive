@@ -13,16 +13,20 @@ namespace UnitTests.Planets;
 public class AIColonyShipQueueTests : StarDriveTest
 {
     [TestMethod]
-    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShip,      false, false, true)]
-    [DataRow(GameDifficulty.Brutal, false, QueueItemType.ColonyShip,      false, false, true)]
-    [DataRow(GameDifficulty.Insane, false, QueueItemType.ColonyShip,      false, false, true)]
-    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShipClaim, false, false, true)]
-    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShip,      false, true,  true)]
-    [DataRow(GameDifficulty.Normal, false, QueueItemType.ColonyShip,      false, false, false)]
-    [DataRow(GameDifficulty.Hard,   true,  QueueItemType.ColonyShip,      false, false, false)]
-    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShipClaim, true,  false, false)]
-    public void OnHardAndAboveAnAIColonyShipForAChosenPlanetGoesFirstInItsQueue(GameDifficulty difficulty, bool atWar,
-        QueueItemType colonyShipType, bool standbyShip, bool outpostQueued, bool goesFirst)
+    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShip,      false, false, "empty",       true)]
+    [DataRow(GameDifficulty.Brutal, false, QueueItemType.ColonyShip,      false, false, "empty",       true)]
+    [DataRow(GameDifficulty.Insane, false, QueueItemType.ColonyShip,      false, false, "empty",       true)]
+    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShipClaim, false, false, "empty",       true)]
+    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShip,      false, true,  "empty",       true)]
+    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShip,      false, false, "goalAfter",   true)]
+    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShip,      false, false, "held",        false)]
+    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShipClaim, false, false, "held",        false)]
+    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShip,      false, false, "goalBefore",  false)]
+    [DataRow(GameDifficulty.Normal, false, QueueItemType.ColonyShip,      false, false, "empty",       false)]
+    [DataRow(GameDifficulty.Hard,   true,  QueueItemType.ColonyShip,      false, false, "empty",       false)]
+    [DataRow(GameDifficulty.Hard,   false, QueueItemType.ColonyShipClaim, true,  false, "empty",       false)]
+    public void OnHardAndAboveTheAIsEarliestColonyShipForASystemItHoldsNoPlanetInGoesFirstInItsQueue(GameDifficulty difficulty,
+        bool atWar, QueueItemType colonyShipType, bool standbyShip, bool outpostQueued, string targetSystem, bool goesFirst)
     {
         CreateUniverseAndPlayerEmpire();
         UState.P.Difficulty = difficulty;
@@ -47,8 +51,19 @@ public class AIColonyShipQueueTests : StarDriveTest
         if (outpostQueued)
             Assert.IsTrue(home.Construction.Enqueue(ResourceManager.CreateBuilding(home, Building.OutpostId)), "setup: an Outpost is queued");
 
-        Goal goal = standbyShip ? new StandbyColonyShip(Enemy) : new MarkForColonization(Enemy) { TargetPlanet = home };
+        // the target's system is empty, or held by the AI, or empty with another goal for it made after or before this one
+        Planet target = targetSystem == "held" ? AddUnownedPlanetTo(home.System) : AddTargetInAnEmptySystem();
+        Assert.AreEqual(targetSystem == "held", target.System.HasPlanetsOwnedBy(Enemy), "setup: whether the AI holds a planet in the target's system");
+        var otherGoal = targetSystem is "goalBefore" or "goalAfter"
+                      ? new MarkForColonization(Enemy) { TargetPlanet = AddUnownedPlanetTo(target.System) } : null;
+        if (targetSystem == "goalBefore")
+            Enemy.AI.AddGoal(otherGoal);
+
+        Goal goal = standbyShip ? new StandbyColonyShip(Enemy) : new MarkForColonization(Enemy) { TargetPlanet = target };
         goal.PlanetBuildingAt = home;
+        Enemy.AI.AddGoal(goal);
+        if (targetSystem == "goalAfter")
+            Enemy.AI.AddGoal(otherGoal);
         home.Construction.Enqueue(colonyShip, colonyShipType, goal);
         // many turns from done, so a refit never slots in behind it
         FindItem(home, goal).Cost = 1_000_000;
@@ -81,6 +96,17 @@ public class AIColonyShipQueueTests : StarDriveTest
         }
     }
 
+    // an unowned planet in the system, away from its first one
+    Planet AddUnownedPlanetTo(SolarSystem system)
+    {
+        var p = new Planet(UState.CreateId(), system, system.Position + new Vector2(8000), 1f, 1f, 4f);
+        system.PlanetList.Add(p);
+        return p;
+    }
+
+    // a planet in an empty system for a colony ship to aim at
+    Planet AddTargetInAnEmptySystem() => AddDummyPlanet(new Vector2(400_000));
+
     static QueueItem FindItem(Planet planet, Goal goal)
     {
         foreach (QueueItem q in planet.Construction.GetConstructionQueue())
@@ -112,7 +138,8 @@ public class AIColonyShipQueueTests : StarDriveTest
                         "a leading colony ship does not wait for the warship");
         Assert.IsTrue(home.TurnsUntilQueueComplete(cost, 1f, colonyShip) > onAnEmptyPort, "any other ship waits for the warship");
 
-        var goal = new MarkForColonization(Enemy) { TargetPlanet = home, PlanetBuildingAt = home };
+        var goal = new MarkForColonization(Enemy) { TargetPlanet = AddTargetInAnEmptySystem(), PlanetBuildingAt = home };
+        Enemy.AI.AddGoal(goal);
         home.Construction.Enqueue(colonyShip, QueueItemType.ColonyShip, goal);
         QueueItem leading = home.Construction.GetConstructionQueue()[0];
         Assert.AreSame(goal, leading.Goal, "setup: the queued colony ship leads");
@@ -292,7 +319,8 @@ public class AIColonyShipQueueTests : StarDriveTest
     {
         if (leadBuilding != null)
             QueueOutpostOrCapital(home, leadBuilding);
-        var goal = new MarkForColonization(Enemy) { TargetPlanet = home, PlanetBuildingAt = home };
+        var goal = new MarkForColonization(Enemy) { TargetPlanet = AddTargetInAnEmptySystem(), PlanetBuildingAt = home };
+        Enemy.AI.AddGoal(goal);
         home.Construction.Enqueue(ResourceManager.GetShipTemplate("Colony Ship").ShipData, QueueItemType.ColonyShip, goal);
         FindItem(home, goal).Cost = 1_000_000;
         QueueAWarship(home);
