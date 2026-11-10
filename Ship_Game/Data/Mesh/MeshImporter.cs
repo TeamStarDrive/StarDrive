@@ -75,7 +75,7 @@ namespace Ship_Game.Data.Mesh
             bool isSkinned = mesh->NumSkinnedBones > 0;
             Map<long, LightingEffect> materials = GetMaterials(mesh, modelName, isSkinned);
             if (HasParts(mesh))
-                return LoadParts(mesh, modelName, materials, extractVertexPositions);
+                return LoadParts(mesh, materials, extractVertexPositions);
 
             var rawMeshes = new Array<MeshData>();
             var positions = extractVertexPositions ? new Array<Vector3>() : null;
@@ -135,22 +135,19 @@ namespace Ship_Game.Data.Mesh
         }
 
         // a model cut into numbered parts loads as one mesh per material with its parts in order, so an intact ship draws each at once
-        unsafe StaticMesh LoadParts(SdMesh* mesh, string modelName, Map<long, LightingEffect> materials, bool extractVertexPositions)
+        unsafe StaticMesh LoadParts(SdMesh* mesh, Map<long, LightingEffect> materials, bool extractVertexPositions)
         {
+            // each group's data is fetched once, as every fetch rebuilds it, and stays valid while nothing fetches the group again
+            var data = new SdVertexData[mesh->NumGroups];
             var members = new Array<(int Part, int Group)>();
             int numParts = 0;
             for (int i = 0; i < mesh->NumGroups; ++i)
             {
                 SdMeshGroup* g = SDMeshGetGroup(mesh, i);
-                SdVertexData data = SDMeshGroupGetData(g);
-                if (data.VertexCount == 0 || data.IndexCount == 0)
+                data[i] = SDMeshGroupGetData(g);
+                if (data[i].VertexCount == 0 || data[i].IndexCount == 0)
                     continue;
-                int part = StaticMesh.PartIdOf(g->Name.AsString);
-                if (part < 0)
-                {
-                    Log.Warning($"ImportStaticMesh '{modelName}': object '{g->Name.AsString}' has no part number below {StaticMesh.MaxParts}, so it stays with the core");
-                    part = 0;
-                }
+                int part = Math.Max(StaticMesh.PartIdOf(g->Name.AsString), 0); // an object with no part number stays with the core
                 members.Add((part, i));
                 numParts = Math.Max(numParts, part + 1);
             }
@@ -166,7 +163,7 @@ namespace Ship_Game.Data.Mesh
                 if (merged[first])
                     continue;
                 SdMeshGroup* g0 = SDMeshGetGroup(mesh, members[first].Group);
-                SdVertexData d0 = SDMeshGroupGetData(g0);
+                SdVertexData d0 = data[members[first].Group];
                 VertexDeclaration declaration = d0.CreateDeclaration();
 
                 // the groups drawn with this one: same material, transform and vertex layout
@@ -176,7 +173,7 @@ namespace Ship_Game.Data.Mesh
                     if (merged[k])
                         continue;
                     SdMeshGroup* g = SDMeshGetGroup(mesh, members[k].Group);
-                    SdVertexData d = SDMeshGroupGetData(g);
+                    SdVertexData d = data[members[k].Group];
                     if (g->Mat != g0->Mat || g->Transform != g0->Transform || !SameLayout(d, d0))
                         continue;
                     merged[k] = true;
@@ -186,7 +183,7 @@ namespace Ship_Game.Data.Mesh
                 int vertexCount = 0, indexCount = 0;
                 foreach (int k in batch)
                 {
-                    SdVertexData d = SDMeshGroupGetData(SDMeshGetGroup(mesh, members[k].Group));
+                    SdVertexData d = data[members[k].Group];
                     vertexCount += d.VertexCount;
                     indexCount += d.IndexCount;
                 }
@@ -201,7 +198,7 @@ namespace Ship_Game.Data.Mesh
                 {
                     int part = members[k].Part;
                     SdMeshGroup* g = SDMeshGetGroup(mesh, members[k].Group);
-                    SdVertexData d = SDMeshGroupGetData(g);
+                    SdVertexData d = data[members[k].Group];
                     new ReadOnlySpan<byte>(d.VertexData, d.VertexCount * d.VertexStride).CopyTo(vertices.AsSpan(vertexBase * d0.VertexStride));
                     if (partPrimitives[part] == 0)
                         partStart[part] = indexBase;
