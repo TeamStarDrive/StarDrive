@@ -100,7 +100,6 @@ Elements:
   - Panel:
     Name: planet
     Texture: MMenu/Jupiter.png
-    Size: [1, 0] # fill to width, auto-pick height
     RelSize: [0, 1] # set relative height, auto-aspect width
     AxisAlign: BottomLeft # Align our Pos and Axis
     DrawDepth: Background
