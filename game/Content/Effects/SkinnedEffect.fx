@@ -254,6 +254,9 @@ float4x3 ComputeSkinning(int4 indices, float4 weights)
 struct LightTerms { float3 Diffuse; float3 Specular; };
 // see MeshLighting.fx
 static float Shininess;
+// see MeshLighting.fx
+static float Building = 0.0;
+static float Girder = 0.0;
 
 LightTerms ComputeDirectional(
     float3 normalWS, float3 viewDirWS,
@@ -329,7 +332,7 @@ VSOutput VSSkinned(VSInputSkinned input)
     output.TexCoord   = input.TexCoord;
     output.FogFactor  = ComputeFogFactor(length(viewPos.xyz));
     output.PositionLS = mul(worldPos, LightViewProjection);
-    output.PositionOS = skinnedPosition;
+    output.PositionOS = input.Position.xyz;
     return output;
 }
 
@@ -457,7 +460,9 @@ Burnt BurntInside(float3 p, float heat)
 
 float4 PSDefault(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
 {
-    bool burnt = !isFront && PartLook.y > 0.5;
+    bool fromInside = !isFront && PartLook.y > 0.5;
+    bool building = Building > 0.0 || Girder > 0.0;
+    bool burnt = fromInside && !building;
     Burnt inside = (Burnt)0;
     if (burnt)
         inside = BurntInside(input.PositionOS, PartLook.z);
@@ -465,6 +470,7 @@ float4 PSDefault(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
     float3 diffuseColor = burnt ? float3(1, 1, 1) : DiffuseColor;
 
     float4 texColor = TextureEnabled ? tex2D(TextureSampler, input.TexCoord) : float4(1, 1, 1, 1);
+    float shade = Luminance(texColor.rgb);
 
     if (TintMapEnabled)
         texColor.rgb = lerp(texColor.rgb, TintAtLuminance(HullTint.rgb, Luminance(texColor.rgb)),
@@ -485,11 +491,20 @@ float4 PSDefault(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
         specularGain = float3(inside.Shine, inside.Shine, inside.Shine);
     }
 
+    float build = !building ? 0.0 : fromInside ? 1.0 : max(Building, Girder);
+    if (build > 0.0)
+    {
+        float3 steel = Girder > 0.0 ? float3(0.20, 0.21, 0.23) : float3(0.30, 0.315, 0.335) * lerp(0.6, 1.35, shade);
+        texColor.rgb = lerp(texColor.rgb, steel, build);
+        emissive *= 1.0 - build;
+        specularGain = lerp(specularGain, Girder > 0.0 ? float3(0.25, 0.25, 0.25) : float3(0.35, 0.35, 0.35), build);
+    }
+
     float3 rgb;
     if (LightingEnabled)
     {
         float3 normalWS;
-        if (burnt)
+        if (fromInside)
         {
             normalWS = -normalize(input.NormalWS);
         }
@@ -583,11 +598,24 @@ technique Default
 }
 
 // see MeshLighting.fx
+static const float FrameLead = 0.25;
+static const float GirderSpacing = 8.0;
+static const float GirderHalfWidth = 0.9;
+
+// see MeshLighting.fx
 float4 PSDissolve(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
 {
     float2 d = (input.PositionOS.xy - ReachShape.xy) * ReachShape.zw;
     float reach = saturate((length(d) - PartReach.x) / max(PartReach.y - PartReach.x, 0.0001));
-    clip(PartLook.x - lerp(reach, SpeckNoise(input.PositionOS), 0.3));
+    float ahead = lerp(reach, SpeckNoise(input.PositionOS), 0.3) - PartLook.x;
+    if (ahead > 0.0)
+    {
+        clip(FrameLead - ahead);
+        float2 g = abs(frac(input.PositionOS.xy / GirderSpacing + 0.5) - 0.5) * GirderSpacing;
+        clip(GirderHalfWidth - min(g.x, g.y));
+        Girder = 1.0;
+    }
+    Building = 1.0 - smoothstep(0.9, 1.0, PartLook.x);
     return PSDefault(input, isFront);
 }
 

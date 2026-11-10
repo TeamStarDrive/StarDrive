@@ -130,6 +130,7 @@
     <Compile Include="Graphics\MeshLightingEffectTests.cs" />
     <Compile Include="Graphics\ModelTextureTests.cs" />
     <Compile Include="Graphics\ParticleManagerTests.cs" />
+    <Compile Include="Graphics\ParticleVertexBufferTests.cs" />
     <Compile Include="Graphics\PostProcessChainTests.cs" />
     <Compile Include="Graphics\ShadowMapTests.cs" />
     <Compile Include="Graphics\ShipPartsTests.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Planets\SpinAndOrbitSpeedTests.cs" />
     <Compile Include="Planets\GovernorOrbitalCapTests.cs" />
     <Compile Include="Planets\TestRefitQueuePlacement.cs" />
+    <Compile Include="Planets\AIColonyShipQueueTests.cs" />
     <Compile Include="Planets\ShipyardBonusTests.cs" />
     <Compile Include="Planets\TestSabotageWorkDistribution.cs" />
     <Compile Include="Serialization\BinaryReadWriteTests.cs" />
@@ -247,6 +249,7 @@
     <Compile Include="Ships\ProjectilePushTests.cs" />
     <Compile Include="Ships\PlanetCrashTests.cs" />
     <Compile Include="Ships\ArmorMarkTests.cs" />
+    <Compile Include="Ships\DeflectionOrderTests.cs" />
     <Compile Include="Ships\ShipPositionPrecisionTests.cs" />
     <Compile Include="Ships\BlastRadiusDisplayTests.cs" />
     <Compile Include="Ships\PlanetRepairTests.cs" />

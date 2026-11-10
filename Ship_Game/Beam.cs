@@ -81,6 +81,7 @@ namespace Ship_Game
         VertexDeclaration QuadVertexDecl;
         float Displacement = 1f;
         public bool BeamCollidedThisFrame;
+        protected virtual bool ShowsHitEffect => true;
 
         [StarDataConstructor] protected Beam() {}
 
@@ -190,17 +191,20 @@ namespace Ship_Game
             GraphicsDevice device = u.Device;
             u.Particles.BeamFlash.AddParticle(new Vector3(Source, BeamZ), Vector3.Zero);
 
-            var hit = new Vector3(ActualHitDestination, BeamZ);
-            if (BeamCollidedThisFrame) // a cool hit effect
+            if (ShowsHitEffect)
             {
-                u.Particles.Sparks.AddParticle(hit, new Vector3(20f));
-                u.Particles.SmallFire.AddParticle(hit, new Vector3(10f));
-                u.Particles.SmallFire.AddParticle(hit, Vector3.Zero);
-            }
-            else // dispersion effect
-            {
-                u.Particles.Lightning.AddParticle(hit, Vector3.Zero);
-                u.Particles.Lightning.AddParticle(hit, Vector3.Zero);
+                var hit = new Vector3(ActualHitDestination, BeamZ);
+                if (BeamCollidedThisFrame) // a cool hit effect
+                {
+                    u.Particles.Sparks.AddParticle(hit, new Vector3(20f));
+                    u.Particles.SmallFire.AddParticle(hit, new Vector3(10f));
+                    u.Particles.SmallFire.AddParticle(hit, Vector3.Zero);
+                }
+                else // dispersion effect
+                {
+                    u.Particles.Lightning.AddParticle(hit, Vector3.Zero);
+                    u.Particles.Lightning.AddParticle(hit, Vector3.Zero);
+                }
             }
 
             if (QuadVertexDecl == null)
@@ -311,7 +315,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdatePosition()
+        protected void UpdatePosition()
         {
             Vector2 source = Source;
             Vector2 target = ActualHitDestination;
@@ -425,6 +429,9 @@ namespace Ship_Game
         // a repair drone's beam mends a ship fighting or just hit at this share of its rate
         const float InCombatDroneRepairShare = 0.2f;
 
+        // it mends the ship it reaches, so no sparks, fire or lightning show there
+        protected override bool ShowsHitEffect => false;
+
         [StarDataConstructor] DroneBeam() {}
 
         [StarDataDeserialized]
@@ -465,6 +472,7 @@ namespace Ship_Game
                 }
             }
 
+            UpdatePosition(); // the spatial box follows the drone
             UpdateBeamMesh();
 
             if (Active && Duration < 0f && !Infinite)

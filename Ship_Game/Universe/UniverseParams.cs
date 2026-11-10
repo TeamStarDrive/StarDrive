@@ -100,8 +100,8 @@ public class UniverseParams
     [StarData] public bool DisableMiningOps;
     [StarData(NoDefaults = true)] public bool DisableSalvageOps; // always written, as a load starts from the Globals flag
     [StarData] bool SavedWithSalvageOps; // set as it is saved, so a game saved before salvage ops existed loads with them off
-    // always written, as a load starts from the Globals flag; a game saved before the switch existed takes hull plates from it
-    [StarData(NoDefaults = true)] public bool DisableHullPlates;
+    [StarData(NoDefaults = true)] public bool DisableHullPlates; // always written, as a load starts from the Globals flag
+    [StarData] bool SavedWithHullPlates; // set as it is saved, so a game saved before the base game had hull plates keeps its ships in one piece
 
     // the Globals flags, vanilla's or a mod's, are hard switches: with one off its feature stays off whatever the rule option says
     public bool SalvageOps { get => !DisableSalvageOps && GlobalStats.Defaults.EnableSalvageOps; set => DisableSalvageOps = !value; }
@@ -119,6 +119,7 @@ public class UniverseParams
     {
         SavedWithSalvageOps = true;
         SavedWithHullColors = true;
+        SavedWithHullPlates = true;
         return null;
     }
 
@@ -160,6 +161,9 @@ public class UniverseParams
 
         if (!SavedWithHullColors)
             PlayerHullColors = OpponentHullColors = false;
+
+        if (!SavedWithHullPlates)
+            DisableHullPlates = true;
     }
 
     // drops a chosen opponent and the look picked for it, so choosing it again shows its race's own

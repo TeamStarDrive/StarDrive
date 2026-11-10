@@ -1,9 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
+using CountingParticle = UnitTests.Ships.MiningStationVisualsTests.CountingParticle;
 
 namespace UnitTests.Graphics;
 
@@ -57,6 +60,90 @@ public class ShipPartsTests : StarDriveTest
         StaticMesh mesh = Content.LoadStaticMesh("Model/Ships/Terran/Hunter/Fighter1.fbx"); // a corvette's, left in one piece
         Assert.AreEqual(0, mesh.NumParts);
         Assert.IsNull(mesh.RawMeshes[0].PartStart);
+    }
+
+    [TestMethod]
+    public void AnAnimatedModelCutIntoPartsLoadsItsParts()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "ShipPartsTests_animated_parts.fbx");
+        AnimatedPartsModel.Write(path);
+        StaticMesh mesh = new MeshImporter(Content).ImportStaticMesh(path, "animated_parts");
+        File.Delete(path);
+
+        Assert.IsTrue(mesh.IsSkinned, "setup: the model has bones");
+        Assert.AreEqual(2, mesh.NumParts, "the core and one part");
+        CollectionAssert.AreEqual(new[] { 2, 2 }, mesh.RawMeshes[0].PartPrimitives, "each part's triangles");
+    }
+
+    // a square on each of two bones, 00_Core on the first and 01_Arm on the second, saved as an animated model is
+    sealed class AnimatedPartsModel : MeshInterface
+    {
+        AnimatedPartsModel() : base(null) { }
+
+        public static unsafe void Write(string path)
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            SdMesh* mesh = SDMeshCreateEmpty("animated_parts");
+            try
+            {
+                var identity = SDGraphics.Matrix.Identity;
+                var rest = new SdBonePose
+                {
+                    Translation = SDGraphics.Vector3.Zero,
+                    Orientation = Microsoft.Xna.Framework.Quaternion.Identity,
+                    Scale = SDGraphics.Vector3.One,
+                };
+                SDMeshAddBone(mesh, "Root", 0, -1, in identity);
+                SDMeshAddBone(mesh, "Arm", 1, 0, in identity);
+                SDMeshAddSkinnedBone(mesh, "Root", 0, -1, in rest, in identity);
+                SDMeshAddSkinnedBone(mesh, "Arm", 1, 0, in rest, in identity);
+                AddSquare(mesh, "00_Core", 0f, 0);
+                AddSquare(mesh, "01_Arm", 2f, 1);
+                Assert.IsTrue(SDMeshSave(mesh, path), "setup: the model saves");
+            }
+            finally
+            {
+                SDMeshClose(mesh);
+            }
+        }
+
+        static unsafe void AddSquare(SdMesh* mesh, string name, float x, byte bone)
+        {
+            const int stride = 32;
+            var layout = new SdVertexElement[]
+            {
+                new() { Offset = 0,  Size = 12, NativeFormat = 2, NativeUsage = 0 }, // position
+                new() { Offset = 12, Size = 4,  NativeFormat = 5, NativeUsage = 2 }, // bone indices
+                new() { Offset = 16, Size = 16, NativeFormat = 3, NativeUsage = 1 }, // bone weights
+            };
+            var corners = new[] { (x, 0f), (x + 1f, 0f), (x + 1f, 1f), (x, 1f) };
+            var vertices = new byte[corners.Length * stride];
+            for (int v = 0; v < corners.Length; ++v)
+            {
+                BitConverter.GetBytes(corners[v].Item1).CopyTo(vertices, v * stride);
+                BitConverter.GetBytes(corners[v].Item2).CopyTo(vertices, v * stride + 4);
+                vertices[v * stride + 12] = bone;
+                BitConverter.GetBytes(1f).CopyTo(vertices, v * stride + 16);
+            }
+            var indices = new ushort[] { 0, 1, 2, 0, 2, 3 };
+            var transform = SDGraphics.Matrix.Identity;
+            SdMeshGroup* group = SDMeshNewGroup(mesh, name, &transform);
+            fixed (ushort* pIndices = indices)
+            fixed (byte* pVertices = vertices)
+            fixed (SdVertexElement* pLayout = layout)
+            {
+                SdVertexData data;
+                data.VertexStride = stride;
+                data.LayoutCount = layout.Length;
+                data.IndexCount = indices.Length;
+                data.VertexCount = corners.Length;
+                data.IndexData = pIndices;
+                data.VertexData = pVertices;
+                data.Layout = pLayout;
+                SDMeshGroupSetData(group, data);
+            }
+        }
     }
 
     [TestMethod]
@@ -408,7 +495,7 @@ public class ShipPartsTests : StarDriveTest
 
     public ShipPartsTests()
     {
-        GlobalStats.Defaults.EnableHullPlates = true; // these tests play with hull plates on, as a mod that turns them on does
+        GlobalStats.Defaults.EnableHullPlates = true; // these tests play with hull plates on, as vanilla does
     }
 
     [TestCleanup]
@@ -652,6 +739,98 @@ public class ShipPartsTests : StarDriveTest
         Assert.IsNull(ship.PartShownNow(), "repaired whole, the plate is on again");
     }
 
+    static Microsoft.Xna.Framework.Vector3[] Quad(float x0, float x1, float z) => new Microsoft.Xna.Framework.Vector3[]
+    {
+        new(x0, 0f, z), new(x1, 0f, z), new(x1, 100f, z),
+        new(x0, 0f, z), new(x1, 100f, z), new(x0, 100f, z),
+    };
+
+    [TestMethod]
+    public void PartsTouchWhereTheirSurfacesMeetAndAPartTouchingNothingHangsOnTheCore()
+    {
+        var triangles = new[] { Quad(0f, 100f, 0f), Quad(100f, 150f, 0f), Quad(150f, 200f, 0f), Quad(400f, 450f, 0f), Quad(10f, 90f, -30f) };
+        uint[] links = ShipHull.FindPartLinks(triangles, out uint loose);
+        Assert.AreEqual(0b11010u, links[0], "the core touches the plate beside it, and the two touching nothing hang on it");
+        Assert.AreEqual(0b00101u, links[1], "the plate beside the core touches it and the plate beyond");
+        Assert.AreEqual(0b00010u, links[2], "the plate beyond touches only the one between");
+        Assert.AreEqual(0b00001u, links[3], "a plate far off touches nothing, so it hangs on the core");
+        Assert.AreEqual(0b00001u, links[4], "as does one 30 above the core");
+        Assert.AreEqual(0b11000u, loose, "the two that touched nothing");
+    }
+
+    const string LightCruiserDesign = "TEST_Terran-Prototype";
+
+    // a Light Cruiser, whose plate 3 hangs only on plate 5, and the modules under each
+    Ship SpawnLightCruiser(out ShipModule[] hanging, out ShipModule[] holding)
+    {
+        CreateUniverseAndPlayerEmpire();
+        LoadStarterShips(LightCruiserDesign);
+        SetDice(Player, SureDice());
+        Ship ship = SpawnShip(LightCruiserDesign, Player, new(200_000f, 200_000f));
+        Assert.IsTrue(ship.BaseHull.LoadModel(out SceneObject _, Content), "setup: its hull's model loads");
+        Assert.IsTrue(ship.Grid.GetParts(out int[] _), "setup: its hull knows its parts");
+        Assert.AreEqual(0b100000u, ship.BaseHull.PartLinks[3], "setup: plate 3 touches only plate 5");
+        hanging = System.Array.FindAll(ship.Modules, m => ship.Grid.PartOf(m.Pos) == 3);
+        holding = System.Array.FindAll(ship.Modules, m => ship.Grid.PartOf(m.Pos) == 5);
+        Assert.IsTrue(hanging.Length > 0 && holding.Length > 1, "setup: modules under both plates");
+        return ship;
+    }
+
+    [TestMethod]
+    public void APlateHangingOnlyOnALostPlateGoesWithItAndTakesItsModules()
+    {
+        Ship ship = SpawnLightCruiser(out ShipModule[] hanging, out ShipModule[] holding);
+        foreach (ShipModule m in holding)
+            Kill(m);
+        float[] whole = ship.WholePartsNow(out uint lostNow);
+        Assert.AreEqual(0b101000u, lostNow, "plate 5 and plate 3 on it are lost in the same count");
+        Assert.AreEqual(0f, whole[3], "plate 3 is off");
+        foreach (ShipModule m in hanging)
+            Assert.IsFalse(m.Active, $"the {m.UID} at {m.Pos} went with plate 3");
+        Assert.AreEqual(1f, whole[4], "plate 4, which hangs on plate 6, stays");
+        Assert.IsTrue(ship.Active, "the ship lives on");
+    }
+
+    [TestMethod]
+    public void APlateThatWentWithTheOneItHangsOnComesBackNoFasterThanThatOne()
+    {
+        Ship ship = SpawnLightCruiser(out ShipModule[] hanging, out ShipModule[] holding);
+        foreach (ShipModule m in holding)
+            Kill(m);
+        Assert.AreEqual(0f, ship.PartShownNow()?[3], "setup: plate 3 went with plate 5");
+        foreach (ShipModule m in hanging)
+            Repair(m);
+        Assert.AreEqual(0f, ship.PartShownNow()[3], "repaired whole, plate 3 shows nothing while plate 5 is off");
+
+        Repair(holding[0]);
+        float[] shown = ship.PartShownNow();
+        Assert.IsTrue(shown[5] > 0f && shown[5] < 1f, "setup: part of plate 5 back");
+        AssertEqual(0.0001f, shown[5], shown[3], "plate 3 shows as much as plate 5 does");
+
+        foreach (ShipModule m in holding)
+            Repair(m);
+        Assert.IsNull(ship.PartShownNow(), "with plate 5 whole, plate 3 is whole again too");
+    }
+
+    [TestMethod]
+    public void WhileTheGameStandsStillNoPlateGoesWithTheOneItHangsOn()
+    {
+        Ship ship = SpawnLightCruiser(out ShipModule[] hanging, out ShipModule[] holding);
+        foreach (ShipModule m in holding)
+            Kill(m); // gone with plate 5
+        const System.Reflection.BindingFlags instance = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        typeof(Ship).GetField("LostPartLow", instance)!.SetValue(ship, new[] { -1, -1, -1, -1, -1, 0, -1 }); // as saved with plate 5 lost and plate 3 on it whole
+        typeof(Ship).GetField("PartsOutdated", instance)!.SetValue(ship, true); // as a loaded ship starts
+        ship.Update(FixedSimTime.Zero); // a loaded game starts paused
+        Assert.AreEqual(0f, ship.PartShown?[5], "setup: plate 5 shows lost");
+        Assert.AreEqual(1f, ship.PartShown[3], "standing still, plate 3 stays on");
+        foreach (ShipModule m in hanging)
+            Assert.IsTrue(m.Active, $"and the {m.UID} at {m.Pos} on it lives");
+
+        ship.Update(TestSimStep);
+        Assert.AreEqual(0f, ship.PartShown?[3], "the first update with time running takes plate 3");
+    }
+
     [TestMethod]
     public void AModuleGoneWithItsPlateDiesWithoutABlast()
     {
@@ -725,7 +904,7 @@ public class ShipPartsTests : StarDriveTest
     [TestMethod]
     public void AModTurnsHullPlatesOnItselfAndTheRuleOptionTurnsThemOff()
     {
-        Assert.IsFalse(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Content/Globals.yaml")).EnableHullPlates, "vanilla ships with hull plates off");
+        Assert.IsTrue(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Content/Globals.yaml")).EnableHullPlates, "vanilla ships with hull plates on");
         Assert.IsTrue(GlobalStats.VanillaDefaults.EnableHullPlates, "setup: these tests turn them on");
         Assert.IsFalse(new GamePlayGlobals().EnableHullPlates, "a mod does not inherit the flag");
 
@@ -914,6 +1093,33 @@ public class ShipPartsTests : StarDriveTest
         Assert.IsNotNull(loaded, "setup: the save loads");
         Ship after = loaded.UState.Objects.FindShip(ship.Id);
         CollectionAssert.AreEqual(before, after.PartShownNow(), "the lost plate and its repairs since come back");
+    }
+
+    UniverseScreen SaveAndLoad()
+    {
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.ShipParts", throwOnError: true);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+        return loaded;
+    }
+
+    [TestMethod]
+    public void AGameSavedBeforeHullPlatesCameToTheBaseGameLoadsInOnePiece()
+    {
+        var p = new Ship_Game.Universe.UniverseParams(); // a load builds it as a new game does, then sets the fields its save has
+        Assert.IsTrue(p.HullPlates, "setup: built as for a new game, hull plates are on");
+        p.OnDeserialized(); // a save from before hull plates came to the base game has no mark of them
+        Assert.IsFalse(p.HullPlates, "a game saved before they came keeps its ships in one piece");
+    }
+
+    [TestMethod]
+    public void AGameSavedWithHullPlatesLoadsWithThemAsTheyWere()
+    {
+        SetupGunboats();
+        Assert.IsTrue(SaveAndLoad().UState.P.HullPlates, "saved on, they load on");
+        UState.P.DisableHullPlates = true;
+        Assert.IsFalse(SaveAndLoad().UState.P.HullPlates, "saved off, they load off");
     }
 
     [TestMethod]
@@ -1607,6 +1813,241 @@ public class ShipPartsTests : StarDriveTest
         ship.Update(TestSimStep);
         Assert.AreEqual(0f, ship.PartShown?[5], "the plate is lost");
         Assert.AreEqual(0, Debris().Length, "with no one to see it fly off");
+    }
+
+    // a gunboat seen up close with its back-left plate lost, the flashes it sets off counted
+    Ship GunboatOnScreenWithAPlateLost(out SceneObject model, out CountingParticle flashes)
+    {
+        Ship ship = GunboatOnScreen(dying: false, out model);
+        ship.SetLastDamagedBy(null); // just hit, so it does not repair itself and only the test brings its modules back
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        ship.Update(TestSimStep);
+        Assert.AreEqual(0f, ship.PartShown?[5], "setup: the back-left plate is lost");
+        flashes = new CountingParticle();
+        Universe.Particles.Flash = flashes; // after the plate's own flash as it flew off
+        return ship;
+    }
+
+    void RunFor(Ship ship, float seconds)
+    {
+        for (int step = 1; step * TestSimStep.FixedTime <= seconds + 0.0001f; ++step)
+            ship.Update(TestSimStep);
+    }
+
+    // the point lies on one of the part's triangles in the model, within the float error of placing it and back
+    static bool OnPart(ShipHull hull, int part, Microsoft.Xna.Framework.Vector3 p)
+    {
+        var triangles = (Microsoft.Xna.Framework.Vector3[][])typeof(ShipHull)
+            .GetField("PartTriangles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(hull);
+        Microsoft.Xna.Framework.Vector3[] corners = triangles[part];
+        for (int i = 0; i + 2 < corners.Length; i += 3)
+        {
+            Microsoft.Xna.Framework.Vector3 a = corners[i], ab = corners[i + 1] - a, ac = corners[i + 2] - a, ap = p - a;
+            Microsoft.Xna.Framework.Vector3 normal = Microsoft.Xna.Framework.Vector3.Cross(ab, ac);
+            if (normal.Length() < 0.0001f || System.Math.Abs(Microsoft.Xna.Framework.Vector3.Dot(ap, normal) / normal.Length()) > 0.05f)
+                continue;
+            float abab = Microsoft.Xna.Framework.Vector3.Dot(ab, ab), abac = Microsoft.Xna.Framework.Vector3.Dot(ab, ac), acac = Microsoft.Xna.Framework.Vector3.Dot(ac, ac);
+            float apab = Microsoft.Xna.Framework.Vector3.Dot(ap, ab), apac = Microsoft.Xna.Framework.Vector3.Dot(ap, ac);
+            float d = abab * acac - abac * abac;
+            float u = (acac * apab - abac * apac) / d, v = (abab * apac - abac * apab) / d;
+            if (u >= -0.001f && v >= -0.001f && u + v <= 1.001f)
+                return true;
+        }
+        return false;
+    }
+
+    // the ship runs for the seconds given, each flash it sets off checked to lie on the back-left plate's surface as its model is placed and to be sent off at its velocity; when the last went off
+    float RunCheckingFlashes(Ship ship, SceneObject model, CountingParticle flashes, float seconds)
+    {
+        float lastAt = -1f;
+        int checkedFlashes = flashes.Placed.Count;
+        for (int step = 1; step * TestSimStep.FixedTime <= seconds + 0.0001f; ++step)
+        {
+            ship.Update(TestSimStep);
+            for (; checkedFlashes < flashes.Placed.Count; ++checkedFlashes)
+            {
+                var flash = flashes.Placed[checkedFlashes];
+                var inModel = Microsoft.Xna.Framework.Vector3.Transform(new Microsoft.Xna.Framework.Vector3(flash.Position.X, flash.Position.Y, flash.Position.Z),
+                                                                         Microsoft.Xna.Framework.Matrix.Invert(model.World));
+                Assert.IsTrue(OnPart(ship.BaseHull, 5, inModel), $"on the plate's surface as the ship's model is placed: {inModel} in the model");
+                AssertEqual(0.001f, ship.Velocity.X, flash.Velocity.X, "moving with the ship");
+                AssertEqual(0.001f, ship.Velocity.Y, flash.Velocity.Y, "moving with the ship");
+                lastAt = step * TestSimStep.FixedTime;
+            }
+        }
+        return lastAt;
+    }
+
+    [TestMethod]
+    public void ARepairUnderALostPlateSetsOffTenSmallFlashesOnItOverHalfASecondAndOneWhileTheyGoOffNoMore()
+    {
+        Ship ship = GunboatOnScreenWithAPlateLost(out SceneObject model, out CountingParticle flashes);
+        ShipModule[] under = ModulesOf(ship, 5, out int _);
+        Assert.IsTrue(under.Length >= 3, "setup: three modules under the plate");
+        ship.Velocity = new(120f, -40f);
+
+        under[0].Repair(1f);
+        Assert.IsFalse(under[0].Active, "setup: a repair that leaves the module still dead");
+        float lastAt = RunCheckingFlashes(ship, model, flashes, 1f);
+        Assert.AreEqual(10, flashes.Added, "ten flashes for a repair, the module back alive or not");
+        Assert.IsTrue(lastAt > 0.4f && lastAt <= 0.5f, $"one every 0.05 s, the last within half a second: {lastAt}");
+        foreach (var flash in flashes.Placed)
+            AssertEqual(0.0001f, 0.1167f, flash.Scale, "a quarter of the plate's width across, half its radius of 46.7, at Flash's 200 a side");
+        Assert.IsTrue(System.Linq.Enumerable.Any(flashes.Placed, f => f.Position != flashes.Placed[0].Position), "each at a random point of its own");
+
+        under[1].Repair(10000f);
+        RunCheckingFlashes(ship, model, flashes, 0.2f);
+        under[2].Repair(10000f);
+        lastAt = RunCheckingFlashes(ship, model, flashes, 1f);
+        Assert.AreEqual(20, flashes.Added, "a repair there while they go off sets off no more");
+        Assert.IsTrue(lastAt > 0.2f && lastAt <= 0.3f, $"the last half a second after the repair that set them off: {lastAt}");
+
+        under[0].Repair(10000f);
+        RunCheckingFlashes(ship, model, flashes, 1f);
+        Assert.AreEqual(30, flashes.Added, "the next repair once they are done sets off ten more");
+    }
+
+    [TestMethod]
+    public void AModuleBackUnderALostPlateByNoRepairOrAHealthTechsBonusSetsOffNoFlashes()
+    {
+        Ship ship = GunboatOnScreenWithAPlateLost(out SceneObject _, out CountingParticle flashes);
+        ShipModule m = ModulesOf(ship, 5, out int _)[0];
+        m.SetHealth(m.ActualMaxHealth * 0.5f, "Test");
+        RunFor(ship, 1f);
+        Assert.IsTrue(m.Active, "setup: back alive at half its health, as by regenerating");
+        Assert.AreEqual(0, flashes.Added, "back by no repair sets off none");
+
+        float health = m.Health;
+        ship.ApplyModuleHealthTechBonus(0.1f);
+        Assert.IsTrue(m.Health > health, "setup: the tech's bonus heals it");
+        RunFor(ship, 1f);
+        Assert.AreEqual(0, flashes.Added, "nor a health tech's bonus");
+    }
+
+    [TestMethod]
+    public void ARepairUnderAPlateStillOnOrWithHullPlatesOffSetsOffNoFlashes()
+    {
+        Ship ship = GunboatOnScreenWithAPlateLost(out SceneObject _, out CountingParticle flashes);
+        ShipModule onPlateOn = ModulesOf(ship, 6, out int _)[0];
+        Kill(onPlateOn);
+        ship.Update(TestSimStep);
+        Assert.AreEqual(1f, ship.PartShown?[6], "setup: the plate it is under stays on");
+        onPlateOn.Repair(10000f);
+        RunFor(ship, 1f);
+        Assert.AreEqual(0, flashes.Added, "a repair under a plate still on sets off none");
+
+        GlobalStats.Defaults.EnableHullPlates = false;
+        ModulesOf(ship, 5, out int _)[0].Repair(10000f);
+        RunFor(ship, 1f);
+        Assert.IsNull(ship.PartShown, "setup: with hull plates off the ship plays in one piece");
+        Assert.AreEqual(0, flashes.Added, "nor one under the plate it had lost");
+    }
+
+    [TestMethod]
+    public void ARepairUnderALostPlateOfAShipOffScreenSetsOffNoFlashesThenOrOnceSeen()
+    {
+        Ship ship = GunboatOnScreenWithAPlateLost(out SceneObject _, out CountingParticle flashes);
+        ship.InFrustum = false;
+        ModulesOf(ship, 5, out int _)[0].Repair(10000f);
+        RunFor(ship, 0.5f);
+        Assert.AreEqual(0, flashes.Added, "none where no one sees it");
+        ShowOnScreen(ship);
+        RunFor(ship, 1f);
+        Assert.AreEqual(0, flashes.Added, "nor once it is seen again: they are not saved up");
+    }
+
+    [TestMethod]
+    public void AtTenSimUpdatesASecondARepairStillSetsOffItsTenFlashesOverHalfASecond()
+    {
+        Ship ship = GunboatOnScreenWithAPlateLost(out SceneObject _, out CountingParticle flashes);
+        var tenth = new FixedSimTime(0.1f);
+        ModulesOf(ship, 5, out int _)[0].Repair(10000f);
+        ship.Update(tenth);
+        Assert.AreEqual(1, flashes.Added, "the first at once");
+        for (int i = 0; i < 4; ++i)
+            ship.Update(tenth);
+        Assert.AreEqual(9, flashes.Added, "then two an update, one every 0.05 s");
+        ship.Update(tenth);
+        Assert.AreEqual(10, flashes.Added, "the tenth half a second after the first");
+        for (int i = 0; i < 10; ++i)
+            ship.Update(tenth);
+        Assert.AreEqual(10, flashes.Added, "and no more");
+    }
+
+    [TestMethod]
+    [DataRow(20f, 2)]
+    [DataRow(47f, 2)]
+    [DataRow(100f, 3)]
+    [DataRow(140f, 4)]
+    [DataRow(180f, 5)]
+    [DataRow(400f, 5)]
+    public void ABlownOffPlateFlashesFromAPointForEachFortyOfItsRadiusFromTwoToFive(float radius, int points)
+    {
+        Assert.AreEqual(points, HullPartDebris.FlashPointsFor(radius), $"a radius of {radius}, a half rounding up");
+    }
+
+    [TestMethod]
+    public void AThrownOffPlateSmokesThickAndFlashesWithoutABreakFromPointsOnItTurningWithItAndSmokesThinFromItsCenter()
+    {
+        Ship ship = GunboatOnScreen(dying: false, out SceneObject _);
+        var plumes = new CountingParticle();
+        var flashes = new CountingParticle();
+        var thin = new CountingParticle();
+        Universe.Particles.SmokePlume = plumes;
+        Universe.Particles.Flash = flashes;
+        Universe.Particles.JunkSmoke = thin;
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        ship.Update(TestSimStep);
+        HullPartDebris plate = Debris()[0];
+        Assert.IsTrue(ship.BaseHull.GetPartBounds(5, out Microsoft.Xna.Framework.Vector3 center, out float radius, out int _), "setup: the plate's bounds in the model");
+        Assert.AreEqual(2, HullPartDebris.FlashPointsFor(radius), "setup: a plate of its size flashes from two points");
+
+        var plumePoints = (Microsoft.Xna.Framework.Vector3[])typeof(HullPartDebris).GetField("PlumePoints", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(plate);
+        var flashPoints = (Microsoft.Xna.Framework.Vector3[])typeof(HullPartDebris).GetField("FlashPoints", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(plate);
+        Assert.AreEqual(2, plumePoints.Length, "thick smoke from two points");
+        Assert.AreEqual(2, flashPoints.Length, "flashes from two points too");
+        var puffsAt = new int[2];
+        var flashesAt = new int[2];
+        int seenPuffs = 0, seenFlashes = 0, withoutAFlash = 0, longestWithout = 0;
+        void Gather(CountingParticle particles, ref int seen, Microsoft.Xna.Framework.Vector3[] points, int[] fromPoint, Microsoft.Xna.Framework.Matrix toModel)
+        {
+            for (; seen < particles.Placed.Count; ++seen)
+            {
+                SDGraphics.Vector3 at = particles.Placed[seen].Position;
+                var inModel = Microsoft.Xna.Framework.Vector3.Transform(new Microsoft.Xna.Framework.Vector3(at.X, at.Y, at.Z), toModel);
+                Assert.IsTrue((inModel - center).Length() <= radius + 0.01f, $"on the plate as it is drawn: {(inModel - center).Length()} from its center, {radius} its radius");
+                bool fromAPoint = false;
+                for (int i = 0; i < points.Length; ++i)
+                {
+                    if ((points[i] - inModel).Length() < 3f)
+                    {
+                        ++fromPoint[i];
+                        fromAPoint = true;
+                    }
+                }
+                Assert.IsTrue(fromAPoint, $"from one of its points fixed on the plate as it turns and drifts: {inModel} in the model");
+            }
+        }
+        for (int step = 0; step < 60; ++step)
+        {
+            int flashesBefore = flashes.Placed.Count;
+            plate.Update(TestSimStep);
+            Microsoft.Xna.Framework.Matrix toModel = Microsoft.Xna.Framework.Matrix.Invert(plate.So.World);
+            Gather(plumes, ref seenPuffs, plumePoints, puffsAt, toModel);
+            Gather(flashes, ref seenFlashes, flashPoints, flashesAt, toModel);
+            withoutAFlash = flashes.Placed.Count == flashesBefore ? withoutAFlash + 1 : 0;
+            longestWithout = System.Math.Max(longestWithout, withoutAFlash);
+        }
+        Assert.IsTrue(puffsAt[0] >= 8 && puffsAt[1] >= 8, $"thick smoke from both points: {puffsAt[0]} and {puffsAt[1]} puffs");
+        Assert.IsTrue(plumes.Added >= 20 && plumes.Added <= 24, $"12 puffs a second from each: {plumes.Added}");
+        Assert.IsTrue(flashesAt[0] >= 8 && flashesAt[1] >= 8, $"flashes from both points: {flashesAt[0]} and {flashesAt[1]}");
+        Assert.IsTrue(flashes.Placed.Count >= 18 && flashes.Placed.Count <= 20, $"10 flashes a second from each: {flashes.Placed.Count}");
+        Assert.IsTrue(longestWithout <= 7, $"a new one before 0.15 s, the shortest a flash shows, so without a break: {longestWithout} updates without one");
+        foreach (var flash in flashes.Placed)
+            AssertEqual(0.0001f, 0.1167f, flash.Scale, "each a quarter of the plate's width across, half its radius of 46.7, at Flash's 200 a side");
+        Assert.IsTrue(thin.Added >= 14 && thin.Added <= 16, $"and its thin smoke from its center still, 16 a second: {thin.Added}");
     }
 
     [TestMethod]

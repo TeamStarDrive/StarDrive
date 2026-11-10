@@ -57,10 +57,18 @@ namespace Ship_Game
 
         UIButton GameSetupButton;
         UIButton AbortButton;
-        // Game Setup's Back and Engage come out of these two
+        // Game Setup's Back and Engage stand where these two do
         public Vector2 AbortPos => AbortButton.Pos;
         public Vector2 GameSetupPos => GameSetupButton.Pos;
-        public void ShowButtonRow(bool show) => GameSetupButton.Visible = AbortButton.Visible = show;
+        public void ShowButtonRow(bool show)
+        {
+            GameSetupButton.Visible = AbortButton.Visible = show;
+            if (show)
+                AbortDeafSeconds = AbortDeafAfterGameSetup;
+        }
+        // Abort takes no click this long after Game Setup is gone, so a slow double click on Back stops here too
+        const float AbortDeafAfterGameSetup = 0.5f;
+        float AbortDeafSeconds;
         UITextEntry NameEntry;
         UITextEntry SingEntry;
         UITextEntry PlurEntry;
@@ -318,7 +326,8 @@ namespace Ship_Game
 
         void OnAbortClicked(UIButton b)
         {
-            ExitScreen();
+            if (AbortDeafSeconds <= 0f)
+                ExitScreen();
         }
 
         void OnClearClicked(UIButton b)
@@ -467,6 +476,7 @@ namespace Ship_Game
 
         public override void Update(float fixedDeltaTime)
         {
+            AbortDeafSeconds -= fixedDeltaTime;
             CreateRaceSummary();
             base.Update(fixedDeltaTime);
         }

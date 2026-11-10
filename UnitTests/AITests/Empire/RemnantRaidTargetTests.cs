@@ -161,16 +161,35 @@ namespace UnitTests.AITests.Empire
             UState.P.Difficulty = GameDifficulty.Brutal;
             Faction.TestInitModifiers();
             typeof(Remnants).GetProperty(nameof(Remnants.Level))!.SetValue(Faction.Remnants, 6);
-            Enemy.OffensiveStrength = 10_000_000f;
+            Player.OffensiveStrength = 10_000_000f;
 
             float brutal = 10_000_000f * 1.75f / GlobalStats.Defaults.RemnantDesignStr * 6 / Remnants.MaxLevel;
-            AssertEqual(brutal * 0.0001f, brutal, Faction.Remnants.RequiredAttackFleetStr(Enemy),
+            AssertEqual(brutal * 0.0001f, brutal, Faction.Remnants.RequiredRaidFleetStr(Player, Colony),
                         "a raid is the target's offensive strength x the difficulty factor / the design strength x level / max level");
 
             UState.P.Difficulty = GameDifficulty.Normal;
             Faction.TestInitModifiers();
-            AssertEqual(brutal * 0.0001f, brutal * 1.25f / 1.75f, Faction.Remnants.RequiredAttackFleetStr(Enemy),
+            AssertEqual(brutal * 0.0001f, brutal * 1.25f / 1.75f, Faction.Remnants.RequiredRaidFleetStr(Player, Colony),
                         "Normal sizes raids at 1.25 where Brutal sizes them at 1.75");
+        }
+
+        [TestMethod]
+        public void ARaidOnAnAIEmpireGathersHalfTheStrengthButNeverLessThanTheLevelsMinimum()
+        {
+            typeof(Remnants).GetProperty(nameof(Remnants.Level))!.SetValue(Faction.Remnants, 6);
+            Player.OffensiveStrength = Enemy.OffensiveStrength = 10_000_000f;
+            float onPlayer = Faction.Remnants.RequiredRaidFleetStr(Player, EnemyHome);
+            Assert.IsTrue(onPlayer * Remnants.AIEmpireRaidShare > 6 * 6 * 1000, "setup: the targets' strength sets the raid sizes");
+
+            AssertEqual(onPlayer * 0.0001f, onPlayer * 0.5f, Faction.Remnants.RequiredRaidFleetStr(Enemy, EnemyHome),
+                        "a raid on an AI empire gathers half what one on the player as strong does");
+            AssertEqual(onPlayer * 0.0001f, onPlayer, Faction.Remnants.RequiredRaidFleetStr(Enemy, Colony),
+                        "but the full share when it goes for a colony of the player's first");
+            AssertEqual(onPlayer * 0.0001f, onPlayer, Faction.Remnants.RequiredAttackFleetStr(Enemy),
+                        "a help fleet sent to it keeps the full size");
+
+            Enemy.OffensiveStrength = 1f;
+            AssertEqual(1f, 6 * 6 * 1000f, Faction.Remnants.RequiredRaidFleetStr(Enemy, EnemyHome), "a weak AI empire still meets the level's minimum");
         }
 
         [TestMethod]
@@ -178,12 +197,12 @@ namespace UnitTests.AITests.Empire
         {
             Enemy.OffensiveStrength = 10_000_000f;
             UState.DeregisterRemnantPortal(PortalSystem);
-            float before = Faction.Remnants.RequiredAttackFleetStr(Enemy);
+            float before = Faction.Remnants.RequiredRaidFleetStr(Enemy, EnemyHome);
             Assert.IsTrue(before > Faction.Remnants.Level * Faction.Remnants.Level * 1000, "setup: the target's strength sets the raid size");
 
             for (int i = 0; i < 2; ++i)
                 Assert.AreEqual(GoalStep.GoalFailed, RaidUnderWay(fleetShips: 0).Evaluate(), "setup: a raid is lost");
-            AssertEqual(before * 0.0001f, before, Faction.Remnants.RequiredAttackFleetStr(Enemy), "not after lost raids");
+            AssertEqual(before * 0.0001f, before, Faction.Remnants.RequiredRaidFleetStr(Enemy, EnemyHome), "not after lost raids");
 
             for (int i = 0; i < 2; ++i)
             {
@@ -192,7 +211,7 @@ namespace UnitTests.AITests.Empire
                 bombers.Evaluate();
                 AssertEqual(8, bombers.Fleet.TaskStep, "setup: a raid with only bombers left turns back");
             }
-            AssertEqual(before * 0.0001f, before, Faction.Remnants.RequiredAttackFleetStr(Enemy), "not after raids turn back");
+            AssertEqual(before * 0.0001f, before, Faction.Remnants.RequiredRaidFleetStr(Enemy, EnemyHome), "not after raids turn back");
 
             RemnantEngageEmpire clearing = RaidUnderWay(taskStep: 6);
             Colony.WipeOutColony(Player);
@@ -202,7 +221,7 @@ namespace UnitTests.AITests.Empire
                 RunFleetTask(clearing.Fleet);
                 AssertEqual(7, clearing.Fleet.TaskStep, "setup: a raid clears a planet");
             }
-            AssertEqual(before * 0.0001f, before, Faction.Remnants.RequiredAttackFleetStr(Enemy), "not after raids clear planets");
+            AssertEqual(before * 0.0001f, before, Faction.Remnants.RequiredRaidFleetStr(Enemy, EnemyHome), "not after raids clear planets");
         }
 
         [TestMethod]
@@ -222,8 +241,15 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
-        public void AGatheringRaidTakesOnlyTheStrengthItStillMisses()
+        [DataRow(false)]
+        [DataRow(true)]
+        public void AGatheringRaidTakesOnlyTheStrengthItStillMisses(bool goesForAPlayerColony)
         {
+            if (!goesForAPlayerColony)
+            {
+                Colony.WipeOutColony(Player);
+                Colony.SetOwner(Enemy); // the raid goes for an AI colony, so it gathers the AI share
+            }
             FocusRemnantsOnEnemy();
             var raid = new RemnantEngageEmpire(Faction, Portal, Enemy);
             raid.Evaluate();
@@ -235,7 +261,12 @@ namespace UnitTests.AITests.Empire
             for (int i = 0; i < 2; ++i)
                 fleet.AddShip(SpawnShip("Neutron Bomber Mk1", Faction, Portal.Position));
 
-            float required = Faction.Remnants.RequiredAttackFleetStr(Enemy);
+            Enemy.OffensiveStrength = 1_000_000f;
+            float floor = Faction.Remnants.Level * Faction.Remnants.Level * 1000f;
+            Assert.IsTrue(Faction.Remnants.RequiredAttackFleetStr(Enemy) > floor, "setup: the probe strength is past the level's minimum");
+            Enemy.OffensiveStrength *= 4 * floor / Faction.Remnants.RequiredAttackFleetStr(Enemy); // a full-size fleet needs four times the minimum, a raid on this AI empire twice
+            float required = Faction.Remnants.RequiredRaidFleetStr(Enemy, raid.TargetPlanet);
+            AssertEqual(1f, (goesForAPlayerColony ? 4 : 2) * floor, required, "setup: the raid on the AI empire needs half the full size, unless it goes for a player colony");
             Ship probe = SpawnShip("Vulcan Scout", Faction, Portal.Position);
             float escortStr = probe.BaseStrength;
             probe.QueueTotalRemoval();

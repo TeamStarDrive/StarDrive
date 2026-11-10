@@ -33,7 +33,7 @@ Surveys (migration branch) in [`UnitTests/Graphics/FbxMaterialSurveyTests.cs`](.
 | `Vulfen/TypeWI.fbx`                             | ship13            | 0.0313 → **0.2188** |
 | `Vulfen/TypeWII.fbx`                            | ship13            | 0.0313 → **0.2188** |
 | `Vulfen/TypeWIII.fbx`                           | ship13            | 0.0313 → **0.2188** |
-| `Vulfen/TypeXIX.fbx`                            | ship14_d2 (CA-only variant) | 0.0116 → **0.1875** |
+| `Vulfen/TypeXIX.fbx`                            | ship14 (was the CA-only ship14_d2 variant until 2026-11-09) | 0.0116 → **0.1875** |
 | `Vulfen/Vulfar_Station.fbx`                     | ship14            | 0.1250 → **0.2188** |
 
 ## Vanilla cluster reference

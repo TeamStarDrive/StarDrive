@@ -170,15 +170,15 @@ public sealed partial class Empire
     /// <summary>
     /// checks planets for shortest time to build.
     /// </summary>
-    public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, IShipDesign ship, out Planet chosen, 
-        float priority = 1f, float portQuality = 0.5f)
+    public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, IShipDesign ship, out Planet chosen,
+        float priority = 1f, float portQuality = 0.5f, bool goesFirst = false)
     {
         // bypass ports if player has prioritized ports list
         IReadOnlyList<Planet> actualPorts = isPlayer && PlayerPrioritizedPorts.Length > 0 ? PlayerPrioritizedPorts : ports;
         if (actualPorts.Count != 0)
         {
             float cost = ship.GetCost(this);
-            chosen = FindPlanetToBuildAt(actualPorts, cost, ship, portQuality, priority);
+            chosen = FindPlanetToBuildAt(actualPorts, cost, ship, portQuality, priority, goesFirst);
             return chosen != null;
         }
 
@@ -221,11 +221,12 @@ public sealed partial class Empire
         return false;
     }
 
-    Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, IShipDesign sData, float portQuality, float priority)
+    Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, IShipDesign sData, float portQuality, float priority,
+                               bool goesFirst = false)
     {
         // focus on the best producing planets (number depends on the empire size)
         if (GetBestPorts(ports, out Planet[] bestPorts, portQuality))
-            return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, priority, sData));
+            return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, priority, sData, goesFirst));
 
         return null;
     }

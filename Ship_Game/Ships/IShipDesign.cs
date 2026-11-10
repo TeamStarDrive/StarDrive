@@ -151,7 +151,7 @@ public interface IShipDesign
     // Which is not always able to clean up everything due to dangling references
     void Dispose();
 
-    bool LoadModel(out SceneObject shipSO, GameContentManager content);
+    bool LoadModel(out SceneObject shipSO, GameContentManager content, bool findPartLinks = false);
 
     TacticalIcon GetTacticalIcon();
 

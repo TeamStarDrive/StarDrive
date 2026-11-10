@@ -4,7 +4,7 @@ VisibleName=Ravager
 Role=battleship
 Style=Kulrathi
 Size=32,50
-MeshOffset=0,-16
+MeshOffset=0,-8
 IconPath=ShipIcons/ravager
 ModelPath=Model/Ships/Kulrathi/ship12d
 SelectIcon=12d
@@ -12,8 +12,8 @@ Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=40,345,-18,184
-Thruster=-42,342,-18,184
+Thruster=48,384,-18,184
+Thruster=-48,384,-18,184
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___|___|___|___|___|___|___|___

@@ -54,7 +54,7 @@ namespace Ship_Game.Ships
                 return; // allow creating invisible ships in Unit Tests, and a landed ship is out of sight
 
             //Log.Info($"CreateSO {Id} {Name}");
-            if (!ShipData.LoadModel(out SceneObject so, Universe.Screen.ContentManager))
+            if (!ShipData.LoadModel(out SceneObject so, Universe.Screen.ContentManager, findPartLinks: !HullPlatesOff))
                 return; // loading Ship SO failed
 
             // Modules installed before the mesh loaded got a SurfaceLift fallback;
@@ -191,7 +191,7 @@ namespace Ship_Game.Ships
                 UpdateEnginesAndVelocity(timeStep);
             }
             bool visibleToPlayer = IsVisibleToPlayer;
-            SceneObject moved = null; // the model placed by this update, which a part lost now flies off
+            SceneObject moved = null; // the model placed by this update, which a part lost now flies off and a lost part under repair flashes on
             if (IsLaunching)
             {
                 LaunchShip.Update(visibleToPlayer, timeStep);
@@ -261,6 +261,7 @@ namespace Ship_Game.Ships
             }
             if (lostNow != 0u && moved != null)
                 ThrowOffParts(lostNow, moved);
+            UpdateRepairFlashes(timeStep.FixedTime, moved);
 
             SoundEmitter.Position = new Vector3(Position, 0);
 

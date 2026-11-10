@@ -213,19 +213,10 @@ public sealed class Particle : IParticle
             ActiveParticles = numActive;
             BackBuffer.Clear();
         }
-        // if we have no more particles allocated, reset all counters to mitigate potential overflow
+        // with none active its buffers go back to the manager; its time stays the last update's, which a particle added before the next update takes
         else if (numActive == 0)
         {
-            // If we let our timer go on increasing for ever, it would eventually
-            // run out of floating point precision, at which point the particles
-            // would render incorrectly. An easy way to prevent this is to notice
-            // that the time value doesn't matter when NO particles are being drawn,
-            // so we can reset it back to zero any time the active queue is empty.
-            CurrentTime = 0f;
             ActiveParticles = 0;
-
-            // if we have 0 active particles, we should give the used buffers
-            // back to manager, so it can reuse them or delete them
             foreach (var buffer in buffers)
                 Manager.FreeVertexBuffer(buffer);
             buffers.Clear();

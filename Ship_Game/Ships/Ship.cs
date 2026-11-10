@@ -458,6 +458,36 @@ namespace Ship_Game.Ships
             }
         }
 
+        // debug: every module alive under a random hull part still on dies as if shot, so the part comes off; nothing on a ship with no part but its core or with hull plates off
+        public void DebugBlowOffRandomPart()
+        {
+            if (!Active || Dying || HullPlatesOff || !Grid.GetParts(out int[] area))
+                return;
+            int[] low = LostPartLow?.Length == area.Length ? LostPartLow : null;
+            Span<int> alive = stackalloc int[area.Length];
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                ShipModule m = ModuleSlotList[i];
+                if (m.Active)
+                    alive[Grid.PartOf(m.Pos)] += m.Area;
+            }
+            Span<int> on = stackalloc int[area.Length];
+            int numOn = 0;
+            for (int part = 1; part < area.Length; ++part)
+                if (alive[part] > 0 && (low == null || low[part] < 0))
+                    on[numOn++] = part;
+            if (numOn == 0)
+                return;
+            int blown = on[Universe.Random.InRange(numOn)];
+            SetLastDamagedBy(this); // just hit, as by a shot, so no repair brings a module back before the part is counted
+            for (int i = 0; i < ModuleSlotList.Length && Active && !Dying; ++i)
+            {
+                ShipModule m = ModuleSlotList[i];
+                if (m.Active && Grid.PartOf(m.Pos) == blown)
+                    m.Die(this, false); // past its armor's resist and its shield
+            }
+        }
+
         public void DamageByRecoveredFromCrash(float modifier)
         {
             foreach (ShipModule module in ModuleSlotList)
@@ -2073,7 +2103,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule module = ModuleSlotList[i];
-                module.Repair(module.Health + module.Health * bonus);
+                module.Repair(module.Health + module.Health * bonus, techBonus: true);
             }
         }
 

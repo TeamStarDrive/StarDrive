@@ -233,7 +233,7 @@ namespace Ship_Game.Commands.Goals
                 LetGo(ship);
         }
 
-        // the design is queued as urgent at its shipyard, first in the player's queue; with none, it waits for one; with its orders gone it ends, unless on automatic
+        // the design is queued as urgent at its shipyard, first in the player's queue behind an Outpost or Capital; with none, it waits for one; with its orders gone it ends, unless on automatic
         GoalStep BuildShip()
         {
             if (!HasOrders && !OnAutomatic(Owner))

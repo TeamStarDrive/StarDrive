@@ -298,9 +298,9 @@ public class MeshLightingEffectTests : StarDriveTest
         Assert.IsTrue(bareBlue < tintedBlue / 5, $"the bare cube drew with the tinted cube's color: {bareBlue} vs {tintedBlue}");
     }
 
-    // a white box drawn by the scene's renderer onto a 64x64 magenta target, its parts as given; inParts makes it all part 1; gameDepth draws as the universe does, 16-bit depth from a near plane at 100; chrome makes it a glossy material lit from the eye
+    // a white box drawn by the scene's renderer onto a 64x64 magenta target, its parts as given; inParts makes it all part 1; gameDepth draws as the universe does, 16-bit depth from a near plane at 100; chrome makes it a glossy material lit from the eye; lit lights it from the upper right, its glints away from the eye
     static Color[] RenderBoxInScene(float[] partShown, Vector3 eye, Vector3 target, Vector3 size, bool inParts = false,
-                                    Vector3 moved = default, float heat = 1f, bool gameDepth = false, bool chrome = false)
+                                    Vector3 moved = default, float heat = 1f, bool gameDepth = false, bool chrome = false, bool lit = false)
     {
         GraphicsDevice device = Game.GraphicsDevice;
         (StaticMesh mesh, VertexBuffer vb, IndexBuffer ib) = BuildBox(device, size);
@@ -327,6 +327,9 @@ public class MeshLightingEffectTests : StarDriveTest
         if (chrome)
             scene.LightManager.Submit(new SynapseGaming.LightingSystem.Lights.DirectionalLight
                 { Direction = Vector3.Normalize(target - eye), DiffuseColor = Vector3.One, Intensity = 1f, Enabled = true });
+        if (lit)
+            scene.LightManager.Submit(new SynapseGaming.LightingSystem.Lights.DirectionalLight
+                { Direction = Vector3.Normalize(new Vector3(-0.5f, -0.5f, -1f)), DiffuseColor = Vector3.One, Intensity = 1f, Enabled = true });
         var state = new SceneState();
         Matrix view = Matrix.CreateLookAt(eye + moved, target + moved, Vector3.Up);
         Matrix projection = gameDepth ? Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1.0f, 100f, 100_000f)
@@ -366,9 +369,6 @@ public class MeshLightingEffectTests : StarDriveTest
             corners[i] = vertices[indices[i]].Position * size;
         return corners;
     }
-
-    // the white of the box's lit outside, not its burnt insides or the background
-    static bool LitWhite(Color px) => px.R > 50 && System.Math.Abs(px.R - px.G) < 25 && System.Math.Abs(px.R - px.B) < 25;
 
     static bool Ember(Color px) => px.R > 120 && px.R > px.B * 2 + 40;
     static bool Charred(Color px) => px.R + px.G + px.B < 90;
@@ -437,46 +437,67 @@ public class MeshLightingEffectTests : StarDriveTest
         CollectionAssert.AreEqual(whole, open, "its outside as before, no inside showing through");
     }
 
-    // A part coming back is drawn as much as it is repaired, growing out from the model's middle behind a ragged edge.
+    // A part coming back grows out from the model's middle as it is repaired, behind a ragged edge: bare steel plating, inside and out, behind a frame of girders running ahead of it, taking its paint over the last of its repairs.
     [TestMethod]
-    public void APartComingBackDrawsMoreOfItselfAsMoreOfItIsRepaired()
+    public void APartComingBackGrowsAsBareSteelBehindAFrameOfGirders()
     {
         var eye = new Vector3(0f, 0f, 100f);
-        int Front(float share) => RenderBoxInScene(new[] { 1f, share }, eye, Vector3.Zero, Cube, inParts: true).Count(LitWhite);
-        int whole = Front(1f);
-        Assert.IsTrue(whole > 500, $"setup: the part drawn whole fills much of the view: {whole}");
-        Assert.AreEqual(0, Front(0f), "a part lost draws nothing");
-        int quarter = Front(0.25f), half = Front(0.5f), threeQuarters = Front(0.75f);
+        Color[] Shot(float share, Vector3 moved = default)
+            => RenderBoxInScene(new[] { 1f, share }, eye, Vector3.Zero, Cube, inParts: true, moved: moved, lit: true);
+        int whole = Shot(1f).Count(Painted);
+        Assert.IsTrue(whole > 500, $"setup: the part drawn whole and painted fills much of the view: {whole}");
+        Color[] lost = Shot(0f);
+        Assert.AreEqual(0, lost.Count(px => Steel(px) || Girder(px) || Painted(px)), "a part lost draws none of itself");
+        int quarter = Shot(0.25f).Count(Steel), half = Shot(0.5f).Count(Steel), threeQuarters = Shot(0.75f).Count(Steel);
         Assert.IsTrue(0 < quarter && quarter < half && half < threeQuarters && threeQuarters < whole,
-                      $"more of it as more comes back: {quarter}, {half}, {threeQuarters} of {whole}");
+                      $"more plating as more comes back: {quarter}, {half}, {threeQuarters} of {whole}");
         Assert.IsTrue(half > whole / 4 && half < whole * 3 / 4, $"about half at half repaired: {half} of {whole}");
 
-        Color[] here = RenderBoxInScene(new[] { 1f, 0.5f }, eye, Vector3.Zero, Cube, inParts: true);
-        int middle = 0, middleBack = 0, corners = 0, cornersBack = 0;
+        Color[] here = Shot(0.5f);
+        Assert.AreEqual(0, here.Count(Painted), "its plating bare steel, none of it painted yet");
+        int middle = 0, middleSteel = 0, corners = 0, cornersSteel = 0, ring = 0, ringGirders = 0;
         for (int y = 0; y < 64; ++y)
         {
             for (int x = 0; x < 64; ++x)
             {
                 float dx = x - 31.5f, dy = y - 31.5f, r = System.MathF.Sqrt(dx * dx + dy * dy);
-                bool back = LitWhite(here[y * 64 + x]);
+                Color px = here[y * 64 + x];
                 if (r < 6f)
                 {
                     ++middle;
-                    if (back) ++middleBack;
+                    if (Steel(px)) ++middleSteel;
                 }
                 else if (r > 22f && System.Math.Abs(dx) < 18f && System.Math.Abs(dy) < 18f)
                 {
                     ++corners;
-                    if (back) ++cornersBack;
+                    if (Steel(px)) ++cornersSteel;
+                }
+                if (r > 15f && r < 20f)
+                {
+                    ++ring;
+                    if (Girder(px)) ++ringGirders;
                 }
             }
         }
-        Assert.AreEqual(middle, middleBack, "half repaired, the part is back next to the model's middle");
-        Assert.AreEqual(0, cornersBack, "and not yet at its far corners");
+        Assert.AreEqual(middle, middleSteel, "half repaired, its plating is back next to the model's middle");
+        Assert.AreEqual(0, cornersSteel, "and not yet at its far corners");
+        Assert.IsTrue(ringGirders > ring / 10, $"girders run ahead of the plating: {ringGirders} of {ring} pixels just beyond it");
 
-        Color[] movedAway = RenderBoxInScene(new[] { 1f, 0.5f }, eye, Vector3.Zero, Cube, inParts: true, moved: FarAway);
-        Assert.IsTrue(Differing(here, movedAway) < here.Length / 100, $"its ragged edge stays on the hull as it moves: {Differing(here, movedAway)} pixels differ");
+        Color[] fromInside = RenderBoxInScene(new[] { 1f, 0.5f }, Vector3.Zero, -Vector3.UnitZ, Cube, inParts: true, lit: true);
+        Assert.IsTrue(Steel(fromInside[32 * 64 + 32]), $"seen from inside, its plating is bare steel, not burnt: {fromInside[32 * 64 + 32]}");
+        Assert.AreEqual(0, fromInside.Count(Ember), "and no embers glow on it");
+
+        Color[] nearlyDone = Shot(0.97f);
+        Assert.IsTrue(Painted(nearlyDone[32 * 64 + 32]), $"nearly repaired it takes its paint: {nearlyDone[32 * 64 + 32]}");
+
+        Color[] movedAway = Shot(0.5f, FarAway);
+        Assert.IsTrue(Differing(here, movedAway) < here.Length / 100, $"its edge and frame stay on the hull as it moves: {Differing(here, movedAway)} pixels differ");
     }
+
+    // under the light from the upper right: the box's white paint, a part's bare steel plating, and its frame's girders at about half the steel's brightness, both a cool gray
+    static bool Painted(Color px) => px.R > 225 && px.G > 225 && px.B > 225;
+    static bool Steel(Color px) => px.R > 130 && px.R <= 225 && px.B >= px.R - 2 && System.Math.Abs(px.R - px.G) < 15;
+    static bool Girder(Color px) => px.R > 60 && px.R <= 130 && px.B >= px.R - 2 && System.Math.Abs(px.R - px.G) < 15;
 
     // an unlit cube painted mid gray under a solid tint map, read at its center
     static Color CenterPixelOfGrayPaint(int maskValue, Vector4 hullTint)

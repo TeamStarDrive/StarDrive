@@ -150,14 +150,18 @@ namespace Ship_Game
 
         void SwapConstructionQueueItems(int swapTo, int currentIndex)
         {
-            Planet.Construction.Swap(swapTo, currentIndex);
-            GameAudio.AcceptClick();
+            if (Planet.Construction.Swap(swapTo, currentIndex))
+                GameAudio.AcceptClick();
+            else
+                GameAudio.NegativeClick();
         }
 
         void MoveToConstructionQueuePosition(int moveTo, int currentIndex)
         {
-            Planet.Construction.MoveTo(moveTo, currentIndex);
-            GameAudio.AcceptClick();
+            if (Planet.Construction.MoveTo(moveTo, currentIndex))
+                GameAudio.AcceptClick();
+            else
+                GameAudio.NegativeClick();
         }
         
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

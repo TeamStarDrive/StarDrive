@@ -118,6 +118,63 @@ namespace Ship_Game.Ships
             OrdersButtons = new ShipStanceButtons(universe, ordersBarPos);
         }
 
+        // the strength tab's size, its reach under the panel's right edge and its overlap with the drawer's top
+        const int StrengthTabWidth = 144, StrengthTabHeight = 36, StrengthTabUnder = 24, StrengthTabOnDrawer = 6;
+        // the drawer frame's left, middle and right slices, its border and body heights, and where its top border ends
+        static readonly int[] TabSliceX = { 0, 230, 470 }, TabSliceW = { 16, StrengthTabWidth - 16 - 27, 27 };
+        const int FrameBorder = 10, FrameBody = 110, DrawerTopEnd = 493;
+
+        int OrderColumns => Orders.Count / 2 + Orders.Count % 2;
+
+        int DrawerOut(int columns) => (int)(columns * 55 * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0);
+
+        // out from under the panel's right edge as the drawer opens, all the way back under as it closes; none for a ship of no strength
+        bool StrengthTab(Ship s, int columns, out Rectangle tab)
+        {
+            tab = default;
+            if (!SlidingElement.Open && TransitionPosition >= 1f || s.GetStrength() <= 0f)
+                return false;
+            int slide = (int)(Math.Max(columns * 55, StrengthTabWidth - StrengthTabUnder) * TransitionPosition);
+            tab = new Rectangle(Housing.Right - StrengthTabUnder - slide, SlidingElement.Housing.Y - StrengthTabHeight + StrengthTabOnDrawer,
+                                StrengthTabWidth, StrengthTabHeight);
+            return true;
+        }
+
+        // the ship's strength in its empire's color, on a tab running on into the drawer and closed by a bottom border past the drawer's end; drawn before the drawer and the panel, which cover its ends
+        void DrawStrengthTab(SpriteBatch batch, Ship s, int columns, int drawerOut)
+        {
+            if (!StrengthTab(s, columns, out Rectangle tab))
+                return;
+            SubTexture frame = ResourceManager.Texture("SelectionBox/unitselmenu_tab");
+            int drawerEnd = SlidingElement.Housing.X + drawerOut + DrawerTopEnd;
+            for (int c = 0, dx = tab.X; c < 3; dx += TabSliceW[c], ++c)
+            {
+                int onDrawer = Math.Clamp(drawerEnd - dx, 0, TabSliceW[c]);
+                DrawTabSlice(batch, frame, c, dx, 0, onDrawer, tab.Y, closed: false);
+                DrawTabSlice(batch, frame, c, dx, onDrawer, TabSliceW[c] - onDrawer, tab.Y, closed: true);
+            }
+            string text = string.Format(Localizer.Token(GameText.ShipStrengthShort), s.GetStrength().GetNumberString(compact: true));
+            // from just past the panel's edge, so a long number has room, in the middle of the dark above the drawer, its digits a pixel above their line's middle
+            float bodyMiddle = tab.Y + (FrameBorder + StrengthTabHeight - StrengthTabOnDrawer) / 2f;
+            float textY = bodyMiddle - Fonts.Arial12Bold.MeasureString(text).Y / 2f + 1f;
+            batch.DrawString(Fonts.Arial12Bold, text, new Vector2(tab.X + StrengthTabUnder + 8, (int)textY), s.Loyalty.EmpireColor);
+        }
+
+        // closed, the slice's body ends in the frame's bottom border, in line with the drawer's top border
+        void DrawTabSlice(SpriteBatch batch, SubTexture frame, int c, int dx, int from, int width, int y, bool closed)
+        {
+            if (width <= 0)
+                return;
+            int srcX = frame.X + TabSliceX[c] + from, x = dx + from;
+            int bodyH = StrengthTabHeight - FrameBorder - (closed ? StrengthTabOnDrawer : 0);
+            int srcBodyH = FrameBody * bodyH / (StrengthTabHeight - FrameBorder);
+            batch.Draw(frame.Texture, new Rectangle(x, y, width, FrameBorder), new Rectangle(srcX, frame.Y, width, FrameBorder), Color.White);
+            batch.Draw(frame.Texture, new Rectangle(x, y + FrameBorder, width, bodyH), new Rectangle(srcX, frame.Y + FrameBorder, width, srcBodyH), Color.White);
+            if (closed)
+                batch.Draw(frame.Texture, new Rectangle(x, y + FrameBorder + bodyH, width, FrameBorder),
+                           new Rectangle(srcX, frame.Y + FrameBorder + FrameBody, width, FrameBorder), Color.White);
+        }
+
         void DrawOrderButtons(SpriteBatch batch, float transitionOffset)
         {
             foreach (OrdersButton ob in Orders)
@@ -134,8 +191,9 @@ namespace Ship_Game.Ships
                 return;  //fbedard
 
             float transitionOffset = 0f.SmoothStep(1f, TransitionPosition);
-            int columns = Orders.Count / 2 + Orders.Count % 2;
-            SlidingElement.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
+            int columns = OrderColumns, drawerOut = DrawerOut(columns);
+            DrawStrengthTab(batch, s, columns, drawerOut);
+            SlidingElement.Draw(ScreenManager, drawerOut);
 
             DrawOrderButtons(batch, transitionOffset);
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
@@ -215,10 +273,11 @@ namespace Ship_Game.Ships
                 DrawFTL(batch, mousePos, s, ref numStatus);
                 DrawInhibited(batch, mousePos, s, ref numStatus);
                 DrawEmp(batch, mousePos, s, ref numStatus);
-                DrawStructuralIntegrity(batch, mousePos, s, ref numStatus);
             }
             DrawCargoUsed(batch, mousePos, s, ref numStatus);
             DrawRefundLoad(batch, mousePos, s, ref numStatus);
+            if (HelperFunctions.DataVisibleToPlayer(s.Loyalty))
+                DrawStructuralIntegrity(batch, mousePos, s, ref numStatus); // last, as its repair rate runs on to the right
         }
 
         void DrawIconWithTooltip(SpriteBatch batch, SubTexture icon, Func<string> tooltip, Vector2 mousePos, Color color, int numStatus)
@@ -289,7 +348,9 @@ namespace Ship_Game.Ships
 
         void DrawStructuralIntegrity(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
-            if (ship.InternalSlotsHealthPercent > 0.999f)
+            // shown with I-slot damage, and with any damage while the ship repairs; one being dismantled never repairs
+            bool repairs = ship.CanRepair && !ship.Dismantling;
+            if (ship.InternalSlotsHealthPercent > 0.999f && (ship.HealthPercent > 0.999f || !repairs))
                 return;
 
             SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
@@ -299,11 +360,11 @@ namespace Ship_Game.Ships
             var textPos = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
             int integrity = (int)(ship.InternalSlotsHealthPercent * 100);
             string integrityText = $"{integrity}%";
-            if (ship.CanRepair) // a ship fighting or just hit gets no repair, so it shows no rate
+            if (repairs) // a ship fighting, just hit or being dismantled gets no repair, so it shows no rate
             {
                 float repairPerSec = ship.CurrentRepairPerSecond;
                 float timeUntilRepaired = (ship.HealthMax - ship.Health) / repairPerSec;
-                integrityText += $" (+{(int)repairPerSec}HP/s ETA:{timeUntilRepaired.TimeString()})";
+                integrityText += $" +{(int)repairPerSec}/s {timeUntilRepaired.TimeString()}";
             }
             batch.DrawString(Fonts.Arial12, integrityText, textPos, Color.White);
             numStatus++;
@@ -650,6 +711,8 @@ namespace Ship_Game.Ships
             }
 
             if (ElementRect.HitTest(input.CursorPosition))
+                return true;
+            if (StrengthTab(s, OrderColumns, out Rectangle strengthTab) && strengthTab.HitTest(input.CursorPosition))
                 return true;
 
             if (State == ElementState.Open)

@@ -117,7 +117,7 @@ public class SerializationRegressionTests : StarDriveTest
         }
     }
 
-    // the base game ships with hull plates off: these tests play a game with the Globals flag on, as a mod that turns it on
+    // these tests run with the Globals flag on, as the base game ships it
     static void WithHullPlatesOn(Action test) => WithHullPlatesFlag(true, () => { test(); return true; });
 
     [TestMethod]

@@ -13,5 +13,9 @@
         {
             return (1f - module.ExplosiveResist);
         }
+
+        // damage from no weapon, such as a ship's death blast or a star's radiation, meets deflection with its raw damage
+        public float GetShieldEffect(ShipModule module) => 1f;
+        public float GetArmorEffect(ShipModule module) => 1f;
     }
 }

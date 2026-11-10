@@ -88,7 +88,7 @@ public partial class Planet
     public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
     public bool BuildingBuiltOrQueued(int bid) => BuildingBuilt(bid) || BuildingInQueue(bid);
 
-    int TurnsUntilQueueCompleted(float priority, Array<QueueItem> newItems = null)
+    int TurnsUntilQueueCompleted(float priority, Array<QueueItem> newItems = null, int queueItemsAhead = int.MaxValue)
     {
         if (newItems == null && ConstructionQueue.Count == 0)
             return 0;
@@ -103,6 +103,8 @@ public partial class Planet
         // Getting the queue copied and inserting the new items into it to check time to finish
         // This is needed since the planet has dynamic production allocation based on queue items
         var modifiedQueue = ConstructionQueue.ToArrayList();
+        if (queueItemsAhead < modifiedQueue.Count)
+            modifiedQueue.RemoveRange(queueItemsAhead, modifiedQueue.Count - queueItemsAhead);
         if (newItems != null)
             modifiedQueue.AddRange(newItems);
 
@@ -156,10 +158,9 @@ public partial class Planet
         }
     }
 
-    // @return Total numbers before ship will be finished if
-    // inserted to the end of the queue.
+    // turns until the ship is finished at the end of the queue, or behind only the items kept first when it goes first
     // if sData is null, then we want a troop
-    public int TurnsUntilQueueComplete(float cost, float priority, IShipDesign sData = null)
+    public int TurnsUntilQueueComplete(float cost, float priority, IShipDesign sData = null, bool goesFirst = false)
     {
         bool forTroop = sData == null;
         if (forTroop && !HasSpacePort
@@ -168,7 +169,9 @@ public partial class Planet
             return 9999;
         }
 
-        int total = TurnsUntilQueueCompleted(priority, CreateItemsForTurnsCompleted(CreateQi())); // FB - this is just an estimation
+        // an item that goes first waits only for the items kept first, not for the rest of the queue or the refits due here
+        int total = goesFirst ? TurnsUntilQueueCompleted(priority, new Array<QueueItem> { CreateQi() }, Construction.ItemsKeptFirst())
+                              : TurnsUntilQueueCompleted(priority, CreateItemsForTurnsCompleted(CreateQi())); // FB - this is just an estimation
         return total.UpperBound(9999);
 
         // Local Method

@@ -242,7 +242,7 @@ namespace SynapseGaming.LightingSystem.Core
                 DrawRenderables(so, world, shown, insides: false);
                 if (shown != null)
                 {
-                    // a model with a part off shows its insides, burnt, only where they are nearer than its outside: through the gap
+                    // a model with a part off shows its insides only where they are nearer than its outside: through the gap, burnt but for a part coming back's
                     Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullClockwiseFace);
                     GraphicsDevice.DepthStencilState = NearerOnly;
                     DrawRenderables(so, world, shown, insides: true);
@@ -438,7 +438,7 @@ namespace SynapseGaming.LightingSystem.Core
             dst.SpecularColor = src.SpecularColor;
         }
 
-        // insides: draw a model's back faces as its burnt insides, else its outside
+        // insides: draw a model's back faces as its insides, burnt but for a part coming back's, else its outside
         void DrawRenderables(Rendering.SceneObject so, in Matrix world, float[] shown, bool insides)
         {
             foreach (Rendering.RenderableMesh rm in so.RenderableMeshes)
@@ -507,7 +507,7 @@ namespace SynapseGaming.LightingSystem.Core
             }
         }
 
-        // each part coming back is drawn as much as its share shown, grown out from the model's middle
+        // each part coming back is drawn as much as its share shown, grown out from the model's middle as bare steel behind a frame of girders
         void DrawPartsComingBack(Effects.Forward.LightingEffect fx, Rendering.RenderableMesh rm, float[] shown)
         {
             EffectTechnique dissolve = fx.DissolveTechnique;
@@ -1098,7 +1098,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // the share of a part coming back the next draw shows, 1 for a whole model; the renderer sets it per part
         public float ShareShown { get; set; } = 1f;
 
-        // the next draw shades back faces as the burnt insides of a hull torn open
+        // the next draw shades back faces as the insides of a hull torn open, burnt but for a part coming back's
         public bool InsidesBurnt { get; set; }
 
         // how hot the next draw's burnt insides still glow, 1 just torn open, 0 cold; the renderer sets it from each SceneObject
@@ -1108,7 +1108,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         public Vector2 PartReach { get; set; } = new(0f, 1f);
         public Vector4 ReachShape { get; set; } = new(0f, 0f, 1f, 1f);
 
-        // draws a part coming back, as much as its share shown; null for a shader without it
+        // draws a part coming back as bare steel behind a frame of girders, as much as its share shown; null for a shader without it
         public EffectTechnique DissolveTechnique { get; }
 
         // View setter caches the inverse-view eye position so OnApply doesn't

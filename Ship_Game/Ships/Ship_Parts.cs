@@ -1,8 +1,14 @@
 using System;
 using System.Threading;
+using SDGraphics;
+using SDUtils;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Graphics.Particles;
 using SynapseGaming.LightingSystem.Rendering;
+using Color = Microsoft.Xna.Framework.Color;
+using Vector3 = SDGraphics.Vector3;
+using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game.Ships
 {
@@ -43,7 +49,7 @@ namespace Ship_Game.Ships
             PartsOutdated = true;
         }
 
-        // a part may be lost at the count of an update with a death under it, by a roll unless all of it is dead, and comes back as its modules do; a part with no modules stays on; returns the parts it lost. Standing still, paused or saving, it loses none and kills no module, and with hull plates on changes nothing a save writes
+        // a part may be lost at the count of an update with a death under it, by a roll unless all of it is dead, a part no longer tied to the core by whole parts it touches goes with it, and a lost part comes back as its modules do, no faster than the parts it hangs on; a part with no modules is lost only that way; returns the parts it lost. Standing still, paused or saving, it loses none and kills no module, and with hull plates on changes nothing a save writes
         uint UpdateLostParts(bool timeRuns = true)
         {
             ShipHull hull = BaseHull;
@@ -86,9 +92,7 @@ namespace Ship_Game.Ships
                 low.Fill(-1);
             Span<float> shown = stackalloc float[numParts];
             shown.Fill(1f);
-            bool anyLost = false;
-            float leastBack = 1f;
-            uint lostNow = 0u;
+            uint lostNow = 0u, lost = 0u, repaired = 0u;
             for (int part = 1; part < numParts; ++part)
             {
                 int lowest = low[part];
@@ -107,14 +111,21 @@ namespace Ship_Game.Ships
                 }
                 else if (alive[part] >= area[part])
                 {
-                    low[part] = -1;
+                    repaired |= 1u << part; // whole once a chain of whole parts it touches reaches the core
                     continue;
                 }
                 low[part] = lowest = Math.Min(lowest, alive[part]);
                 shown[part] = (alive[part] - lowest) / (float)(area[part] - lowest);
-                leastBack = Math.Min(leastBack, shown[part]);
-                anyLost = true;
+                lost |= 1u << part;
             }
+            if (lost != 0u || repaired != 0u)
+                HoldByTouchingParts(hull.PartLinks, low, alive, shown, timeRuns, ref lost, ref lostNow, repaired);
+
+            bool anyLost = lost != 0u;
+            float leastBack = 1f;
+            for (int part = 1; part < numParts; ++part)
+                if ((lost & 1u << part) != 0)
+                    leastBack = Math.Min(leastBack, shown[part]);
             if (timeRuns && (lostNow != 0u || !anyLost))
                 InsidesHeatAtLoss = 1f;
             InsidesHeat = anyLost ? Math.Max(Derelict.MinInsidesHeat, InsidesHeatAtLoss * (1f - leastBack)) : 1f;
@@ -126,6 +137,67 @@ namespace Ship_Game.Ships
             if (lostNow != 0u && Active && !Dying)
                 KillModulesUnder(lostNow);
             return lostNow;
+        }
+
+        // a whole part no chain of whole parts it touches ties to the core goes with the parts just lost, and a lost part shows no more than its best chain to the core does, staying lost, repaired, till that chain is whole; with no links found every part hangs on the core
+        static void HoldByTouchingParts(uint[] links, Span<int> low, Span<int> alive, Span<float> shown, bool timeRuns, ref uint lost, ref uint lostNow, uint repaired)
+        {
+            int numParts = low.Length;
+            if (links?.Length != numParts)
+            {
+                for (int part = 1; part < numParts; ++part)
+                    if ((repaired & 1u << part) != 0)
+                        low[part] = -1;
+                return;
+            }
+            Span<float> reach = stackalloc float[numParts];
+            ChainShown(links, shown, reach);
+            uint stranded = 0u;
+            for (int part = 1; part < numParts; ++part)
+            {
+                uint bit = 1u << part;
+                if ((repaired & bit) != 0)
+                {
+                    if (reach[part] >= 1f)
+                        low[part] = -1;
+                    else
+                        lost |= bit;
+                }
+                else if (low[part] < 0 && reach[part] < 1f && timeRuns)
+                {
+                    low[part] = alive[part];
+                    shown[part] = 0f;
+                    stranded |= bit;
+                }
+            }
+            lost |= stranded;
+            lostNow |= stranded;
+            ChainShown(links, shown, reach);
+            for (int part = 1; part < numParts; ++part)
+                if ((lost & 1u << part) != 0)
+                    shown[part] = Math.Min(shown[part], Math.Max(reach[part], 0f));
+        }
+
+        // each part's best chain of touching parts from the core, the least shown along it, -1 for none
+        static void ChainShown(uint[] links, Span<float> shown, Span<float> reach)
+        {
+            int numParts = reach.Length;
+            reach.Fill(-1f);
+            reach[0] = 1f;
+            uint done = 0u;
+            for (;;)
+            {
+                int next = -1;
+                for (int part = 0; part < numParts; ++part)
+                    if ((done & 1u << part) == 0 && reach[part] >= 0f && (next < 0 || reach[part] > reach[next]))
+                        next = part;
+                if (next < 0)
+                    return;
+                done |= 1u << next;
+                for (int part = 0; part < numParts; ++part)
+                    if ((links[next] & 1u << part) != 0 && (done & 1u << part) == 0)
+                        reach[part] = Math.Max(reach[part], Math.Min(reach[next], shown[part]));
+            }
         }
 
         // the modules still alive under the parts just lost go with them, quietly, as long as the ship lives through it
@@ -190,12 +262,79 @@ namespace Ship_Game.Ships
             return whole;
         }
 
-        // a module under a lost part shows no damage until the part is whole again
-        public bool UnderLostPart(ShipModule m)
+        // a repair under a lost part, on a ship the player sees, sets off this many small flashes at random points on the part, one every RepairFlashGap seconds, sized as a blown-off part's; a repair there while they go off sets off no more
+        public const int RepairFlashes = 10;
+        public const float RepairFlashGap = 0.05f;
+
+        // the parts a module was repaired under while lost since the ship's last update, each bit a part
+        uint PartsRepaired;
+        // each run of flashes going off, its part, the flashes it has left and the seconds to its next; null till its first run, then kept for the next; only the ship's own update reads and writes them
+        Array<(int Part, int Left, float Next)> RepairFlashRuns;
+
+        // a module was repaired under a lost part, maybe on another thread, as by a repair drone's beam
+        internal void MarkPartRepaired(ShipModule m)
         {
+            if (!HullPlatesOff && UnderLostPart(m, out int part))
+                Interlocked.Or(ref PartsRepaired, 1u << part);
+        }
+
+        // a part repaired under in an update starts a run of flashes on it, the first now, unless one is going off on it, beside those on other parts, while the game runs; model, the ship's as placed by this update, null while the player does not see it, it launches or lands or its model is not made yet, which drops them
+        void UpdateRepairFlashes(float dt, SceneObject model)
+        {
+            if (dt <= 0f || (PartsRepaired == 0u && (RepairFlashRuns == null || RepairFlashRuns.Count == 0)))
+                return;
+            uint repaired = Interlocked.Exchange(ref PartsRepaired, 0u);
+            ParticleManager particles = Universe.Screen?.Particles;
+            if (model == null || particles == null)
+            {
+                RepairFlashRuns?.Clear();
+                return;
+            }
+            Array<(int Part, int Left, float Next)> runs = RepairFlashRuns;
+            for (int i = 0; runs != null && i < runs.Count; ++i)
+                repaired &= ~(1u << runs[i].Part);
+            if (repaired != 0u)
+            {
+                runs ??= RepairFlashRuns = new();
+                for (int part = 1; part < StaticMesh.MaxParts; ++part)
+                    if ((repaired & 1u << part) != 0)
+                        runs.Add((part, RepairFlashes, dt)); // its first flash in this update
+            }
+            if (runs == null)
+                return;
+            for (int i = runs.Count - 1; i >= 0; --i)
+            {
+                (int part, int left, float next) = runs[i];
+                for (next -= dt; next <= 0f && left > 0; next += RepairFlashGap) // as many as are due, at a sim rate under 20 a second
+                {
+                    --left;
+                    RepairFlash(part, model, particles);
+                }
+                if (left > 0)
+                    runs[i] = (part, left, next);
+                else
+                    runs.RemoveAt(i);
+            }
+        }
+
+        // a small flash at a random point on the part as the ship's model is placed, sent off at the ship's velocity
+        void RepairFlash(int part, SceneObject model, ParticleManager particles)
+        {
+            if (!BaseHull.RandomPointOnPart(part, particles.Random, out XnaVector3 p, out float radius))
+                return;
+            XnaVector3 at = XnaVector3.Transform(p, model.World);
+            particles.Flash.AddParticle(new Vector3(at.X, at.Y, at.Z), Velocity.ToVec3(), HullPartDebris.FlashScale(radius), Color.White);
+        }
+
+        // a module under a lost part shows no damage until the part is whole again
+        public bool UnderLostPart(ShipModule m) => UnderLostPart(m, out _);
+
+        bool UnderLostPart(ShipModule m, out int part)
+        {
+            part = -1;
             if (PartShown is not { } shown)
                 return false;
-            int part = Grid.PartOf(m.Pos);
+            part = Grid.PartOf(m.Pos);
             return (uint)part < (uint)shown.Length && shown[part] < 1f;
         }
 

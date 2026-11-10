@@ -226,7 +226,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet, portQuality: 1f))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet, portQuality: 1f,
+                                               goesFirst: Owner.ColonyShipsGoFirst))
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = planet;
