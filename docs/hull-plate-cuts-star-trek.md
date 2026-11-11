@@ -4,9 +4,9 @@ Every warship (frigate and up) and station model the mod's designs use, by race.
 Each line: the model file, its hull role, then the hulls on it with their number of designs. A model is listed
 under the race whose hulls carry most of its designs, or under Shared when more than two races' hulls use it.
 A hull with no design is listed when a tech unlocks it,
-so players can build it; hulls nothing uses or unlocks, and asteroid bases, are left out.
+so players can build it; hulls nothing uses or unlocks, asteroid bases and shipyards are left out.
 
-49 of 191 models cut, carrying 505 of 1312 designs.
+58 of 190 models cut, carrying 576 of 1311 designs.
 
 ## The mod's own models
 
@@ -29,19 +29,19 @@ so players can build it; hulls nothing uses or unlocks, and asteroid bases, are 
 - [ ] `Car_Small_Turret` — station — ODS turret (9)
 - [ ] `Car_StarBase` — station — Car_StarBase (6)
 
-### Cordrazine (0 of 4 cut)
+### Cordrazine (1 of 4 cut)
 
-- [ ] `Radving` — frigate — Radving (10) — also Combined Arms' `mod models/Cordrazine/Shared/Radving`: cut once for both
 - [ ] `Zorving` — cruiser — Zorving (15) — also Combined Arms' `mod models/Cordrazine/Shared/Zorving`: cut once for both
 - [ ] `Kodaving` — battleship — Kodaving (no designs yet; Battleships_2 unlocks it) — also Combined Arms' `mod models/Cordrazine/Shared/Kodaving`: cut once for both
 - [ ] `Tornaving` — capital — Tornaving (3) — also Combined Arms' `mod models/Cordrazine/Shared/Tornaving`: cut once for both
+- [x] `Radving` — frigate — Radving (10)
 
-### Draylok (0 of 4 cut)
+### Draylok (1 of 4 cut)
 
-- [ ] `Reaper` — frigate — Reaper (11) — also Combined Arms' `mod models/Draylok/Reaper`: cut once for both
 - [ ] `Vulture` — cruiser — Vulture (12) — also Combined Arms' `mod models/Draylok/Vulture`: cut once for both
 - [ ] `Whirlwind` — battleship — Whirlwind (6) — also Combined Arms' `mod models/Draylok/Whirlwind`: cut once for both
 - [ ] `Aferka` — capital — Aferka (9) — also Combined Arms' `mod models/Draylok/Aferka`: cut once for both
+- [x] `Reaper` — frigate — Reaper (11)
 
 ### FreeBorg (0 of 11 cut)
 
@@ -76,25 +76,25 @@ so players can build it; hulls nothing uses or unlocks, and asteroid bases, are 
 - [ ] `Kling_Small_Turret` — station — S-3 Klaa (11)
 - [ ] `Kling_StarBase` — station — klingon Star Base (5)
 
-### Kulrathi (0 of 5 cut)
+### Kulrathi (3 of 5 cut)
 
-- [ ] `Chela` — frigate — Chela (9) — also Combined Arms' `mod models/Kulrathi/Chela`: cut once for both
-- [ ] `Lancer` — cruiser — Lancer (9) — also Combined Arms' `mod models/Kulrathi/Lancer`: cut once for both
 - [ ] `Demolisher` — battleship — Demolisher (10) — also Combined Arms' `mod models/Kulrathi/Demolisher`: cut once for both
 - [ ] `Protector` — capital — Protector (3) — also Combined Arms' `mod models/Kulrathi/Protector`: cut once for both
-- [ ] `Yamamoto` — capital — Yamamoto 11 (3) — also Combined Arms' `mod models/Kulrathi/Yamamoto`: cut once for both
+- [x] `Chela` — frigate — Chela (9)
+- [x] `Lancer` — cruiser — Lancer (9)
+- [x] `Yamamoto` — capital — Yamamoto 11 (3)
 
 ### Misc (0 of 2 cut)
 
 - [ ] `Omaga Destroyer` — cruiser — Omaga Destroyer revised (2)
 - [ ] `Excalibur` — battleship — Excalibur revised dr (no designs yet; legendery tech mk3 unlocks it)
 
-### Opteris (0 of 4 cut)
+### Opteris (1 of 4 cut)
 
-- [ ] `Soldier10` — frigate — Soldier10 (5) — also Combined Arms' `mod models/Opteris/Soldier10`: cut once for both
 - [ ] `Chitin10` — cruiser — Chitin10 (6) — also Combined Arms' `mod models/Opteris/Chitin10`: cut once for both
 - [ ] `Hiver10` — battleship — Hiver10 (no designs yet; Battleships_2 unlocks it) — also Combined Arms' `mod models/Opteris/Hiver10`: cut once for both
 - [ ] `Queen01` — capital — Queen01 (6) — also Combined Arms' `mod models/Opteris/Queen01`: cut once for both
+- [x] `Soldier10` — frigate — Soldier10 (5)
 
 ### Orion Syndicate (0 of 4 cut)
 
@@ -103,19 +103,19 @@ so players can build it; hulls nothing uses or unlocks, and asteroid bases, are 
 - [ ] `Sharlin` — cruiser — Sharlin Warcruiser revised (1)
 - [ ] `Hyd_StarBase` — station — ORIAN SYNDICATE BASE (3)
 
-### Pollops (0 of 4 cut)
+### Pollops (1 of 4 cut)
 
-- [ ] `Cycad` — frigate — Cycad (5) — also Combined Arms' `mod models/Pollops/Cycad`: cut once for both
 - [ ] `Cocoon` — cruiser — Cocoon (2) — also Combined Arms' `mod models/Pollops/Cocoon`: cut once for both
 - [ ] `Aldrovanda` — battleship — Aldrovanda (no designs yet; Battleships_2 unlocks it) — also Combined Arms' `mod models/Pollops/Aldrovanda`: cut once for both
 - [ ] `Eldritch` — capital — Eldritch (no designs yet; dreadnoughts unlocks it) — also Combined Arms' `mod models/Pollops/Eldritch`: cut once for both
+- [x] `Cycad` — frigate — Cycad (5)
 
-### Ralyeh (0 of 4 cut)
+### Ralyeh (1 of 4 cut)
 
-- [ ] `Devotee` — frigate — Devotee (11) — also Combined Arms' `mod models/Ralyeh/Devotee`: cut once for both
 - [ ] `Partizan` — cruiser — Partizan (17) — also Combined Arms' `mod models/Ralyeh/Partizan`: cut once for both
 - [ ] `Apostle` — battleship — Apostle (1) — also Combined Arms' `mod models/Ralyeh/Apostle`: cut once for both
 - [ ] `Pious` — capital — Pious (1) — also Combined Arms' `mod models/Ralyeh/Pious`: cut once for both
+- [x] `Devotee` — frigate — Devotee (11)
 
 ### Romulan (0 of 15 cut)
 
@@ -158,12 +158,12 @@ so players can build it; hulls nothing uses or unlocks, and asteroid bases, are 
 - [ ] `Fed_Small_Turret` — station — Type M-13 Turret (14)
 - [ ] `Fed_StarBase` — station — Fed_StarBase (4)
 
-### Vulfen (0 of 4 cut)
+### Vulfen (1 of 4 cut)
 
-- [ ] `TypeIX` — frigate — Type IX (8) — also Combined Arms' `mod models/Vulfar/TypeIX`: cut once for both
 - [ ] `Type XII` — cruiser — Type XII (2) — also Combined Arms' `mod models/Vulfar/Type XII`: cut once for both
 - [ ] `Alpha` — capital — Alpha (2)
 - [ ] `TypeXVI` — capital — Type XVI (no designs yet; dreadnoughts unlocks it) — also Combined Arms' `mod models/Vulfar/TypeXVI`: cut once for both
+- [x] `TypeIX` — frigate — Type IX (8)
 
 ### dominion (0 of 10 cut)
 
@@ -226,9 +226,8 @@ These live in the base game; a cut there carries into the mod.
 - [x] `Yamamoto` — capital — Yamamoto (5)
 - [x] `Kulrathi_Station` — station — Kulrathi_Station (10)
 
-### Misc (1 of 2 cut)
+### Misc (1 of 1 cut)
 
-- [ ] `shipyard` — station — Shipyards (1)
 - [x] `ship07` — frigate — speeder (5)
 
 ### Opteris (5 of 5 cut)
