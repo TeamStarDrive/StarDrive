@@ -6,89 +6,89 @@ under the race whose hulls carry most of its designs, or under Shared when more 
 A hull with no design is listed when a tech unlocks it,
 so players can build it; hulls nothing uses or unlocks, asteroid bases and shipyards are left out.
 
-72 of 102 models cut, carrying 1361 of 1555 designs.
+90 of 102 models cut, carrying 1521 of 1555 designs.
 
 ## The mod's own models
 
-### Chukk (6 of 9 cut)
+### Chukk (8 of 9 cut)
 
-- [ ] `Funnelweb` — cruiser — Funnelweb (6)
-- [ ] `Bonecrusher` — battleship — Bonecrusher (4)
 - [ ] `Oppressor` — capital — Oppressor (2)
 - [x] `Deathstalker` — frigate — Deathstalker (8)
 - [x] `ship20c` — frigate — Scorpion (19)
+- [x] `Funnelweb` — cruiser — Funnelweb (6)
 - [x] `ship20d` — cruiser — Widow (26)
+- [x] `Bonecrusher` — battleship — Bonecrusher (4)
 - [x] `ship20e` — battleship — Venom (15)
 - [x] `ship20f` — capital — Tyrant (6)
 - [x] `Chukk_Station` — station — Chukk_Station (14)
 
-### Cordrazine (1 of 4 cut)
+### Cordrazine (3 of 4 cut)
 
-- [ ] `Zorving` — cruiser — Zorving (7) — also Star Trek's `mod Model/Cordrazine/Shared/Zorving`: cut once for both
-- [ ] `Kodaving` — battleship — Kodaving (4) — also Star Trek's `mod Model/Cordrazine/Shared/Kodaving`: cut once for both
 - [ ] `Tornaving` — capital — Tornaving (4) — also Star Trek's `mod Model/Cordrazine/Shared/Tornaving`: cut once for both
 - [x] `Radving` — frigate — Radving (9)
+- [x] `Zorving` — cruiser — Zorving (7)
+- [x] `Kodaving` — battleship — Kodaving (4)
 
-### Dauntless (6 of 9 cut)
+### Dauntless (8 of 9 cut)
 
-- [ ] `Goosefish` — cruiser — Goosefish (7)
-- [ ] `Catfish` — battleship — Catfish (4)
 - [ ] `Obelisk` — capital — Obelisk (7)
 - [x] `ts2_modb` — frigate — ts2_modb (26)
 - [x] `ts3modc` — frigate — ts3_modc (9)
+- [x] `Goosefish` — cruiser — Goosefish (7)
 - [x] `ts3` — cruiser — ts3 (32)
+- [x] `Catfish` — battleship — Catfish (4)
 - [x] `ts3modb` — battleship — ts3_modb (18)
 - [x] `ts3modd` — capital — ts3_modd (6)
 - [x] `DauntlessStation` — station — Dauntless_Station (12)
 
-### Draylok (1 of 4 cut)
+### Draylok (3 of 4 cut)
 
-- [ ] `Vulture` — cruiser — Vulture (26) — also Star Trek's `mod Model/Draylok/Vulture`: cut once for both
-- [ ] `Whirlwind` — battleship — Whirlwind (3) — also Star Trek's `mod Model/Draylok/Whirlwind`: cut once for both
 - [ ] `Aferka` — capital — Aferka (no designs yet; Titan Hulls I unlocks it) — also Star Trek's `mod Model/Draylok/Aferka`: cut once for both
 - [x] `Reaper` — frigate — Reaper (8), Draug2 (1)
+- [x] `Vulture` — cruiser — Vulture (26)
+- [x] `Whirlwind` — battleship — Whirlwind (3)
 
-### Kulrathi (3 of 5 cut)
+### Kulrathi (4 of 5 cut)
 
-- [ ] `Demolisher` — battleship — Demolisher (6) — also Star Trek's `mod Model/Kulrathi/Demolisher`: cut once for both
 - [ ] `Protector` — capital — Protector (3) — also Star Trek's `mod Model/Kulrathi/Protector`: cut once for both
 - [x] `Chela` — frigate — Chela (16)
 - [x] `Lancer` — cruiser — Lancer (7)
+- [x] `Demolisher` — battleship — Demolisher (6)
 - [x] `Yamamoto` — capital — Yamamoto (9)
 
-### Opteris (1 of 4 cut)
+### Opteris (3 of 4 cut)
 
-- [ ] `Chitin10` — cruiser — Chitin10 (7) — also Star Trek's `mod Model/Opteris/Chitin10`: cut once for both
-- [ ] `Hiver10` — battleship — Hiver10 (7) — also Star Trek's `mod Model/Opteris/Hiver10`: cut once for both
 - [ ] `Queen01` — capital — Queen01 (2) — also Star Trek's `mod Model/Opteris/Queen01`: cut once for both
 - [x] `Soldier10` — frigate — Soldier10 (26)
+- [x] `Chitin10` — cruiser — Chitin10 (7)
+- [x] `Hiver10` — battleship — Hiver10 (7)
 
-### Pollops (1 of 4 cut)
+### Pollops (3 of 4 cut)
 
-- [ ] `Cocoon` — cruiser — Cocoon (13) — also Star Trek's `mod Model/Pollops/Cocoon`: cut once for both
-- [ ] `Aldrovanda` — battleship — Aldrovanda (3) — also Star Trek's `mod Model/Pollops/Aldrovanda`: cut once for both
 - [ ] `Eldritch` — capital — Eldritch (3) — also Star Trek's `mod Model/Pollops/Eldritch`: cut once for both
 - [x] `Cycad` — frigate — Cycad (25)
+- [x] `Cocoon` — cruiser — Cocoon (13)
+- [x] `Aldrovanda` — battleship — Aldrovanda (3)
 
-### Ralyeh (1 of 4 cut)
+### Ralyeh (3 of 4 cut)
 
-- [ ] `Partizan` — cruiser — Partizan (9) — also Star Trek's `mod Model/Ralyeh/Partizan`: cut once for both
-- [ ] `Apostle` — battleship — Apostle (13) — also Star Trek's `mod Model/Ralyeh/Apostle`: cut once for both
 - [ ] `Pious` — capital — Pious (3) — also Star Trek's `mod Model/Ralyeh/Pious`: cut once for both
 - [x] `Devotee` — frigate — Devotee (33), Draug1 (1)
+- [x] `Partizan` — cruiser — Partizan (9)
+- [x] `Apostle` — battleship — Apostle (13)
 
-### Terran (1 of 4 cut)
+### Terran (3 of 4 cut)
 
-- [ ] `BattleCruiser` — cruiser — BattleCruiser (11) — also Star Trek's `mod Model/Terran/SharedTextures/BattleCruiser`: cut once for both
-- [ ] `AssaultCarrier` — battleship — AssaultCarrier (17) — also Star Trek's `mod Model/Terran/SharedTextures/AssaultCarrier`: cut once for both
 - [ ] `Scarlet` — capital — Scarlet (4) — also Star Trek's `mod Model/Terran/SharedTextures/Scarlet`: cut once for both
 - [x] `Destroyer` — frigate — Destroyer (24)
+- [x] `BattleCruiser` — cruiser — BattleCruiser (11)
+- [x] `AssaultCarrier` — battleship — AssaultCarrier (17)
 
-### Vulfen (2 of 4 cut)
+### Vulfen (3 of 4 cut)
 
-- [ ] `Type XII` — cruiser — Type XII (13) — also Star Trek's `mod Model/vulfar/Type XII`: cut once for both
 - [ ] `TypeXVI` — capital — Type XVI (3) — also Star Trek's `mod Model/vulfar/TypeXVI`: cut once for both
 - [x] `TypeIX` — frigate — Type IX (9), Draug3 (1)
+- [x] `Type XII` — cruiser — Type XII (13)
 - [x] `TypeXV` — capital — Type XV (13)
 
 ## Base-game models the mod loads
