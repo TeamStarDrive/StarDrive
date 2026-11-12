@@ -6,90 +6,90 @@ under the race whose hulls carry most of its designs, or under Shared when more 
 A hull with no design is listed when a tech unlocks it,
 so players can build it; hulls nothing uses or unlocks, asteroid bases and shipyards are left out.
 
-90 of 102 models cut, carrying 1521 of 1555 designs.
+100 of 102 models cut, carrying 1552 of 1555 designs.
 
 ## The mod's own models
 
-### Chukk (8 of 9 cut)
+### Chukk (9 of 9 cut)
 
-- [ ] `Oppressor` — capital — Oppressor (2)
 - [x] `Deathstalker` — frigate — Deathstalker (8)
 - [x] `ship20c` — frigate — Scorpion (19)
 - [x] `Funnelweb` — cruiser — Funnelweb (6)
 - [x] `ship20d` — cruiser — Widow (26)
 - [x] `Bonecrusher` — battleship — Bonecrusher (4)
 - [x] `ship20e` — battleship — Venom (15)
+- [x] `Oppressor` — capital — Oppressor (2)
 - [x] `ship20f` — capital — Tyrant (6)
 - [x] `Chukk_Station` — station — Chukk_Station (14)
 
-### Cordrazine (3 of 4 cut)
+### Cordrazine (4 of 4 cut)
 
-- [ ] `Tornaving` — capital — Tornaving (4) — also Star Trek's `mod Model/Cordrazine/Shared/Tornaving`: cut once for both
 - [x] `Radving` — frigate — Radving (9)
 - [x] `Zorving` — cruiser — Zorving (7)
 - [x] `Kodaving` — battleship — Kodaving (4)
+- [x] `Tornaving` — capital — Tornaving (4)
 
-### Dauntless (8 of 9 cut)
+### Dauntless (9 of 9 cut)
 
-- [ ] `Obelisk` — capital — Obelisk (7)
 - [x] `ts2_modb` — frigate — ts2_modb (26)
 - [x] `ts3modc` — frigate — ts3_modc (9)
 - [x] `Goosefish` — cruiser — Goosefish (7)
 - [x] `ts3` — cruiser — ts3 (32)
 - [x] `Catfish` — battleship — Catfish (4)
 - [x] `ts3modb` — battleship — ts3_modb (18)
+- [x] `Obelisk` — capital — Obelisk (7)
 - [x] `ts3modd` — capital — ts3_modd (6)
 - [x] `DauntlessStation` — station — Dauntless_Station (12)
 
-### Draylok (3 of 4 cut)
+### Draylok (4 of 4 cut)
 
-- [ ] `Aferka` — capital — Aferka (no designs yet; Titan Hulls I unlocks it) — also Star Trek's `mod Model/Draylok/Aferka`: cut once for both
 - [x] `Reaper` — frigate — Reaper (8), Draug2 (1)
 - [x] `Vulture` — cruiser — Vulture (26)
 - [x] `Whirlwind` — battleship — Whirlwind (3)
+- [x] `Aferka` — capital — Aferka (no designs yet; Titan Hulls I unlocks it)
 
-### Kulrathi (4 of 5 cut)
+### Kulrathi (5 of 5 cut)
 
-- [ ] `Protector` — capital — Protector (3) — also Star Trek's `mod Model/Kulrathi/Protector`: cut once for both
 - [x] `Chela` — frigate — Chela (16)
 - [x] `Lancer` — cruiser — Lancer (7)
 - [x] `Demolisher` — battleship — Demolisher (6)
+- [x] `Protector` — capital — Protector (3)
 - [x] `Yamamoto` — capital — Yamamoto (9)
 
-### Opteris (3 of 4 cut)
+### Opteris (4 of 4 cut)
 
-- [ ] `Queen01` — capital — Queen01 (2) — also Star Trek's `mod Model/Opteris/Queen01`: cut once for both
 - [x] `Soldier10` — frigate — Soldier10 (26)
 - [x] `Chitin10` — cruiser — Chitin10 (7)
 - [x] `Hiver10` — battleship — Hiver10 (7)
+- [x] `Queen01` — capital — Queen01 (2)
 
-### Pollops (3 of 4 cut)
+### Pollops (4 of 4 cut)
 
-- [ ] `Eldritch` — capital — Eldritch (3) — also Star Trek's `mod Model/Pollops/Eldritch`: cut once for both
 - [x] `Cycad` — frigate — Cycad (25)
 - [x] `Cocoon` — cruiser — Cocoon (13)
 - [x] `Aldrovanda` — battleship — Aldrovanda (3)
+- [x] `Eldritch` — capital — Eldritch (3)
 
-### Ralyeh (3 of 4 cut)
+### Ralyeh (4 of 4 cut)
 
-- [ ] `Pious` — capital — Pious (3) — also Star Trek's `mod Model/Ralyeh/Pious`: cut once for both
 - [x] `Devotee` — frigate — Devotee (33), Draug1 (1)
 - [x] `Partizan` — cruiser — Partizan (9)
 - [x] `Apostle` — battleship — Apostle (13)
+- [x] `Pious` — capital — Pious (3)
 
-### Terran (3 of 4 cut)
+### Terran (4 of 4 cut)
 
-- [ ] `Scarlet` — capital — Scarlet (4) — also Star Trek's `mod Model/Terran/SharedTextures/Scarlet`: cut once for both
 - [x] `Destroyer` — frigate — Destroyer (24)
 - [x] `BattleCruiser` — cruiser — BattleCruiser (11)
 - [x] `AssaultCarrier` — battleship — AssaultCarrier (17)
+- [x] `Scarlet` — capital — Scarlet (4)
 
-### Vulfen (3 of 4 cut)
+### Vulfen (4 of 4 cut)
 
-- [ ] `TypeXVI` — capital — Type XVI (3) — also Star Trek's `mod Model/vulfar/TypeXVI`: cut once for both
 - [x] `TypeIX` — frigate — Type IX (9), Draug3 (1)
 - [x] `Type XII` — cruiser — Type XII (13)
 - [x] `TypeXV` — capital — Type XV (13)
+- [x] `TypeXVI` — capital — Type XVI (3)
 
 ## Base-game models the mod loads
 

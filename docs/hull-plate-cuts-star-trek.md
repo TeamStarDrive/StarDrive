@@ -6,7 +6,7 @@ under the race whose hulls carry most of its designs, or under Shared when more 
 A hull with no design is listed when a tech unlocks it,
 so players can build it; hulls nothing uses or unlocks, asteroid bases and shipyards are left out.
 
-72 of 190 models cut, carrying 663 of 1311 designs.
+80 of 190 models cut, carrying 687 of 1311 designs.
 
 ## The mod's own models
 
@@ -29,19 +29,19 @@ so players can build it; hulls nothing uses or unlocks, asteroid bases and shipy
 - [ ] `Car_Small_Turret` — station — ODS turret (9)
 - [ ] `Car_StarBase` — station — Car_StarBase (6)
 
-### Cordrazine (3 of 4 cut)
+### Cordrazine (4 of 4 cut)
 
-- [ ] `Tornaving` — capital — Tornaving (3) — also Combined Arms' `mod models/Cordrazine/Shared/Tornaving`: cut once for both
 - [x] `Radving` — frigate — Radving (10)
 - [x] `Zorving` — cruiser — Zorving (15)
 - [x] `Kodaving` — battleship — Kodaving (no designs yet; Battleships_2 unlocks it)
+- [x] `Tornaving` — capital — Tornaving (3)
 
-### Draylok (3 of 4 cut)
+### Draylok (4 of 4 cut)
 
-- [ ] `Aferka` — capital — Aferka (9) — also Combined Arms' `mod models/Draylok/Aferka`: cut once for both
 - [x] `Reaper` — frigate — Reaper (11)
 - [x] `Vulture` — cruiser — Vulture (12)
 - [x] `Whirlwind` — battleship — Whirlwind (6)
+- [x] `Aferka` — capital — Aferka (9)
 
 ### FreeBorg (0 of 11 cut)
 
@@ -76,12 +76,12 @@ so players can build it; hulls nothing uses or unlocks, asteroid bases and shipy
 - [ ] `Kling_Small_Turret` — station — S-3 Klaa (11)
 - [ ] `Kling_StarBase` — station — klingon Star Base (5)
 
-### Kulrathi (4 of 5 cut)
+### Kulrathi (5 of 5 cut)
 
-- [ ] `Protector` — capital — Protector (3) — also Combined Arms' `mod models/Kulrathi/Protector`: cut once for both
 - [x] `Chela` — frigate — Chela (9)
 - [x] `Lancer` — cruiser — Lancer (9)
 - [x] `Demolisher` — battleship — Demolisher (10)
+- [x] `Protector` — capital — Protector (3)
 - [x] `Yamamoto` — capital — Yamamoto 11 (3)
 
 ### Misc (0 of 2 cut)
@@ -89,12 +89,12 @@ so players can build it; hulls nothing uses or unlocks, asteroid bases and shipy
 - [ ] `Omaga Destroyer` — cruiser — Omaga Destroyer revised (2)
 - [ ] `Excalibur` — battleship — Excalibur revised dr (no designs yet; legendery tech mk3 unlocks it)
 
-### Opteris (3 of 4 cut)
+### Opteris (4 of 4 cut)
 
-- [ ] `Queen01` — capital — Queen01 (6) — also Combined Arms' `mod models/Opteris/Queen01`: cut once for both
 - [x] `Soldier10` — frigate — Soldier10 (5)
 - [x] `Chitin10` — cruiser — Chitin10 (6)
 - [x] `Hiver10` — battleship — Hiver10 (no designs yet; Battleships_2 unlocks it)
+- [x] `Queen01` — capital — Queen01 (6)
 
 ### Orion Syndicate (0 of 4 cut)
 
@@ -103,19 +103,19 @@ so players can build it; hulls nothing uses or unlocks, asteroid bases and shipy
 - [ ] `Sharlin` — cruiser — Sharlin Warcruiser revised (1)
 - [ ] `Hyd_StarBase` — station — ORIAN SYNDICATE BASE (3)
 
-### Pollops (3 of 4 cut)
+### Pollops (4 of 4 cut)
 
-- [ ] `Eldritch` — capital — Eldritch (no designs yet; dreadnoughts unlocks it) — also Combined Arms' `mod models/Pollops/Eldritch`: cut once for both
 - [x] `Cycad` — frigate — Cycad (5)
 - [x] `Cocoon` — cruiser — Cocoon (2)
 - [x] `Aldrovanda` — battleship — Aldrovanda (no designs yet; Battleships_2 unlocks it)
+- [x] `Eldritch` — capital — Eldritch (no designs yet; dreadnoughts unlocks it)
 
-### Ralyeh (3 of 4 cut)
+### Ralyeh (4 of 4 cut)
 
-- [ ] `Pious` — capital — Pious (1) — also Combined Arms' `mod models/Ralyeh/Pious`: cut once for both
 - [x] `Devotee` — frigate — Devotee (11)
 - [x] `Partizan` — cruiser — Partizan (17)
 - [x] `Apostle` — battleship — Apostle (1)
+- [x] `Pious` — capital — Pious (1)
 
 ### Romulan (0 of 15 cut)
 
@@ -135,7 +135,7 @@ so players can build it; hulls nothing uses or unlocks, asteroid bases and shipy
 - [ ] `Rom_Small_Turret` — station — Beta Class Turret (10)
 - [ ] `Rom_StarBase` — station — Rom_StarBase (6)
 
-### Terran (2 of 20 cut)
+### Terran (3 of 20 cut)
 
 - [ ] `Destroyer` — frigate — Destroyer (16) — also Combined Arms' `mod models/Terran/Destroyer/Destroyer`, already cut there
 - [ ] `Fed_Centaur` — frigate — Fed_Centaur (16)
@@ -150,20 +150,20 @@ so players can build it; hulls nothing uses or unlocks, asteroid bases and shipy
 - [ ] `Battleship` — capital — Dreadnought (12) — the base game's `Model/Ships/Terran/Battleship/Battleship` is this model cut: its hulls can load that
 - [ ] `Fed_Nebula` — capital — Fed_Nebula (4)
 - [ ] `Fed_Sovereign` — capital — Fed_Sovereign (3)
-- [ ] `Scarlet` — capital — Scarlet (2) — also Combined Arms' `mod models/Terran/SharedTextures/Scarlet`: cut once for both
 - [ ] `Fed_Large_Turret` — station — Type M-17 Turret (9)
 - [ ] `Fed_Outpost` — station — Outpost (9)
 - [ ] `Fed_Small_Turret` — station — Type M-13 Turret (14)
 - [ ] `Fed_StarBase` — station — Fed_StarBase (4)
 - [x] `BattleCruiser` — cruiser — BattleCruiser (10)
 - [x] `AssaultCarrier` — battleship — AssaultCarrier (6)
+- [x] `Scarlet` — capital — Scarlet (2)
 
-### Vulfen (2 of 4 cut)
+### Vulfen (3 of 4 cut)
 
 - [ ] `Alpha` — capital — Alpha (2)
-- [ ] `TypeXVI` — capital — Type XVI (no designs yet; dreadnoughts unlocks it) — also Combined Arms' `mod models/Vulfar/TypeXVI`: cut once for both
 - [x] `TypeIX` — frigate — Type IX (8)
 - [x] `Type XII` — cruiser — Type XII (2)
+- [x] `TypeXVI` — capital — Type XVI (no designs yet; dreadnoughts unlocks it)
 
 ### dominion (0 of 10 cut)
 
