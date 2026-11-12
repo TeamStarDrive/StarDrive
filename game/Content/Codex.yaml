@@ -46,6 +46,9 @@
       UID: overview_playing_stardrive
     -
       UID: overview_controls
+      Children:
+        -
+          UID: controls_selecting_ships
     -
       UID: overview_map_overlays
     -

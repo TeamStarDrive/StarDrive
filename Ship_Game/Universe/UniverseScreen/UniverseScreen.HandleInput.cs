@@ -727,27 +727,55 @@ namespace Ship_Game
         bool SelectShipClicks(InputState input)
         {
             Ship ship = FindClickedShip(input);
-            if (ship != null)
-            {
-                if (SelectedShipList.Count > 0 && input.IsShiftKeyDown)
-                {
-                    // remove existing ship?
-                    if (SelectedShipList.RemoveRef(ship))
-                    {
-                        UpdateSelectedShips();
-                        return true;
-                    }
+            if (ship == null)
+                return false;
 
-                    // ok, no, add a new ship instead?
-                    bool added = SelectedShipList.AddUniqueRef(ship);
-                    UpdateSelectedShips();
-                    return added;
-                }
-
+            if (SelectedShipList.Count > 0 && input.IsShiftKeyDown)
+                ShiftClickShip(ship);
+            else
                 SetSelectedShip(ship);
-                return true;
+            return true;
+        }
+
+        // a ship of the selection's side comes out of it or goes in, and one of the other side starts a new selection
+        internal void ShiftClickShip(Ship ship)
+        {
+            if (!SameSide(SelectedShipList, ship))
+            {
+                SetSelectedShip(ship);
+                return;
             }
-            return false;
+
+            var ships = new Array<Ship>(SelectedShipList);
+            if (!ships.RemoveRef(ship))
+                ships.Add(ship);
+
+            SelectedSomethingTimer = 3f;
+            if (ships.IsEmpty)
+                ClearSelectedItems(clearFlags: false);
+            else if (ships.Count == 1) // the one ship left is selected as a plain click selects it
+                SetSelectedShip(ships[0], clearFlags: false);
+            else
+                SetSelectedShipList(ships, WholeFleetOf(ships), clearFlags: false);
+        }
+
+        // a selection holds either the player's own ships or none of them
+        static bool SameSide(IReadOnlyList<Ship> selection, Ship ship)
+        {
+            return selection.Count == 0 || selection[0].Loyalty.isPlayer == ship.Loyalty.isPlayer;
+        }
+
+        // the player's fleet when the ships are all of it and nothing else
+        internal static Fleet WholeFleetOf(IReadOnlyList<Ship> ships)
+        {
+            Fleet fleet = ships.Count > 0 ? ships[0].Fleet : null;
+            if (fleet == null || fleet.Owner?.isPlayer != true || fleet.Ships.Count != ships.Count)
+                return null;
+
+            for (int i = 1; i < ships.Count; ++i)
+                if (ships[i].Fleet != fleet)
+                    return null;
+            return fleet;
         }
 
         bool SelectPlanetClicks(InputState input)
@@ -892,19 +920,16 @@ namespace Ship_Game
             bool nonPlayer      = altSelect || !potentialShips.Any(s => s.Loyalty.isPlayer);
             bool onlyPlayer     = !nonPlayer && potentialShips.Any(s => s.Loyalty.isPlayer);
 
-            var ships = new Array<Ship>();
-            if (addToSelection)
-                ships.AddRange(currentSelection);
-
+            var picked = new Array<Ship>();
             foreach (Ship ship in potentialShips)
             {
-                if       (onlyPlayer && ship.Loyalty.isPlayer) ships.AddUnique(ship);
-                else if  (nonPlayer && !ship.Loyalty.isPlayer) ships.AddUnique(ship);
+                if       (onlyPlayer && ship.Loyalty.isPlayer) picked.AddUnique(ship);
+                else if  (nonPlayer && !ship.Loyalty.isPlayer) picked.AddUnique(ship);
             }
 
-            if (onlyPlayer && !selectAll && fleet == null) // Need to remove non combat ship.
+            if (onlyPlayer && !selectAll) // Need to remove non combat ship.
             {
-                ships.RemoveAll(NonCombatShip);
+                picked.RemoveAll(NonCombatShip);
             }
 
             if (onlyPlayer && !ctrlSelect && !hasCombatShips)
@@ -913,16 +938,17 @@ namespace Ship_Game
                 // then discard all ships that aren't troop transports
                 bool hasTroopTransports = potentialShips.Any(s => s.Loyalty.isPlayer && s.IsSingleTroopShip);
                 if (hasTroopTransports)
-                    ships.RemoveAll(s => !s.IsSingleTroopShip);
+                    picked.RemoveAll(s => !s.IsSingleTroopShip);
             }
 
-            if (onlyPlayer && ships.Count > 0 && ships.First.Fleet != null)
-            {
-                Fleet groupFleet = ships.Any(s => s.Fleet != ships.First.Fleet) ? null : ships.First.Fleet;
-                if (groupFleet != null && groupFleet.Ships.Count == ships.Count)
-                    fleet = groupFleet; // All the fleet was selected
-            }
+            // shift keeps a selection of the same side as it was and adds the box to it
+            var ships = new Array<Ship>();
+            if (addToSelection && picked.NotEmpty && SameSide(currentSelection, picked.First))
+                ships.AddRange(currentSelection);
+            foreach (Ship ship in picked)
+                ships.AddUnique(ship);
 
+            fleet = WholeFleetOf(ships);
             return ships;
         }
 
@@ -1085,29 +1111,36 @@ namespace Ship_Game
             if (clicked == null)
                 return false;
 
+            SelectShipsLike(clicked, ctrl: input.IsCtrlKeyDown, alt: input.IsAltKeyDown);
+            return true;
+        }
+
+        // every ship on screen the player can see with the clicked ship's owner and role; Ctrl and Alt narrow it
+        internal void SelectShipsLike(Ship clicked, bool ctrl, bool alt)
+        {
             Array<Ship> selected = new() { clicked };
 
             Ship[] ships = UState.Objects.VisibleShips;
             foreach (Ship ship in ships)
             {
-                if (clicked == ship || ship.Loyalty != clicked.Loyalty)
+                if (clicked == ship || ship.Loyalty != clicked.Loyalty || !CanClickOnShip(ship))
                     continue;
 
                 bool sameHull   = ship.BaseHull == clicked.BaseHull;
                 bool sameRole   = ship.DesignRole == clicked.DesignRole;
                 bool sameDesign = ship.Name == clicked.Name;
 
-                if (input.SelectSameDesign) // Ctrl+Alt+DoubleClick
+                if (ctrl && alt) // Ctrl+Alt+DoubleClick
                 {
                     if (sameDesign)
                         selected.AddUnique(ship);
                 }
-                else if (input.SelectSameRoleAndHull) // Ctrl+DoubleClick
+                else if (ctrl) // Ctrl+DoubleClick
                 {
                     if (sameRole && sameHull)
                         selected.AddUnique(ship);
                 }
-                else if (input.SelectSameHull) // Alt+DoubleClick
+                else if (alt) // Alt+DoubleClick
                 {
                     if (sameHull)
                         selected.AddUnique(ship);
@@ -1119,8 +1152,7 @@ namespace Ship_Game
                 }
             }
 
-            SetSelectedShipList(selected, fleet: null);
-            return true;
+            SetSelectedShipList(selected, WholeFleetOf(selected));
         }
 
         void CyclePlanetsInCombat(UIButton b)
