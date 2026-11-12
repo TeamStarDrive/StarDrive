@@ -108,7 +108,7 @@ namespace Ship_Game.AI
         }
 
         // Executes the active HoldPosition ShipGoal Plan while respecting MoveOrder stance
-        void DoHoldPositionPlan(ShipGoal goal)
+        void DoHoldPositionPlan(FixedSimTime timeStep, ShipGoal goal)
         {
             ChangeAIState(AIState.HoldPosition);
 
@@ -125,7 +125,7 @@ namespace Ship_Game.AI
             // if our ship drifts too far from HoldPosition target,
             // order MoveTo with the original MoveOrder stance
             float distanceFromHoldAt = Owner.Position.Distance(holdAt);
-            if (distanceFromHoldAt > 100f)
+            if (distanceFromHoldAt > HoldPointSlack)
             {
                 OrderMoveTo(holdAt, goal.Direction, AIState.HoldPosition, order);
                 OrderHoldPosition(holdAt, goal.Direction, order);
@@ -133,6 +133,10 @@ namespace Ship_Game.AI
             else if (BadGuysNear && CanEnterCombatFromCurrentStance(order))
             {
                 EnterCombatState(AIState.Combat);
+            }
+            else if (Owner.CurrentVelocity > 0f)
+            {
+                ReverseThrustUntilStopped(timeStep);
             }
         }
 
@@ -295,7 +299,7 @@ namespace Ship_Game.AI
             if (distance <= 75) // final stop, by this point our speed should be sufficiently
             {
                 if (debug) Owner.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
-                if (ReverseThrustUntilStopped(timeStep))
+                if (ReverseThrustUntilStopped(timeStep) || PushedOffFriend) // a ship pushed off a friend here has arrived
                 {
                     DequeueCurrentOrder(goal.MoveOrder);
                 }
@@ -398,6 +402,8 @@ namespace Ship_Game.AI
         internal bool ReverseThrustUntilStopped(FixedSimTime timeStep)
         {
             Owner.HyperspaceReturn();
+            if (PushedOffFriend)
+                return false; // it brakes once clear of the friend
             if (Owner.Velocity.AlmostZero())
             {
                 Owner.Velocity = Vector2.Zero;
@@ -657,6 +663,60 @@ namespace Ship_Game.AI
         // If we can optimize FriendliesNearby so that sorting becomes feasible, this could be reduced
         public const int FlockingMaxNeighbors = 100;
 
+        // set while flocking pushes this ship off a friend; it neither brakes nor steadies its drift until its next move
+        internal bool PushedOffFriend { get; private set; }
+
+        internal void EndPushOffFriend() => PushedOffFriend = false;
+
+        // set from a push off a friend until the ship has stopped
+        bool SettlingAfterPush;
+
+        // a pushed ship gains speed only up to what its stability thrusters can stop within this distance
+        const float PushStopDistance = 50f;
+
+        // how far a ship may drift off its hold point before it flies back to it
+        const float HoldPointSlack = 100f;
+
+        // a ship holding its point holds where it stops after a push off a friend
+        void HoldWherePushed()
+        {
+            if (PushedOffFriend)
+                SettlingAfterPush = true;
+            else if (!SettlingAfterPush)
+                return;
+            else if (Owner.Velocity.AlmostZero())
+                SettlingAfterPush = false;
+
+            ShipGoal hold = OrderQueue.PeekLast;
+            if (hold?.Plan == Plan.HoldPosition && OnlyHoldingBefore(hold) && Owner.Position.InRadius(hold.MovePosition, HoldPointSlack))
+                hold.MovePosition = Owner.Position;
+            else
+                SettlingAfterPush = false;
+        }
+
+        // nothing but its final turn, and on the Hold Position stance a fight, stands before the ship's hold order
+        bool OnlyHoldingBefore(ShipGoal hold)
+        {
+            foreach (ShipGoal goal in OrderQueue)
+            {
+                if (goal == hold)
+                    return true;
+                if (goal.Plan != Plan.RotateToDesiredFacing && (goal.Plan != Plan.DoCombat || CombatState != CombatState.HoldPosition))
+                    return false;
+            }
+            return false;
+        }
+
+        // two ships on the same spot part along a direction fixed for the pair, opposite for each
+        Vector2 PartingDirection(Ship friend)
+        {
+            int low = Math.Min(Owner.Id, friend.Id);
+            int high = Math.Max(Owner.Id, friend.Id);
+            float angle = (low * 0.618034f + high * 0.381966f) % 1f * RadMath.TwoPI;
+            Vector2 dir = angle.RadiansToDirection();
+            return Owner.Id == low ? dir : -dir;
+        }
+
         // Very simple implementation for basic flocking behaviour
         // It's not designed to be perfect, but rather work with performance constraints
         // And give at least some separation to ships, instead of 100-ship death stacks
@@ -702,13 +762,13 @@ namespace Ship_Game.AI
                         u.DebugWin.DrawLine(Debug.DebugModes.Normal, ourPos, friendPos, 0.8f, Color.Orange, 0f);
                     }
 
-                    // edge case, two ships are on top of each other, so assign a random direction
+                    // edge case, two ships are on top of each other, so part them along a direction fixed for the pair
                     if (distance < 16f)
                     {
-                        meanDeflect += Owner.Loyalty.Random.Direction2D();
+                        meanDeflect += PartingDirection(friend);
                         maxDeflectionPower = 1.0f; // fully deflect away
 
-                        // we don't need to get any more friends, this single random direction is enough
+                        // we don't need to get any more friends, this single direction is enough
                         // and we also don't want to apply any more rotation changes
                         break;
                     }
@@ -769,8 +829,11 @@ namespace Ship_Game.AI
                 // Ship acceleration already makes use of Thrust Force
                 // so just use that, and ship velocity update takes care of the rest
                 float thrustForce = Owner.Stats.Thrust;
-                Vector2 force = meanDeflect.Normalized() * maxDeflectionPower * thrustForce;
-                Owner.ApplyForce(force);
+                Vector2 pushDir = meanDeflect.Normalized();
+                Vector2 force = pushDir * maxDeflectionPower * thrustForce;
+                if (Owner.Velocity.Dot(pushDir) < Owner.SideDriftStopSpeed(PushStopDistance))
+                    Owner.ApplyForce(force);
+                PushedOffFriend = pushDir != Vector2.Zero;
 
                 var u = Owner.Universe;
                 if (u.Debug && u.DebugWin != null)

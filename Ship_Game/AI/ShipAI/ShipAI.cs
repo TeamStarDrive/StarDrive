@@ -425,11 +425,12 @@ namespace Ship_Game.AI
             if (timeStep.FixedTime > 0f
                 && GlobalStats.EnableShipFlocking
                 && FriendliesNearby.Length != 0 
-                && Owner.InCombat
+                && (Owner.InCombat || BadGuysNear && OrderQueue.PeekFirst?.Plan == Plan.HoldPosition)
                 && !Orbit.InOrbit)
             {
                 KeepDistanceUsingFlocking(timeStep);
             }
+            HoldWherePushed();
 
             // Evaluate ShipGoals
             if (OrderQueue.TryPeekFirst(out ShipGoal first))
@@ -645,7 +646,7 @@ namespace Ship_Game.AI
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
                 case Plan.ReturnHome:               DoReturnHome(timeStep, goal);             break;
                 case Plan.RebaseToShip:             DoRebaseToShip(timeStep);                 break;
-                case Plan.HoldPosition:             DoHoldPositionPlan(goal);                 break;
+                case Plan.HoldPosition:             DoHoldPositionPlan(timeStep, goal);       break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
                 case Plan.Meteor:                   DoMeteor(goal);                           break;
                 case Plan.BuilderReturnHome:        DoBuilderReturnHome(timeStep, goal);      break;

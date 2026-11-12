@@ -201,6 +201,12 @@ namespace Ship_Game.Ships
             return distance;
         }
 
+        // the drift speed the stability thrusters can still stop within this distance
+        public float SideDriftStopSpeed(float distance)
+        {
+            return (float)Math.Sqrt(2f * distance * GetMaxThrustAcceleration() * SASThrusterPower);
+        }
+
         public void SubLightAccelerate(float stlSpeedLimit = 0f, Thrust direction = Thrust.Forward)
         {
             if (engineState == MoveState.Warp)
@@ -302,7 +308,7 @@ namespace Ship_Game.Ships
                 isZeroAcc = false;
             }
 
-            if (GetSASThrusterAcceleration(ref finalAcc, a, SASThrusterPower))
+            if (!AI.PushedOffFriend && GetSASThrusterAcceleration(ref finalAcc, a, SASThrusterPower))
                 isZeroAcc = false;
                 
             if (GetThrustAcceleration(ref finalAcc, a))
@@ -326,6 +332,7 @@ namespace Ship_Game.Ships
         void ResetFrameThrustState()
         {
             ResetForcesThisFrame();
+            AI.EndPushOffFriend();
 
             //if (!Carrier.RecallingShipsBeforeWarp)
             //    SetSpeedLimit(VelocityMaximum);
