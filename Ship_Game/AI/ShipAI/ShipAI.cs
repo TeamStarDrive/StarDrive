@@ -430,7 +430,6 @@ namespace Ship_Game.AI
             {
                 KeepDistanceUsingFlocking(timeStep);
             }
-            HoldWherePushed();
 
             // Evaluate ShipGoals
             if (OrderQueue.TryPeekFirst(out ShipGoal first))
@@ -444,6 +443,7 @@ namespace Ship_Game.AI
                 // TODO: figure out a way to only use ShipGoal system which is less error prone
                 UpdateFromAIState(timeStep);
             }
+            HoldWherePushed(); // after the goals, which set this step's thrust
         }
 
         public Ship NearBySupplyShip => FriendliesNearby.FindMinFiltered(

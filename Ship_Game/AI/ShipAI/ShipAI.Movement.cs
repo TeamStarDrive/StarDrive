@@ -663,10 +663,17 @@ namespace Ship_Game.AI
         // If we can optimize FriendliesNearby so that sorting becomes feasible, this could be reduced
         public const int FlockingMaxNeighbors = 100;
 
-        // set while flocking pushes this ship off a friend; it neither brakes nor steadies its drift until its next move
+        // set for the sim step in which flocking pushes this ship off a friend; meanwhile it neither brakes nor steadies its drift
         internal bool PushedOffFriend { get; private set; }
 
-        internal void EndPushOffFriend() => PushedOffFriend = false;
+        // set for the sim step in which a friend that is not holding its own point, such as one flying to it, pushes this ship
+        bool PushedByTraffic;
+
+        internal void EndPushOffFriend()
+        {
+            PushedOffFriend = false;
+            PushedByTraffic = false;
+        }
 
         // set from a push off a friend until the ship has stopped
         bool SettlingAfterPush;
@@ -677,7 +684,7 @@ namespace Ship_Game.AI
         // how far a ship may drift off its hold point before it flies back to it
         const float HoldPointSlack = 100f;
 
-        // a ship holding its point holds where it stops after a push off a friend
+        // a ship holding its point holds where a push off friends holding theirs leaves it, but not where its own thrust or passing traffic takes it
         void HoldWherePushed()
         {
             if (PushedOffFriend)
@@ -687,11 +694,18 @@ namespace Ship_Game.AI
             else if (Owner.Velocity.AlmostZero())
                 SettlingAfterPush = false;
 
-            ShipGoal hold = OrderQueue.PeekLast;
-            if (hold?.Plan == Plan.HoldPosition && OnlyHoldingBefore(hold) && Owner.Position.InRadius(hold.MovePosition, HoldPointSlack))
+            if (HoldsItsPoint(out ShipGoal hold) && !PushedByTraffic && Owner.ThrustThisFrame != Thrust.Forward
+                && Owner.Position.InRadius(hold.MovePosition, HoldPointSlack))
                 hold.MovePosition = Owner.Position;
             else
                 SettlingAfterPush = false;
+        }
+
+        // its last order is a hold, and nothing but its final turn, and on the Hold Position stance a fight, stands before it
+        bool HoldsItsPoint(out ShipGoal hold)
+        {
+            hold = OrderQueue.PeekLast;
+            return hold?.Plan == Plan.HoldPosition && OnlyHoldingBefore(hold);
         }
 
         // nothing but its final turn, and on the Hold Position stance a fight, stands before the ship's hold order
@@ -701,6 +715,8 @@ namespace Ship_Game.AI
             {
                 if (goal == hold)
                     return true;
+                if (goal == null)
+                    return false;
                 if (goal.Plan != Plan.RotateToDesiredFacing && (goal.Plan != Plan.DoCombat || CombatState != CombatState.HoldPosition))
                     return false;
             }
@@ -712,8 +728,8 @@ namespace Ship_Game.AI
         {
             int low = Math.Min(Owner.Id, friend.Id);
             int high = Math.Max(Owner.Id, friend.Id);
-            float angle = (low * 0.618034f + high * 0.381966f) % 1f * RadMath.TwoPI;
-            Vector2 dir = angle.RadiansToDirection();
+            double turns = (low * 0.6180339887 + high * 0.3819660113) % 1.0;
+            Vector2 dir = ((float)(turns * Math.PI * 2.0)).RadiansToDirection();
             return Owner.Id == low ? dir : -dir;
         }
 
@@ -744,6 +760,7 @@ namespace Ship_Game.AI
 
             Vector2 ourPos = Owner.Position;
             var u = Owner.Universe;
+            bool holding = OrderQueue.PeekLast?.Plan == Plan.HoldPosition;
 
             for (int i = 0; i < FriendliesNearby.Length && i < FlockingMaxNeighbors; ++i)
             {
@@ -757,6 +774,9 @@ namespace Ship_Game.AI
                 float separationDist = combinedRadius + FlockingSeparation;
                 if (distance < separationDist)
                 {
+                    if (holding && !PushedByTraffic && !friend.AI.HoldsItsPoint(out _))
+                        PushedByTraffic = true;
+
                     if (u.Debug && u.DebugWin != null)
                     {
                         u.DebugWin.DrawLine(Debug.DebugModes.Normal, ourPos, friendPos, 0.8f, Color.Orange, 0f);

@@ -129,6 +129,37 @@ public class ShipPileTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ShipsPiledOnHoldPositionGoBackToTheirSpotsAfterAChase()
+    {
+        TestShip[] pile = PileUp(6, CombatState.HoldPosition, MoveOrder.Regular);
+        TestShip enemy = EnemyAt(700f);
+        RunWithEnemy(20f, enemy, pile);
+        AssertTrue(Array.TrueForAll(pile, s => s.InCombat), "setup: the ships fight the enemy");
+        Vector2[] spots = Array.ConvertAll(pile, s => s.AI.OrderQueue.PeekLast.MovePosition);
+
+        Vector2 outThere = PileAt + new Vector2(0, -12_000f); // beyond the stance's firing distance, so the pile chases it
+        enemy.Position = outThere;
+        enemy.AI.OrderHoldPosition(outThere, Vectors.Up, MoveOrder.StandGround | MoveOrder.HoldPosition);
+        float chased = 0f;
+        RunObjectsSim(15f, () =>
+        {
+            Mend(enemy);
+            for (int i = 0; i < pile.Length; ++i)
+                chased = Math.Max(chased, pile[i].Position.Distance(spots[i]));
+        });
+        AssertGreaterThan(chased, 500f, $"setup: the pile chases the enemy{Describe(pile)}");
+
+        enemy.Die(null, cleanupOnly: true);
+        RunObjectsSim(60f);
+        for (int i = 0; i < pile.Length; ++i)
+        {
+            Vector2 holdAt = pile[i].AI.OrderQueue.PeekLast.MovePosition;
+            AssertLessThan(holdAt.Distance(spots[i]), 150f, $"ship {i} keeps its hold point through the chase{Describe(pile)}");
+            AssertLessThan(pile[i].Position.Distance(holdAt), 100f, $"and goes back to it after the chase{Describe(pile)}");
+        }
+    }
+
+    [TestMethod]
     public void ShipsPiledOnAStandGroundHoldEdgeApartAndStayApart()
     {
         TestShip[] pile = PileUp(6, CombatState.AttackRuns, MoveOrder.StandGround);
@@ -183,7 +214,7 @@ public class ShipPileTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ShipsMovedOntoOneSpotWithEnemiesNearArriveAndEdgeApart()
+    public void ShipsMovedOntoOneSpotWithEnemiesNearArriveThenEdgeApartWhileHolding()
     {
         TestShip enemy = EnemyAt(3000f);
         var ships = new TestShip[2];
