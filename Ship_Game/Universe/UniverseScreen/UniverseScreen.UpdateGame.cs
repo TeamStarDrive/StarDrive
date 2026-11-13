@@ -35,6 +35,10 @@ namespace Ship_Game
 
         readonly PerfTimer TimeSinceLastAutoFPS = new PerfTimer();
 
+        // the auto ramp keeps a speed the player lowered until the player raises it above this
+        const float AutoRampResumesAbove = 5f;
+        volatile bool GameSpeedHeldByPlayer;
+
         public int CurrentSimFPS => GlobalStats.SimulationFramesPerSecond + SimFPSModifier;
         public int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / UState.GameSpeed);
 
@@ -170,7 +174,7 @@ namespace Ship_Game
                     }
 
                     AutoAdjustSimulationFrameRate();
-                    if (GlobalStats.AutoRampGameSpeed)
+                    if (GlobalStats.AutoRampGameSpeed && !GameSpeedHeldByPlayer)
                     {
                         if (TurnTimePerf.MeasuredSamples > 0 && TurnTimePerf.AvgTime * UState.GameSpeed < 0.05f)
                         {
@@ -391,13 +395,25 @@ namespace Ship_Game
         void HandleGameSpeedChange(InputState input)
         {
             if (input.SpeedReset)
+            {
+                GameSpeedHeldByPlayer = true;
                 UState.GameSpeed = 1f;
+            }
             else if (input.SpeedUp || input.SpeedDown)
             {
                 bool unlimited = Debug || Debugger.IsAttached;
                 float speedMin = unlimited ? 0.0625f : 0.25f;
                 float speedMax = unlimited ? 128f    : 10f;
-                UState.GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);
+                float speed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);
+                if (!input.SpeedUp)
+                {
+                    if (GlobalStats.AutoRampGameSpeed && UState.GameSpeed > AutoRampResumesAbove)
+                        speed = AutoRampResumesAbove; // lowering a ramped-up speed drops it to the highest speed the player can hold
+                    GameSpeedHeldByPlayer = true;
+                }
+                else if (speed > AutoRampResumesAbove)
+                    GameSpeedHeldByPlayer = false;
+                UState.GameSpeed = speed;
             }
         }
 

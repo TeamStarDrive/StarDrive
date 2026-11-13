@@ -75,7 +75,7 @@ public partial class UniverseScreen
         if (SelectedShip != null)
             SetSelectedShip(SelectedShip, SelectedFleet, clearFlags: false); // same ship, UI refresh only
         else if (num != SelectedShipList.Count())
-            SetSelectedShipList(SelectedShipList, SelectedFleet);
+            SetSelectedShipList(SelectedShipList, SelectedFleet, clearFlags: false);
     }
 
     internal Ship TakeFollowedShipThatTookOff()
@@ -123,7 +123,7 @@ public partial class UniverseScreen
     /// <summary>
     /// Sets the currently selected ship and clears selected ships list
     /// </summary>
-    /// <param name="clearFlags">FALSE keeps the camera chase flags, for refreshing the same ship</param>
+    /// <param name="clearFlags">FALSE keeps the camera chase flags</param>
     public void SetSelectedShip(Ship selectedShip, Fleet fleet = null, bool clearFlags = true)
     {
         SelectedSomethingTimer = 3f;
@@ -141,14 +141,15 @@ public partial class UniverseScreen
         }
     }
 
-    public void SetSelectedShipList(IReadOnlyList<Ship> ships, Fleet fleet)
+    /// <param name="clearFlags">FALSE keeps the camera chase flags</param>
+    public void SetSelectedShipList(IReadOnlyList<Ship> ships, Fleet fleet, bool clearFlags = true)
     {
-        ClearSelectedItems(clearShipList: false, fleet: fleet);
+        ClearSelectedItems(clearFlags: clearFlags, clearShipList: false, fleet: fleet);
         // if SetSelectedShipList(SelectedShipList) then this is a no-op
         // but otherwise always clone the ship list
         SelectedShipList = ReferenceEquals(ships, SelectedShipList) ? SelectedShipList : new(ships);
-        if (SelectedShipList.Count == 1 && (SelectedShipList[0].Fleet == null || SelectedShipList[0].Fleet.Ships.Count > 1))
-            SetSelectedShip(SelectedShipList[0]);
+        if (SelectedShipList.Count == 1 && fleet == null) // one ship is the selected ship unless the selection is its fleet
+            SetSelectedShip(SelectedShipList[0], clearFlags: clearFlags);
         else
             shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
     }

@@ -24,6 +24,7 @@ namespace Ship_Game
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
         Array<Ship> ShipList = new Array<Ship>();
+        internal IReadOnlyList<Ship> ShownShips => ShipList;
         readonly Selector Selector;
         public Rectangle LeftRect;
         public Rectangle RightRect;
@@ -358,10 +359,11 @@ namespace Ship_Game
             }
         }
 
-        void FilterShipList(Predicate<Ship> predicate)
+        internal void FilterShipList(Predicate<Ship> predicate)
         {
             Ship[] ships = Screen.SelectedShips.Filter(predicate);
-            Screen.SetSelectedShipList(ships, fleet: null);
+            Screen.SelectedSomethingTimer = 3f;
+            Screen.SetSelectedShipList(ships, UniverseScreen.WholeFleetOf(ships));
         }
 
         public void SetShipList(IReadOnlyList<Ship> shipList, bool isFleet)

@@ -127,6 +127,63 @@ namespace UnitTests.Universe
             Assert.IsTrue(selected.Contains(carried) && selected.Contains(scout));
         }
 
+        // The box's preference for fighting ships used to strip the carried selection too.
+        [TestMethod]
+        public void ShiftAddingAWarshipKeepsTheCarriedScoutAndTransport()
+        {
+            Ship scout = Scout(Player), trooper = Trooper(Player), warship = Warship(Player);
+            Array<Ship> selected = Select(new[] { warship }, new[] { scout, trooper }, shift: true);
+
+            Assert.AreEqual(3, selected.Count, "shift-adding a warship dropped the ships already selected");
+            Assert.IsTrue(selected.Contains(scout) && selected.Contains(trooper) && selected.Contains(warship));
+        }
+
+        // The same with the transport preference: a box of transports used to strip a carried warship.
+        [TestMethod]
+        public void ShiftAddingTransportsKeepsTheCarriedWarship()
+        {
+            Ship warship = Warship(Player), trooper = Trooper(Player);
+            Array<Ship> selected = Select(new[] { trooper, Scout(Player) }, new[] { warship }, shift: true);
+
+            Assert.AreEqual(2, selected.Count, "the box gives its transports and keeps the carried warship");
+            Assert.IsTrue(selected.Contains(warship) && selected.Contains(trooper));
+        }
+
+        // A selection holding the other side's ships takes no orders, so shift never mixes the two.
+        [TestMethod]
+        public void ShiftWithAltOverTheirShipsStartsANewSelection()
+        {
+            Ship enemy = Warship(Enemy);
+            Array<Ship> selected = Select(new[] { Scout(Player), enemy }, new[] { Warship(Player) }, shift: true, alt: true);
+
+            Assert.AreEqual(1, selected.Count, "their ships replace ours instead of joining them");
+            Assert.AreSame(enemy, selected[0]);
+        }
+
+        [TestMethod]
+        public void ShiftOverOurShipsReplacesASelectionOfTheirs()
+        {
+            Ship warship = Warship(Player);
+            Array<Ship> selected = Select(new[] { warship }, new[] { Warship(Enemy) }, shift: true);
+
+            Assert.AreEqual(1, selected.Count, "our ships replace theirs instead of joining them");
+            Assert.AreSame(warship, selected[0]);
+        }
+
+        [TestMethod]
+        public void ABoxHoldingAllOfAFleetSelectsTheFleetAndOneMoreShipDoesNot()
+        {
+            Ship a = Warship(Player), b = Warship(Player);
+            Fleet fleet = Player.CreateFleet(1, null);
+            fleet.AddShips(new[] { a, b });
+
+            UniverseScreen.FilterBoxSelection(new[] { a, b }, Empty<Ship>.Array, false, false, false, out Fleet whole);
+            Assert.AreSame(fleet, whole, "all of the fleet in the box selects the fleet");
+
+            UniverseScreen.FilterBoxSelection(new[] { a, b, Warship(Player) }, Empty<Ship>.Array, false, false, false, out Fleet more);
+            Assert.IsNull(more, "with one more ship it is a group of ships, not the fleet");
+        }
+
         [TestMethod]
         public void AltTakesTheEnemyShipsAndLeavesOursAlone()
         {

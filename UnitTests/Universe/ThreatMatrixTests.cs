@@ -628,6 +628,7 @@ public class ThreatMatrixTests : StarDriveTest
         AssertEqual(expected.Strength, actual.Strength);
         AssertEqual(expected.Ships.Length, actual.Ships.Length);
         AssertEqual(expected.HasStarBases, actual.HasStarBases);
+        AssertEqual(expected.InhibitionRadius, actual.InhibitionRadius);
         AssertEqual(expected.InBorders, actual.InBorders);
 
         AssertEqual(expected.Active, actual.Active);
@@ -643,6 +644,7 @@ public class ThreatMatrixTests : StarDriveTest
         CreateShipsAt(pos, 5000, Player, numShips:40);
         CreateShipsAt(pos, 5000, Enemy, numShips:40);
         ScanAndUpdateThreats(Player, Enemy);
+        UState.Player.Threats.RivalClusters[0].InhibitionRadius = 25_000f; // a known inhibitor reach the save carries
 
         UniverseState us = BinarySerializerTests.SerDes(UState);
 

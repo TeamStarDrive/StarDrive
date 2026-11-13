@@ -1,5 +1,6 @@
 using System;
 using SDUtils;
+using Ship_Game.AI.ShipMovement;
 using Ship_Game.Commands.Goals;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
@@ -800,7 +801,7 @@ namespace Ship_Game.AI
             if (!order.IsSet(MoveOrder.Aggressive) || Owner.ShipData.ShipCategory == ShipCategory.Civilian)
             {
                 // only order to move if we are too far, no need to waste time here.
-                float threshold = toOrbit.Radius + 1000 * toOrbit.Scale;
+                float threshold = Math.Max(toOrbit.Radius + 1000 * toOrbit.Scale, OrbitPlan.OrbitRadius(toOrbit, Owner) + 1000);
                 if (Owner.Position.Distance(toOrbit.Position) > threshold)
                 {
                     Vector2 finalDir = Owner.Position.DirectionToTarget(toOrbit.Position);

@@ -61,6 +61,7 @@
     <Compile Include="AITests\Empire\TestEmpireAI.cs" />
     <Compile Include="AITests\Ships\ShipAICombatTests.cs" />
     <Compile Include="AITests\Ships\OrbitCombatTests.cs" />
+    <Compile Include="AITests\Ships\ShipPileTests.cs" />
     <Compile Include="AITests\Ships\WarpInSpreadTests.cs" />
     <Compile Include="AITests\Ships\TestGravityWellRouter.cs" />
     <Compile Include="AITests\Ships\BoardingShuttleTargetTests.cs" />
@@ -166,6 +167,7 @@
     <Compile Include="Planets\GovernorOrbitalCapTests.cs" />
     <Compile Include="Planets\TestRefitQueuePlacement.cs" />
     <Compile Include="Planets\AIColonyShipQueueTests.cs" />
+    <Compile Include="Planets\AIRefitsFinishedTogetherTests.cs" />
     <Compile Include="Planets\ShipyardBonusTests.cs" />
     <Compile Include="Planets\TestSabotageWorkDistribution.cs" />
     <Compile Include="Serialization\BinaryReadWriteTests.cs" />
@@ -310,6 +312,7 @@
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
     <Compile Include="Universe\BoxSelectionTests.cs" />
+    <Compile Include="Universe\ShipSelectionTests.cs" />
     <Compile Include="Universe\CameraProjectionTests.cs" />
     <Compile Include="Universe\CommonVisualization.cs" />
     <Compile Include="Universe\GenericQtreeTests.cs" />

@@ -261,9 +261,10 @@ public static class GlobalStats
     }
 
     // When TRUE, UniverseScreen.UpdateGame auto-ramps UState.GameSpeed up to whatever
-    // the simulation can sustain — used by AUTOFAST soak runs. The 'Auto' build
-    // config locks player input the same way but leaves this OFF so the game runs
-    // at the rate the player selected. Set from the AUTOFAST #if block at startup.
+    // the simulation can sustain, until the player lowers it, and again once the player raises it
+    // above 5x — used by AUTOFAST soak runs.
+    // The 'Auto' build config locks player input the same way but leaves this OFF so the
+    // game runs at the rate the player selected. Set from the AUTOFAST #if block at startup.
     public static bool AutoRampGameSpeed;
 
     // DEV APP CONFIG OPTION

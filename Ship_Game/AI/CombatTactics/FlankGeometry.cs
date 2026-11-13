@@ -11,8 +11,21 @@ public static class FlankGeometry
 {
     public const float WarpExitRange = 7500f;
 
-    // an enemy to keep a range from: a ship, or a known enemy group with its spread
-    public readonly record struct Keepout(Vector2 Center, float Radius);
+    // how far outside an enemy's inhibitor field a flanker leaves warp
+    public const float InhibitorFieldMargin = 1000f;
+
+    // an enemy to keep a range from: a ship, or a known enemy group with its spread, and the field its inhibitors hold ships out of warp in
+    public readonly record struct Keepout(Vector2 Center, float Radius, float Field = 0f)
+    {
+        // a flanker keeps the range from the edge, and stays out of the field so its warp is not cut short
+        public float Reach(float range) => Math.Max(Radius + range, Field);
+    }
+
+    // the field round an enemy of the given spread whose inhibitors reach the given radius, none for no inhibitor
+    public static float InhibitorField(float spread, float inhibitionRadius)
+    {
+        return inhibitionRadius > 0f ? spread + inhibitionRadius + InhibitorFieldMargin : 0f;
+    }
 
     // the Remnants and the AI races; the player and the other factions come in head-on
     public static bool Flanks(Empire empire) => empire.WeAreRemnants || !empire.isPlayer && !empire.IsFaction;
@@ -47,7 +60,7 @@ public static class FlankGeometry
             for (int i = 0; i < keepouts.Count; ++i)
             {
                 Keepout keepout = keepouts[i];
-                float reach = keepout.Radius + range;
+                float reach = keepout.Reach(range);
                 Vector2 offset = center - keepout.Center;
                 float along = offset.Dot(direction);
                 float root = along*along - offset.SqLen() + reach*reach;
@@ -129,7 +142,7 @@ public static class FlankGeometry
         for (int i = 0; i < keepouts.Count; ++i)
         {
             Keepout keepout = keepouts[i];
-            float reach = keepout.Radius + range;
+            float reach = keepout.Reach(range);
             Vector2 closest = from.SqDist(to) > 0f ? keepout.Center.FindClosestPointOnLine(from, to) : from;
             if (closest.SqDist(keepout.Center) < reach*reach)
                 return false;

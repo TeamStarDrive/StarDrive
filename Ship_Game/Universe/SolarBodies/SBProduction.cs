@@ -93,7 +93,7 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         // Spend up to `max` production for QueueItem
-        // @return TRUE if QueueItem is complete
+        // @return TRUE if all the production asked for was paid, which leaves the item unfinished when `max` is short of it
         bool SpendProduction(QueueItem q, float max, bool chargeFees)
         {
             float needed = q.ProductionNeeded;
@@ -117,7 +117,7 @@ namespace Ship_Game.Universe.SolarBodies
         // @note `maxProduction` is a max limit, this method will attempt
         //       to consume no more than `maxAmount` from local production
         // @return true if at least some production was applied
-        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool rushFees, bool immediate)
+        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool rushFees, bool immediate, int refitsAlongside = 0)
         {
             if (maxAmount <= 0.0f || ConstructionQueue.IsEmpty)
                 return false;
@@ -133,7 +133,10 @@ namespace Ship_Game.Universe.SolarBodies
                 }
                 else
                 {
+                    float spentBefore = item.ProductionSpent;
                     SpendProduction(item, maxAmount, chargeFees: true);
+                    if (refitsAlongside > 0 && item.IsRefit && item.IsComplete)
+                        SpendOnRefitsBehind(itemIndex, maxAmount - (item.ProductionSpent - spentBefore), refitsAlongside);
                 }
             }
 
@@ -159,6 +162,23 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             return true;
+        }
+
+        // spends what is left on up to `count` refits right behind a finished one, stopping at an item that is no refit or is cancelled, or at the first refit it does not finish
+        void SpendOnRefitsBehind(int index, float left, int count)
+        {
+            for (int i = index + 1; i <= index + count && i < ConstructionQueue.Count && left > 0f; ++i)
+            {
+                QueueItem next = ConstructionQueue[i];
+                if (!next.IsRefit || next.IsCancelled)
+                    return;
+
+                float spentBefore = next.ProductionSpent;
+                SpendProduction(next, left, chargeFees: true);
+                left -= next.ProductionSpent - spentBefore;
+                if (!next.IsComplete)
+                    return;
+            }
         }
 
         void ProcessCompleteQueueItem(QueueItem q)
@@ -289,9 +309,12 @@ namespace Ship_Game.Universe.SolarBodies
 
             float percentToApply = P.RecentCombat ? 0.1f : 1f; // Ongoing combat is hindering logistics
             float limitSpentProd = P.LimitedProductionExpenditure(P.CurrentProductionToQueue);
-            ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0, rushFees: false, immediate: false);
+            ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0, rushFees: false, immediate: false, refitsAlongside: RefitsFinishedAlongside);
             TryPlayerRush();
         }
+
+        // on Hard and above, an AI colony that finishes a refit can finish one more behind it, and one more per shipyard
+        int RefitsFinishedAlongside => !P.OwnerIsPlayer && P.Universe.P.Difficulty >= GameDifficulty.Hard ? 1 + P.NumShipyards : 0;
 
         void TryPlayerRush() // Apply rush if player marked items as continuous rush
         {
@@ -511,6 +534,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         static bool IsOutpostOrCapital(QueueItem q) => q.isBuilding && q.Building.IsCapitalOrOutpost;
 
+        // in the AI's queue the refits stay together right behind the items kept first, ahead of the rest
+        static int AIRank(int frontRank, QueueItem q) => frontRank < 3 ? frontRank : q.IsRefit ? 3 : 4;
+
         // an Outpost or Capital in the first slot stays there, and nothing goes ahead of it
         public bool IsFirstSlotLocked => ConstructionQueue.Count > 0 && IsOutpostOrCapital(ConstructionQueue[0]);
 
@@ -543,10 +569,10 @@ namespace Ship_Game.Universe.SolarBodies
                     {
                         bool foodFirst = P.FoodBuildingsFirst;
                         bool productionFirst = P.ProductionBuildingsFirst;
-                        ConstructionQueue.Sort(q => (FrontRank(q, foodFirst, productionFirst), q.GetAndUpdatePriorityForAI(P, totalFreighters)));
+                        ConstructionQueue.Sort(q => (AIRank(FrontRank(q, foodFirst, productionFirst), q), q.GetAndUpdatePriorityForAI(P, totalFreighters)));
                     }
                     else
-                        ConstructionQueue.Sort(q => (IsOutpostOrCapital(q) ? 0 : 1, q.GetAndUpdatePriorityForAI(P, totalFreighters)));
+                        ConstructionQueue.Sort(q => (AIRank(IsOutpostOrCapital(q) ? 0 : 3, q), q.GetAndUpdatePriorityForAI(P, totalFreighters)));
                 }
                 else
                 {
@@ -568,8 +594,8 @@ namespace Ship_Game.Universe.SolarBodies
                     }
                 }
 
-                // Ship and orbital refits jump the queue so the ship returns to service fast.
-                if (item.Goal is RefitShip or RefitOrbital)
+                // Ship and orbital refits jump the queue so the ship returns to service fast; the AI's sort already puts them there.
+                if (item.IsRefit && P.OwnerIsPlayer)
                     PromoteRefitToFront(item);
             }
         }

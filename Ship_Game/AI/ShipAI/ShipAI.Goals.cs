@@ -331,7 +331,7 @@ namespace Ship_Game.AI
         public sealed class ShipGoal : IDisposable
         {
             bool IsDisposed;
-            // ship goal variables are read-only by design, do not allow writes!
+            // ship goal variables are read-only by design, apart from a few such as a hold goal's MovePosition, which follows a push off a friend
             [StarData] public readonly Plan Plan;
 
             Vector2 StaticMovePosition;

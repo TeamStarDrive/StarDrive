@@ -48,6 +48,7 @@ namespace Ship_Game
         [StarData] public bool LaunchFromPlanet;
 
         public bool IsCivilianBuilding => isBuilding && !IsMilitary;
+        public bool IsRefit => Goal is RefitShip or RefitOrbital;
         public Rectangle rect;
         public Rectangle removeRect;
 

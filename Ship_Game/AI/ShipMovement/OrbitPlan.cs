@@ -31,6 +31,13 @@ namespace Ship_Game.AI.ShipMovement
             Direction = direction;
         }
 
+        // a bigger ship circles farther out, but one the planet's guns would fire on stays close in, within their reach
+        public static float OrbitRadius(Planet planet, Ship ship)
+        {
+            bool underItsGuns = planet.Owner?.IsEmpireAttackable(ship.Loyalty) == true;
+            return (planet.Radius*2 + ship.Radius*(underItsGuns ? 1 : 4)).UpperBound(WarpExitDistance);
+        }
+
         protected override CombatMoveState ExecuteAttack(FixedSimTime timeStep)
         {
             return CombatMoveState.Error;
@@ -98,7 +105,7 @@ namespace Ship_Game.AI.ShipMovement
             if (orbitTarget != LastOrbitTarget)
                 StartOrbitAt(orbitTarget);
 
-            float radius = (orbitTarget.Radius*2 + Owner.Radius).UpperBound(12000);
+            float radius = OrbitRadius(orbitTarget, Owner);
             float distance = orbitTarget.Position.Distance(Owner.Position);
 
             if (distance > 15000f) // we are still far away, thrust towards the planet
@@ -128,7 +135,7 @@ namespace Ship_Game.AI.ShipMovement
                                && Owner.Universe.IsSystemViewOrCloser;
                 if (!visible) // don't update orbits in invisible systems
                 {
-                    if (distance > 4000f) // we need to get closer to get RESUPPLIED (!)
+                    if (distance > Math.Max(6000f, radius)) // we need to get closer to get RESUPPLIED (!)
                     {
                         ThrustTowardsPlanet(orbitTarget, timeStep);
                     }

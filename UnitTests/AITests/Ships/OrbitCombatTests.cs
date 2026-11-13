@@ -237,6 +237,64 @@ public class OrbitCombatTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AShipOnItsOrbitOrderedToOrbitAgainIsNotSentToThePlanetFirst()
+    {
+        ViewOurSystem();
+        TestShip ship = SpawnShip("Terran-Prototype", Player, OurWorld.Position + new Vector2(50_000, 0));
+        float orbit = OrbitPlan.OrbitRadius(OurWorld, ship);
+        AssertGreaterThan(orbit, OurWorld.Radius + 1000 * OurWorld.Scale,
+                          $"setup: the orbit of a ship of radius {ship.Radius} lies beyond three planet radii ({OurWorld.Radius})");
+        ship.OrderToOrbit(OurWorld, clearOrders: true);
+        AssertTrue(ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal far) && far.Plan != ShipAI.Plan.Orbit,
+                   "setup: a ship far off still travels to the planet first");
+
+        ship.Position = OurWorld.Position + new Vector2(orbit, 0);
+        ship.OrderToOrbit(OurWorld, clearOrders: true);
+        AssertTrue(ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.Plan == ShipAI.Plan.Orbit,
+                   $"a ship already on its orbit just orbits, with no trip to the planet's center first (first order: {goal?.Plan})");
+    }
+
+    [TestMethod]
+    public void ABigShipOrbitsFartherOutAtItsOwnPlanetThanAtOneWhoseGunsWouldFireOnIt()
+    {
+        ViewOurSystem();
+        AssertTrue(Player.IsEmpireAttackable(Enemy), "setup: our world's guns would fire on the enemy's ships");
+        float OrbitPointDistance(Ship_Game.Empire loyalty)
+        {
+            TestShip ship = SpawnShip("Terran-Prototype", loyalty, OurWorld.Position + new Vector2(8000, 0));
+            ship.AI.SetCombatTriggerDelay(1000f);
+            ship.OrderToOrbit(OurWorld, clearOrders: true, MoveOrder.Aggressive);
+            RunObjectsSim(TestSimStep.FixedTime);
+            AssertTrue(ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.Plan == ShipAI.Plan.Orbit, "setup: the ship flies its orbit");
+            float distance = OrbitPosOf(ship).Distance(OurWorld.Position);
+            ship.Die(null, cleanupOnly: true);
+            return distance;
+        }
+
+        float shipRadius = SpawnShip("Terran-Prototype", Player, new Vector2(0, 0)).Radius;
+        AssertEqual(1f, OurWorld.Radius * 2 + shipRadius * 4, OrbitPointDistance(Player),
+                    "at its own planet a ship circles four of its sizes out from twice the planet's radius");
+        AssertEqual(1f, OurWorld.Radius * 2 + shipRadius, OrbitPointDistance(Enemy),
+                    "at a planet whose guns would fire on it a ship keeps the close orbit, within their reach");
+    }
+
+    [TestMethod]
+    public void OffScreenAShipWhoseOrbitIsWiderThan6000StopsWhereItCircles()
+    {
+        Universe.Frustum = new BoundingFrustum(Matrix.CreateOrthographicOffCenter(5_000_000, 6_000_000, 6_000_000, 5_000_000, -10_000, 10_000));
+        OurWorld.Radius = 2700f; // big enough that the ship's orbit lies beyond 6000
+        TestShip ship = SpawnShip("Terran-Prototype", Player, OurWorld.Position);
+        float orbit = OrbitPlan.OrbitRadius(OurWorld, ship);
+        AssertTrue(orbit > 6500f && orbit < 7500f, $"setup: an orbit of {orbit} lies between the 6000 stop and the warp exit distance");
+        ship.Position = OurWorld.Position + new Vector2(orbit - 100f, 0);
+        ship.OrderToOrbit(OurWorld, clearOrders: true);
+
+        RunObjectsSim(10f, () => AssertFalse(OurWorld.System.InFrustum && UState.IsSystemViewOrCloser, "setup: our world is off screen"));
+        AssertTrue(ship.IsOrbiting(OurWorld), "off screen it counts as in orbit where it stopped");
+        AssertEqual(50f, orbit - 100f, ship.Position.Distance(OurWorld.Position), "off screen it stops where it circles, not pulled in to 6000");
+    }
+
+    [TestMethod]
     public void AShipNearAPlanetOnScreenClosesInOnItsOrbitWithoutWarping()
     {
         ViewOurSystem();
