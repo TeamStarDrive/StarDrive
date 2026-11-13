@@ -28,6 +28,22 @@ namespace Ship_Game.AI
         static bool CanFlank(Ship ship) => ship.Fleet == null && !ship.IsHangarShip && !ship.Stats.IsStationary
                                            && (ship.Weapons.Count > 0 || ship.Carrier.HasActiveHangars);
 
+        // an enemy ship's inhibitor holds this ship out of warp, so it cannot go round anyone
+        internal bool HeldByEnemyInhibitor => Owner.Inhibited && Owner.InhibitionSource == Ship.InhibitionType.EnemyShip;
+
+        // once a second, a fleet ship on its way round an enemy group gives up the leg when an enemy's inhibitor holds it out of warp
+        public void UpdateFlankLegHeldOutOfWarp()
+        {
+            if (HasPriorityOrder && HeldByEnemyInhibitor && Owner.Fleet is { } fleet)
+                fleet.DropFlankLegHeldOutOfWarp(Owner);
+        }
+
+        // the field round an enemy ship in which its inhibitor would hold this guard out of warp
+        float InhibitorFieldOf(Ship enemy)
+        {
+            return enemy.Loyalty.WillInhibit(Owner.Loyalty) ? FlankGeometry.InhibitorField(0f, enemy.InhibitionRadius) : 0f;
+        }
+
         FlankRole FlankRoleAmongFriends()
         {
             int place = 0;
@@ -66,7 +82,8 @@ namespace Ship_Game.AI
             HasFlankWaypoint = false;
             HasFlankGroup = false;
             GameDifficulty difficulty = Owner.Universe.P.Difficulty;
-            if (!FlankGeometry.Flanks(Owner.Loyalty) || difficulty == GameDifficulty.Normal || Target is not { } target || !CanFlank(Owner))
+            if (!FlankGeometry.Flanks(Owner.Loyalty) || difficulty == GameDifficulty.Normal || Target is not { } target || !CanFlank(Owner)
+                || HeldByEnemyInhibitor)
                 return;
 
             UpdateChaseLimits();
@@ -88,7 +105,7 @@ namespace Ship_Game.AI
             {
                 if (!enemy.Active || enemy.Dying || enemy.IsHangarShip || enemy.IsInWarp)
                     continue;
-                enemies.Add(new(enemy.Position, 0f));
+                enemies.Add(new(enemy.Position, 0f, InhibitorFieldOf(enemy)));
                 if (enemy.Position.InRadius(target.Position, ThreatMatrix.RivalClusterJoinRadius))
                     group.Add(enemy);
             }
@@ -114,11 +131,17 @@ namespace Ship_Game.AI
             FlankGroupCenter = center;
         }
 
-        // flown until the guard reaches its point, the waypoint first
+        // flown until the guard reaches its point, the waypoint first; held out of warp, it closes in instead
         bool FlyToFlank(FixedSimTime timeStep)
         {
             if (!IsFlanking)
                 return false;
+
+            if (HeldByEnemyInhibitor)
+            {
+                IsFlanking = false;
+                return false;
+            }
 
             if (HasFlankWaypoint && Owner.Position.InRadius(FlankWaypoint, FlankArrivalRadius))
                 HasFlankWaypoint = false;

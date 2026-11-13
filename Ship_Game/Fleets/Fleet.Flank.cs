@@ -96,16 +96,29 @@ namespace Ship_Game.Fleets
         // a ship still locked on its way to the point it was sent to, while it can fly there
         protected override bool KeepsItsMove(Ship ship)
         {
-            if (!ship.AI.HasPriorityOrder || ship.EnginesKnockedOut)
-                return false;
+            return !ship.EnginesKnockedOut && PlanOfLegUnderWay(ship) != null;
+        }
+
+        // the plan whose leg the ship is still locked on, if any
+        FlankPlan PlanOfLegUnderWay(Ship ship)
+        {
+            if (!ship.AI.HasPriorityOrder)
+                return null;
             for (int i = 0; i < FlankPlans.Count; ++i)
             {
                 Array<FlankLeg> legs = FlankPlans[i].Legs;
                 for (int l = 0; l < legs.Count; ++l)
                     if (legs[l].Ship == ship && ship.AI.MovePosition.InRadius(legs[l].Point, 1f))
-                        return true;
+                        return FlankPlans[i];
             }
-            return false;
+            return null;
+        }
+
+        // a ship an enemy's inhibitor holds out of warp on its way round gives up the leg and comes in head-on
+        internal void DropFlankLegHeldOutOfWarp(Ship ship)
+        {
+            if (PlanOfLegUnderWay(ship) is { } plan)
+                ship.AI.OrderAttackMoveTo(plan.Center + GetPositionFromDirection(ship, plan.Toward));
         }
 
         void SendHeadOn(Ship ship, ThreatCluster group, Vector2 facing)
@@ -132,7 +145,7 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < sent.Count; ++i)
             {
                 Ship ship = sent[i];
-                if (ship == CommandShip || plan.Sent(ship) || !CanFlank(ship))
+                if (ship == CommandShip || plan.Sent(ship) || !CanFlank(ship) || ship.AI.HeldByEnemyInhibitor)
                     SendHeadOn(ship, group, facing);
                 else if (LeftShips.ContainsRef(ship))
                     left.Add(ship);
@@ -166,7 +179,7 @@ namespace Ship_Game.Fleets
             bool leftBarred = false, rightBarred = false;
             if (difficulty == GameDifficulty.Insane)
             {
-                float nearest = group.Radius + FlankGeometry.WarpExitRange;
+                float nearest = Math.Max(group.Radius + FlankGeometry.WarpExitRange, InhibitorField(group));
                 bool leftInReach = InReachOfPlanetGuns(group.System, group.Position + leftSide * nearest);
                 bool rightInReach = InReachOfPlanetGuns(group.System, group.Position - leftSide * nearest);
                 leftBarred = leftInReach && !rightInReach;
@@ -185,7 +198,7 @@ namespace Ship_Game.Fleets
 
             var keepouts = new Array<FlankGeometry.Keepout>(groups.Length);
             for (int i = 0; i < groups.Length; ++i)
-                keepouts.Add(new(groups[i].Position, groups[i].Radius));
+                keepouts.Add(new(groups[i].Position, groups[i].Radius, InhibitorField(groups[i])));
 
             for (int i = 0; i < left.Count; ++i)
                 SendToSideOrHeadOn(left[i], plan, group, keepouts, leftSide, longRange.ContainsRef(left[i]), facing);
@@ -194,6 +207,12 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < rear.Count; ++i)
                 if (!TrySendToRear(rear[i], plan, group, keepouts, leftBarred, rightBarred))
                     SendHeadOn(rear[i], group, facing);
+        }
+
+        // the field round a known group in which its inhibitors would hold this fleet's ships out of warp
+        float InhibitorField(ThreatCluster group)
+        {
+            return group.Loyalty.WillInhibit(Owner) ? FlankGeometry.InhibitorField(group.Radius, group.InhibitionRadius) : 0f;
         }
 
         // how far a flanker keeps from the enemy group's edge

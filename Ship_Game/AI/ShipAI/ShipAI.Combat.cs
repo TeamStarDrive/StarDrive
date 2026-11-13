@@ -524,8 +524,7 @@ namespace Ship_Game.AI
         [StarData] Vector2 FightBackSpot;
 
         // an enemy ship that moves, not a platform or station, holds this ship out of warp with its inhibitor
-        bool HeldByMobileEnemyInhibitor => Owner.Inhibited && Owner.InhibitionSource == Ship.InhibitionType.EnemyShip
-                                           && Owner.IsInhibitedFromEnemyShips(mobileOnly: true);
+        bool HeldByMobileEnemyInhibitor => HeldByEnemyInhibitor && Owner.IsInhibitedFromEnemyShips(mobileOnly: true);
 
         // once a second, an AI fleet ship on its fleet's locked move fights back while an enemy ship holds it out of warp, and moves locked again once free
         public void UpdateFightBackOnFleetMove()

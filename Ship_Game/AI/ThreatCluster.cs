@@ -31,6 +31,9 @@ public sealed class ThreatCluster : SpatialObjectBase
     // TRUE if this cluster contains any starbases or pirate bases
     [StarData] public bool HasStarBases;
 
+    // the farthest reach of a warp inhibitor among the ships seen in this cluster
+    [StarData] public float InhibitionRadius;
+
     // TRUE if this PIN is inside the parent owner's borders
     [StarData] public bool InBorders;
 

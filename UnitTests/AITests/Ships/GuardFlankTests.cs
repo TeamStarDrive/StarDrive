@@ -16,6 +16,7 @@ namespace UnitTests.AITests.Ships;
 public class GuardFlankTests : StarDriveTest
 {
     const string FrigateName = "TEST_Spearhead mk1-a";
+    const string SlaverName = "Corsair-Slaver";
     const float RivalsApart = 1500f;
 
     Planet Guarded;
@@ -25,7 +26,7 @@ public class GuardFlankTests : StarDriveTest
 
     public GuardFlankTests()
     {
-        LoadStarterShips(FrigateName, "Subspace Projector");
+        LoadStarterShips(FrigateName, "Subspace Projector", SlaverName);
         CreateUniverseAndPlayerEmpire();
         CreateAMinorFaction("Remnant");
         UState.Objects.EnableParallelUpdate = false;
@@ -602,5 +603,76 @@ public class GuardFlankTests : StarDriveTest
         Guards[1].AI.ExitCombatState();
 
         Assert.IsFalse(Guards[1].AI.IsFlanking);
+    }
+
+    // a slaver of the rivals' owner behind their row, whose inhibitor field falls short of the guards
+    TestShip SlaverBehindTheRivals()
+    {
+        TestShip slaver = Quiet(SpawnShip(SlaverName, RivalOwner ?? Player, RivalsCenter(21_500f)));
+        slaver.RotationDegrees = 180f;
+        slaver.AI.OrderHoldPosition(MoveOrder.HoldPosition);
+        AssertGreaterThan(Guards[0].SensorRange, Guards[0].Position.Distance(slaver.Position) + 1000f, "setup: the guards see the slaver");
+        AssertGreaterThan(Guards[0].Position.Distance(slaver.Position), FieldOf(slaver), "setup: the guards are outside the slaver's field");
+        return slaver;
+    }
+
+    static float FieldOf(Ship slaver) => FlankGeometry.InhibitorField(0f, slaver.InhibitionRadius);
+
+    void GuardsEnterCombat() => RunSimWhile((10, fatal: true), () => Guards.Any(g => !g.InCombat));
+
+    [TestMethod]
+    public void AnAIRacesGuardLeavesWarpOutsideARivalsInhibitorField()
+    {
+        GuardsAtPlanet(2, GameDifficulty.Brutal, owner: Enemy);
+        RivalsAt(18_000f);
+        TestShip slaver = SlaverBehindTheRivals();
+        Assert.IsTrue(Player.WillInhibit(Enemy), "setup: the slaver's inhibitor holds the guards");
+        GuardsEnterCombat();
+        Assert.IsTrue(Guards[1].AI.PotentialTargets.Contains(slaver), "setup: the guard sees the slaver");
+
+        Assert.IsTrue(Guards[1].AI.IsFlanking, "the guard still goes round to a side");
+        AssertGreaterThan(Guards[1].AI.FlankPoint.Distance(slaver.Position), FieldOf(slaver) - 1f, "and leaves warp outside the slaver's field");
+    }
+
+    [TestMethod]
+    public void ARemnantGuardPaysInhibitorFieldsNoHeed()
+    {
+        GuardsAtPlanet(2, GameDifficulty.Brutal);
+        RivalsAt(18_000f);
+        TestShip slaver = SlaverBehindTheRivals();
+        Assert.IsFalse(Player.WillInhibit(Faction), "setup: no inhibitor holds the Remnants");
+        GuardsEnterCombat();
+        Assert.IsTrue(Guards[1].AI.PotentialTargets.Contains(slaver), "setup: the guard sees the slaver");
+
+        Assert.IsTrue(Guards[1].AI.IsFlanking, "the Remnant guard goes round to a side");
+        AssertLessThan(Guards[1].AI.FlankPoint.Distance(slaver.Position), FieldOf(slaver), "to its usual point, inside the field");
+    }
+
+    [TestMethod]
+    public void AnAIRacesGuardHeldOutOfWarpPlansNoFlank()
+    {
+        GuardsAtPlanet(2, GameDifficulty.Brutal, owner: Enemy);
+        RivalsAt(18_000f);
+        GuardsTakeOnTheRivals();
+        Assert.IsTrue(Guards[1].AI.IsFlanking, "setup: the guard goes round to a side");
+
+        Guards[1].SetWarpInhibited(Ship.InhibitionType.EnemyShip, secondsToInhibit: 30f);
+        Guards[1].AI.PlanFlank();
+
+        Assert.IsFalse(Guards[1].AI.IsFlanking, "held out of warp, it plans no flank and comes in head-on");
+    }
+
+    [TestMethod]
+    public void AGuardHeldOutOfWarpOnItsWayRoundClosesIn()
+    {
+        GuardsAtPlanet(2, GameDifficulty.Brutal, owner: Enemy);
+        RivalsAt(18_000f);
+        GuardsTakeOnTheRivals();
+        Assert.IsTrue(Guards[1].AI.IsFlanking, "setup: the guard goes round to a side");
+
+        Guards[1].SetWarpInhibited(Ship.InhibitionType.EnemyShip, secondsToInhibit: 30f);
+        RunObjectsSim(1f);
+
+        Assert.IsFalse(Guards[1].AI.IsFlanking, "held out of warp on its way, it closes in instead");
     }
 }

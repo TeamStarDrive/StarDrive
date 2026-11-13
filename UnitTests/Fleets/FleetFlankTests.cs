@@ -22,6 +22,7 @@ namespace UnitTests.Fleets;
 public class FleetFlankTests : StarDriveTest
 {
     const string FrigateName = "TEST_Spearhead mk1-a";
+    const string SlaverName = "Corsair-Slaver";
     const float RivalsApart = 1500f;
     const float FleetOut = 60_000f;
     const string Screen = "ScreenShips", Center = "CenterShips", Left = "LeftShips", Right = "RightShips";
@@ -35,7 +36,7 @@ public class FleetFlankTests : StarDriveTest
 
     public FleetFlankTests()
     {
-        LoadStarterShips(FrigateName);
+        LoadStarterShips(FrigateName, SlaverName);
         CreateUniverseAndPlayerEmpire();
         UState.Events.Disabled = true;
         UState.Objects.EnableParallelUpdate = false;
@@ -432,6 +433,24 @@ public class FleetFlankTests : StarDriveTest
 
         AssertOnRight(FleetShips[0], group, "the left ship");
         AssertOnRight(FleetShips[1], group, "the right ship");
+    }
+
+    [TestMethod]
+    public void AtInsaneThePlanetGunsAreCheckedAtTheInhibitorFieldsEdge()
+    {
+        Planet planet = PlanetWithGuns(new Vector2(600_000f, 300_000f), Player);
+        float apart = 2f * planet.GunReach() + FlankGeometry.WarpExitRange + 3000f;
+        ThreatCluster group = GroupNearPlanetGuns(GameDifficulty.Insane, planet, new Vector2(apart, 0f), SideShips);
+        Assert.IsTrue(group.Loyalty.WillInhibit(Attacker), "setup: the group's inhibitors hold the fleet's ships");
+        Assert.IsFalse(InReach(planet, NearestSidePoint(group, -1f)), "setup: the guns fall short of the usual left point");
+        group.InhibitionRadius = apart - group.Radius - FlankGeometry.InhibitorFieldMargin;
+        float field = FlankGeometry.InhibitorField(group.Radius, group.InhibitionRadius);
+        Assert.IsTrue(InReach(planet, group.Position + new Vector2(-field, 0f)), "setup: they reach the left point at the field's edge");
+        foreach (TestShip ship in FleetShips) // far enough out for a clear way round the wide field
+            ship.Position = new Vector2(ship.Position.X, group.Position.Y + 2f * field);
+        AssertTrue(Attack(), "setup: the fleet attacks");
+
+        AssertOnRight(FleetShips[0], group, "the left ship, whose side point at the field's edge lies in the guns' reach,");
     }
 
     [TestMethod]
@@ -1026,5 +1045,135 @@ public class FleetFlankTests : StarDriveTest
         AssertLessThan(flanker.Position.Distance(point), flanker.WarpOutDistance + 1000f, "it leaves warp short of its point by its warp out distance");
         AssertLessThan(Toward(group.Position, flanker.Position).X, -0.8f, "at the group's left");
         AssertGreaterThan(flanker.Position.Distance(group.Position), group.Radius + FlankGeometry.WarpExitRange, "out of the group's reach");
+    }
+
+    [TestMethod]
+    public void TheAIRecordsHowFarAGroupsInhibitorsReach()
+    {
+        RivalsAt(GroupCenter);
+        SeeTheGroups();
+        AssertEqual(0f, KnownGroupAt(GroupCenter).InhibitionRadius, "setup: the group as first seen has no inhibitor");
+
+        TestShip slaver = Quiet(SpawnShip(SlaverName, Player, GroupCenter + new Vector2(0f, 1500f)));
+        slaver.AI.OrderHoldPosition(MoveOrder.HoldPosition);
+        AssertGreaterThan(slaver.InhibitionRadius, 0f, "setup: the slaver has an inhibitor");
+        SeeTheGroups();
+
+        AssertEqual(slaver.InhibitionRadius, KnownGroupAt(GroupCenter).InhibitionRadius, "the group's record holds its inhibitor's reach");
+    }
+
+    // a group whose inhibitors the AI knows hold ships out of warp within the given reach of any of its ships
+    ThreatCluster GroupWithAnInhibitor(GameDifficulty difficulty, float reach, params string[] flanks)
+    {
+        ThreatCluster group = FleetAgainstAGroup(difficulty, 2.5f, flanks);
+        Assert.IsTrue(group.Loyalty.WillInhibit(Attacker), "setup: the group's inhibitors hold the fleet's ships");
+        group.InhibitionRadius = reach;
+        return group;
+    }
+
+    static float FieldOf(ThreatCluster group) => FlankGeometry.InhibitorField(group.Radius, group.InhibitionRadius);
+
+    static void AssertOutsideTheField(Vector2 from, Vector2 to, ThreatCluster group, string what)
+    {
+        AssertGreaterThan(NearestOnLeg(from, to, group.Position), FieldOf(group) - 1f, $"{what} stays out of the inhibitor field");
+    }
+
+    [TestMethod]
+    public void ASideShipLeavesWarpOutsideAKnownInhibitorField()
+    {
+        ThreatCluster group = GroupWithAnInhibitor(GameDifficulty.Hard, 25_000f, Screen, Left, Right, Screen, Screen);
+        Vector2 from = FleetShips[1].Position;
+        AssertTrue(Attack(), "setup: the fleet attacks");
+
+        AssertOnLeft(FleetShips[1], group, "the left ship");
+        AssertOutsideTheField(from, FleetShips[1].AI.MovePosition, group, "its leg");
+    }
+
+    [TestMethod]
+    public void ARearShipGoesRoundAKnownInhibitorFieldAndLeavesWarpOutsideIt()
+    {
+        ThreatCluster group = GroupWithAnInhibitor(GameDifficulty.Brutal, 25_000f, Left, Left, Right, Screen, Screen, Screen);
+        TestShip rear = FleetShips[1];
+        rear.MaxSTLSpeed = FleetShips[0].MaxSTLSpeed * 2f;
+        rear.Position = GroupCenter + new Vector2(-3000f, FleetOut);
+        Vector2 from = rear.Position;
+        AssertTrue(Attack(), "setup: the fleet attacks");
+
+        AssertAtRear(rear, group, "the fastest side ship");
+        WayPoint[] legs = rear.AI.CopyWayPoints();
+        AssertEqual(2, legs.Length, "it goes round a side");
+        AssertOutsideTheField(from, legs[0].Position, group, "the leg to the side");
+        AssertOutsideTheField(legs[0].Position, legs[1].Position, group, "the leg from the side to the rear");
+    }
+
+    [TestMethod]
+    public void AFleetAlreadyInsideAKnownInhibitorFieldComesInHeadOn()
+    {
+        ThreatCluster group = GroupWithAnInhibitor(GameDifficulty.Hard, FleetOut + 10_000f, Screen, Left, Right, Screen, Screen);
+        AssertTrue(Attack(), "setup: the fleet attacks");
+
+        AssertHeadOn(FleetShips[1], group.Position, "the left ship, which cannot warp round,");
+        AssertHeadOn(FleetShips[2], group.Position, "the right ship");
+    }
+
+    [TestMethod]
+    public void ARemnantFleetPaysInhibitorFieldsNoHeed()
+    {
+        CreateAMinorFaction("Remnant");
+        Attacker = Faction;
+        ThreatCluster group = FleetAgainstAGroup(GameDifficulty.Hard, 2.5f, Screen, Left, Right, Screen, Screen);
+        Assert.IsFalse(group.Loyalty.WillInhibit(Attacker), "setup: no inhibitor holds the Remnants");
+        group.InhibitionRadius = FleetOut + 10_000f;
+        AssertTrue(Attack(), "setup: the fleet attacks");
+
+        AssertOnLeft(FleetShips[1], group, "a Remnant left ship");
+        AssertLessThan(FleetShips[1].AI.MovePosition.Distance(group.Position), FieldOf(group), "at its usual point inside the field");
+    }
+
+    [TestMethod]
+    public void AFleetShipHeldOutOfWarpWhenTheAttackIsPlannedComesInHeadOn()
+    {
+        ThreatCluster group = FleetAgainstAGroup(GameDifficulty.Hard, 2.5f, Screen, Left, Right, Screen, Screen);
+        FleetShips[1].SetWarpInhibited(Ship.InhibitionType.EnemyShip, secondsToInhibit: 5f);
+        AssertTrue(Attack(), "setup: the fleet attacks");
+
+        AssertHeadOn(FleetShips[1], group.Position, "the left ship, held by an inhibitor the AI has not seen,");
+        AssertOnRight(FleetShips[2], group, "the right ship");
+    }
+
+    [TestMethod]
+    public void AFlankerHeldOutOfWarpOnItsLegComesInHeadOn()
+    {
+        ThreatCluster group = FleetAgainstAGroup(GameDifficulty.Hard, 2.5f, Screen, Left, Right, Screen, Screen);
+        AssertTrue(Attack(), "setup: the fleet attacks");
+        AssertOnLeft(FleetShips[1], group, "setup: the left ship");
+
+        FleetShips[1].SetWarpInhibited(Ship.InhibitionType.EnemyShip, secondsToInhibit: 5f);
+        FleetShips[1].AI.UpdateFlankLegHeldOutOfWarp();
+        AssertHeadOn(FleetShips[1], group.Position, "held out of warp on its way round, the left ship");
+        AssertOnRight(FleetShips[2], group, "the right ship, still free, keeps its leg");
+    }
+
+    [TestMethod]
+    public void AFlankerHeldOutOfWarpGivesUpItsLegWithinASecond()
+    {
+        ThreatCluster group = FleetAgainstAGroup(GameDifficulty.Hard, 2.5f, Screen, Left, Right, Screen, Screen);
+        AssertTrue(Attack(), "setup: the fleet attacks");
+        Vector2 point = FlankPointOf(FleetShips[1], group, "setup: the left ship");
+
+        FleetShips[1].SetWarpInhibited(Ship.InhibitionType.EnemyShip, secondsToInhibit: 5f);
+        RunObjectsSim(1.5f);
+        AssertGreaterThan(FleetShips[1].AI.MovePosition.Distance(point), 1f, "the ship's once-a-second update gives up the leg");
+    }
+
+    [TestMethod]
+    public void AFlankerInAGravityWellKeepsItsLeg()
+    {
+        ThreatCluster group = FleetAgainstAGroup(GameDifficulty.Hard, 2.5f, Screen, Left, Right, Screen, Screen);
+        AssertTrue(Attack(), "setup: the fleet attacks");
+
+        FleetShips[1].SetWarpInhibited(Ship.InhibitionType.GravityWell, secondsToInhibit: 5f);
+        FleetShips[1].AI.UpdateFlankLegHeldOutOfWarp();
+        AssertOnLeft(FleetShips[1], group, "held by a well, not an enemy ship, the left ship keeps its leg");
     }
 }
