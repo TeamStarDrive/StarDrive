@@ -87,6 +87,7 @@ IndicatesTheAmountOfFood: colony_storage
 IndicatesTheAmountOfProduction: colony_storage
 
 # Colony screen: statistics tab
+InfrastructureTip: colony_infrastructure
 BuilderShipsOutTip: economy_shipyards
 SupplyShuttlesOutTip: warfare_ordnance
 
