@@ -186,15 +186,7 @@ public sealed partial class Empire
     }
 
     // a reset fleet has key 0 and no ships
-    void RemoveResetFleets()
-    {
-        for (int i = Fleets.Count - 1; i >= 0; --i)
-        {
-            Fleet fleet = Fleets[i];
-            if (fleet.Key == 0 && fleet.Ships.IsEmpty)
-                Fleets.RemoveAt(i);
-        }
-    }
+    void RemoveResetFleets() => Fleets.RemoveAll(f => f.Key == 0 && f.Ships.IsEmpty);
 
     public void TrySendInitialFleets(Planet p)
     {

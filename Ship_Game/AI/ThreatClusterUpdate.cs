@@ -176,10 +176,7 @@ public sealed class ClusterUpdate
         UnseenStatics.AddRange(statics, statics.Length);
 
         // remembered as long as a group of all their strength
-        float strength = 0f;
-        for (int i = 0; i < statics.Length; ++i)
-            strength += statics[i].GetStrength();
-        Cluster.Strength = strength;
+        Cluster.Strength = statics.Sum(s => s.GetStrength());
         Cluster.SetTimeToLive(statics[0].System != null);
     }
 

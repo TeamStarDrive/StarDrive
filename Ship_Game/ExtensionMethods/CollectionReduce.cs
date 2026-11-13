@@ -28,6 +28,22 @@ namespace Ship_Game
         }
 
         /// <summary>
+        /// Optimized version of LINQ Any(x => x.MatchesCondition), tailored specifically to IReadOnlyList.
+        /// </summary>
+        /// <returns>TRUE if any item matches the predicate condition, false otherwise</returns>
+        public static bool Any<T>(this IReadOnlyList<T> items, Predicate<T> itemMatchesPredicate)
+        {
+            if (items is Array<T> array)
+                return array.Any(itemMatchesPredicate);
+            if (items is T[] arr)
+                return arr.Any(itemMatchesPredicate);
+            for (int i = 0; i < items.Count; ++i)
+                if (itemMatchesPredicate(items[i]))
+                    return true;
+            return false;
+        }
+
+        /// <summary>
         /// Optimized version of LINQ Count(x => x.IsTrue), tailored specifically to T[].
         /// </summary>
         /// <param name="itemMatchesPredicate">example: item => item.IsExplosive</param>
@@ -171,7 +187,7 @@ namespace Ship_Game
         /// Optimized version of LINQ Min(x => x.Value), tailored specifically to T[].
         /// </summary>
         /// <returns>Max item from selected range</returns>
-        public static float Min<T>(this T[] items, Func<T, int> valueFromItem)
+        public static int Min<T>(this T[] items, Func<T, int> valueFromItem)
         {
             return Min(items, items.Length, valueFromItem);
         }

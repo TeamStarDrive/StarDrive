@@ -103,13 +103,7 @@ public static class DerelictRecovery
     public static bool IsRepairModule(ShipModule m) => m.IsRepairModule || m.BonusRepairRate > 0f && !m.IsCommandModule;
 
     // a design repairs when any of its modules has a repair value, a command module's too
-    public static bool DesignRepairs(ShipModule[] modules)
-    {
-        for (int i = 0; i < modules.Length; ++i)
-            if (modules[i].BonusRepairRate > 0f)
-                return true;
-        return false;
-    }
+    public static bool DesignRepairs(ShipModule[] modules) => modules.Any(m => m.BonusRepairRate > 0f);
 
     // the share of its health a recovered ship's module comes back at: its repair modules, engines and the armor on the hull's edge as designed dead, its other armor and every other module barely alive
     public static float HealthOnRecovery(ShipModule m, bool designRepairs)

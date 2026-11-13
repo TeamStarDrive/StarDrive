@@ -266,9 +266,7 @@ namespace Ship_Game.Data.Mesh
         {
             if (vertexCount <= ushort.MaxValue + 1)
             {
-                var shorts = new ushort[indices.Length];
-                for (int i = 0; i < indices.Length; ++i)
-                    shorts[i] = (ushort)indices[i];
+                ushort[] shorts = indices.Select(i => (ushort)i);
                 var buf16 = new IndexBuffer(Device, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
                 buf16.SetData(shorts);
                 return buf16;

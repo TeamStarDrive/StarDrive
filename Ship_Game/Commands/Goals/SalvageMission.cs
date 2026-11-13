@@ -121,13 +121,7 @@ namespace Ship_Game.Commands.Goals
 
         // from the sim thread: one on automatic stays queued with its orders gone, for the next order, unless its empire's planner finds it beyond the cap
         public static SalvageMission Unordered(Empire empire)
-        {
-            var goals = empire.AI.Goals;
-            for (int i = 0; i < goals.Count; ++i)
-                if (goals[i] is SalvageMission { Over: false, Building: true } m && !m.HasOrders)
-                    return m;
-            return null;
-        }
+            => empire.AI.FindGoal(g => g is SalvageMission { Over: false, Building: true, HasOrders: false }) as SalvageMission;
 
         // from any thread: an AI empire, or the player with Auto Salvage on, whose planner orders its salvage
         public static bool OnAutomatic(Empire empire)
@@ -156,15 +150,7 @@ namespace Ship_Game.Commands.Goals
             => Owner.AI.HasGoal(g => g is SalvageDerelict { Launching: true, Recovering: true } s && s.Mission == this)
                && ResourceManager.GetShipTemplate(SalvageDerelict.ConstructorName(Owner), out Ship constructor) && ship.Ordinance >= constructor.ShipOrdLaunchCost;
 
-        public static int LiveUnits(Ship ship)
-        {
-            int units = 0;
-            ShipModule[] modules = ship.Modules;
-            for (int i = 0; i < modules.Length; ++i)
-                if (modules[i].Salvage && modules[i].Active)
-                    ++units;
-            return units;
-        }
+        public static int LiveUnits(Ship ship) => ship.Modules.Count(m => m.Salvage && m.Active);
 
         // from any thread: its ship stopped at its site, where its units launch and its platforms' loads reach it
         public bool Parked(out Ship ship)

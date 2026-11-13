@@ -318,16 +318,8 @@ namespace Ship_Game
 
         int GetRank(Empire selectedEmpire, Empire[] empireList)
         {
-            for (int i = 0; i < empireList.Length; i++)
-            {
-                Empire e = empireList[i];
-                if (selectedEmpire == e)
-                {
-                    return i + 1;
-                }
-            }
-
-            return empireList.Length;
+            int index = empireList.IndexOf(selectedEmpire);
+            return index >= 0 ? index + 1 : empireList.Length;
         }
 
         void ShowEmpire(Empire empire)
