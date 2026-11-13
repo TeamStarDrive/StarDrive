@@ -753,8 +753,6 @@ namespace Ship_Game
             SelectedSomethingTimer = 3f;
             if (ships.IsEmpty)
                 ClearSelectedItems(clearFlags: false);
-            else if (ships.Count == 1) // the one ship left is selected as a plain click selects it
-                SetSelectedShip(ships[0], clearFlags: false);
             else
                 SetSelectedShipList(ships, WholeFleetOf(ships), clearFlags: false);
         }

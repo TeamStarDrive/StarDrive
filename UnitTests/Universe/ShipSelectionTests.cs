@@ -132,6 +132,47 @@ namespace UnitTests.Universe
             Assert.AreSame(a, Universe.SelectedShip, "the one ship left is the selected ship");
         }
 
+        // The one ship left was selected as a ship even when it was all of its fleet, so a right-click on a friend escorted it.
+        [TestMethod]
+        public void ShiftClickLeavingAFleetOfOneShipSelectsThatFleet()
+        {
+            Ship a = Warship(Player), b = Warship(Player, 500);
+            Fleet fleet = Player.CreateFleet(1, null);
+            fleet.AddShips(new[] { a });
+            Universe.SetSelectedShipList(new[] { a, b }, fleet: null);
+            Assert.IsNull(Universe.SelectedFleet, "setup: the fleet and one more ship are a group");
+
+            ShiftClick(b);
+            Assert.AreSame(fleet, Universe.SelectedFleet, "the ship left is all of its fleet, so it is the fleet again");
+            AssertHolds(Universe.shipListInfoUI.ShownShips, "the panel shows the fleet as a box selection does", a);
+        }
+
+        // Their ship left alone in its fleet is selected as a ship, as a plain click selects it.
+        [TestMethod]
+        public void ShiftClickLeavingOneOfTheirShipsAloneInItsFleetSelectsThatShip()
+        {
+            Ship e1 = Warship(Enemy), e2 = Warship(Enemy, 500);
+            Enemy.CreateFleet(1, null).AddShips(new[] { e1 });
+            Universe.SetSelectedShipList(new[] { e1, e2 }, fleet: null);
+
+            ShiftClick(e2);
+            Assert.AreSame(e1, Universe.SelectedShip, "their ship left is the selected ship");
+            Assert.IsNull(Universe.SelectedFleet, "and no fleet of theirs is selected");
+        }
+
+        // Their group down to one ship alone in its fleet showed no panel at all, as the list panel needs two ships.
+        [TestMethod]
+        public void TheirGroupDownToOneShipAloneInItsFleetSelectsThatShip()
+        {
+            Ship e1 = Warship(Enemy), e2 = Warship(Enemy, 500);
+            Enemy.CreateFleet(1, null).AddShips(new[] { e1 });
+            Universe.SetSelectedShipList(new[] { e1, e2 }, fleet: null);
+
+            e2.Die(null, cleanupOnly: true);
+            Universe.UpdateSelectedShips();
+            Assert.AreSame(e1, Universe.SelectedShip, "the ship left is the selected ship");
+        }
+
         // A selection holding the other side's ships takes no orders, so the two never mix.
         [TestMethod]
         public void ShiftClickOnAShipOfTheOtherSideStartsANewSelection()

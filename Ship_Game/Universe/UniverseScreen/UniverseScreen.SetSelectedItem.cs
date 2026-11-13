@@ -148,7 +148,7 @@ public partial class UniverseScreen
         // if SetSelectedShipList(SelectedShipList) then this is a no-op
         // but otherwise always clone the ship list
         SelectedShipList = ReferenceEquals(ships, SelectedShipList) ? SelectedShipList : new(ships);
-        if (SelectedShipList.Count == 1 && (SelectedShipList[0].Fleet == null || SelectedShipList[0].Fleet.Ships.Count > 1))
+        if (SelectedShipList.Count == 1 && fleet == null) // one ship is the selected ship unless the selection is its fleet
             SetSelectedShip(SelectedShipList[0], clearFlags: clearFlags);
         else
             shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
