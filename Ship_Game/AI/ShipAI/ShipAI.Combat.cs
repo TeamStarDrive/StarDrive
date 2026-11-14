@@ -932,10 +932,10 @@ namespace Ship_Game.AI
                 return 0;
             }
 
-            if (Owner.IsHangarShip)
+            if (Owner.Mothership is { } mothership) // read once: the sim thread clears it when the carrier dies
             {
                 // get the motherships sensor status.
-                float motherRange = Owner.Mothership.AI.GetSensorRadius(out sensorShip);
+                float motherRange = mothership.AI.GetSensorRadius(out sensorShip);
 
                 // in radius of the motherships sensors then use that.
                 if (Owner.Position.InRadius(sensorShip.Position, motherRange - Owner.SensorRange))

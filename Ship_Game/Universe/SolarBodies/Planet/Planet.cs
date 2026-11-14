@@ -1586,9 +1586,8 @@ namespace Ship_Game
 
         public bool OurShipsCanScanSurface(Empire us)
         {
-            // find the nearest ship of ours that is within sensor range
-            return us.FindShipAt(Position, 150_000f, out Ship _, 
-                s => s.Position.InRadius(Position, s.SensorRange));
+            return us.OwnedShips.Any(s => s.Active && !s.Dying && !s.IsLaunching && !s.IsLanding
+                                          && s.Position.InRadius(Position, s.SensorRange));
         }
 
         private void GrowPopulation()
