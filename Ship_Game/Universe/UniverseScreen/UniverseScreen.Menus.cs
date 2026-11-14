@@ -26,7 +26,7 @@ namespace Ship_Game
                 {
                     planetMenu.Add(new(GameText.MarkForColonization, colonize, () => MarkForColonization(p)));
                 }
-                planetMenu.Add(new(GameText.TacticalView, colonize, () => OpenCombatMenu(p)));
+                planetMenu.Add(new(GameText.TacticalView, colonize, () => SnapViewColony(p, combatView: true)));
             }
 
             pieMenu.Show(planetMenu);
