@@ -44,7 +44,7 @@ public class DerelictTests : StarDriveTest
     {
         LoadStarterShips("Dreadnought mk1-a", "Corsair", "Hunter mk1-a", "Vulcan Scout", "Seeder Transport", "Shipyard",
                          "Platform Base mk1-a", "Subspace Projector", "Cordrazine Small Station Mk1",
-                         "C-Research Station mk1-a", "C-Mining Station mk1-a", "TEST_Old Salvage Station");
+                         "C-Research Station mk1-a", "C-Mining Station mk1-a", "TEST_Old Salvage Station", "Corsair Asteroid Base");
         CreateUniverseAndPlayerEmpire();
         UState.Derelicts.TestDriftRoll = false; // a death drifts by its hull's roll only in the tests of that roll
     }
@@ -190,6 +190,21 @@ public class DerelictTests : StarDriveTest
         AssertEqual(RoleName.frigate, ship.ShipData.HullRole, "setup: a frigate hull");
         AssertEqual(RoleType.Civilian, ship.DesignRoleType, "setup: a civilian design");
         AssertFalse(ship.CanBecomeDerelict, "only military designs become derelicts, whatever their hull");
+    }
+
+    [TestMethod]
+    public void APirateBaseNeverBecomesADerelictWhoeverHoldsIt()
+    {
+        TestShip playersBase = SpawnShip("Corsair Asteroid Base", Player, Site(0));
+        AssertTrue(playersBase.IsStation && playersBase.GetTether() == null, "setup: a station on its own");
+        AssertTrue(playersBase.CanBecomeDerelict, "control: with no pirates in the game, the design is a station like any other");
+
+        CreateAMinorFaction("Corsairs");
+        AssertTrue(Faction.WeArePirates, "setup: the Corsairs are pirates");
+        AssertFalse(playersBase.CanBecomeDerelict, "a pirate base the player holds");
+        TestShip piratesBase = SpawnShip("Corsair Asteroid Base", Faction, Site(1));
+        AssertTrue(piratesBase.GetTether() == null, "setup: on its own");
+        AssertFalse(piratesBase.CanBecomeDerelict, "a pirate base the pirates hold");
     }
 
     [TestMethod]
