@@ -603,7 +603,8 @@ namespace Ship_Game.Universe.SolarBodies
                 }
                 else
                 {
-                    if (P.Owner.AutoBuildTerraformers && P.Owner.data.Traits.TerraformingLevel > 0 && !item.IsPlayerAdded)
+                    if (P.Owner.AutoBuildTerraformers && P.Owner.data.Traits.TerraformingLevel > 0 && !item.IsPlayerAdded
+                        && !(P.HasBlueprints && P.Blueprints.OkToBuildTerraformers))
                         DePrioritizeTerraformer();
 
                     if (item.Rush && item.QType == QueueItemType.OrbitalUrgent)
