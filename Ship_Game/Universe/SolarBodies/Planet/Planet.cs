@@ -1313,7 +1313,7 @@ namespace Ship_Game
         internal float CrashChance(Ship ship)
         {
             float chance = 20 + ship.Level * 2;
-            if (!ship.IsMeteor) // gravity makes a ship's crash harder to survive; a meteor's crater is as likely on any planet
+            if (!ship.IsMeteor) // gravity makes a ship's crash harder to survive; a meteor's crater is as likely whatever the planet's size
                 chance *= 1 / Scale;
 
             if (!ship.CanBeRefitted && !ship.WorksForSalvage) // a salvage ship at work crashes as any ship

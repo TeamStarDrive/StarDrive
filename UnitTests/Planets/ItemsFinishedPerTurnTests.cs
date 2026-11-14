@@ -148,6 +148,49 @@ public class ItemsFinishedPerTurnTests : StarDriveTest
         AssertEqual(0.01f, 0f, second.ProductionSpent, "the first troop takes the only room, so the second takes no production, of which its cancel would refund only half");
     }
 
+    // queues a building, then a troop, with room for one troop left only on the building's tile, and spends a turn
+    (QueueItem Building, QueueItem Troop) BuildOnTheLastTroopRoomThenATroop(string buildingName, bool buildingFirst)
+    {
+        CreateColony(infrastructure: 4f);
+        foreach (var tile in Home.TilesList)
+            tile.MaxAllowedTroops = tile.TroopsHere.Count;
+        var open = Home.TilesList.First(t => t.Habitable && t.NoBuildingOnTile && t.QItem == null);
+        open.MaxAllowedTroops = open.TroopsHere.Count + 1;
+        Building template = ResourceManager.GetBuildingTemplate(buildingName);
+        var building = new QueueItem(Home) { isBuilding = true, Building = template, pgs = open, Cost = 2f, QType = QueueItemType.Building };
+        open.SetQueueItem(building);
+        QueueItem troop = Troop();
+        if (buildingFirst)
+            QueueInOrder(building, troop);
+        else
+            QueueInOrder(Build(), building, troop);
+        SpendOneTurn(building.ActualCost * 4);
+        Assert.IsTrue(Finished(building) && open.Building?.Name == buildingName, $"setup: the {buildingName} is built on the last tile with room");
+        return (building, troop);
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void ACombatBuildingFinishedOnTheLastRoomLeavesNoneForTheTroopBehindIt(bool buildingFirst)
+    {
+        Assert.IsTrue(ResourceManager.GetBuildingTemplate("Bunker").CombatStrength > 0, "setup: troops cannot stand where a Bunker stands");
+        (_, QueueItem troop) = BuildOnTheLastTroopRoomThenATroop("Bunker", buildingFirst);
+
+        AssertEqual(0.01f, 0f, troop.ProductionSpent, "the Bunker takes the last room, so the troop behind it takes no production, of which its cancel would refund only half");
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void ABuildingTroopsCanStandOnLeavesTheLastRoomToTheTroopBehindIt(bool buildingFirst)
+    {
+        Assert.AreEqual(0, ResourceManager.GetBuildingTemplate("Nano Mine").CombatStrength, "setup: troops can stand where a Nano Mine stands");
+        (_, QueueItem troop) = BuildOnTheLastTroopRoomThenATroop("Nano Mine", buildingFirst);
+
+        Assert.IsTrue(Finished(troop), "the Nano Mine leaves the last room free, so the troop behind it is paid for and finished");
+    }
+
     [TestMethod]
     public void ARushPassesNothingOnToTheItemBehind()
     {

@@ -11,7 +11,7 @@ namespace UnitTests.Ships;
 /// A ship that dies near a planet keeps the velocity it had and is pulled evenly onto the planet: its velocity turns into
 /// the fall over the time a straight fall would take, 2 to 5 seconds, without thrust. It dies only when it reaches the
 /// planet, even when it first flies away from it or was tethered to it. A big planet's gravity makes a ship's crash
-/// harder to survive, while a meteor is as likely to leave a crater on any planet.
+/// harder to survive, while a meteor is as likely to leave a crater whatever the planet's size.
 /// </summary>
 [TestClass]
 public class PlanetCrashTests : StarDriveTest

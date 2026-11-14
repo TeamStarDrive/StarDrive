@@ -126,7 +126,7 @@ namespace Ship_Game.Commands.Goals
                 Owner.AI.RemoveGoal(this);
         }
 
-        // from the sim thread: one stays queued with its orders gone, for the next order, unless on automatic its empire's planner finds it beyond the cap
+        // from the sim thread: a mission whose ship is still to be built and whose orders are gone, for the next order to take
         public static SalvageMission Unordered(Empire empire)
             => empire.AI.FindGoal(g => g is SalvageMission { Over: false, Building: true, HasOrders: false }) as SalvageMission;
 

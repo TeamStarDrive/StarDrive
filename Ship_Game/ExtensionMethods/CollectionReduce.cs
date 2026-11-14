@@ -163,7 +163,7 @@ namespace Ship_Game
         /// <summary>
         /// Optimized version of LINQ Max(x => x.Value), tailored specifically to T[].
         /// </summary>
-        /// <returns>Min item from selected range</returns>
+        /// <returns>Max item from selected range</returns>
         public static float Max<T>(this T[] items, Func<T, float> valueFromItem)
         {
             if (items.Length == 0)
@@ -186,7 +186,7 @@ namespace Ship_Game
         /// <summary>
         /// Optimized version of LINQ Min(x => x.Value), tailored specifically to T[].
         /// </summary>
-        /// <returns>Max item from selected range</returns>
+        /// <returns>Min item from selected range</returns>
         public static int Min<T>(this T[] items, Func<T, int> valueFromItem)
         {
             return Min(items, items.Length, valueFromItem);

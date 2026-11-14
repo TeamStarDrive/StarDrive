@@ -167,21 +167,32 @@ namespace Ship_Game.Universe.SolarBodies
         // spends what is left on up to `count` items right behind a finished one, stopping at one about to be cancelled or at the first it does not finish
         void SpendOnItemsBehind(int index, float left, int count)
         {
-            int troopRoom = TroopRoom() - (ConstructionQueue[index].isTroop ? 1 : 0);
+            int troopRoom = TroopRoom() - TroopRoomTakenBy(ConstructionQueue[index]);
             for (int i = index + 1; i <= index + count && i < ConstructionQueue.Count && left > 0f; ++i)
             {
                 QueueItem next = ConstructionQueue[i];
                 if (next.IsCancelled)
                     return;
-                if (next.isTroop && troopRoom-- <= 0)
-                    return; // no room left for it once the troops ahead of it are placed
+                if (next.isTroop && troopRoom <= 0)
+                    return; // no room left for it once the items ahead of it are finished
 
                 float spentBefore = next.ProductionSpent;
                 SpendProduction(next, left, chargeFees: true);
                 left -= next.ProductionSpent - spentBefore;
                 if (!next.IsComplete)
                     return;
+                troopRoom -= TroopRoomTakenBy(next);
             }
+        }
+
+        // the troop slots a finished item takes: one for a troop, and for a combat building the slots left on its tile
+        static int TroopRoomTakenBy(QueueItem q)
+        {
+            if (q.isTroop)
+                return 1;
+            if (q.isBuilding && q.Building.CombatStrength > 0 && q.pgs != null && TroopsCanStandOn(q.pgs))
+                return Math.Max(0, q.pgs.MaxAllowedTroops - q.pgs.TroopsHere.Count);
+            return 0;
         }
 
         void ProcessCompleteQueueItem(QueueItem q)
@@ -205,7 +216,7 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        // the troop places left on the surface, counted as HasRoomForTroops counts them
+        // the troop slots left on the surface, as HasRoomForTroops counts them
         int TroopRoom()
         {
             int room = 0;
