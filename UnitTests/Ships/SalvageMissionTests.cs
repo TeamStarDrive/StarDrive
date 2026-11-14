@@ -22,33 +22,33 @@ namespace UnitTests.Ships;
 /// needs. A shipyard lost, or turned unsafe while a safe one is left, has the ship queued again at the nearest;
 /// taking it out of the queue, or off Auto Salvage calling off its last order, ends the mission. One whose derelicts
 /// are lost stays queued, and the next order takes it, in its system or another; built with none, it works a derelict
-/// left in its system or else goes idle. With no safe shipyard yet, the mission ends with its order, but waits on with
-/// Auto Salvage. The ship flies to its site taking no orders and no fights, paying no upkeep, launching nothing on
-/// its way, parks there, and goes to its empire's nearest safe colony to unload when its hold is full, or to rearm
-/// when it lacks the ordnance a waiting launch takes and its full load pays for, once no
-/// constructor of its is out; it unloads once in orbit there, a colony turned unsafe on its way swapped for the
-/// nearest safe one, then comes back. With no safe colony its hold is paid as credits. Its orders done, it brings
-/// home what it holds and waits in orbit at the colony it last unloaded at, though another be nearer, or, never
-/// unloaded, at the nearest safe colony, a ship like any other. A queued salvage ship refitted to another design ends
-/// its mission once built, untold. A mission flying out survives a save, and an order saved with a salvage station's
-/// work ends on load. The derelicts window counts the player's salvage ships at work and idle, pauses the game, and
-/// reads the goals as it opens and once a click in it has reached the sim thread. On its way to unload, the ship
-/// takes no right-click order and joins no fleet. Flown out, it parks once its move has stopped it at its site;
-/// pushed off its spot it flies back still fighting nothing, and on its way to unload an orbit order elsewhere is
-/// undone. A mission waiting for its ship, or unloading, survives a save and load. A ship just reported built is its
-/// mission's at once, and it flies out fighting nothing once its launch from the shipyard ends. Parked with a free
-/// unit, the ship takes an order in its system still waiting for a salvage ship, then orders the salvage of the
-/// derelict there soonest to sink that its empire could order with a fifth of its turns left, on Auto Salvage
-/// recovering what Auto Salvage would, and never one whose order has a ship of its own; so its orders done it stays
-/// for a derelict left there. With its hold full it takes only a recovery, waiting or of its own, launches no salvage
-/// until it has room, launches a waiting recovery before it leaves unless no load of ordnance pays for it, and
-/// unloaded comes back for a salvage left there. Its last order ended while it is away, it flies back for a derelict
-/// left there, unless it has no live unit. On Auto Salvage it orders derelicts itself only where Auto Salvage would,
-/// beside no rival's colony and with no hostile strength known there, salvaging the ships Auto Salvage would not
-/// recover, and its own order joins its own mission though a queued ship there has a free unit. A derelict called off
-/// it leaves alone, and while boarders are aboard it orders none. With an idle ship but no free site, only a queued
-/// ship's free unit there takes an order. Its ship lost, an order whose work is not over starts again, its platform
-/// gone and a recovery's work lost, with an idle ship or else a new one, which the orders of the lost ship share.
+/// left in its system or else goes idle. With no safe shipyard yet, the mission ends with its order, but waits on
+/// with Auto Salvage. The ship flies to its site taking no orders and no fights, paying no upkeep, launching nothing
+/// on its way, parks there, and goes to its empire's nearest safe colony to unload when its hold is full, or to rearm
+/// when it lacks the ordnance a waiting launch takes and its full load pays for, once no constructor of its is out;
+/// it unloads once in orbit there, a colony turned unsafe on its way swapped for the nearest safe one, then comes
+/// back. With no safe colony its hold is paid as credits. Its orders done, it brings home what it holds and waits in
+/// orbit at the colony it last unloaded at, though another be nearer, or, never unloaded, at the nearest safe colony,
+/// a ship like any other. A queued salvage ship refitted to another design ends its mission once built, untold. A
+/// mission flying out survives a save, and an order saved with a salvage station's work ends on load. The derelicts
+/// window counts the player's salvage ships at work and idle, pauses the game, and reads the goals as it opens and
+/// once a click in it has reached the sim thread. On its way to unload, the ship takes no right-click order and joins
+/// no fleet. Flown out, it parks once its move has stopped it at its site; pushed off its spot it flies back still
+/// fighting nothing, and on its way to unload an orbit order elsewhere is undone. A mission waiting for its ship, or
+/// unloading, survives a save and load. A ship just reported built is its mission's at once, and it flies out
+/// fighting nothing once its launch from the shipyard ends. Parked with a free unit, the ship takes an order in its
+/// system still waiting for a salvage ship, then orders the salvage of the derelict there soonest to sink that its
+/// empire could order with a fifth of its turns left, on Auto Salvage recovering what Auto Salvage would, and never
+/// one whose order has a ship of its own; so its orders done it stays for a derelict left there. With its hold full
+/// it takes only a recovery, waiting or of its own, launches no salvage until it has room, launches a waiting
+/// recovery before it leaves unless no load of ordnance pays for it, and unloaded comes back for a salvage left
+/// there. Its last order ended while it is away, it flies back for a derelict left there, unless it has no live unit.
+/// On Auto Salvage it orders derelicts itself only where Auto Salvage would, beside no rival's colony and with no
+/// hostile strength known there, salvaging the ships Auto Salvage would not recover, and its own order joins its own
+/// mission though a queued ship there has a free unit. A derelict called off it leaves alone, and while boarders are
+/// aboard it orders none. With an idle ship but no free site, only a queued ship's free unit there takes an order.
+/// Its ship lost, an order whose work is not over starts again, its platform gone and a recovery's work lost, with an
+/// idle ship or else a new one, which the orders of the lost ship share.
 /// </summary>
 [TestClass]
 public class SalvageMissionTests : SalvageOrderTest
@@ -262,6 +262,7 @@ public class SalvageMissionTests : SalvageOrderTest
 
         Assert.IsTrue(taken.TryClaim(Enemy), "setup: a rival claims the derelict first");
         order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(order), "setup: the order ends");
         mission.Evaluate();
         Assert.AreEqual(autoSalvage, Player.AI.HasGoal(mission), "with nothing queued yet, the mission ends with its order, but waits on with Auto Salvage");
     }
