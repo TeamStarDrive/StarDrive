@@ -442,4 +442,31 @@ public class AIColonyShipQueueTests : StarDriveTest
         Assert.AreEqual("requisitioned", queue[1].DisplayName, "the requisitioned ship goes right behind it");
         Assert.IsTrue(queue[1].Rush, "with continuous rush");
     }
+
+    [TestMethod]
+    public void AColonizationGoalThatTakesAnIdleColonyShipKeepsGoingWhenItsQueuedShipIsCancelled()
+    {
+        CreateUniverseAndPlayerEmpire();
+        UState.Objects.EnableParallelUpdate = false;
+        Planet home = AddHomeWorldToEmpire(new Vector2(200_000), Enemy);
+        IShipDesign colonyShip = ResourceManager.GetShipTemplate("Colony Ship").ShipData;
+        var goal = new MarkForColonization(Enemy) { TargetPlanet = AddTargetInAnEmptySystem(), PlanetBuildingAt = home };
+        Enemy.AI.AddGoal(goal);
+        home.Construction.Enqueue(colonyShip, QueueItemType.ColonyShip, goal);
+        for (int i = 0; i < 3; ++i)
+            goal.AdvanceToNextStep();
+        Assert.AreEqual("EnsureBuildingColonyShip", goal.StepName, "setup: the goal waits for its queued colony ship");
+        Ship idle = SpawnShip("Colony Ship", Enemy, home.Position + new Vector2(5000, 0));
+        RunObjectsSim(TestSimStep);
+
+        goal.Evaluate();
+        Assert.AreSame(idle, goal.FinishedShip, "setup: the goal takes the idle colony ship instead");
+        home.Construction.RushProduction(0, 10f);
+
+        Assert.IsTrue(Enemy.AI.HasGoal(g => g == goal), "cancelling its queued colony ship does not remove the goal");
+        Assert.IsTrue(idle.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal order) && order.Goal == goal,
+                      "which still holds the ship it sent to colonize");
+        foreach (QueueItem q in home.Construction.GetConstructionQueue())
+            Assert.AreNotEqual(QueueItemType.ColonyShip, q.QType, "and the colony ship it had queued is gone");
+    }
 }

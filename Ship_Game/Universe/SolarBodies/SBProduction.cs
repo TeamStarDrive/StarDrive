@@ -655,6 +655,20 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
+        // cancels the goal's queued item but not the goal, which goes on with a ship it found elsewhere
+        public bool CancelWithoutGoal(Goal g)
+        {
+            lock (ConstructionQueue)
+            {
+                QueueItem item = ConstructionQueue.Find(q => q.Goal == g);
+                if (item == null)
+                    return false;
+                item.Goal = null;
+                item.SetCanceled();
+                return true;
+            }
+        }
+
         public void Cancel(QueueItem q, bool refund = true)
         {
             if (refund)

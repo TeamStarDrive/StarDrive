@@ -284,7 +284,8 @@ namespace Ship_Game.Commands.Goals
                 FinishedShip = FindIdleColonyShip();
                 if (FinishedShip != null)
                 {
-                    PlanetBuildingAt?.Construction.Cancel(this);
+                    PlanetBuildingAt?.Construction.CancelWithoutGoal(this);
+                    PlanetBuildingAt = null;
                     FinishedShip.OrderColonization(TargetPlanet, this);
                     ChangeToStep(WaitForColonizationComplete);
                     return GoalStep.TryAgain;
