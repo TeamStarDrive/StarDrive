@@ -70,59 +70,6 @@ public class FbxMaterialSurveyTests : StarDriveTest
         Assert.IsTrue(total > 0, "No FBX material rows surveyed");
     }
 
-    // Manual mod diagnostic: dumps the FBX material rows for the 6 Cardassian
-    // ships in the Star Trek mod whose bulk XNA-3.1 mesh-exporter run baked
-    // Alpha=0 into TransparencyFactor (see SunBurnStubs.cs:SetTransparencyMode-
-    // AndMap). Ignored in CI since mod content isn't part of the vanilla test
-    // surface — drop the [Ignore] manually to re-survey when investigating
-    // similar "only glow visible" symptoms on other mods.
-    [TestMethod]
-    [Ignore("Manual mod diagnostic; depends on Star Trek mod being installed under game/Mods/")]
-    public void DumpCardassianMaterials_StarTrekMod()
-    {
-        string contentRoot = Content.RootDirectory;
-        // game/Content/.. → game/, then into the mod tree
-        string modDir = Path.GetFullPath(Path.Combine(contentRoot, "..", "Mods", "Star Trek", "mod Model", "Cardassia"));
-        Assert.IsTrue(Directory.Exists(modDir), $"Mod dir missing: {modDir}");
-
-        string[] targets =
-        {
-            "Car_Hideki.fbx", "Car_Keldon.fbx", "Car_Barkus.fbx",
-            "Car_Galor.fbx",  "Car_Grommel.fbx", "Car_StarBase.fbx",
-        };
-
-        var dumper = new FbxMaterialDumper(Content);
-        Console.WriteLine("FBX,GROUP,MAT,SPEC,DIF_RGB,AMB_RGB,EMI_RGB,SPC_RGB,ALPHA,DIFFUSE_PATH,EMISSIVE_PATH,NORMAL_PATH");
-        int total = 0, blackDiffuse = 0, missingDiffuse = 0;
-        foreach (string name in targets)
-        {
-            string fbxPath = Path.Combine(modDir, name);
-            if (!File.Exists(fbxPath))
-            {
-                Console.WriteLine($"{name}: <NOT FOUND>");
-                continue;
-            }
-            foreach (var row in dumper.SurveyFbx(fbxPath))
-            {
-                total++;
-                bool isBlack = row.DiffuseColor.X < 0.05f
-                               && row.DiffuseColor.Y < 0.05f
-                               && row.DiffuseColor.Z < 0.05f;
-                if (isBlack) blackDiffuse++;
-                if (string.IsNullOrEmpty(row.DiffusePath)) missingDiffuse++;
-                Console.WriteLine($"{name},{row.GroupName},{row.MaterialName},{row.Specular:F3}," +
-                    $"({row.DiffuseColor.X:F2},{row.DiffuseColor.Y:F2},{row.DiffuseColor.Z:F2})," +
-                    $"({row.AmbientColor.X:F2},{row.AmbientColor.Y:F2},{row.AmbientColor.Z:F2})," +
-                    $"({row.EmissiveColor.X:F2},{row.EmissiveColor.Y:F2},{row.EmissiveColor.Z:F2})," +
-                    $"({row.SpecularColor.X:F2},{row.SpecularColor.Y:F2},{row.SpecularColor.Z:F2})," +
-                    $"{row.Alpha:F2}," +
-                    $"{row.DiffusePath},{row.EmissivePath},{row.NormalPath}");
-            }
-        }
-        Console.WriteLine($"--- {total} rows; {blackDiffuse} near-zero diffuse; {missingDiffuse} empty diffuse path ---");
-        Assert.IsTrue(total > 0, "No FBX material rows surveyed");
-    }
-
     [TestMethod]
     public void DumpAllShipFbxMaterials()
     {
