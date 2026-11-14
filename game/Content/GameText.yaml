@@ -14636,7 +14636,7 @@ ShipCategoryCivilianTip:
  ENG: "Can serve as a freighter. Leaves to repair when its internal slots fall below 97.5% health."
 ShipCategoryReconTip:
  Id: 4541
- ENG: "Offered as a scout by the exploration automation. Leaves to repair when its internal slots fall below 92.5% health."
+ ENG: "An unarmed Recon design is a scout on any hull but a drone's. Offered as a scout by the exploration automation. Leaves to repair when its internal slots fall below 92.5% health."
 ShipCategoryConservativeTip:
  Id: 4542
  ENG: "Leaves to repair when its internal slots fall below 90% health."
@@ -24174,7 +24174,7 @@ CodexDesignCategoriesShort:
  ENG: "Repair thresholds per category, and hangar-only designs"
 CodexDesignCategoriesText:
  Id: 100210
- ENG: "<color=Caption>Category</color>The category sets how much damage a ship takes before it leaves to repair. The check is on the health of its internal slots, and a ship is destroyed below 50%: Civilian leaves below 97.5%, Recon 92.5%, Conservative 90%, Neutral 87.5%, Unclassified 85%, Reckless 75%. Kamikaze never leaves to repair, rearm or take on troops on its own; only your order sends it. A ship with a priority target ignores the threshold, and a ship that fled returns to duty once its total health is back above it. An Unclassified freighter hull with cargo space becomes Civilian on its own, and Recon ships are offered as scouts by the exploration automation.\n\n<color=Caption>Carrier only</color>Marks a design that only hangars launch: no colony can build it and it never joins the force pools. Drones are always carrier only; the box is hidden for drones, platforms and stations."
+ ENG: "<color=Caption>Category</color>The category sets how much damage a ship takes before it leaves to repair. The check is on the health of its internal slots, and a ship is destroyed below 50%: Civilian leaves below 97.5%, Recon 92.5%, Conservative 90%, Neutral 87.5%, Unclassified 85%, Reckless 75%. Kamikaze never leaves to repair, rearm or take on troops on its own; only your order sends it. A ship with a priority target ignores the threshold, and a ship that fled returns to duty once its total health is back above it. An Unclassified freighter hull with cargo space becomes Civilian on its own. An unarmed Recon design is a scout on any hull but a drone's, and Recon ships are offered as scouts by the exploration automation.\n\n<color=Caption>Carrier only</color>Marks a design that only hangars launch: no colony can build it and it never joins the force pools. Drones are always carrier only; the box is hidden for drones, platforms and stations."
 CodexDesignPowerBudget:
  Id: 100211
  ENG: "Power Budget"
