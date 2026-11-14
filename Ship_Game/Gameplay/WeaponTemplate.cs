@@ -193,7 +193,7 @@ namespace Ship_Game.Gameplay
             if (Tag_Missile)
             {
                 if (WeaponType.IsEmpty()) WeaponType = "Missile";
-                else if (WeaponType != "Missile")
+                else if (WeaponType != "Missile" && !UseVisibleMesh)
                 {
                     Log.Warning($"Weapon '{UID}' has 'tag_missile' but Weapontype is '{WeaponType}' instead of missile. This Causes invisible projectiles.");
                 }
