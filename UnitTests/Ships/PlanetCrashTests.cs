@@ -10,7 +10,8 @@ namespace UnitTests.Ships;
 /// <summary>
 /// A ship that dies near a planet keeps the velocity it had and is pulled evenly onto the planet: its velocity turns into
 /// the fall over the time a straight fall would take, 2 to 5 seconds, without thrust. It dies only when it reaches the
-/// planet, even when it first flies away from it or was tethered to it.
+/// planet, even when it first flies away from it or was tethered to it. A big planet's gravity makes a ship's crash
+/// harder to survive, while a meteor is as likely to leave a crater on any planet.
 /// </summary>
 [TestClass]
 public class PlanetCrashTests : StarDriveTest
@@ -19,7 +20,7 @@ public class PlanetCrashTests : StarDriveTest
 
     public PlanetCrashTests()
     {
-        LoadStarterShips("Vulcan Scout");
+        LoadStarterShips("Vulcan Scout", "Meteor A");
         CreateUniverseAndPlayerEmpire();
         CrashPlanet = AddDummyPlanet(new Vector2(400_000f));
         Universe.Particles = new ParticleManager(Content); // the ship burns through the atmosphere
@@ -121,5 +122,23 @@ public class PlanetCrashTests : StarDriveTest
         CrashUntilDead(ship, out _);
 
         AssertDiedOnThePlanet(ship, "a tethered ship");
+    }
+
+    [TestMethod]
+    public void AMeteorIsAsLikelyToLeaveACraterOnABigPlanetWhileAShipsCrashIsHarderToSurvive()
+    {
+        CreateAMinorFaction("Unknown");
+        Ship meteor = SpawnShip("Meteor A", Faction, CrashPlanet.Position + new Vector2(20_000f, 0f));
+        Ship ship = SpawnShip("Vulcan Scout", Player, CrashPlanet.Position + new Vector2(-20_000f, 0f));
+        Assert.IsTrue(meteor.IsMeteor && !ship.IsMeteor, "setup: a meteor and a ship");
+
+        CrashPlanet.Scale = 1f;
+        float meteorOnSmall = CrashPlanet.CrashChance(meteor);
+        float shipOnSmall = CrashPlanet.CrashChance(ship);
+        Assert.IsTrue(meteorOnSmall is > 1f and < 100f && shipOnSmall is > 1f and < 100f, "setup: neither chance is held at its bounds");
+
+        CrashPlanet.Scale = 2f;
+        AssertEqual(0.01f, meteorOnSmall, CrashPlanet.CrashChance(meteor), "a meteor's crater chance is the same on a planet twice the size");
+        Assert.IsTrue(CrashPlanet.CrashChance(ship) < shipOnSmall, "a ship's crash is harder to survive on the bigger planet");
     }
 }

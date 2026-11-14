@@ -1309,12 +1309,30 @@ namespace Ship_Game
                     return;
         }
 
+        // the chance in percent that a ship crashing here leaves a crash site, or a meteor a crater
+        internal float CrashChance(Ship ship)
+        {
+            float chance = 20 + ship.Level * 2;
+            if (!ship.IsMeteor) // gravity makes a ship's crash harder to survive; a meteor's crater is as likely on any planet
+                chance *= 1 / Scale;
+
+            if (!ship.CanBeRefitted && !ship.WorksForSalvage) // a salvage ship at work crashes as any ship
+                chance *= 0.1f; // Dont recover hangar ships or home defense ships so easily.
+
+            if (!PType.Clouds)
+                chance *= 1.5f; // No atmosphere, not able to burn during planetfall
+
+            chance *= 1 + ship.Loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
+            chance += ship.SurfaceArea / (ship.IsMeteor ? 50f : 100f);
+            return chance.Clamped(1, 100);
+        }
+
         public void TryCrashOn(Ship ship)
         {
             if (!Habitable || NumActiveCrashSites >= (ship.IsMeteor ? 10 : 5))
                 return;
 
-            float survivalChance = TryMeteorHitShield() ? 0 : GetSurvivalChance();
+            float survivalChance = TryMeteorHitShield() ? 0 : CrashChance(ship);
             if (Random.RollDice(survivalChance) 
                 && TryGetCrashTile(out PlanetGridSquare crashTile)
                 && (ship.IsMeteor || !crashTile.LavaHere))
@@ -1327,22 +1345,6 @@ namespace Ship_Game
             }
 
             // Local Functions
-            float GetSurvivalChance()
-            {
-                float chance = 20 + ship.Level * 2;
-                chance      *= 1 / Scale; // Gravity affects how hard is a crash
-
-                if (!ship.CanBeRefitted && !ship.WorksForSalvage) // a salvage ship at work crashes as any ship
-                    chance *= 0.1f; // Dont recover hangar ships or home defense ships so easily.
-
-                if (!PType.Clouds)
-                    chance *= 1.5f; // No atmosphere, not able to burn during planetfall
-
-                chance *= 1 + ship.Loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
-                chance += ship.SurfaceArea / (ship.IsMeteor ? 50f : 100f);
-                return chance.Clamped(1, 100);
-            }
-
             bool TryGetCrashTile(out PlanetGridSquare tile)
             {
                 float destroyBuildingChance = ship.SurfaceArea / (ship.IsMeteor ? 5f : 50f);
