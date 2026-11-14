@@ -188,15 +188,20 @@ public sealed partial class Empire
 
     public bool RemoveBuildableShip(IShipDesign ship)
     {
+        bool removed, stationRemoved;
         lock (ShipsWeCanBuildLock)
         {
-            bool removed = ShipsWeCanBuild.Remove(ship);
+            removed = ShipsWeCanBuild.Remove(ship);
             if (removed)
                 ShipsWeCanBuildChanged();
-            if (SpaceStationsWeCanBuild.Remove(ship))
+            stationRemoved = SpaceStationsWeCanBuild.Remove(ship);
+            if (stationRemoved)
                 CachedSpaceStationsWeCanBuildSnapshot = null;
-            return removed;
         }
+
+        if (isPlayer && (removed || stationRemoved))
+            Universe?.Screen?.OnPlayerBuildableShipsUpdated();
+        return removed;
     }
 
     public void ClearShipsWeCanBuild()
