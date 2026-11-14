@@ -320,7 +320,7 @@ namespace Ship_Game.AI
                 Owner.SendShuttlesToPort(planet);
             else
                 ApproachToLand(timeStep, goal.Trade.GetThrustTarget(planet.Position, Owner.Position), planet.Position,
-                               LandingRange(LandPlan.Trade, planet, shipyard: null), GlideSpeed(LandPlan.Trade, planet, shipyard: null));
+                               LandingRange(LandPlan.Trade, planet, shipyard: null), GlideSpeed(LandPlan.Trade, planet, shipyard: null), tradeStop: true);
         }
 
         public void FlyInToStation(FixedSimTime timeStep, ShipGoal goal, Ship station)
@@ -329,7 +329,7 @@ namespace Ship_Game.AI
             if (CanStartLanding(station.Position, range))
                 Owner.InitLandingOnStation(station);
             else
-                ApproachToLand(timeStep, goal.Trade.GetThrustTarget(station.Position, Owner.Position), station.Position, range, LaunchShip.ShipyardSpeed(Owner));
+                ApproachToLand(timeStep, goal.Trade.GetThrustTarget(station.Position, Owner.Position), station.Position, range, LaunchShip.ShipyardSpeed(Owner), tradeStop: true);
         }
 
         void FlyInToHangar(FixedSimTime timeStep, Ship mothership)
@@ -359,7 +359,8 @@ namespace Ship_Game.AI
         public bool InTradeLandingRange(Planet planet)
             => Owner.Position.InRadius(planet.Position, LandingRange(LandPlan.Trade, planet, shipyard: null));
 
-        void ApproachToLand(FixedSimTime timeStep, Vector2 thrustTarget, Vector2 landAt, float range, float glideSpeed)
+        // a trade stop, made on every trip, leaves warp where its glide in begins; other landings leave room to slow down
+        void ApproachToLand(FixedSimTime timeStep, Vector2 thrustTarget, Vector2 landAt, float range, float glideSpeed, bool tradeStop = false)
         {
             if (thrustTarget != landAt)
             {
@@ -367,11 +368,13 @@ namespace Ship_Game.AI
                 return;
             }
 
+            float glideZone = range + Owner.GetMinDecelerationDistance(Owner.MaxSTLSpeed) + 500f;
             float speedLimit = 0f;
-            if (glideSpeed > 0f && !Owner.IsInWarp && Owner.Position.InRadius(landAt, range + Owner.GetMinDecelerationDistance(Owner.MaxSTLSpeed) + 500f))
+            if (glideSpeed > 0f && !Owner.IsInWarp && Owner.Position.InRadius(landAt, glideZone))
                 speedLimit = glideSpeed;
 
-            ThrustOrWarpToPos(landAt, timeStep, speedLimit, warpExitDistance: Math.Min(range + Owner.WarpOutDistance, 7000f));
+            float warpExit = tradeStop ? glideZone : range + Owner.WarpOutDistance;
+            ThrustOrWarpToPos(landAt, timeStep, speedLimit, warpExitDistance: Math.Min(warpExit, 7000f));
         }
 
         float GlideSpeed(LandPlan landPlan, Planet planet, Ship shipyard)

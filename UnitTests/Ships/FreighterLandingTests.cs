@@ -179,6 +179,60 @@ public class FreighterLandingTests : StarDriveTest
         Assert.IsTrue(freighter.ThrustersShown, "the thrusters show again once the freighter is up");
     }
 
+    // how far from where it lands the freighter leaves warp on its way in
+    float WarpExitOnTheWayIn(Ship freighter, Vector2 landAt)
+    {
+        bool wasInWarp = false;
+        float warpExit = 0f;
+        RunSimWhile((simTimeout: 120, fatal: true), () => !freighter.IsLanding, () =>
+        {
+            if (wasInWarp && !freighter.IsInWarp)
+                warpExit = Math.Max(warpExit, freighter.Position.Distance(landAt));
+            wasInWarp = freighter.IsInWarp;
+        });
+        AssertGreaterThan(warpExit, 0f, "setup: the freighter warps in");
+        return warpExit;
+    }
+
+    [TestMethod]
+    public void AFreighterLeavesWarpWhereItsGlideIntoTheSpacePortBegins()
+    {
+        Ship freighter = SpawnFreighter(Exporter, new Vector2(0, 150_000));
+        freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
+        float range = LandShip.SpacePortLandingRange(freighter);
+        float glideZone = range + freighter.GetMinDecelerationDistance(freighter.MaxSTLSpeed) + 500f;
+        AssertLessThan(glideZone + 1000f, Math.Min(range + freighter.WarpOutDistance, 7000f), "setup: other landings leave warp well before that");
+
+        AssertLessThan(WarpExitOnTheWayIn(freighter, Exporter.Position), glideZone, "a trade stop leaves warp where its glide into the space port begins");
+    }
+
+    [TestMethod]
+    public void AFreighterSupplyingAStationLeavesWarpWhereItsGlideBegins()
+    {
+        Ship station = SpawnResearchStation(Exporter.Position + new Vector2(30_000, 0));
+        Ship freighter = SpawnFreighter(Exporter, new Vector2(30_000, 150_000));
+        freighter.LoadProduction(5f);
+        freighter.AI.SetTradePlan(ShipAI.Plan.DropOffGoodsForStation, Exporter, station, Goods.Production);
+        float range = LandShip.ShipyardLandingRange(freighter);
+        float glideZone = range + freighter.GetMinDecelerationDistance(freighter.MaxSTLSpeed) + 500f;
+        AssertLessThan(glideZone + 1000f, Math.Min(range + freighter.WarpOutDistance, 7000f), "setup: other landings leave warp well before that");
+
+        AssertLessThan(WarpExitOnTheWayIn(freighter, station.Position), glideZone, "a supply stop at a station leaves warp where its glide in begins");
+    }
+
+    [TestMethod]
+    public void AFreighterLandingOnAPlanetLeavesWarpCloseToIt()
+    {
+        Exporter.HasSpacePort = false;
+        Ship freighter = SpawnFreighter(Exporter, new Vector2(0, 150_000));
+        freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
+        float range = Exporter.Radius + 300f;
+        float closeBy = range + freighter.GetMinDecelerationDistance(freighter.MaxSTLSpeed) + 500f;
+        AssertLessThan(closeBy + 1000f, Math.Min(range + freighter.WarpOutDistance, 7000f), "setup: other landings leave warp well before that");
+
+        AssertLessThan(WarpExitOnTheWayIn(freighter, Exporter.Position), closeBy, "a trade stop on a planet leaves warp close to it");
+    }
+
     [TestMethod]
     public void AFreighterUnloadsAtTouchdownThenWaitsDockedForUpToATurn()
     {
