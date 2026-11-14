@@ -53,6 +53,12 @@ namespace Ship_Game.Commands.Goals
             return targetSystem.Position + dir * distanceToDeploy;
         }
 
+        protected override GoalStep? PreEvaluate()
+        {
+            DropFinishedShipNoLongerOurs();
+            return null;
+        }
+
         GoalStep BuildProjector()
         {
             Owner.AI.AddGoalAndEvaluate(BuildGoal);

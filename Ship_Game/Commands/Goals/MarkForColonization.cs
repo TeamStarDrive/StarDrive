@@ -21,6 +21,14 @@ namespace Ship_Game.Commands.Goals
 
         public override bool IsColonizationGoal(Planet planet) => TargetPlanet == planet;
 
+        public Ship OurColonyShip => FinishedShip is { } ship && StillOurs(ship) ? ship : null;
+
+        protected override GoalStep? PreEvaluate()
+        {
+            DropFinishedShipNoLongerOurs();
+            return null;
+        }
+
         [StarDataConstructor]
         public MarkForColonization(Empire owner) : base(GoalType.MarkForColonization, owner)
         {
@@ -107,12 +115,12 @@ namespace Ship_Game.Commands.Goals
         public bool CanSwitchTarget => !IsManualColonizationOrder
                                        && TargetPlanet.Owner != Owner
                                        && Task?.Fleet == null
-                                       && FinishedShip is not { IsLanding: true }
-                                       && FinishedShip?.System != TargetPlanet.System;
+                                       && (OurColonyShip is not { } ship || !ship.IsLanding && ship.System != TargetPlanet.System);
 
         // moves this goal to a safe planet: the old target's claim and guard fleets are called off and the colony ship is re-routed
         public void SwitchTargetPlanet(Planet planet)
         {
+            DropFinishedShipNoLongerOurs();
             Task?.EndTask();
             Owner.AI.EndGuardBeforeColonizeTasks(TargetPlanet);
             TargetPlanet = planet;
@@ -390,12 +398,12 @@ namespace Ship_Game.Commands.Goals
 
         void ReleaseShipFromGoal()
         {
-            if (FinishedShip is { IsLanding: false })
+            if (OurColonyShip is { IsLanding: false } ship)
             {
-                FinishedShip.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders);
-                var nearestRallyPoint = Owner.FindNearestRallyPoint(FinishedShip.Position);
+                ship.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders);
+                var nearestRallyPoint = Owner.FindNearestRallyPoint(ship.Position);
                 if (nearestRallyPoint != null)
-                    FinishedShip.AI.OrderOrbitPlanet(nearestRallyPoint, clearOrders: true);
+                    ship.AI.OrderOrbitPlanet(nearestRallyPoint, clearOrders: true);
             }
         }
 

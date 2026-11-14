@@ -32,6 +32,12 @@ namespace Ship_Game.Commands.Goals
             TargetPlanet = claim;
         }
 
+        protected override GoalStep? PreEvaluate()
+        {
+            DropFinishedShipNoLongerOurs();
+            return null;
+        }
+
         GoalStep BuildProjector()
         {
             if (Fleet == null || TargetPlanet.System.HasPlanetsOwnedBy(Owner))

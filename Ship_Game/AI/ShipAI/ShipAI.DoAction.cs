@@ -315,7 +315,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (goal is RefitOrbital && (goal.OldShip?.Active == false || goal.OldShip?.Dismantling == true))
+            if (RefitOrbitalCalledOff(goal))
             {
                 OrderScrapShip();
                 return;
@@ -393,7 +393,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (goal is RefitOrbital && (goal.OldShip?.Active == false || goal.OldShip?.Dismantling == true))
+            if (RefitOrbitalCalledOff(goal))
             {
                 OrderScrapShip();
                 return;
@@ -431,6 +431,11 @@ namespace Ship_Game.AI
                 UpdateMiningOpsGoal(orbital, target, goal.OldShip);
             }
         }
+
+        // the orbital to refit is gone, coming apart, or changed or changing hands
+        bool RefitOrbitalCalledOff(Goal goal)
+            => goal is RefitOrbital && goal.OldShip is { } old
+               && (!old.Active || old.Dismantling || old.Loyalty != Owner.Loyalty || old.LoyaltyTracker.ChangesFrom(Owner.Loyalty));
 
         void UpdateResearchStationGoal(Ship orbital, ExplorableGameObject target, Ship oldShipToRefit)
         {

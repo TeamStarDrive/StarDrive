@@ -22,6 +22,12 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
+        protected override GoalStep? PreEvaluate()
+        {
+            DropFinishedShipNoLongerOurs();
+            return null;
+        }
+
         GoalStep BuildColonyShip()
         {
             if (!ShipBuilder.PickColonyShip(Owner, out IShipDesign colonyShip))

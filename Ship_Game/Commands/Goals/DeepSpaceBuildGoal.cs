@@ -53,6 +53,7 @@ namespace Ship_Game.Commands.Goals
 
         protected override GoalStep? PreEvaluate()
         {
+            DropFinishedShipNoLongerOurs();
             if (TetherPlanetTakenByOtherEmpire)
             {
                 // We no longer own the planet this orbital was for: scrap the in-flight

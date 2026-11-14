@@ -60,7 +60,8 @@ namespace Ship_Game.Commands.Goals
             }
 
             Planet planetToOrbit = Owner.GetOrbitPlanetAfterBuild(PlanetBuildingAt);
-            FinishedShip.OrderToOrbit(planetToOrbit, clearOrders: true);
+            if (StillOurs(FinishedShip))
+                FinishedShip.OrderToOrbit(planetToOrbit, clearOrders: true);
 
             return GoalStep.GoalComplete;
         }

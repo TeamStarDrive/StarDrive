@@ -96,6 +96,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep WaitForDeployment()
         {
+            if (OldShip is { Active: true } old && !StillOurs(old))
+            {
+                FinishedShip?.AI.OrderScrapShip();
+                return GoalStep.GoalFailed;
+            }
+
             if (!ConstructionShipOk)
             {
                 if (OldShip is { Active: true })
@@ -120,7 +126,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 if (OldShip == null)
                     return false; // Ship was removed from game, probably destroyed
 
-                return OldShip.DoingRefit;
+                return StillOurs(OldShip) && OldShip.DoingRefit;
             }
         }
 

@@ -65,6 +65,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (Fleet == null)
                 return GoalStep.GoalComplete;
+            DropFinishedShipNoLongerOurs();
             if (FinishedShip == null)
             {
                 Fleet.RemoveGoal(this);

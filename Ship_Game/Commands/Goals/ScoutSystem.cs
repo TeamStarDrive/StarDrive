@@ -25,6 +25,12 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
+        protected override GoalStep? PreEvaluate()
+        {
+            DropFinishedShipNoLongerOurs();
+            return null;
+        }
+
         GoalStep DelayedStart()
         {
             if (Owner.Universe.StarDate - StarDateAdded > 5)

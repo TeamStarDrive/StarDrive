@@ -51,7 +51,8 @@ namespace Ship_Game.Commands.Goals
                 Log.Error($"BuildScout {Build.Template.Name} failed: BuiltShip is null!");
                 return GoalStep.GoalFailed;
             }
-            FinishedShip.AI.OrderExplore();
+            if (StillOurs(FinishedShip))
+                FinishedShip.AI.OrderExplore();
             return GoalStep.GoalComplete;
         }
     }
