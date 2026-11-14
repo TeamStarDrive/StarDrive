@@ -371,8 +371,8 @@ namespace Ship_Game.AI.Tasks
             if (!Owner.IsEmpireAttackable(enemy))
                 return false;
 
-            float enemyNear = GetHostileStrengthAt(AO, Ship_Game.Fleets.Fleet.AssaultEnemyScanRadius);
-            if (Ship_Game.Fleets.Fleet.CanTakeThisFight(Owner, fleetStrength, enemyNear, enemy))
+            float enemyNear = Owner.AI.ThreatMatrix.GetWeightedHostileStrengthAt(AO, Ship_Game.Fleets.Fleet.AssaultEnemyScanRadius);
+            if (Ship_Game.Fleets.Fleet.CanTakeWeightedFight(Owner, fleetStrength, enemyNear))
                 return false;
 
             Log.Info($"{Owner.Name} TaskForce {GetFleetName()} not formed, outmatched Strength={fleetStrength} EnemyNear={enemyNear} Target={TargetPlanet.Name}");

@@ -1036,8 +1036,11 @@ namespace Ship_Game.Fleets
             else
             {
                 task.TargetEmpire = task.TargetPlanet.Owner;
-                float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
-                if (EndInvalidTask(TaskStep < 5 && !CanTakeThisFight(enemyStr, task, inCombat: TaskStep >= 5) && !ThirdPartyAhead(task)))
+                float enemyStr = Owner.Threats.GetWeightedHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
+                if (EndInvalidTask(TaskStep < 5 && !CanTakeWeightedFight(enemyStr, task, inCombat: TaskStep >= 5) && !ThirdPartyAhead(task)))
+                    return;
+
+                if (EndInvalidTask(TaskStep == 5 && !task.WentIn && RemnantsTargetingSystemOf(task)))
                     return;
 
                 if (TaskStep is 5 or 6 && !task.WentIn && HoldsForThirdParty(task))
@@ -1188,19 +1191,19 @@ namespace Ship_Game.Fleets
 
             bool invasionEffective = StillInvasionEffective(task);
             bool combatEffective   = ThirdPartyAhead(task) || StillCombatEffective(task, inCombat: TaskStep >= 5); // a third party ahead is left to the hold before going in
-            bool remnantsTargeting = !Owner.WeAreRemnants
-                && CommandShip?.System == task.TargetPlanet.System
-                && Owner.Universe.Remnants.Remnants.HostileTargetingSystem(task.TargetPlanet.System);
+            bool remnantsTargeting = CommandShip?.System == task.TargetPlanet.System && RemnantsTargetingSystemOf(task);
 
             EndInvalidTask(remnantsTargeting
                           || !MajorityTroopShipsAreInWell(task.TargetPlanet)
                              && (!invasionEffective || !combatEffective));
         }
 
+        bool RemnantsTargetingSystemOf(MilitaryTask task) => Owner.RemnantsRaid(task.TargetPlanet.System);
+
         void DoDeepSpaceInvestigate(MilitaryTask task)
         {
-            float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, 100_000);
-            if (EndInvalidTask(!CanTakeThisFight(enemyStr, task, inCombat: TaskStep >= 3)))
+            float enemyStr = Owner.Threats.GetWeightedHostileStrengthAt(task.AO, 100_000);
+            if (EndInvalidTask(!CanTakeWeightedFight(enemyStr, task, inCombat: TaskStep >= 3)))
                 return;
 
             switch (TaskStep)
@@ -1879,9 +1882,7 @@ namespace Ship_Game.Fleets
                     return;
             }
 
-            bool remnantsTargeting = !Owner.WeAreRemnants
-                && CommandShip?.System == task.TargetPlanet.System
-                && Owner.Universe.Remnants.Remnants.HostileTargetingSystem(task.TargetPlanet.System);
+            bool remnantsTargeting = CommandShip?.System == task.TargetPlanet.System && RemnantsTargetingSystemOf(task);
 
             if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting
                                || !ThirdPartyAhead(task) && !StillCombatEffective(task, inCombat: TaskStep >= 3)))
@@ -2403,15 +2404,19 @@ namespace Ship_Game.Fleets
         public const float AssaultEnemyScanRadius = 100_000;
 
         public static bool CanTakeThisFight(Empire owner, float ourStrength, float enemyStrength, Empire enemy)
-        {
-            return enemyStrength * owner.GetFleetStrEmpireMultiplier(enemy)
-                   < ourStrength * owner.PersonalityModifiers.CanWeTakeThisFightMultiplier;
-        }
+            => CanTakeWeightedFight(owner, ourStrength, enemyStrength * owner.GetFleetStrEmpireMultiplier(enemy));
+
+        // the enemy strength already carries each empire's own fleet strength multiplier
+        public static bool CanTakeWeightedFight(Empire owner, float ourStrength, float weightedEnemyStrength)
+            => weightedEnemyStrength < ourStrength * owner.PersonalityModifiers.CanWeTakeThisFightMultiplier;
 
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool inCombat)
+            => CanTakeWeightedFight(enemyFleetStrength * Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire), task, inCombat);
+
+        bool CanTakeWeightedFight(float weightedEnemyStrength, MilitaryTask task, bool inCombat)
         {
-            if (CanTakeThisFight(Owner, GetStrength(), enemyFleetStrength, task.TargetEmpire))
+            if (CanTakeWeightedFight(Owner, GetStrength(), weightedEnemyStrength))
                 return true;
 
             // We fighting and cannot win, update fleet multipliers for next time
@@ -2423,8 +2428,8 @@ namespace Ship_Game.Fleets
 
         bool StillCombatEffective(MilitaryTask task, bool inCombat)
         {
-            float enemyStrength = Owner.AI.ThreatMatrix.GetHostileStrengthAt(task.AO, task.AORadius);
-            if (CanTakeThisFight(enemyStrength, task, inCombat))
+            float enemyStrength = Owner.AI.ThreatMatrix.GetWeightedHostileStrengthAt(task.AO, task.AORadius);
+            if (CanTakeWeightedFight(enemyStrength, task, inCombat))
                 return true;
 
             DebugInfo(task, $"Enemy Strength too high. Them: {enemyStrength} Us: {GetStrength()}");
@@ -2454,8 +2459,8 @@ namespace Ship_Game.Fleets
             if (!thirdParty && !held)
                 return false;
 
-            float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
-            bool canBeatAll = CanTakeThisFight(enemyStr, task, inCombat: false);
+            float enemyStr = Owner.Threats.GetWeightedHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
+            bool canBeatAll = CanTakeWeightedFight(enemyStr, task, inCombat: false);
             if (!thirdParty || allAtWar && canBeatAll)
             {
                 task.ThirdPartyHoldEndsAt = 0f;
@@ -2481,7 +2486,8 @@ namespace Ship_Game.Fleets
 
             Empire enemy = task.TargetEmpire;
             bool IsTarget(Planet p) => p.Owner == enemy && !task.RepelledAWave(p) && !Owner.LeavesToBombers(p);
-            SolarSystem[] systems = task.TargetPlanet.System.FiveClosestSystems.Filter(s => s.PlanetList.Any(IsTarget) && !Owner.HasThirdPartyIn(s, enemy));
+            SolarSystem[] systems = task.TargetPlanet.System.FiveClosestSystems.Filter(s => s.PlanetList.Any(IsTarget) && !Owner.HasThirdPartyIn(s, enemy)
+                                                                                          && !Owner.RemnantsRaid(s));
             if (EndInvalidTask(systems.Length == 0))
                 return;
 

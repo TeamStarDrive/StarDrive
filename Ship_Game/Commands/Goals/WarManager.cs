@@ -48,8 +48,8 @@ namespace Ship_Game.Commands.Goals
             var targetPlanetsSorted = Owner.SortPlanetTargets(planetTargets, GetWarType(), TargetEmpire);
             foreach (Planet planet in targetPlanetsSorted)
             {
-                // a system with a known third party hostile to us is left to that fight
-                if (Owner.CanAddAnotherWarGoal(TargetEmpire) && !Owner.HasThirdPartyIn(planet.System, TargetEmpire))
+                // a system with a known third party hostile to us, or with a Remnant raid on its way, is left to that fight
+                if (Owner.CanAddAnotherWarGoal(TargetEmpire) && !Owner.HasThirdPartyIn(planet.System, TargetEmpire) && !Owner.RemnantsRaid(planet.System))
                 {
                     Owner.AI.AddGoalAndEvaluate(new WarMission(Owner, TargetEmpire, planet));
                     return GoalStep.TryAgain;

@@ -19,6 +19,10 @@ namespace Ship_Game
 
         public bool HasThirdPartyIn(SolarSystem system, Empire enemy) => HasThirdPartyIn(system, enemy, out _);
 
+        // a Remnant fleet has its task in the system, on its way or there
+        public bool RemnantsRaid(SolarSystem system)
+            => !WeAreRemnants && Universe.Remnants?.Remnants?.HostileTargetingSystem(system) == true;
+
         // known armed ships in the system of an empire hostile to us, other than the enemy we attack, the Remnants and the pirates
         public bool HasThirdPartyIn(SolarSystem system, Empire enemy, out bool allAtWar)
         {

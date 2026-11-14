@@ -92,7 +92,7 @@ public class ThirdPartyTargetTests : StarDriveTest
     }
 
     bool CanBeatEveryoneThere(Fleet fleet)
-        => Fleet.CanTakeThisFight(Enemy, fleet.GetStrength(), Enemy.Threats.GetHostileStrengthAt(Target.Position, 100_000f), Player);
+        => Fleet.CanTakeWeightedFight(Enemy, fleet.GetStrength(), Enemy.Threats.GetWeightedHostileStrengthAt(Target.Position, 100_000f));
 
     static void Assault(Fleet fleet, MilitaryTask task) => Call(fleet, "DoAssaultPlanet", task);
 
@@ -279,6 +279,26 @@ public class ThirdPartyTargetTests : StarDriveTest
         Assert.AreEqual(next, task.TargetPlanet, "and turns to the enemy's planet in a nearby system");
         Assert.AreEqual(next.Position, task.AO, "with its area of operation");
         Assert.AreEqual(2, fleet.TaskStep, "and heads there");
+    }
+
+    [TestMethod]
+    public void TheNewTargetIsInASystemNoRemnantRaidIsHeadedFor()
+    {
+        Planet closer = NearbyTarget(new Vector2(400_000, 800_000));
+        Planet farther = NearbyTarget(new Vector2(400_000, -200_000));
+        HostileThirdEmpire();
+        SeenBeside(Target, ThirdMajor);
+        SeenBeside(farther, Player, count: 4);
+        Assert.IsTrue(Enemy.KnownEnemyStrengthIn(closer.System) < Enemy.KnownEnemyStrengthIn(farther.System),
+            "setup: by known enemy strength alone the closer system would be picked");
+        RemnantRaidOn(closer);
+        Fleet fleet = AttackFleet(6, Rally, out MilitaryTask task);
+
+        Assault(fleet, task);
+        UState.StarDate += 2.5f;
+        Assault(fleet, task);
+
+        Assert.AreEqual(farther, task.TargetPlanet, "the fleet passes over a nearby system a Remnant raid is headed for");
     }
 
     [TestMethod]
@@ -613,6 +633,83 @@ public class ThirdPartyTargetTests : StarDriveTest
         Assault(fleet, task);
 
         AssertGoesIn(fleet, task, "with no third party the step that sends the fleet in is unchanged");
+    }
+
+    void RemnantFaction()
+    {
+        CreateAMinorFaction("Remnant");
+        UState.Remnants = Faction;
+        typeof(Ship_Game.Remnants).GetProperty(nameof(Ship_Game.Remnants.Story))!
+            .SetValue(Faction.Remnants, Ship_Game.Remnants.RemnantStory.AncientExterminators); // helpers never raid
+    }
+
+    // a Remnant raid whose task targets the planet's system, its fleet still well outside it
+    void RemnantRaidOn(Planet p)
+    {
+        RemnantFaction();
+        Fleet raid = Faction.CreateFleet(1, null);
+        raid.AddShip(SpawnShip(Warship, Faction, p.System.Position + new Vector2(0f, p.System.Radius * 3f)));
+        raid.FleetTask = new MilitaryTask(p, Faction, raid, MilitaryTaskImportance.Normal);
+        Assert.IsTrue(Enemy.RemnantsRaid(p.System), "setup: a Remnant raid targets the system");
+    }
+
+    [TestMethod]
+    public void AFleetAboutToGoInGivesUpWhenARemnantRaidTargetsTheSystem()
+    {
+        RemnantRaidOn(Target);
+        Fleet fleet = AttackFleet(6, Rally, out MilitaryTask task);
+
+        Assault(fleet, task);
+
+        Assert.IsFalse(task.WentIn, "a fleet at its staging point does not go in while a Remnant raid targets the system");
+        Assert.IsNull(fleet.FleetTask, "it gives up its task there");
+    }
+
+    [TestMethod]
+    public void TheWarsPickPassesOverASystemARemnantRaidIsHeadedFor()
+    {
+        Planet other = AddDummyPlanetToEmpire(new Vector2(-600_000), Player);
+        Enemy.WeightedCenter = Vector2.Zero;
+        Assert.IsTrue(Enemy.GetPotentialTargetPlanets(Player, WarType.ImperialistWar, out Planet[] targets), "setup: there are targets");
+        Planet first = Enemy.SortPlanetTargets(targets, WarType.ImperialistWar, Player)[0];
+        Planet second = first == Target ? other : Target;
+        RemnantRaidOn(first);
+
+        Assert.AreEqual(second, WarPicks(out _), "the war picks the planet in a system no Remnant raid is headed for");
+    }
+
+    [TestMethod]
+    public void AFleetWeighsEachEmpireNearItsTargetByItsOwnStrengthMultiplier()
+    {
+        RemnantFaction();
+        SeenBeside(Target, Faction);
+        Fleet fleet = AttackFleet(6, Rally, out MilitaryTask task);
+        fleet.TaskStep = 3;
+        Enemy.FleetStrEmpireMultiplier[Player.Id] = 1f;
+        Enemy.FleetStrEmpireMultiplier[Faction.Id] = 100f;
+        float seen = Enemy.Threats.GetHostileStrengthAt(Target.Position, 100_000f);
+        Assert.IsTrue(seen > 0f, "setup: the Remnant ship near the target is known");
+        Assert.IsTrue(Fleet.CanTakeThisFight(Enemy, fleet.GetStrength(), seen, Player), "setup: weighed as the planet owner's, the fleet could take it");
+
+        Assault(fleet, task);
+
+        Assert.IsNull(fleet.FleetTask, "weighed by the Remnants' own multiplier it cannot, and the fleet gives up its task");
+    }
+
+    [TestMethod]
+    public void AFleetInItsFightWeighsEachEmpireByItsOwnStrengthMultiplier()
+    {
+        RemnantFaction();
+        SeenAt(Target.Position + new Vector2(2000f, 0f), Target.System, Faction);
+        Fleet fleet = AttackFleet(6, Target.Position + new Vector2(20_000f, 0f), out MilitaryTask task);
+        task.TargetEmpire = Player;
+        Enemy.FleetStrEmpireMultiplier[Player.Id] = 1f;
+        Enemy.FleetStrEmpireMultiplier[Faction.Id] = 100f;
+        float seen = Enemy.Threats.GetHostileStrengthAt(task.AO, task.AORadius);
+        Assert.IsTrue(seen > 0f, "setup: the Remnant ship in the fight is known");
+        Assert.IsTrue(Fleet.CanTakeThisFight(Enemy, fleet.GetStrength(), seen, Player), "setup: weighed as the planet owner's, the fleet could take it");
+
+        Assert.IsFalse((bool)Call(fleet, "StillCombatEffective", task, false), "weighed by the Remnants' own multiplier it cannot");
     }
 
     [TestMethod]
