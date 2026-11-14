@@ -947,6 +947,8 @@ namespace Ship_Game
             IWeaponTemplate warhead = b.TheWeapon.IsMirv ? ResourceManager.GetWeaponTemplateOrNull(b.TheWeapon.MirvWeapon) : null;
             IWeaponTemplate hits = warhead ?? b.TheWeapon;
             DrawBuildingInfo(ref cursor, batch, font, hits.DamageAmount, "UI/icon_offense", damage, signs: false);
+            if (b.TheWeapon.ProjectileCount > 1)
+                DrawBuildingInfo(ref cursor, batch, font, b.TheWeapon.ProjectileCount, "UI/icon_offense", "Projectiles", signs: false);
             if (warhead?.ProjectileCount > 1)
                 DrawBuildingInfo(ref cursor, batch, font, warhead.ProjectileCount, "UI/icon_offense", "MIRV", signs: false);
             DrawBuildingInfo(ref cursor, batch, font, hits.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
