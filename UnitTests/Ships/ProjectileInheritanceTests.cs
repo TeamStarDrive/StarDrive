@@ -252,15 +252,6 @@ public class ProjectileInheritanceTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AShipFightingInHoldPositionTurnsToWhereItsShotsWillHit()
-    {
-        MethodInfo holdCombat = typeof(ShipAI).GetMethod("DoHoldPositionCombat", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.IsNotNull(holdCombat, "setup: ShipAI.DoHoldPositionCombat must exist");
-        AssertASlidingShipTurnsToWhereItsShotsWillHit(ship => () => holdCombat.Invoke(ship.AI, new object[] { TestSimStep }),
-                                                      turnSlack: 0.2f);
-    }
-
-    [TestMethod]
     public void AnArtilleryShipTurnsToWhereItsShotsWillHit()
     {
         AssertASlidingShipTurnsToWhereItsShotsWillHit(ship =>

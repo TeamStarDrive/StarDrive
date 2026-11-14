@@ -771,12 +771,13 @@ namespace Ship_Game.AI
             if (!canAttack)
                 return false;
 
-            // always enter combat if we're in Aggressive Stance, even if ship is in warp
-            if (order.IsSet(MoveOrder.Aggressive))
+            // always enter combat if we're in Aggressive Stance, even if ship is in warp, unless it is a player's ship on Hold Position
+            bool playerHolds = Owner.Loyalty.isPlayer && CombatState == CombatState.HoldPosition;
+            if (order.IsSet(MoveOrder.Aggressive) && !playerHolds)
                 return true; // waaaagh!
 
-            // in regular move stance, respect CombatState settings
-            if (order == 0 || order.IsSet(MoveOrder.Regular))
+            // in regular move stance, or a player's attack move on Hold Position, respect CombatState settings
+            if (order == 0 || order.IsSet(MoveOrder.Regular) || order.IsSet(MoveOrder.Aggressive))
             {
                 // regular move stance never exits warp
                 if (Owner.IsInWarp)

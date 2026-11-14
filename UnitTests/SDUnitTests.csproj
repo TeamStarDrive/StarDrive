@@ -62,6 +62,7 @@
     <Compile Include="AITests\Ships\ShipAICombatTests.cs" />
     <Compile Include="AITests\Ships\OrbitCombatTests.cs" />
     <Compile Include="AITests\Ships\ShipPileTests.cs" />
+    <Compile Include="AITests\Ships\HoldPositionStanceTests.cs" />
     <Compile Include="AITests\Ships\WarpInSpreadTests.cs" />
     <Compile Include="AITests\Ships\TestGravityWellRouter.cs" />
     <Compile Include="AITests\Ships\BoardingShuttleTargetTests.cs" />

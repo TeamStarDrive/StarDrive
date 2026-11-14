@@ -129,14 +129,16 @@ namespace Ship_Game.AI
                 CombatState = CombatState.Evade;
 
             float distanceToTarget = target.Position.Distance(Owner.Position);
+            bool movesToTarget = CombatState != CombatState.HoldPosition || HasPriorityTarget; // on Hold Position only a target the player picked draws the ship out
+            bool priorityMove = HasPriorityOrder && movesToTarget;
 
             // if ship has priority order, then move towards that order, EVEN when in combat
-            if (HasPriorityOrder)
+            if (priorityMove)
             {
                 MoveToEngageTarget(target, timeStep);
             }
             // if we're outside of 7500 and also of desired combat range (which can be huge for carriers) then move towards target
-            else if (distanceToTarget > 7500f && distanceToTarget > Owner.DesiredCombatRange)
+            else if (movesToTarget && distanceToTarget > 7500f && distanceToTarget > Owner.DesiredCombatRange)
             {
                 MoveToEngageTarget(target, timeStep);
             }
@@ -151,35 +153,6 @@ namespace Ship_Game.AI
                     (distanceToTarget < 7500f || distanceToTarget < Owner.DesiredCombatRange * 1.1f))
                 {
                     Owner.HyperspaceReturn();
-                }
-
-                if (FleetNode != null && Owner.Fleet != null && HasPriorityOrder)
-                {
-                    // TODO: need to move this into fleet.
-                    if (Owner.Fleet.FleetTask == null)
-                    {
-                        Vector2 nodePos = Owner.Fleet.AveragePosition() + FleetNode.RelativeFleetOffset;
-                        if (target.Position.OutsideRadius(nodePos, FleetNode.OrdersRadius))
-                        {
-                            if (Owner.Position.OutsideRadius(nodePos, 1000f))
-                            {
-                                ThrustOrWarpToPos(nodePos, timeStep);
-                            }
-                            else
-                            {
-                                DoHoldPositionCombat(timeStep);
-                            }
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var task = Owner.Fleet.FleetTask;
-                        if (target.Position.OutsideRadius(task.AO, Math.Max(task.AORadius, FleetNode.OrdersRadius)))
-                        {
-                            DequeueCurrentOrder();
-                        }
-                    }
                 }
 
                 if (Intercepting && CombatRangeType == StanceType.RangedCombatMovement)
@@ -597,20 +570,6 @@ namespace Ship_Game.AI
             }
 
             ThrustOrWarpToPos(ExploreThrustTarget(system, MovePosition), timeStep);
-        }
-
-        void DoHoldPositionCombat(FixedSimTime timeStep)
-        {
-            if (Owner.CurrentVelocity > 0f)
-            {
-                ReverseThrustUntilStopped(timeStep);
-                Vector2 interceptPoint = Owner.PredictAim(Target);
-                RotateTowardsPosition(interceptPoint, timeStep, 0.2f);
-            }
-            else
-            {
-                RotateTowardsPosition(Target.Position, timeStep, 0.2f);
-            }
         }
 
         void DoRebase(FixedSimTime timeStep, ShipGoal goal)
