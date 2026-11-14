@@ -6406,6 +6406,8 @@ namespace Ship_Game
         InfrastructureTip = 7287,
         /// <summary>Regen Armor</summary>
         RegenArmor = 7288,
+        /// <summary>Colony Level</summary>
+        ColonyLevel = 7289,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

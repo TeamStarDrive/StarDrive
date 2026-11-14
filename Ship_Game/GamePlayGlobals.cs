@@ -60,11 +60,11 @@ public class GamePlayGlobals
     // minimum ship warp range which is accepted as good
     [StarData] public float MinAcceptableShipWarpRange = 600000;
 
-    // base amount of ship repair per SECOND from planetary buildings
+    // multiplier of the ShipRepair of planetary buildings, giving repair per second
     [StarData] public float BaseShipyardRepair = 100;
     // share of a colony's ship repair while there is fighting near the colony
     [StarData] public float InCombatRepairModifier = 0.5f;
-    // +bonus based on colony level, 0.1 would be +10% increase per level
+    // colony repair is multiplied by colony level times this
     [StarData] public float BonusRepairPerColonyLevel = 0.1f;
     // multiplier of EMP damage removed from shipyard repair when orbiting a colony
     [StarData] public float BonusColonyEMPRecovery = 5.0f;

@@ -849,7 +849,7 @@ namespace Ship_Game
 
             string combat = P.SpaceCombatNearPlanet ? " (reduced due to space combat)" : "";
             DrawBuildingInfo(ref cursor, batch, font, P.GeodeticManager.GetPlanetRepairRatePerSecond(), "NewUI/icon_queue_rushconstruction",
-                $"{new LocalizedText(GameText.ShipRepair).Text} Per Second{combat}", digits: 1);
+                $"{new LocalizedText(GameText.ShipRepair).Text}{combat}", digits: 1);
 
             DrawBuildingInfo(ref cursor, batch, font, -P.Money.TroopMaint, "UI/icon_troop_shipUI", Localizer.Token(GameText.CreditsPerTurnForTroop), digits: 2);
             DrawBuildingInfo(ref cursor, batch, font, -TroopConsumption, "UI/icon_troop_shipUI", GetTroopsConsumptionText(), digits: 2);
