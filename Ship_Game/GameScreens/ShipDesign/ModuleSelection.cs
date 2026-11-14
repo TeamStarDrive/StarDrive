@@ -212,35 +212,15 @@ namespace Ship_Game
 
             // Concat ship class restrictions
             string shipRest = "";
-            bool specialString = false;
             bool destroyers = GlobalStats.Defaults.UseDestroyers;
-
-            if (destroyers)
+            bool allHulls = mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule
+                            && (mod.DestroyerModule || !destroyers) && mod.CruiserModule && mod.BattleshipModule
+                            && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule;
+            if (allHulls)
             {
-                if (mod.DroneModule && mod.FighterModule && mod.CorvetteModule 
-                    && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule 
-                    && mod.BattleshipModule && mod.BattleshipModule && mod.PlatformModule 
-                    && mod.StationModule && mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                    specialString = true;
-                }
+                shipRest = "All Hulls";
             }
-
-            if (!destroyers)
-            {
-                if (mod.FighterModule && mod.CorvetteModule && mod.FrigateModule 
-                    && mod.CruiserModule && mod.CruiserModule && mod.CapitalModule 
-                    && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                }
-            }
-
-            if (!specialString && !mod.DroneModule || (!mod.DestroyerModule && destroyers) 
-                     || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule 
-                     || !mod.CruiserModule || !mod.BattleshipModule  || !mod.CapitalModule 
-                     || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
+            else
             {
                  if (mod.DroneModule)                         shipRest += "Dr ";
                  if (mod.FighterModule)                       shipRest += "Fi ";
