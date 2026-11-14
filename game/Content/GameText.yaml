@@ -4685,11 +4685,11 @@ HeavymountFusionBeam:
  PTB: "Feixe de Fusão de Montagem Pesada"
 ThisHeavymountFusionBeamHas:
  Id: 963
- ENG: "This heavy-mount fusion beam has a fixed spinal facing and a 45 degree field of fire."
- RUS: "Эта установка термоядерных лучей имеет фиксированное крепление сверху и может вести огонь в переднем 45-градусном секторе."
- SPA: "Este rayo de fusión va montado sobre el lomo de la nave y tiene una orientación fija; su campo de fuego es de 45 grados."
- UKR: "Цей важкий термоядерний промінь має фіксовану спинну поверхню і 45-градусне поле обстрілу."
- PTB: "Este feixe de fusão de montagem pesada possui orientação espinhal fixa e um campo de tiro de 45 graus."
+ ENG: "This heavy-mount fusion beam has a fixed spinal facing and a narrow field of fire."
+ RUS: "Эта установка термоядерных лучей имеет фиксированное крепление сверху и может вести огонь в узком переднем секторе."
+ SPA: "Este rayo de fusión va montado sobre el lomo de la nave y tiene una orientación fija; su campo de fuego es estrecho."
+ UKR: "Цей важкий термоядерний промінь має фіксовану спинну поверхню і вузьке поле обстрілу."
+ PTB: "Este feixe de fusão de montagem pesada possui orientação espinhal fixa e um campo de tiro estreito."
 FusionBeamTurret:
  Id: 964
  ENG: "Fusion Beam Turret"
@@ -4811,11 +4811,11 @@ LaserTurret:
  PTB: "Torreta Laser"
 ThisWeaponIsALaser:
  Id: 983
- ENG: "This weapon is a laser cannon mounted on a swivel turret to provide a 90 degree field of fire."
- RUS: "Эта лазерная установка на поворотной станине обеспечивает 90-градусный сектор огня и благодаря высокотемпературным снарядам наносит дополнительный урон по броне."
- SPA: "Esta arma es un cañón láser montado sobre una torreta giratoria que ofrece un campo de fuego de 90 grados."
- UKR: "Ця зброя являє собою лазерну гармату, встановлену на поворотній башті для забезпечення 90-градусного поля обстрілу."
- PTB: "Esta arma é um canhão laser montado em uma torreta giratória para fornecer um campo de tiro de 90 graus."
+ ENG: "This weapon is a laser cannon mounted on a swivel turret to provide a wide field of fire."
+ RUS: "Эта лазерная установка на поворотной станине обеспечивает широкий сектор огня и благодаря высокотемпературным снарядам наносит дополнительный урон по броне."
+ SPA: "Esta arma es un cañón láser montado sobre una torreta giratoria que ofrece un amplio campo de fuego."
+ UKR: "Ця зброя являє собою лазерну гармату, встановлену на поворотній башті для забезпечення широкого поля обстрілу."
+ PTB: "Esta arma é um canhão laser montado em uma torreta giratória para fornecer um amplo campo de tiro."
 HeavyLaserTurret:
  Id: 984
  ENG: "Heavy Laser Turret"
@@ -4826,8 +4826,8 @@ HeavyLaserTurret:
 ThisWeaponIsAHeavy:
  Id: 985
  ENG: "This weapon is a heavy laser cannon mounted on a swivel turret for wide angle coverage"
- RUS: "Эта мощная лазерная установка на поворотной станине обеспечивает 360-градусный сектор обстрела."
- SPA: "Esta arma es un cañón láser pesado sobre una torreta giratoria que ofrece un campo de fuego de 360 grados."
+ RUS: "Эта мощная лазерная установка на поворотной станине обеспечивает широкий сектор обстрела."
+ SPA: "Esta arma es un cañón láser pesado sobre una torreta giratoria que ofrece un amplio campo de fuego."
  UKR: "Ця зброя являє собою важку лазерну гармату, встановлену на поворотній башті для широкого кута охоплення"
  PTB: "Esta arma é um canhão laser pesado montado em uma torreta giratória para cobertura em ângulo amplo."
 MainEngineering:
@@ -11969,11 +11969,11 @@ HarnessesAMatterantimatterReactionTo:
  PTB: "Aproveita uma reação de matéria/antimatéria para criar grandes quantidades de energia. Explode quando destruído."
 ShipWillAvoidEngagingIn:
  Id: 205
- ENG: "Ship will avoid engaging in combat. Good for scouts or non-combat ships"
- RUS: "Корабли будут избегать боя. Хорошая опция для разведчиков и небоевых кораблей"
- SPA: "La nave evitará entrar en combate. Es bueno para naves exploradoras y que no estén diseñadas para combatir"
- UKR: "Корабель уникатиме вступу в бій. Добре підходить для розвідників або небойових кораблів"
- PTB: "A nave evitará entrar em combate. Bom para batedores ou naves não combatentes"
+ ENG: "Ship will avoid engaging in combat."
+ RUS: "Корабли будут избегать боя."
+ SPA: "La nave evitará entrar en combate."
+ UKR: "Корабель уникатиме вступу в бій."
+ PTB: "A nave evitará entrar em combate."
 BB_Tech_FuelCell2_FuelCellBonus_Bonus:
  Id: 575
  ENG: "Gain an empire-wide 30% bonus to the amount of power that is stored in fuel cells"
@@ -12037,11 +12037,11 @@ ScatterFlakTurret:
  PTB: "Torreta Flak de Dispersão"
 FlakTurretsAreMountedOn:
  Id: 953
- ENG: "Kinetic Turrets are mounted on swivel platforms for a 90 degree field of fire. They fire explosive shells in rapid sucession with a moderate damaging radius, but the projectiles are somewhat slow and ill-suited for tracking swift targets. Furthermore, this weapon requires ordnance to fire."
- RUS: "Зенитные турели монтируются на поворотной платформе и имеют 90-градусный сектор обстрела. Ведут огонь разрывными снарядами со средним радиусом поражения, но их скорость полета недостаточно высока, поэтому они не очень хорошо подходят для стрельбы по быстродвижущимся целям. Кроме того, для стрельбы требуются боеприпасы."
- SPA: "Las torretas antiaéreas van montadas sobre plataformas giratorias para cubrir un campo de fuego de 90 grados. Disparan proyectiles explosivos con un radio de daño moderado, pero los proyectiles son algo lentos y no son adecuados para rastrear blancos rápidos. Además, esta arma necesita munición para disparar."
- UKR: "Кінетичні турелі встановлені на поворотних платформах для забезпечення 90-градусного поля обстрілу. Вони вистрілюють вибуховими снарядами з помірним радіусом ураження, але снаряди дещо повільні і погано пристосовані для відстеження швидких цілей. Крім того, ця зброя потребує боєприпасів для стрільби."
- PTB: "Torretas cinéticas são montadas em plataformas giratórias para um campo de tiro de 90 graus. Elas disparam projéteis explosivos em rápida sucessão, com raio de dano moderado, mas os projéteis são um pouco lentos e inadequados para rastrear alvos velozes. Além disso, esta arma requer munição para disparar."
+ ENG: "Kinetic Turrets are mounted on swivel platforms for a wide field of fire. They fire explosive shells in rapid sucession with a moderate damaging radius, but the projectiles are somewhat slow and ill-suited for tracking swift targets. Furthermore, this weapon requires ordnance to fire."
+ RUS: "Зенитные турели монтируются на поворотной платформе и имеют широкий сектор обстрела. Ведут огонь разрывными снарядами со средним радиусом поражения, но их скорость полета недостаточно высока, поэтому они не очень хорошо подходят для стрельбы по быстродвижущимся целям. Кроме того, для стрельбы требуются боеприпасы."
+ SPA: "Las torretas antiaéreas van montadas sobre plataformas giratorias para cubrir un amplio campo de fuego. Disparan proyectiles explosivos con un radio de daño moderado, pero los proyectiles son algo lentos y no son adecuados para rastrear blancos rápidos. Además, esta arma necesita munición para disparar."
+ UKR: "Кінетичні турелі встановлені на поворотних платформах для забезпечення широкого поля обстрілу. Вони вистрілюють вибуховими снарядами з помірним радіусом ураження, але снаряди дещо повільні і погано пристосовані для відстеження швидких цілей. Крім того, ця зброя потребує боєприпасів для стрільби."
+ PTB: "Torretas cinéticas são montadas em plataformas giratórias para um amplo campo de tiro. Elas disparam projéteis explosivos em rápida sucessão, com raio de dano moderado, mas os projéteis são um pouco lentos e inadequados para rastrear alvos velozes. Além disso, esta arma requer munição para disparar."
 ScatterFlakTurretsFireStandard:
  Id: 955
  ENG: "Scatter flak turrets fire standard flak munitions in a 3-round spread. The salvo is more effective against swift targets and also provides greater potential damage per salvo on larger ships. "
@@ -14633,7 +14633,7 @@ ShipCategoryUnclassifiedTip:
  ENG: "Leaves to repair when its internal slots fall below 85% health."
 ShipCategoryCivilianTip:
  Id: 4540
- ENG: "Can serve as a freighter. Evades when enemies are near if it is unarmed. Leaves to repair when its internal slots fall below 97.5% health."
+ ENG: "Can serve as a freighter. Leaves to repair when its internal slots fall below 97.5% health."
 ShipCategoryReconTip:
  Id: 4541
  ENG: "Offered as a scout by the exploration automation. Leaves to repair when its internal slots fall below 92.5% health."
@@ -23887,7 +23887,7 @@ CodexDiplomacyDiplomacyOverviewShort:
  ENG: "The diplomacy screen, treaties, trust, anger and threat"
 CodexDiplomacyDiplomacyOverviewText:
  Id: 100118
- ENG: "<color=Caption>The screen</color>Meeting a new empire opens the diplomacy screen, and you can return to it from the top bar. It shows the leader, three bars for Trust, Anger and Threat, and the buttons Declare War and Discuss (hidden while you are at war), Negotiate and End.\n\n<color=Caption>Declaring war</color>The button is disabled while a peace treaty holds, 100 turns from signing. War cancels every treaty you hold with them and zeroes their trust, and declaring it on an empire you have a non-aggression pact with is remembered as a betrayal. Bombing or invading their planet starts a war too.\n\n<color=Caption>Discuss</color>Ask about their grievances with you, about another empire (their opinion of it, or a request that they declare war on it), about their people, ask a question specific to their race, or propose a federation; see Federations.\n\n<color=Caption>Negotiate</color>An offer is built from items on both sides and a tone: pleading, respectful or threatening. At peace the items are a non-aggression pact, a trade treaty, open borders, and an alliance once you hold both a trade treaty and a pact; at war, a peace treaty. Technologies they can use, artifacts and colonies can be added by either side. The AI weighs the offer by its trust in you and its personality.\n\n<color=Caption>Colonies under threat</color>A colony of yours in a system under threat, with hostile fleets you know of heading there or hostile warships or defenses you can see in it, can be offered only to the empire behind the threat, and to no one while more than one empire threatens it.\n\n<color=Caption>Trust, anger and threat</color>\n<li>Trust grows a little every turn you are not at war, from a base of 0.0125 shaped by their personality, divided by the game pace, faster when your personalities match, slower after you settle systems they had claimed, and, when it is a gain, divided by two, three or four on Hard, Brutal and Insane; a loss of trust is never softened. It runs from minus 50 to 100, or 150 with an alliance. Treaties and deals spend trust for a time.</li>\n<li>Anger is the sum of four grievances, capped at 100: your ships in their borders, territorial conflict, military conflict and diplomatic conflict.</li>\n<li>Threat measures your military against theirs, from minus 100 to 100, smoothed over time; a positive value means you are stronger.</li>"
+ ENG: "<color=Caption>The screen</color>Meeting a new empire opens the diplomacy screen, and you can return to it from the top bar. It shows the leader, three bars for Trust, Anger and Threat, and the buttons Declare War and Discuss (hidden while you are at war), Negotiate and End.\n\n<color=Caption>Declaring war</color>The button is disabled while a peace treaty holds, 100 turns from signing. War cancels every treaty you hold with them and zeroes their trust, and declaring it on an empire you have a non-aggression pact with is remembered as a betrayal. Bombing or invading their planet starts a war too.\n\n<color=Caption>Discuss</color>Ask about their grievances with you, about another empire (their opinion of it, or a request that they declare war on it), about their people, ask a question specific to their race, or propose a federation; see Federations.\n\n<color=Caption>Negotiate</color>An offer is built from items on both sides and a tone: pleading, respectful or threatening. At peace the items are a non-aggression pact, a trade treaty, open borders, and an alliance once you hold both a trade treaty and a pact; at war, a peace treaty. Technologies they can use, artifacts and colonies can be added by either side. The AI weighs the offer by its trust in you and its personality.\n\n<color=Caption>Colonies under threat</color>A colony of yours in a system under threat, with hostile fleets you know of heading there or hostile warships or defenses you can see in it, can be offered only to the empire behind the threat, and to no one while more than one empire threatens it.\n\n<color=Caption>Trust, anger and threat</color>\n<li>Trust changes a little every turn you are not at war, by an amount their personality sets. On Hard and above, gains are smaller; losses are not. A slower game pace makes every change smaller, up or down, and so does settling systems they had claimed. It runs from minus 50 to 100, or 150 with an alliance. Treaties and deals spend trust for a time.</li>\n<li>Anger is the sum of four grievances, capped at 100: your ships in their borders, territorial conflict, military conflict and diplomatic conflict.</li>\n<li>Threat measures your military against theirs, from minus 100 to 100, smoothed over time; a positive value means you are stronger.</li>"
 CodexDiplomacyEspionage:
  Id: 100119
  ENG: "Espionage"
@@ -24174,7 +24174,7 @@ CodexDesignCategoriesShort:
  ENG: "Repair thresholds per category, and hangar-only designs"
 CodexDesignCategoriesText:
  Id: 100210
- ENG: "<color=Caption>Category</color>The category sets how much damage a ship takes before it leaves to repair. The check is on the health of its internal slots, and a ship is destroyed below 50%: Civilian leaves below 97.5%, Recon 92.5%, Conservative 90%, Neutral 87.5%, Unclassified 85%, Reckless 75%. Kamikaze never leaves to repair, rearm or take on troops on its own; only your order sends it. A ship with a priority target ignores the threshold, and a ship that fled returns to duty once its total health is back above it. An unarmed Civilian ship with no priority order evades when enemies are near, an Unclassified freighter hull with cargo space becomes Civilian on its own, and Recon ships are offered as scouts by the exploration automation.\n\n<color=Caption>Carrier only</color>Marks a design that only hangars launch: no colony can build it and it never joins the force pools. Drones are always carrier only; the box is hidden for drones, platforms and stations."
+ ENG: "<color=Caption>Category</color>The category sets how much damage a ship takes before it leaves to repair. The check is on the health of its internal slots, and a ship is destroyed below 50%: Civilian leaves below 97.5%, Recon 92.5%, Conservative 90%, Neutral 87.5%, Unclassified 85%, Reckless 75%. Kamikaze never leaves to repair, rearm or take on troops on its own; only your order sends it. A ship with a priority target ignores the threshold, and a ship that fled returns to duty once its total health is back above it. An Unclassified freighter hull with cargo space becomes Civilian on its own, and Recon ships are offered as scouts by the exploration automation.\n\n<color=Caption>Carrier only</color>Marks a design that only hangars launch: no colony can build it and it never joins the force pools. Drones are always carrier only; the box is hidden for drones, platforms and stations."
 CodexDesignPowerBudget:
  Id: 100211
  ENG: "Power Budget"
