@@ -119,7 +119,14 @@ namespace Ship_Game.Commands.Goals
         bool ShipCanTakeOrders => (SalvageShip ?? FinishedShip) is { Active: true, Dying: false, IsSalvageShip: true, TroopsAreBoardingShip: false } ship
                                   && ship.Loyalty == Owner && !ship.LoyaltyTracker.ChangesFrom(Owner);
 
-        // from the sim thread: one on automatic stays queued with its orders gone, for the next order, unless its empire's planner finds it beyond the cap
+        // on the sim thread, as an order of its is called off by hand: off automatic, with no order left and its ship still to be built, it ends and its ship leaves the queue
+        public void OrderCalledOff()
+        {
+            if (!Over && Building && !HasOrders && !OnAutomatic(Owner))
+                Owner.AI.RemoveGoal(this);
+        }
+
+        // from the sim thread: one stays queued with its orders gone, for the next order, unless on automatic its empire's planner finds it beyond the cap
         public static SalvageMission Unordered(Empire empire)
             => empire.AI.FindGoal(g => g is SalvageMission { Over: false, Building: true, HasOrders: false }) as SalvageMission;
 
@@ -219,13 +226,11 @@ namespace Ship_Game.Commands.Goals
                 LetGo(ship);
         }
 
-        // the design is queued as urgent at its shipyard, first in the player's queue behind an Outpost or Capital; with none, it waits for one; with its orders gone it ends, unless on automatic
+        // the design is queued as urgent at its shipyard, first in the player's queue behind an Outpost or Capital, even with its orders gone; with none, it waits for one, unless its orders are gone off automatic
         GoalStep BuildShip()
         {
-            if (!HasOrders && !OnAutomatic(Owner))
-                return GoalStep.GoalFailed;
             if (Shipyard() is not { } shipyard)
-                return GoalStep.TryAgain;
+                return HasOrders || OnAutomatic(Owner) ? GoalStep.TryAgain : GoalStep.GoalFailed;
 
             PlanetBuildingAt = shipyard;
             shipyard.Construction.Enqueue(Design, QueueItemType.OrbitalUrgent, this, notifyOnEmpty: false);
@@ -243,11 +248,9 @@ namespace Ship_Game.Commands.Goals
             return shipyards.FindMin(p => p.Position.SqDist(Site));
         }
 
-        // the queue reports the ship built; with its orders gone it leaves the queue, unless on automatic, where it waits for the next order and, built with none, works any derelict left in its system or else is a ship like any other; its shipyard lost, or unsafe while a safe one is left, it is queued again at another; taken out of the queue, the mission is called off
+        // the queue reports the ship built; with its orders gone it stays queued for the next order and, built with none, works any derelict left in its system or else is a ship like any other; its shipyard lost, or unsafe while a safe one is left, it is queued again at another; taken out of the queue, the mission is called off
         GoalStep WaitForShip()
         {
-            if (!HasOrders && !OnAutomatic(Owner))
-                return GoalStep.GoalFailed;
             Planet shipyard = PlanetBuildingAt;
             if (shipyard == null || shipyard.Owner != Owner)
                 return BuildAgain();

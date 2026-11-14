@@ -237,10 +237,12 @@ namespace Ship_Game.Commands.Goals
                 if (order.RecoverySucceeded)
                     return;
                 d.SetCalledOffBy(empire);
+                SalvageMission mission = order.Mission;
                 if (order.Platform is { Active: true })
                     order.CallOff();
                 else
                     empire.AI.RemoveGoal(order);
+                mission?.OrderCalledOff();
             }
             else if (d.Claimant == empire) // a claim kept without its order, as a save can catch it
             {

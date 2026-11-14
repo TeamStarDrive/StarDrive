@@ -20,10 +20,12 @@ namespace UnitTests.Ships;
 /// its queued ship though another comes free. The ship built is the one chosen in the Automation window, or the
 /// race's, or with auto pick the best for the system, never one short of a load a unit or of the warp range the AI
 /// needs. A shipyard lost, or turned unsafe while a safe one is left, has the ship queued again at the nearest;
-/// taking it out of the queue,
-/// or calling off its orders, ends the mission. The ship flies to its site taking no orders and no fights, paying no
-/// upkeep, launching nothing on its way, parks there, and goes to its empire's nearest safe colony to unload when its
-/// hold is full, or to rearm when it lacks the ordnance a waiting launch takes and its full load pays for, once no
+/// taking it out of the queue, or off Auto Salvage calling off its last order, ends the mission. One whose derelicts
+/// are lost stays queued, and the next order takes it, in its system or another; built with none, it works a derelict
+/// left in its system or else goes idle. With no safe shipyard yet, the mission ends with its order, but waits on with
+/// Auto Salvage. The ship flies to its site taking no orders and no fights, paying no upkeep, launching nothing on
+/// its way, parks there, and goes to its empire's nearest safe colony to unload when its hold is full, or to rearm
+/// when it lacks the ordnance a waiting launch takes and its full load pays for, once no
 /// constructor of its is out; it unloads once in orbit there, a colony turned unsafe on its way swapped for the
 /// nearest safe one, then comes back. With no safe colony its hold is paid as credits. Its orders done, it brings
 /// home what it holds and waits in orbit at the colony it last unloaded at, though another be nearer, or, never
@@ -184,9 +186,84 @@ public class SalvageMissionTests : SalvageOrderTest
 
         SalvageDerelict.Cancel(Player, d);
         Assert.IsFalse(Player.AI.HasGoal(order), "a queued order called off ends");
-        mission.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(mission), "and so does its mission, with no order left");
         Assert.IsNull(QueuedFor(Homeworld, mission), "its ship leaving the queue at once");
+    }
+
+    [TestMethod]
+    public void AQueuedShipWhoseDerelictIsLostStaysQueuedForTheNextOrderAndBuiltWithNoneWaitsIdle()
+    {
+        Assert.IsFalse(SalvageMission.OnAutomatic(Player), "setup: Auto Salvage is off");
+        Derelict taken = Forms(Wreck);
+        SalvageDerelict order = Ordered(taken);
+        SalvageMission mission = Queued(order);
+        Assert.IsNotNull(QueuedFor(Homeworld, mission), "setup: its ship is queued");
+        Assert.IsTrue(taken.TryClaim(Enemy), "setup: a rival claims the derelict first");
+        order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(order), "setup: the order ends");
+
+        mission.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(mission) && QueuedFor(Homeworld, mission) != null, "the mission stays, its ship still queued");
+
+        Vector2 elsewhere = new(-600_000f, 600_000f);
+        SolarSystem other = AddDummyPlanet(elsewhere, 1f, 1f, 1f, elsewhere + new Vector2(0, 60_000f), explored: true).System;
+        SalvageDerelict next = Ordered(Forms(elsewhere + new Vector2(30_000f, 0)));
+        Assert.AreSame(mission, next.Mission, "the next order, in another system, takes the queued ship");
+        AssertEqual(other, mission.TargetSystem, "moving it there");
+        AssertEqual(1, Homeworld.ConstructionQueue.Count(q => q.Goal is SalvageMission), "so no other is queued");
+
+        Assert.IsTrue(next.Derelict.TryClaim(Enemy), "setup: a rival claims that one too");
+        next.Evaluate();
+        Ship built = SpawnShip(mission.Design.Name, Player, Homeworld.Position + new Vector2(8_000f, 0));
+        mission.ReportShipComplete(built);
+        mission.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(mission), "built with no order and no derelict left in its system, the mission ends");
+        Assert.IsTrue(SalvageMission.IsIdle(built, Player), "its ship idle for the next derelict");
+    }
+
+    [TestMethod]
+    public void AQueuedShipWithNoOrderIsQueuedAgainWhenItsShipyardIsLost()
+    {
+        Planet near = AddHomeWorldToEmpire(SystemSite + new Vector2(-100_000f, 0), Player);
+        near.Name = "Near";
+        Player.UpdateRallyPoints();
+        Derelict taken = Forms(Wreck);
+        SalvageDerelict order = Ordered(taken);
+        SalvageMission mission = Queued(order);
+        Assert.IsNotNull(QueuedFor(near, mission), "setup: queued at the nearer shipyard");
+        Assert.IsTrue(taken.TryClaim(Enemy), "setup: a rival claims the derelict first");
+        order.Evaluate();
+        mission.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(mission), "setup: the mission stays with no order");
+
+        near.Construction.ClearQueue();
+        near.SetOwner(Enemy);
+        Player.UpdateRallyPoints();
+        mission.Evaluate();
+        mission.Evaluate();
+        Assert.IsNotNull(QueuedFor(Homeworld, mission), "its shipyard lost, the ship is queued again at the next");
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void AMissionStillWaitingForASafeShipyardEndsWithItsOrderUnlessOnAutoSalvage(bool autoSalvage)
+    {
+        Player.AutoSalvage = autoSalvage;
+        Assert.AreEqual(autoSalvage, SalvageMission.OnAutomatic(Player), "setup: Auto Salvage on or off");
+        Homeworld.Quarantine = true;
+        Player.UpdateRallyPoints();
+        Assert.IsFalse(Homeworld.Safe, "setup: no safe shipyard");
+        Derelict taken = Forms(Wreck);
+        SalvageDerelict order = Ordered(taken);
+        SalvageMission mission = Queued(order);
+        AssertEqual("BuildShip", mission.StepName, "setup: the mission waits for a safe shipyard");
+        Assert.IsNull(QueuedFor(Homeworld, mission), "setup: nothing is queued");
+
+        Assert.IsTrue(taken.TryClaim(Enemy), "setup: a rival claims the derelict first");
+        order.Evaluate();
+        mission.Evaluate();
+        Assert.AreEqual(autoSalvage, Player.AI.HasGoal(mission), "with nothing queued yet, the mission ends with its order, but waits on with Auto Salvage");
     }
 
     [TestMethod]
