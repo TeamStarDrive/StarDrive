@@ -272,7 +272,11 @@ namespace Ship_Game.Ships
 
         public bool IsGoodScout() => ShipData.Role != RoleName.supply 
                                      && Fleet == null
-                                     && DesignRole == RoleName.scout;
+                                     && IsScoutForExploring;
+
+        // a scout by role, or for the player a ship of the design its exploration automation builds, unless a carrier or a planet launched it
+        bool IsScoutForExploring => !IsHangarShip && !IsHomeDefense
+                                    && (DesignRole == RoleName.scout || Loyalty.isPlayer && Name == Loyalty.data.CurrentAutoScout);
 
         public bool IsIdleScout()
         {
@@ -284,7 +288,7 @@ namespace Ship_Game.Ships
                    && AI.State != AIState.Scrap
                    && AI.State != AIState.Explore
                    && !AI.HasPriorityOrder
-                   && DesignRole == RoleName.scout;
+                   && IsScoutForExploring;
         }
 
         public void SetCombatStance(CombatState stance)

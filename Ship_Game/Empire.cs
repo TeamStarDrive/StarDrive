@@ -2598,7 +2598,7 @@ namespace Ship_Game
                 for (int i = 0; i < ships.Count; i++)
                 {
                     Ship ship = ships[i];
-                    if (ship.IsIdleScout())
+                    if (ship.IsIdleScout() && ship.DesignRole == RoleName.scout && ship.ShipData.HullRole is RoleName.scout or RoleName.fighter) // a big Recon ship or an armed pick stays
                         ship.AI.OrderScrapShip();
                 }
 
