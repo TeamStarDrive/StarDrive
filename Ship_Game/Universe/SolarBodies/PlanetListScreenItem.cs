@@ -42,6 +42,7 @@ namespace Ship_Game
         private readonly float Distance;
         private bool MarkedForColonization;
         public bool CanSendTroops;
+        volatile bool SentTroopsListed;
         ThreatMatrix.HostilePresence Hostiles;
 
         public PlanetListScreenItem(PlanetListScreen screen, Planet planet, float distance, bool canSendTroops)
@@ -134,6 +135,16 @@ namespace Ship_Game
             }
 
             return base.HandleInput(input);
+        }
+
+        public override void Update(float fixedDeltaTime)
+        {
+            if (SentTroopsListed)
+            {
+                SentTroopsListed = false;
+                UpdateButtonSendTroops();
+            }
+            base.Update(fixedDeltaTime);
         }
 
         void AddSystemName()
@@ -374,8 +385,11 @@ namespace Ship_Game
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderLandAllTroops(Planet, clearOrders: true);
                 Screen.RefreshSendTroopButtonsVisibility();
-                Player.Universe.Objects.UpdateLists();
-                UpdateButtonSendTroops();
+                Player.Universe.Screen.RunOnSimThread(() =>
+                {
+                    Player.Universe.Objects.UpdateLists(); // a troop launched from a planet for this order joins the player's ship lists
+                    SentTroopsListed = true;
+                });
             }
             else
             {
