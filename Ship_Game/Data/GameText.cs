@@ -6404,6 +6404,8 @@ namespace Ship_Game
         ShipStrengthShort = 7286,
         /// <summary>This colony's infrastructure. Each turn it finishes up to this</summary>
         InfrastructureTip = 7287,
+        /// <summary>Regen Armor</summary>
+        RegenArmor = 7288,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

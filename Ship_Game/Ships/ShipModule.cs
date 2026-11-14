@@ -228,6 +228,9 @@ namespace Ship_Game.Ships
         public bool IsPowerArmor => Is(ShipModuleType.Armor) && !IsBulkhead && (PowerDraw > 0 || PowerFlowMax > 0);
 
         // used in module selection category
+        public bool IsRegenArmor => Is(ShipModuleType.Armor) && !IsBulkhead && Regenerate > 0;
+
+        // used in module selection category
         public bool IsBulkhead => Is(ShipModuleType.Armor) && 
                                   (Restrictions == Restrictions.I 
                                    || Restrictions == Restrictions.IE 
