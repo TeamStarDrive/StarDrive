@@ -118,23 +118,27 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(GameText.BioshperesAreBuiltHere);
             }
 
+            if (pgs.TroopsAreOnTile)
+            {
+                for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                {
+                    Troop troop = pgs.TroopsHere[i];
+                    troop.SetColonyScreenRect(pgs);
+                    troop.DrawIcon(batch, troop.ClickRect);
+                    if (troop.Level > 0)
+                        DrawTroopLevel(troop);
+                }
+            }
+
             if (pgs.CanTerraform || pgs.BioCanTerraform)
             {
-                var terraform = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 20, pgs.ClickRect.Y, 20, 20);
-                var terraformHarder = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 30, pgs.ClickRect.Y, 20, 20);
+                var terraform = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 22, pgs.ClickRect.Y, 20, 20);
                 bool hoveringOverTerra = terraform.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive;
-                batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, hoveringOverTerra ? Color.Orange : Color.White);
-                if (pgs.BioCanTerraform)
-                {
-                    bool hoveringOverTerraHard = terraformHarder.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive || hoveringOverTerra;
-                    batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraformHarder, hoveringOverTerraHard ? Color.Red : Color.White);
-                    if (hoveringOverTerraHard)
-                        ToolTip.CreateTooltip(GameText.ThisTileCanBeTerraformedHarder);
-                }
-                else if (hoveringOverTerra)
-                {
-                    ToolTip.CreateTooltip(GameText.ThisTileCanBeTerraformed);
-                }
+                SubTexture terraformIcon = ResourceManager.Texture("Buildings/icon_terraformer_48x48");
+                batch.Draw(terraformIcon, new Rectangle(terraform.X + 2, terraform.Y + 2, terraform.Width, terraform.Height), Color.Black);
+                batch.Draw(terraformIcon, terraform, hoveringOverTerra ? Color.Orange : Color.White);
+                if (hoveringOverTerra)
+                    ToolTip.CreateTooltip(pgs.BioCanTerraform ? GameText.ThisTileCanBeTerraformedHarder : GameText.ThisTileCanBeTerraformed);
             }
 
             if (IsProtectedPlayerBuilt(pgs))
@@ -148,18 +152,6 @@ namespace Ship_Game
                 {
                     string tip = $"{Localizer.Token(GameText.PlayerBuiltProtectedFromScrap)}\n\n{Localizer.Token(GameText.ClickToRemovePlayerBuiltProtection)}";
                     ToolTip.CreateTooltip(tip, codexUid: Codex.CodexHooks.Find(GameText.PlayerBuiltProtectedFromScrap));
-                }
-            }
-
-            if (pgs.TroopsAreOnTile)
-            {
-                for (int i = 0; i < pgs.TroopsHere.Count; ++i)
-                {
-                    Troop troop = pgs.TroopsHere[i];
-                    troop.SetColonyScreenRect(pgs);
-                    troop.DrawIcon(batch, troop.ClickRect);
-                    if (troop.Level > 0)
-                        DrawTroopLevel(troop);
                 }
             }
 
@@ -811,10 +803,7 @@ namespace Ship_Game
 
                 cursor.Y += Font20.LineSpacing;
                 if (tile.BioCanTerraform)
-                {
-                    batch.DrawString(TextFont, MultiLineFormat(GameText.ThisTileCanBeTerraformed), cursor, Player.EmpireColor);
-                    cursor.Y += Font20.LineSpacing * 2;
-                }
+                    DrawMultiLine(ref cursor, GameText.ThisTileCanBeTerraformedHarder, Player.EmpireColor);
             }
             else if (tile.Habitable)
             {
@@ -824,11 +813,7 @@ namespace Ship_Game
             {
                 string bioText = Localizer.Token(GameText.MillionColonistsCouldBeLiving);
                 if (BioSpheresResearched && tile.CanTerraform)
-                {
-                    batch.DrawString(TextFont, "This tile can be terraformed as part of terraforming operations.", cursor, Player.EmpireColor);
-                    cursor.Y += Font20.LineSpacing;
-                    bioText += " However, building Biospheres here will complicate future terraforming efforts on the tile.";
-                }
+                    DrawMultiLine(ref cursor, GameText.ThisTileCanBeTerraformed, Player.EmpireColor);
 
                 batch.DrawString(TextFont, $"{(P.PopPerBiosphere(Player) + popBonus).String(1)} {MultiLineFormat(bioText)}", cursor, Color.Gold);
             }
