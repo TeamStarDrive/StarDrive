@@ -932,7 +932,7 @@ namespace Ship_Game.AI
             {
                 Ship target = TargetQueue[x];
                 if (!target.Active)
-                    TargetQueue.RemoveAtSwapLast(x);
+                    TargetQueue.RemoveAt(x); // keeps the order the targets were queued in
             }
         }
 

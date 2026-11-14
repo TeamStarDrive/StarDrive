@@ -84,8 +84,10 @@ namespace Ship_Game.AI
                 Owner.Loyalty.IsEmpireAttackable(ship.Loyalty, ship))
                 return true;
 
-            return Owner.Loyalty.isPlayer 
-                   && HasPriorityTarget 
+            return Owner.Loyalty.isPlayer
+                   && HasPriorityTarget
+                   && ship.Active && !ship.Dying
+                   && ship.Loyalty != Owner.Loyalty
                    && ship.InPlayerSensorRange
                    && !Owner.Loyalty.IsAlliedWith(ship.Loyalty);
         }
@@ -97,6 +99,12 @@ namespace Ship_Game.AI
             
             if (State == AIState.Pursue)
                 DequeueCurrentOrder();
+
+            if (HasPriorityTarget && HandOverPriorityTarget())
+            {
+                PlanFlankForNewTarget();
+                return Target;
+            }
 
             Target = PotentialTargets.Find(t => IsTargetValid(t)
                                                 && t.Position.InRadius(Owner.Position, Owner.SensorRange)
