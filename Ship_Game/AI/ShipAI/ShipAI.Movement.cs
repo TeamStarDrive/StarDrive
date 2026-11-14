@@ -69,13 +69,9 @@ namespace Ship_Game.AI
                 if (!wayPoints[i].IsDetour)
                     return false;
 
-            foreach (ShipGoal goal in OrderQueue)
-            {
-                if (goal != null && (goal.Goal != null || goal.Plan is not (Plan.RotateToFaceMovePosition or Plan.MoveToWithin1000
-                                                                            or Plan.MakeFinalApproach or Plan.RotateToDesiredFacing or Plan.HoldPosition)))
-                    return false;
-            }
-            return true;
+            return !OrderQueue.Any(goal => goal != null
+                && (goal.Goal != null || goal.Plan is not (Plan.RotateToFaceMovePosition or Plan.MoveToWithin1000
+                                                           or Plan.MakeFinalApproach or Plan.RotateToDesiredFacing or Plan.HoldPosition)));
         }
 
         [StarData] WayPoint[] WayPointsSave

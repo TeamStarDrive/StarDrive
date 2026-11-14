@@ -1777,7 +1777,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // corvette and bigger military ships, and untethered stations that are not research, mining, salvage, Dyson swarm or portal stations
+        // corvette and bigger military ships, and untethered stations that are not research, mining, salvage, Dyson swarm or portal stations, nor pirate bases
         public bool CanBecomeDerelict
         {
             get
@@ -1786,9 +1786,22 @@ namespace Ship_Game.Ships
                     return false;
                 if (ShipData.IsStation)
                     return TetheredTo == null && !IsResearchStation && !IsMiningStation && !IsSalvageStation && !IsDysonSwarmController
-                        && !(Loyalty.WeAreRemnants && Name == Loyalty.data.RemnantPortal);
+                        && !(Loyalty.WeAreRemnants && Name == Loyalty.data.RemnantPortal) && !IsPirateBase;
                 return ShipData.HullRole is >= RoleName.corvette and <= RoleName.capital
                     && DesignRoleType is RoleType.Warship or RoleType.WarSupport or RoleType.Troop;
+            }
+        }
+
+        // one of a pirate faction's base designs, whoever holds it now
+        bool IsPirateBase
+        {
+            get
+            {
+                var empires = Universe.Empires;
+                for (int i = 0; i < empires.Count; ++i)
+                    if (empires[i].WeArePirates && empires[i].Pirates.IsBase(this))
+                        return true;
+                return false;
             }
         }
 

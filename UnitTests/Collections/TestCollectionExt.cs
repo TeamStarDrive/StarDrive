@@ -216,6 +216,22 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
+        public void TestAnyOnReadOnlyList()
+        {
+            string[] items = { "a", "bb", "ccc", "dddd", "55555", "666666" };
+            IReadOnlyList<string>[] lists = { new Array<string>(items), items, new List<string>(items) };
+
+            foreach (IReadOnlyList<string> list in lists)
+            {
+                Assert.IsTrue(list.Any(s => s == "55555"), list.GetType().Name);
+                Assert.IsTrue(list.Any(s => s.Length > 5), list.GetType().Name);
+                Assert.IsFalse(list.Any(s => s == "not in list"), list.GetType().Name);
+                Assert.IsFalse(list.Any(s => s.Length > 10), list.GetType().Name);
+            }
+            Assert.IsFalse(((IReadOnlyList<string>)new List<string>()).Any(s => true), "an empty list has none");
+        }
+
+        [TestMethod]
         public void TestCount()
         {
             var list = new Array<string> { "a", "bb", "ccc", "dddd", "55555", "666666" };

@@ -316,10 +316,7 @@ namespace Ship_Game
                 return Vector2.Zero;
 
             Ship[] items = ships.GetInternalArrayItems();
-            int catchingUp = 0;
-            for (int i = 0; i < count; ++i)
-                if (items[i] is { CatchingUpToFleet: true })
-                    ++catchingUp;
+            int catchingUp = ships.Count(s => s is { CatchingUpToFleet: true });
 
             bool skipCatchingUp = catchingUp > 0 && catchingUp < count;
             int first = 0;

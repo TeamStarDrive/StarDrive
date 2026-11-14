@@ -20,33 +20,35 @@ namespace UnitTests.Ships;
 /// its queued ship though another comes free. The ship built is the one chosen in the Automation window, or the
 /// race's, or with auto pick the best for the system, never one short of a load a unit or of the warp range the AI
 /// needs. A shipyard lost, or turned unsafe while a safe one is left, has the ship queued again at the nearest;
-/// taking it out of the queue,
-/// or calling off its orders, ends the mission. The ship flies to its site taking no orders and no fights, paying no
-/// upkeep, launching nothing on its way, parks there, and goes to its empire's nearest safe colony to unload when its
-/// hold is full, or to rearm when it lacks the ordnance a waiting launch takes and its full load pays for, once no
-/// constructor of its is out; it unloads once in orbit there, a colony turned unsafe on its way swapped for the
-/// nearest safe one, then comes back. With no safe colony its hold is paid as credits. Its orders done, it brings
-/// home what it holds and waits in orbit at the colony it last unloaded at, though another be nearer, or, never
-/// unloaded, at the nearest safe colony, a ship like any other. A queued salvage ship refitted to another design ends
-/// its mission once built, untold. A mission flying out survives a save, and an order saved with a salvage station's
-/// work ends on load. The derelicts window counts the player's salvage ships at work and idle, pauses the game, and
-/// reads the goals as it opens and once a click in it has reached the sim thread. On its way to unload, the ship
-/// takes no right-click order and joins no fleet. Flown out, it parks once its move has stopped it at its site;
-/// pushed off its spot it flies back still fighting nothing, and on its way to unload an orbit order elsewhere is
-/// undone. A mission waiting for its ship, or unloading, survives a save and load. A ship just reported built is its
-/// mission's at once, and it flies out fighting nothing once its launch from the shipyard ends. Parked with a free
-/// unit, the ship takes an order in its system still waiting for a salvage ship, then orders the salvage of the
-/// derelict there soonest to sink that its empire could order with a fifth of its turns left, on Auto Salvage
-/// recovering what Auto Salvage would, and never one whose order has a ship of its own; so its orders done it stays
-/// for a derelict left there. With its hold full it takes only a recovery, waiting or of its own, launches no salvage
-/// until it has room, launches a waiting recovery before it leaves unless no load of ordnance pays for it, and
-/// unloaded comes back for a salvage left there. Its last order ended while it is away, it flies back for a derelict
-/// left there, unless it has no live unit. On Auto Salvage it orders derelicts itself only where Auto Salvage would,
-/// beside no rival's colony and with no hostile strength known there, salvaging the ships Auto Salvage would not
-/// recover, and its own order joins its own mission though a queued ship there has a free unit. A derelict called off
-/// it leaves alone, and while boarders are aboard it orders none. With an idle ship but no free site, only a queued
-/// ship's free unit there takes an order. Its ship lost, an order whose work is not over starts again, its platform
-/// gone and a recovery's work lost, with an idle ship or else a new one, which the orders of the lost ship share.
+/// taking it out of the queue, or off Auto Salvage calling off its last order, ends the mission. One whose derelicts
+/// are lost stays queued, and the next order takes it, in its system or another; built with none, it works a derelict
+/// left in its system or else goes idle. With no safe shipyard yet, the mission ends with its order, but waits on
+/// with Auto Salvage. The ship flies to its site taking no orders and no fights, paying no upkeep, launching nothing
+/// on its way, parks there, and goes to its empire's nearest safe colony to unload when its hold is full, or to rearm
+/// when it lacks the ordnance a waiting launch takes and its full load pays for, once no constructor of its is out;
+/// it unloads once in orbit there, a colony turned unsafe on its way swapped for the nearest safe one, then comes
+/// back. With no safe colony its hold is paid as credits. Its orders done, it brings home what it holds and waits in
+/// orbit at the colony it last unloaded at, though another be nearer, or, never unloaded, at the nearest safe colony,
+/// a ship like any other. A queued salvage ship refitted to another design ends its mission once built, untold. A
+/// mission flying out survives a save, and an order saved with a salvage station's work ends on load. The derelicts
+/// window counts the player's salvage ships at work and idle, pauses the game, and reads the goals as it opens and
+/// once a click in it has reached the sim thread. On its way to unload, the ship takes no right-click order and joins
+/// no fleet. Flown out, it parks once its move has stopped it at its site; pushed off its spot it flies back still
+/// fighting nothing, and on its way to unload an orbit order elsewhere is undone. A mission waiting for its ship, or
+/// unloading, survives a save and load. A ship just reported built is its mission's at once, and it flies out
+/// fighting nothing once its launch from the shipyard ends. Parked with a free unit, the ship takes an order in its
+/// system still waiting for a salvage ship, then orders the salvage of the derelict there soonest to sink that its
+/// empire could order with a fifth of its turns left, on Auto Salvage recovering what Auto Salvage would, and never
+/// one whose order has a ship of its own; so its orders done it stays for a derelict left there. With its hold full
+/// it takes only a recovery, waiting or of its own, launches no salvage until it has room, launches a waiting
+/// recovery before it leaves unless no load of ordnance pays for it, and unloaded comes back for a salvage left
+/// there. Its last order ended while it is away, it flies back for a derelict left there, unless it has no live unit.
+/// On Auto Salvage it orders derelicts itself only where Auto Salvage would, beside no rival's colony and with no
+/// hostile strength known there, salvaging the ships Auto Salvage would not recover, and its own order joins its own
+/// mission though a queued ship there has a free unit. A derelict called off it leaves alone, and while boarders are
+/// aboard it orders none. With an idle ship but no free site, only a queued ship's free unit there takes an order.
+/// Its ship lost, an order whose work is not over starts again, its platform gone and a recovery's work lost, with an
+/// idle ship or else a new one, which the orders of the lost ship share.
 /// </summary>
 [TestClass]
 public class SalvageMissionTests : SalvageOrderTest
@@ -184,9 +186,85 @@ public class SalvageMissionTests : SalvageOrderTest
 
         SalvageDerelict.Cancel(Player, d);
         Assert.IsFalse(Player.AI.HasGoal(order), "a queued order called off ends");
-        mission.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(mission), "and so does its mission, with no order left");
         Assert.IsNull(QueuedFor(Homeworld, mission), "its ship leaving the queue at once");
+    }
+
+    [TestMethod]
+    public void AQueuedShipWhoseDerelictIsLostStaysQueuedForTheNextOrderAndBuiltWithNoneWaitsIdle()
+    {
+        Assert.IsFalse(SalvageMission.OnAutomatic(Player), "setup: Auto Salvage is off");
+        Derelict taken = Forms(Wreck);
+        SalvageDerelict order = Ordered(taken);
+        SalvageMission mission = Queued(order);
+        Assert.IsNotNull(QueuedFor(Homeworld, mission), "setup: its ship is queued");
+        Assert.IsTrue(taken.TryClaim(Enemy), "setup: a rival claims the derelict first");
+        order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(order), "setup: the order ends");
+
+        mission.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(mission) && QueuedFor(Homeworld, mission) != null, "the mission stays, its ship still queued");
+
+        Vector2 elsewhere = new(-600_000f, 600_000f);
+        SolarSystem other = AddDummyPlanet(elsewhere, 1f, 1f, 1f, elsewhere + new Vector2(0, 60_000f), explored: true).System;
+        SalvageDerelict next = Ordered(Forms(elsewhere + new Vector2(30_000f, 0)));
+        Assert.AreSame(mission, next.Mission, "the next order, in another system, takes the queued ship");
+        AssertEqual(other, mission.TargetSystem, "moving it there");
+        AssertEqual(1, Homeworld.ConstructionQueue.Count(q => q.Goal is SalvageMission), "so no other is queued");
+
+        Assert.IsTrue(next.Derelict.TryClaim(Enemy), "setup: a rival claims that one too");
+        next.Evaluate();
+        Ship built = SpawnShip(mission.Design.Name, Player, Homeworld.Position + new Vector2(8_000f, 0));
+        mission.ReportShipComplete(built);
+        mission.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(mission), "built with no order and no derelict left in its system, the mission ends");
+        Assert.IsTrue(SalvageMission.IsIdle(built, Player), "its ship idle for the next derelict");
+    }
+
+    [TestMethod]
+    public void AQueuedShipWithNoOrderIsQueuedAgainWhenItsShipyardIsLost()
+    {
+        Planet near = AddHomeWorldToEmpire(SystemSite + new Vector2(-100_000f, 0), Player);
+        near.Name = "Near";
+        Player.UpdateRallyPoints();
+        Derelict taken = Forms(Wreck);
+        SalvageDerelict order = Ordered(taken);
+        SalvageMission mission = Queued(order);
+        Assert.IsNotNull(QueuedFor(near, mission), "setup: queued at the nearer shipyard");
+        Assert.IsTrue(taken.TryClaim(Enemy), "setup: a rival claims the derelict first");
+        order.Evaluate();
+        mission.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(mission), "setup: the mission stays with no order");
+
+        near.Construction.ClearQueue();
+        near.SetOwner(Enemy);
+        Player.UpdateRallyPoints();
+        mission.Evaluate();
+        mission.Evaluate();
+        Assert.IsNotNull(QueuedFor(Homeworld, mission), "its shipyard lost, the ship is queued again at the next");
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void AMissionStillWaitingForASafeShipyardEndsWithItsOrderUnlessOnAutoSalvage(bool autoSalvage)
+    {
+        Player.AutoSalvage = autoSalvage;
+        Assert.AreEqual(autoSalvage, SalvageMission.OnAutomatic(Player), "setup: Auto Salvage on or off");
+        Homeworld.Quarantine = true;
+        Player.UpdateRallyPoints();
+        Assert.IsFalse(Homeworld.Safe, "setup: no safe shipyard");
+        Derelict taken = Forms(Wreck);
+        SalvageDerelict order = Ordered(taken);
+        SalvageMission mission = Queued(order);
+        AssertEqual("BuildShip", mission.StepName, "setup: the mission waits for a safe shipyard");
+        Assert.IsNull(QueuedFor(Homeworld, mission), "setup: nothing is queued");
+
+        Assert.IsTrue(taken.TryClaim(Enemy), "setup: a rival claims the derelict first");
+        order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(order), "setup: the order ends");
+        mission.Evaluate();
+        Assert.AreEqual(autoSalvage, Player.AI.HasGoal(mission), "with nothing queued yet, the mission ends with its order, but waits on with Auto Salvage");
     }
 
     [TestMethod]

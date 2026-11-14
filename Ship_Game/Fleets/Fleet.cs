@@ -2499,13 +2499,7 @@ namespace Ship_Game.Fleets
             TaskStep = 2;
         }
 
-        float TroopStrengthAboard()
-        {
-            float strength = 0f;
-            for (int i = 0; i < Ships.Count; ++i)
-                strength += Ships[i].Carrier.PlanetAssaultStrength;
-            return strength;
-        }
+        float TroopStrengthAboard() => Ships.Sum(s => s.Carrier.PlanetAssaultStrength);
 
         // Most of out troop ships are committed (they are in te planet's gravity well)
         bool MajorityTroopShipsAreInWell(Planet p)

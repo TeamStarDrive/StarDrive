@@ -139,11 +139,7 @@ namespace Ship_Game.AI.ExpansionAI
         // from any thread: its salvage ships, with those queued, less those being scrapped
         public static int Ships(Empire empire)
         {
-            int ships = 0;
-            var owned = empire.OwnedShips;
-            for (int i = 0; i < owned.Count; ++i)
-                if (owned[i] is { IsSalvageShip: true, Active: true, Dying: false, DoingScrap: false })
-                    ++ships;
+            int ships = empire.OwnedShips.Count(s => s is { IsSalvageShip: true, Active: true, Dying: false, DoingScrap: false });
             return ships + empire.AI.CountGoals(g => g is SalvageMission { Over: false, Building: true });
         }
 

@@ -542,7 +542,7 @@ namespace Ship_Game
             {
                 Vector2 shipsOutCursor = bCursor;
                 float moneyWidth = DrawMoney(ref bCursor, batch);
-                DrawShipsOut(shipsOutCursor, batch, moneyWidth);
+                DrawInfrastructureAndShipsOut(shipsOutCursor, batch, moneyWidth);
                 DrawPlanetStat(ref bCursor, batch, TextFont);
                 return;
             }
@@ -762,22 +762,23 @@ namespace Ship_Game
             return 150 + widestValue;
         }
 
-        void DrawShipsOut(Vector2 cursor, SpriteBatch batch, float moneyWidth)
+        void DrawInfrastructureAndShipsOut(Vector2 cursor, SpriteBatch batch, float moneyWidth)
         {
             Font font = LowRes ? Font8 : Font14;
             cursor.X += Math.Max(PFacilities.Rect.Width * 0.5f, moneyWidth + 20);
+            string infrastructure = $"{Localizer.Token(GameText.Infrastructure)}: ";
             string builders = $"{Localizer.Token(GameText.BuilderShipsLabel)}: ";
             string shuttles = $"{Localizer.Token(GameText.SupplyShuttlesLabel)}: ";
-            float valueX = Math.Max(font.MeasureString(builders).X, font.MeasureString(shuttles).X) + 5;
+            float valueX = Math.Max(font.MeasureString(infrastructure).X,
+                           Math.Max(font.MeasureString(builders).X, font.MeasureString(shuttles).X)) + 5;
 
-            DrawShipsOutLine(ref cursor, batch, font, builders, valueX, P.BuilderShipsOut, P.BuilderShipsLimit, GameText.BuilderShipsOutTip);
-            DrawShipsOutLine(ref cursor, batch, font, shuttles, valueX, P.SupplyShuttlesOut, P.SupplyShuttlesLimit, GameText.SupplyShuttlesOutTip);
+            DrawStatLine(ref cursor, batch, font, infrastructure, valueX, P.InfraStructure.String(1), GameText.InfrastructureTip);
+            DrawStatLine(ref cursor, batch, font, builders, valueX, $"{P.BuilderShipsOut} / {P.BuilderShipsLimit}", GameText.BuilderShipsOutTip);
+            DrawStatLine(ref cursor, batch, font, shuttles, valueX, $"{P.SupplyShuttlesOut} / {P.SupplyShuttlesLimit}", GameText.SupplyShuttlesOutTip);
         }
 
-        void DrawShipsOutLine(ref Vector2 cursor, SpriteBatch batch, Font font, string label, float valueX,
-                              int shipsOut, int limit, GameText tip)
+        void DrawStatLine(ref Vector2 cursor, SpriteBatch batch, Font font, string label, float valueX, string value, GameText tip)
         {
-            string value = $"{shipsOut} / {limit}";
             batch.DrawString(font, label, cursor, Color.LightGray);
             batch.DrawString(font, value, new Vector2(cursor.X + valueX, cursor.Y), Colors.Cream);
             var hover = new Rectangle((int)cursor.X, (int)cursor.Y, (int)(valueX + font.MeasureString(value).X), font.LineSpacing);

@@ -470,11 +470,7 @@ public sealed class Derelicts
             return Empty<Derelict>.Array;
         try
         {
-            Array<Derelict> wanting = null;
-            for (int i = 0; i < Items.Count; ++i)
-                if (Items[i].WantsModel)
-                    (wanting ??= new()).Add(Items[i]);
-            return wanting?.ToArray() ?? Empty<Derelict>.Array;
+            return Items.Filter(d => d.WantsModel);
         }
         finally
         {

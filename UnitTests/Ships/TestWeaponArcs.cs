@@ -88,19 +88,6 @@ namespace UnitTests.Ships
             AssertEqual(weapon.FireTarget.Type, GameObjectType.Proj, "TruePD must only fire at projectiles");
         }
 
-        [TestMethod]
-        [Ignore]
-        public void FiringWithError()
-        {
-            Ship ship = SpawnShip("Soldier mk2-c", Player, Vector2.Zero);
-            Weapon weapon = ship.Weapons.Find(w => w.UID == "LaserBeam");
-            
-            // TODO: This needs a major fix
-            float error = weapon.BaseTargetError(-1);
-            Assert.IsTrue(error > 112 & error < 114);
-            // I am embarrassed by this unit test.
-        }
-
         static Weapon InaccurateWeapon(Ship ship)
         {
             ship.Level = 0;

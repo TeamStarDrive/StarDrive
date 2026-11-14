@@ -70,12 +70,7 @@ namespace Ship_Game
             if (CanBuildBombers || !p.HasCapital || p.Owner == null)
                 return false;
 
-            IReadOnlyList<Planet> theirPlanets = p.Owner.GetPlanets();
-            for (int i = 0; i < theirPlanets.Count; ++i)
-                if (!theirPlanets[i].HasCapital)
-                    return true;
-
-            return false;
+            return p.Owner.GetPlanets().Any(planet => !planet.HasCapital);
         }
 
         public Planet SafestToInvade(IReadOnlyList<Planet> planets, Predicate<Planet> isTarget)

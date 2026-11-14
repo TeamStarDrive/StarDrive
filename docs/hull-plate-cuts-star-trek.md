@@ -6,7 +6,7 @@ under the race whose hulls carry most of its designs, or under Shared when more 
 A hull with no design is listed when a tech unlocks it,
 so players can build it; hulls nothing uses or unlocks, asteroid bases and shipyards are left out.
 
-80 of 190 models cut, carrying 687 of 1311 designs.
+81 of 190 models cut, carrying 687 of 1311 designs.
 
 ## The mod's own models
 
@@ -254,12 +254,12 @@ These live in the base game; a cut there carries into the mod.
 - [x] `Ship17f` — capital — Godcaller (4), Draug Flagship Hull (no designs yet; Titans unlocks it)
 - [x] `Ralyeh_Station` — station — Ralyeh_Station (6)
 
-### Remnant (4 of 6 cut)
+### Remnant (5 of 6 cut)
 
-- [ ] `ship09a` — battleship — XenoHeavyCruiser (no designs yet; Battleships_2 unlocks it)
 - [ ] `Behemoth` — capital — Behemoth (1)
 - [x] `AncientFrigate` — frigate — AncientFrigate (2)
 - [x] `ship09eSmall` — cruiser — Xeno Cruiser (8)
+- [x] `ship09a` — battleship — XenoHeavyCruiser (no designs yet; Battleships_2 unlocks it)
 - [x] `ship09e` — battleship, capital — Remnant Mothership (1), Mothership (1)
 - [x] `RemnantPortal` — station — RemnantPortal (1)
 

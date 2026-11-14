@@ -62,13 +62,7 @@ public class FleetButton : UIPanel
         }
     }
 
-    static bool IsAnyShipInCombat(Ship[] ships)
-    {
-        for (int i = 0; i < ships.Length; ++i)
-            if (!ships[i].OnLowAlert)
-                return true;
-        return false;
-    }
+    static bool IsAnyShipInCombat(Ship[] ships) => ships.Any(s => !s.OnLowAlert);
 
     void DrawBackground(SpriteBatch batch, Ship[] ships, bool isSelected, in RectF r)
     {

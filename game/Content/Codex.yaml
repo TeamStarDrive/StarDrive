@@ -85,6 +85,8 @@
         -
           UID: colony_storage
         -
+          UID: colony_infrastructure
+        -
           UID: colony_labor_sliders
         -
           UID: colony_trade

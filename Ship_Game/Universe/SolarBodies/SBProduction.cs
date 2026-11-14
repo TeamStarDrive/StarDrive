@@ -117,7 +117,7 @@ namespace Ship_Game.Universe.SolarBodies
         // @note `maxProduction` is a max limit, this method will attempt
         //       to consume no more than `maxAmount` from local production
         // @return true if at least some production was applied
-        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool rushFees, bool immediate, int refitsAlongside = 0)
+        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool rushFees, bool immediate, int itemsAlongside = 0)
         {
             if (maxAmount <= 0.0f || ConstructionQueue.IsEmpty)
                 return false;
@@ -135,8 +135,8 @@ namespace Ship_Game.Universe.SolarBodies
                 {
                     float spentBefore = item.ProductionSpent;
                     SpendProduction(item, maxAmount, chargeFees: true);
-                    if (refitsAlongside > 0 && item.IsRefit && item.IsComplete)
-                        SpendOnRefitsBehind(itemIndex, maxAmount - (item.ProductionSpent - spentBefore), refitsAlongside);
+                    if (itemsAlongside > 0 && item.IsComplete)
+                        SpendOnItemsBehind(itemIndex, maxAmount - (item.ProductionSpent - spentBefore), itemsAlongside);
                 }
             }
 
@@ -164,21 +164,35 @@ namespace Ship_Game.Universe.SolarBodies
             return true;
         }
 
-        // spends what is left on up to `count` refits right behind a finished one, stopping at an item that is no refit or is cancelled, or at the first refit it does not finish
-        void SpendOnRefitsBehind(int index, float left, int count)
+        // spends what is left on up to `count` items right behind a finished one, stopping at one about to be cancelled or at the first it does not finish
+        void SpendOnItemsBehind(int index, float left, int count)
         {
+            int troopRoom = TroopRoom() - TroopRoomTakenBy(ConstructionQueue[index]);
             for (int i = index + 1; i <= index + count && i < ConstructionQueue.Count && left > 0f; ++i)
             {
                 QueueItem next = ConstructionQueue[i];
-                if (!next.IsRefit || next.IsCancelled)
+                if (next.IsCancelled)
                     return;
+                if (next.isTroop && troopRoom <= 0)
+                    return; // no room left for it once the items ahead of it are finished
 
                 float spentBefore = next.ProductionSpent;
                 SpendProduction(next, left, chargeFees: true);
                 left -= next.ProductionSpent - spentBefore;
                 if (!next.IsComplete)
                     return;
+                troopRoom -= TroopRoomTakenBy(next);
             }
+        }
+
+        // the troop slots a finished item takes: one for a troop, and for a combat building the slots left on its tile
+        static int TroopRoomTakenBy(QueueItem q)
+        {
+            if (q.isTroop)
+                return 1;
+            if (q.isBuilding && q.Building.CombatStrength > 0 && q.pgs != null && TroopsCanStandOn(q.pgs))
+                return Math.Max(0, q.pgs.MaxAllowedTroops - q.pgs.TroopsHere.Count);
+            return 0;
         }
 
         void ProcessCompleteQueueItem(QueueItem q)
@@ -196,12 +210,25 @@ namespace Ship_Game.Universe.SolarBodies
         {
             foreach (PlanetGridSquare tile in P.TilesList)
             {
-                if (tile.TroopsHere.Count < tile.MaxAllowedTroops &&
-                    (tile.Building == null || (tile.Building != null && tile.Building.CombatStrength == 0)))
+                if (tile.TroopsHere.Count < tile.MaxAllowedTroops && TroopsCanStandOn(tile))
                     return true;
             }
             return false;
         }
+
+        // the troop slots left on the surface, as HasRoomForTroops counts them
+        int TroopRoom()
+        {
+            int room = 0;
+            foreach (PlanetGridSquare tile in P.TilesList)
+            {
+                if (TroopsCanStandOn(tile))
+                    room += Math.Max(0, tile.MaxAllowedTroops - tile.TroopsHere.Count);
+            }
+            return room;
+        }
+
+        static bool TroopsCanStandOn(PlanetGridSquare tile) => tile.Building == null || tile.Building.CombatStrength == 0;
 
         bool OnBuildingComplete(QueueItem q)
         {
@@ -309,12 +336,12 @@ namespace Ship_Game.Universe.SolarBodies
 
             float percentToApply = P.RecentCombat ? 0.1f : 1f; // Ongoing combat is hindering logistics
             float limitSpentProd = P.LimitedProductionExpenditure(P.CurrentProductionToQueue);
-            ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0, rushFees: false, immediate: false, refitsAlongside: RefitsFinishedAlongside);
+            ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0, rushFees: false, immediate: false, itemsAlongside: ItemsFinishedPerTurn - 1);
             TryPlayerRush();
         }
 
-        // on Hard and above, an AI colony that finishes a refit can finish one more behind it, and one more per shipyard
-        int RefitsFinishedAlongside => !P.OwnerIsPlayer && P.Universe.P.Difficulty >= GameDifficulty.Hard ? 1 + P.NumShipyards : 0;
+        // a colony finishes up to its infrastructure in queue items each turn, at least one
+        int ItemsFinishedPerTurn => Math.Max(1, (int)P.InfraStructure);
 
         void TryPlayerRush() // Apply rush if player marked items as continuous rush
         {

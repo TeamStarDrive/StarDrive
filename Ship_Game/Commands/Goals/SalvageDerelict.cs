@@ -139,22 +139,10 @@ namespace Ship_Game.Commands.Goals
 
         // from any thread: a salvage ship of the empire's with a live salvage unit, at work or idle
         public static bool HasSalvageShip(Empire empire)
-        {
-            var ships = empire.OwnedShips;
-            for (int i = 0; i < ships.Count; ++i)
-                if (ships[i] is { IsSalvageShip: true, Active: true } ship && SalvageMission.LiveUnits(ship) > 0)
-                    return true;
-            return false;
-        }
+            => empire.OwnedShips.Any(s => s is { IsSalvageShip: true, Active: true } && SalvageMission.LiveUnits(s) > 0);
 
         // from any thread: a salvage ship design the empire can build, whether or not a pick could take it
-        static bool CanBuildAnySalvageShip(Empire empire)
-        {
-            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
-                if (design.IsSalvageShip)
-                    return true;
-            return false;
-        }
+        static bool CanBuildAnySalvageShip(Empire empire) => empire.ShipsWeCanBuildSnapshot.Any(d => d.IsSalvageShip);
 
         // from any thread: as for salvage, but a station, which can only be salvaged, is NotAShip
         public static Block WhyNoRecovery(Empire empire, Derelict d) => RecoveryBlock(WhyNoOrder(empire, d), d);
@@ -249,10 +237,12 @@ namespace Ship_Game.Commands.Goals
                 if (order.RecoverySucceeded)
                     return;
                 d.SetCalledOffBy(empire);
+                SalvageMission mission = order.Mission;
                 if (order.Platform is { Active: true })
                     order.CallOff();
                 else
                     empire.AI.RemoveGoal(order);
+                mission?.OrderCalledOff();
             }
             else if (d.Claimant == empire) // a claim kept without its order, as a save can catch it
             {

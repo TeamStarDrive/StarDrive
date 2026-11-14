@@ -76,9 +76,7 @@ namespace Ship_Game.Fleets
                     FlankPlans.RemoveAt(i);
                     continue;
                 }
-                for (int l = plan.Legs.Count - 1; l >= 0; --l)
-                    if (!plan.Legs[l].Ship.Active)
-                        plan.Legs.RemoveAt(l);
+                plan.Legs.RemoveAll(l => !l.Ship.Active);
             }
         }
 
