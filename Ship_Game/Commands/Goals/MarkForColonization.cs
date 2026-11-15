@@ -434,7 +434,7 @@ namespace Ship_Game.Commands.Goals
             foreach (Ship ship in Owner.OwnedShips)
             {
                 if (ship.ShipData.IsColonyShip && !ship.DoingRefit && !ship.IsLanding
-                    && ship.AI != null && ship.Active && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
+                    && ship.AI != null && ship.Active && StillOurs(ship) && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
                     && NotAssignedToColonizationGoal(ship))
                 {
                     return ship;
