@@ -140,7 +140,7 @@ namespace Ship_Game.AI
             bool movesToTarget = CombatState != CombatState.HoldPosition || HasPriorityTarget; // on Hold Position only a target the player picked draws the ship out
             bool priorityMove = HasPriorityOrder && movesToTarget;
 
-            // if ship has priority order, then move towards that order, EVEN when in combat
+            // a priority order moves the ship to its target even in combat
             if (priorityMove)
             {
                 MoveToEngageTarget(target, timeStep);

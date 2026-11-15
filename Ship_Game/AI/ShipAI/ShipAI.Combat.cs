@@ -402,10 +402,13 @@ namespace Ship_Game.AI
         // the target given to the ship is gone: the next live one queued takes its place, else the ship picks its own
         bool HandOverPriorityTarget()
         {
-            for (int i = 0; i < TargetQueue.Count; ++i)
+            Ship[] queue = TargetQueue.ToArray(); // a player's order may change the queue from the UI thread
+            Empire us = Owner.Loyalty;
+            for (int i = 0; i < queue.Length; ++i)
             {
-                Ship queued = TargetQueue[i];
-                if (queued != Target && IsTargetActive(queued) && IsTargetValid(queued))
+                Ship queued = queue[i];
+                if (queued != Target && IsTargetActive(queued) && IsTargetValid(queued)
+                    && (us.IsAtWarWith(queued.Loyalty) || us.IsEmpireAttackable(queued.Loyalty, queued)))
                 {
                     Target = queued;
                     Intercepting = true;

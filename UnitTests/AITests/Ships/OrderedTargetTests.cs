@@ -1,25 +1,29 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDUtils;
 using Ship_Game.Empires;
+using Ship_Game.Ships;
 using UnitTests.Ships;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Ships;
 
 /// <summary>
-/// A ship told to attack takes the next queued target when its target falls, in the order they were queued, and with
-/// none left picks its own, nearest first, as a target nobody gave it. A ship's list of enemies runs nearest first.
+/// A ship told to attack takes the next queued target when its target falls, in the order they were queued, passing
+/// over one it may not attack, and with none left picks its own, nearest first, as a target nobody gave it. A ship's
+/// list of enemies runs nearest first.
 /// </summary>
 [TestClass]
 public class OrderedTargetTests : StarDriveTest
 {
     const string ShipName = "Vulcan Scout";
+    const string ResearchStation = "Basic Research Station";
     static readonly Vector2 At = new(200_000, 200_000);
     readonly TestShip Us;
 
     public OrderedTargetTests()
     {
-        LoadStarterShips(ShipName);
+        LoadStarterShips(ShipName, ResearchStation);
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
         Us = SpawnShip(ShipName, Player, At);
@@ -43,8 +47,8 @@ public class OrderedTargetTests : StarDriveTest
     public void WhenItsTargetFallsTheShipTakesTheNextQueuedOneInOrder()
     {
         TestShip first = EnemyAt(new Vector2(2000, 0));
-        TestShip second = EnemyAt(new Vector2(0, 3000));
-        TestShip third = EnemyAt(new Vector2(-4000, 0));
+        TestShip second = EnemyAt(new Vector2(0, 4000));
+        TestShip third = EnemyAt(new Vector2(-3000, 0));
         Scanned();
         Us.AI.OrderAttackSpecificTarget(first);
         Us.AI.OrderQueueSpecificTarget(second);
@@ -54,7 +58,7 @@ public class OrderedTargetTests : StarDriveTest
 
         first.Die(first, cleanupOnly: true);
         RunObjectsSim(0.1f);
-        Assert.AreSame(second, Us.AI.Target, "it takes the next target queued");
+        Assert.AreSame(second, Us.AI.Target, "it takes the next target queued, not the nearest enemy");
         Assert.IsTrue(Us.AI.HasPriorityTarget, "as one it was given");
         Assert.IsTrue(Us.AI.Intercepting, "and goes for it");
 
@@ -79,6 +83,71 @@ public class OrderedTargetTests : StarDriveTest
 
         Assert.AreSame(Player, first.Loyalty, "setup: the first target is now one of our ships");
         Assert.AreSame(second, Us.AI.Target, "the ship takes the next target queued");
+        Assert.IsTrue(Us.AI.HasPriorityTarget, "as one it was given");
+        Assert.IsFalse(Us.AI.TargetQueue.ContainsRef(first), "and drops the captured ship from its queue");
+    }
+
+    [TestMethod]
+    public void AQueuedShipOfAnEmpireItMayNotAttackIsPassedOver()
+    {
+        CreateThirdMajorEmpire();
+        TestShip first = EnemyAt(new Vector2(2000, 0));
+        TestShip neutral = SpawnShipNoCombatHoldPos(ShipName, ThirdMajor, At + new Vector2(0, 2500));
+        TestShip last = EnemyAt(new Vector2(-4000, 0));
+        Scanned();
+        Assert.IsFalse(Player.IsEmpireAttackable(ThirdMajor, neutral), "setup: we are not at war with them");
+        Us.AI.OrderAttackSpecificTarget(first);
+        Us.AI.OrderQueueSpecificTarget(neutral);
+        Us.AI.OrderQueueSpecificTarget(last);
+        RunObjectsSim(TestSimStep);
+        Assert.AreSame(first, Us.AI.Target, "setup: the ship attacks the first target");
+
+        first.Die(first, cleanupOnly: true);
+        RunObjectsSim(0.1f);
+
+        Assert.AreSame(last, Us.AI.Target, "it passes over a ship it may not attack and takes the next one queued");
+        Assert.IsTrue(Us.AI.HasPriorityTarget, "as one it was given");
+    }
+
+    [TestMethod]
+    public void AQueuedResearchStationOfAnEmpireWeAreNotAtWarWithIsPassedOver()
+    {
+        CreateThirdMajorEmpire();
+        Player.GetRelations(ThirdMajor).CanAttack = true; // angry enough to fire on its ships, not at war
+        TestShip first = EnemyAt(new Vector2(2000, 0));
+        TestShip station = SpawnShip(ResearchStation, ThirdMajor, At + new Vector2(0, 2500));
+        TestShip last = EnemyAt(new Vector2(-4000, 0));
+        Scanned();
+        Assert.IsTrue(station.IsResearchStation && !Player.IsAtWarWith(ThirdMajor), "setup: their research station, and no war");
+        Us.AI.OrderAttackSpecificTarget(first);
+        Us.AI.OrderQueueSpecificTarget(station);
+        Us.AI.OrderQueueSpecificTarget(last);
+        RunObjectsSim(TestSimStep);
+        Assert.AreSame(first, Us.AI.Target, "setup: the ship attacks the first target");
+
+        first.Die(first, cleanupOnly: true);
+        RunObjectsSim(0.1f);
+
+        Assert.AreSame(last, Us.AI.Target, "a research station is spared outside war, so the ship takes the next one queued");
+    }
+
+    [TestMethod]
+    public void AQueuedEnemyShipTakingOffIsStillTheNextTarget()
+    {
+        TestShip first = EnemyAt(new Vector2(2000, 0));
+        TestShip second = EnemyAt(new Vector2(0, 3000));
+        Scanned();
+        Us.AI.OrderAttackSpecificTarget(first);
+        Us.AI.OrderQueueSpecificTarget(second);
+        RunObjectsSim(TestSimStep);
+        Assert.AreSame(first, Us.AI.Target, "setup: the ship attacks the first target");
+
+        second.InitLaunch(LaunchPlan.Planet, 0f);
+        Assert.IsTrue(second.IsLaunching, "setup: the queued enemy is taking off");
+        first.Die(first, cleanupOnly: true);
+        RunObjectsSim(0.1f);
+
+        Assert.AreSame(second, Us.AI.Target, "an enemy ship taking off is still the next target");
         Assert.IsTrue(Us.AI.HasPriorityTarget, "as one it was given");
     }
 

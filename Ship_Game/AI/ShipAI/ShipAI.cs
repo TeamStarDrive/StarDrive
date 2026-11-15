@@ -931,7 +931,7 @@ namespace Ship_Game.AI
             for (int x = TargetQueue.Count - 1; x >= 0; x--)
             {
                 Ship target = TargetQueue[x];
-                if (!target.Active)
+                if (!target.Active || target.Loyalty == Owner.Loyalty)
                     TargetQueue.RemoveAt(x); // keeps the order the targets were queued in
             }
         }
