@@ -185,6 +185,8 @@ namespace Ship_Game
         public float MaxColonyValue { get; private set; }
         public float TotalColonyValues { get; private set; }
         public float TotalColonyPotentialValues { get; private set; }
+        // share of workers a core world adds to production while it builds, fading as the empire's planets develop
+        public float CoreProductionBonus { get; private set; }
         public IShipDesign BestPlatformWeCanBuild { get; private set; }
         public IShipDesign BestStationWeCanBuild { get; private set; }
         public IShipDesign BestResearchStationWeCanBuild { get; private set; }
@@ -1350,11 +1352,12 @@ namespace Ship_Game
 
         // Using memory to save CPU time. the question is how often is the value used and
         // How often would it be calculated.
-        private void UpdateMaxColonyValues()
+        internal void UpdateMaxColonyValues()
         {
             MaxColonyValue             = 0;
             TotalColonyValues          = 0;
             TotalColonyPotentialValues = 0;
+            int planetLevels = 0;
 
             for (int i = 0; i < OwnedPlanets.Count; i++)
             {
@@ -1363,7 +1366,13 @@ namespace Ship_Game
                 TotalColonyPotentialValues += planet.ColonyPotentialValue(this, useBaseMaxFertility: false);
                 if (planet.ColonyValue > MaxColonyValue)
                     MaxColonyValue = planet.ColonyValue;
+                planetLevels += planet.Level;
             }
+
+            const float maxCoreBonus = 0.2f;
+            const float fullBonusLevels = 5;
+            const float noBonusLevels = 50;
+            CoreProductionBonus = (maxCoreBonus * (noBonusLevels - planetLevels) / (noBonusLevels - fullBonusLevels)).Clamped(0, maxCoreBonus);
         }
 
         private void UpdateBestOrbitals()

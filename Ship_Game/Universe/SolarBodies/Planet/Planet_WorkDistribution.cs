@@ -212,18 +212,23 @@ namespace Ship_Game
             }
 
 
-            float buildDesire = (Owner.data.DiplomaticPersonality?.Opportunism ?? 1) + Owner.Research.Strategy.MilitaryRatio 
-                                                                                     + Owner.Research.Strategy.ExpansionRatio 
-                                                                                     + Owner.Research.Strategy.IndustryRatio;
+            // the player's governor splits the same way whatever personality the empire drew
+            const float evenRatio = 0.25f;
+            EconomicResearchStrategy strategy = Owner.Research.Strategy;
+            float military    = OwnerIsPlayer ? evenRatio : strategy.MilitaryRatio;
+            float expansion   = OwnerIsPlayer ? evenRatio : strategy.ExpansionRatio;
+            float research    = OwnerIsPlayer ? evenRatio : strategy.ResearchRatio;
+            float industry    = OwnerIsPlayer ? evenRatio : strategy.IndustryRatio;
+            float opportunism = OwnerIsPlayer ? 0 : Owner.data.DiplomaticPersonality?.Opportunism ?? 1;
+            float buildDesire = opportunism + military + expansion + industry;
 
-            // colony level ranges from 1 worst to 5 best.
-            // Gives a base line from .3 to about .1 depending on research wants
-            float colonyDevelopmentBonus = ((6 + buildDesire) - Level * Owner.Research.Strategy.ResearchRatio) * 0.03f;
+            // colony level ranges from 1 to 5, giving a base of about 0.13 to 0.23
+            float colonyDevelopmentBonus = ((6 + buildDesire) - Level * research) * 0.03f;
             float colonyTypeBonus        = 0;
             switch (CType)
             {
-                case ColonyType.Industrial: colonyTypeBonus = 0.4f; break;
-                case ColonyType.Military:   colonyTypeBonus = 0.1f; break;
+                case ColonyType.Core:     colonyTypeBonus = Owner.CoreProductionBonus;                  break;
+                case ColonyType.Military: colonyTypeBonus = Owner.CoreProductionBonus.LowerBound(0.1f); break;
             }
 
             float workerPercentage = colonyDevelopmentBonus + colonyTypeBonus;
@@ -235,20 +240,20 @@ namespace Ship_Game
                 {
                     case BuildingCategory.General:
                     case BuildingCategory.Storage:
-                    case BuildingCategory.Shipyard:   workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
-                    case BuildingCategory.Production: workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
+                    case BuildingCategory.Shipyard:   workerPercentage += industry;  break;
+                    case BuildingCategory.Production: workerPercentage += industry;  break;
                     case BuildingCategory.Finance:
-                    case BuildingCategory.Food:       workerPercentage += Owner.Research.Strategy.ExpansionRatio; break;
+                    case BuildingCategory.Food:       workerPercentage += expansion; break;
                     case BuildingCategory.Defense:
                     case BuildingCategory.Military:
-                    case BuildingCategory.Sensor:     workerPercentage += Owner.Research.Strategy.MilitaryRatio;  break;
-                    case BuildingCategory.Science:    workerPercentage += Owner.Research.Strategy.ResearchRatio;  break;
+                    case BuildingCategory.Sensor:     workerPercentage += military;  break;
+                    case BuildingCategory.Science:    workerPercentage += research;  break;
                     case BuildingCategory.Population:
                     case BuildingCategory.Terraforming:
                     case BuildingCategory.Growth:
-                    case BuildingCategory.Biosphere:  workerPercentage += Owner.Research.Strategy.ExpansionRatio; break;
-                    case BuildingCategory.Victory:    workerPercentage = 0.75f;                                   break;
-                    default:                          workerPercentage += 0.2f;                                   break;
+                    case BuildingCategory.Biosphere:  workerPercentage += expansion; break;
+                    case BuildingCategory.Victory:    workerPercentage = 0.75f;      break;
+                    default:                          workerPercentage += 0.2f;      break;
                 }
                 if (item.Building.IsCapitalOrOutpost)
                     workerPercentage = 1.0f;
@@ -258,14 +263,14 @@ namespace Ship_Game
             {
                 switch (item.ShipData.Role)
                 {
-                    case RoleName.freighter:    workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
-                    case RoleName.station:      workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
-                    case RoleName.construction: workerPercentage += Owner.Research.Strategy.ExpansionRatio; break;
-                    default:                             workerPercentage += Owner.Research.Strategy.MilitaryRatio;  break;
+                    case RoleName.freighter:    workerPercentage += industry;  break;
+                    case RoleName.station:      workerPercentage += industry;  break;
+                    case RoleName.construction: workerPercentage += expansion; break;
+                    default:                    workerPercentage += military;  break;
                 }
             }
 
-            if (item.isTroop)   workerPercentage += Owner.Research.Strategy.MilitaryRatio;
+            if (item.isTroop)   workerPercentage += military;
             if (item.isOrbital) workerPercentage += 0.1f;
 
             if (workerPercentage <= 0)

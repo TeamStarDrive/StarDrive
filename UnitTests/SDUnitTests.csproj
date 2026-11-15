@@ -155,6 +155,7 @@
     <Compile Include="Planets\ColonyGraceTests.cs" />
     <Compile Include="Planets\ColonyTargetSwitchTests.cs" />
     <Compile Include="Planets\ColonyTilePickingTests.cs" />
+    <Compile Include="Planets\CoreGovernorProductionTests.cs" />
     <Compile Include="Planets\CrashSiteOwnershipTests.cs" />
     <Compile Include="Planets\CyberneticProdStateTests.cs" />
     <Compile Include="Planets\DysonSwarmLaunchTests.cs" />
