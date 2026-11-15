@@ -5,6 +5,7 @@ using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Empires.Components;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -117,11 +118,137 @@ public class ClaimFleetTests : StarDriveTest
         Assert.IsNull(fleet.FleetTask, "a claim fleet that finds a stronger force in the system gives up its claim");
     }
 
+    // the fleet went into its task's fight whole and lost half its warships there
+    static void LostHalfItsShipsInTheFight(Fleet fleet, MilitaryTask task)
+    {
+        Assert.IsTrue(fleet.CanTakeThisFight(0f, task, inCombat: true), "setup: whole, the fleet can take on what it went in against");
+        AssertEqual(0.01f, fleet.GetStrength(), task.PeakFleetStrength, "setup: its task keeps the strength it went into the fight with");
+        Ship[] goingIn = GoingIn(fleet);
+        for (int i = 0; i < goingIn.Length / 2; ++i)
+            fleet.RemoveShip(goingIn[i], clearOrders: true);
+        AssertLessThan(fleet.GetStrength(), task.PeakFleetStrength * 0.75f, "setup: the fleet lost more than a quarter of its strength in the fight");
+    }
+
+    [TestMethod]
+    public void AClaimFleetThatOnlyFindsAStrongerForceInTheSystemHasNotLostAFight()
+    {
+        Fleet fleet = ClaimFleet(OutsideSystem, taskStep: 5, out MilitaryTask task);
+        StrongerForceSeenInTheSystem(fleet);
+        Enemy.InitFleetEmpireStrMultiplier(); // as at the start of a game
+        float before = Enemy.GetFleetStrEmpireMultiplier(Player);
+
+        ClaimDefense(fleet, task);
+
+        Assert.IsTrue(task.QueuedForRemoval || fleet.FleetTask == null, "setup: the fleet gives up its claim");
+        Assert.AreEqual(before, Enemy.GetFleetStrEmpireMultiplier(Player), "a fleet that only found a stronger force, with its ships whole, asks for no more strength next time");
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void AFleetThatGivesUpAFightAsksForMoreStrengthNextTimeOnlyWhenItLostShipsInIt(bool lostShips)
+    {
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 5, out MilitaryTask task);
+        task.TargetEmpire = Player;
+        Enemy.InitFleetEmpireStrMultiplier(); // as at the start of a game
+        if (lostShips)
+            LostHalfItsShipsInTheFight(fleet, task);
+        float before = Enemy.GetFleetStrEmpireMultiplier(Player);
+
+        Assert.IsFalse(fleet.CanTakeThisFight(1_000_000f, task, inCombat: true), "setup: the fleet cannot take on the enemy");
+
+        if (lostShips)
+            AssertGreaterThan(Enemy.GetFleetStrEmpireMultiplier(Player), before, "a fleet that lost ships in the fight it gives up asks for more strength next time");
+        else
+            Assert.AreEqual(before, Enemy.GetFleetStrEmpireMultiplier(Player), "one that only found the odds against it does not");
+    }
+
+    [TestMethod]
+    public void AClaimFleetThatClearsTheAreaCountsItsNextFightOnItsOwn()
+    {
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 6, out MilitaryTask task);
+        task.PeakFleetPlanet = task.TargetPlanet;
+        task.PeakFleetStrength = fleet.GetStrength() * 2f; // as after the losses of the fight it won there
+
+        ClaimDefense(fleet, task);
+
+        Assert.AreEqual(7, fleet.TaskStep, "setup: with no hostile left in the area the fleet moves on");
+        Assert.AreEqual(0f, task.PeakFleetStrength, "the fight won, a later one is counted on its own");
+    }
+
+    [TestMethod]
+    public void AClearAreaFleetThatClearsItsAreaCountsItsNextFightOnItsOwn()
+    {
+        SolarSystem system = Target.System;
+        var task = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, Enemy, system.Position, system.Radius,
+                                    system, 20_000f, MilitaryTaskImportance.Normal);
+        var fleet = new Fleet(UState, Enemy) { FleetTask = task, TaskStep = 3 };
+        typeof(MilitaryTask).GetProperty(nameof(MilitaryTask.Fleet))!.SetValue(task, fleet);
+        fleet.AddShip(SpawnShip(Warship, Enemy, InSystem));
+        task.PeakFleetStrength = fleet.GetStrength() * 2f; // as after the losses of the fight it won
+
+        typeof(Fleet).GetMethod("DoClearAreaOfEnemies", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(fleet, new object[] { task });
+
+        Assert.AreEqual(4, fleet.TaskStep, "setup: with no hostile left to attack in its area the fleet moves on");
+        Assert.AreEqual(0f, task.PeakFleetStrength, "the fight won, a later one is counted on its own");
+    }
+
+    [TestMethod]
+    [DataRow(false, 5, DisplayName = "no threat on its way: the fleet looks for what else is left")]
+    [DataRow(true, 6, DisplayName = "a threat on its way: the fleet hunts it")]
+    public void AClearAreaFleetThatWinsTheFightAtItsPostCountsTheNextOneOnItsOwn(bool threatIncoming, int nextStep)
+    {
+        SolarSystem system = Target.System;
+        var task = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, Enemy, system.Position, system.Radius,
+                                    system, 20_000f, MilitaryTaskImportance.Normal);
+        var fleet = new Fleet(UState, Enemy) { FleetTask = task, TaskStep = 4 };
+        typeof(MilitaryTask).GetProperty(nameof(MilitaryTask.Fleet))!.SetValue(task, fleet);
+        fleet.AddShip(SpawnShip(Warship, Enemy, InSystem));
+        if (threatIncoming)
+        {
+            var threat = (IncomingThreat)System.Activator.CreateInstance(typeof(IncomingThreat), nonPublic: true);
+            typeof(IncomingThreat).GetField(nameof(IncomingThreat.TargetSystem))!.SetValue(threat, system);
+            typeof(IncomingThreat).GetProperty(nameof(IncomingThreat.ThreatTimer))!.GetSetMethod(nonPublic: true)!.Invoke(threat, new object[] { 30f });
+            Enemy.ThreatDetector.SystemsWithThreat = new[] { threat };
+        }
+        Assert.AreEqual(threatIncoming, Enemy.IsSystemUnderThreatForUs(system), "setup: a threat is on its way to the system, or none");
+        task.PeakFleetStrength = fleet.GetStrength() * 2f; // as after the losses of the fight it won at its post
+
+        typeof(Fleet).GetMethod("DoClearAreaOfEnemies", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(fleet, new object[] { task });
+
+        Assert.AreEqual(nextStep, fleet.TaskStep, "setup: with no hostile left at its post the fleet moves on");
+        Assert.AreEqual(0f, task.PeakFleetStrength, "the fight won, a later one is counted on its own");
+    }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void ATaskThatTakesANewTargetPlanetCountsTheFightThereOnItsOwn(bool bySetTargetPlanet)
+    {
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 5, out MilitaryTask task);
+        Assert.IsTrue(fleet.CanTakeThisFight(0f, task, inCombat: true), "setup: the fleet keeps its strength in the fight at its target");
+        float whole = fleet.GetStrength();
+        task.PeakFleetStrength = whole * 2f; // as after losses there
+
+        fleet.CanTakeThisFight(0f, task, inCombat: true);
+        AssertEqual(0.01f, whole * 2f, task.PeakFleetStrength, "the same target is the same fight");
+
+        Planet next = AddDummyPlanet(new Vector2(600_000));
+        if (bySetTargetPlanet)
+            task.SetTargetPlanet(next);
+        else
+            task.ChangeTargetPlanet(next); // sets the target directly, as a Remnant defense's retarget and gathering more troops do
+        fleet.CanTakeThisFight(0f, task, inCombat: true);
+
+        AssertEqual(0.01f, whole, task.PeakFleetStrength, "a new target planet is a new fight, however the task got it");
+    }
+
     [TestMethod]
     public void AClaimFleetsLostFightCountsAgainstTheEmpireWhoseShipsItFound()
     {
         Fleet fleet = ClaimFleet(OutsideSystem, taskStep: 5, out MilitaryTask task);
         task.TargetEmpire = null;
+        LostHalfItsShipsInTheFight(fleet, task);
         StrongerForceSeenInTheSystem(fleet);
         Enemy.InitFleetEmpireStrMultiplier(); // as at the start of a game
         float before = Enemy.GetFleetStrEmpireMultiplier(Player);
@@ -138,6 +265,7 @@ public class ClaimFleetTests : StarDriveTest
         CreateThirdMajorEmpire();
         Fleet fleet = ClaimFleet(OutsideSystem, taskStep: 5, out MilitaryTask task);
         task.TargetEmpire = ThirdMajor;
+        LostHalfItsShipsInTheFight(fleet, task);
         StrongerForceSeenInTheSystem(fleet);
         Enemy.InitFleetEmpireStrMultiplier(); // as at the start of a game
         float found = Enemy.GetFleetStrEmpireMultiplier(Player);

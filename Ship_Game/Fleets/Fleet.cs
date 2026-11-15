@@ -1347,7 +1347,7 @@ namespace Ship_Game.Fleets
                                && !task.TargetPlanet.Owner.IsFaction 
                                && !task.TargetPlanet.Owner.data.IsRebelFaction
                                || !CanTakeThisFight(task.EnemyStrength, task, inCombat)
-                               || OutmatchedIn(system, inCombat)
+                               || OutmatchedIn(task, system, inCombat)
                                || TaskStep >= 4 && !Ships.Any(s => !s.IsTroopShip || s.AI.State == AIState.AssaultPlanet))) // troop ships alone do not take or hold a claim, unless they are landing
             {
                 return;
@@ -1413,7 +1413,10 @@ namespace Ship_Game.Fleets
                 case 6:
                     if (!AttackEnemyStrengthClumpsInAO(task, FreeShipsGoingIn())
                         && Owner.AI.ThreatMatrix.FindHostileClustersByDist(task.AO, task.AORadius).Length == 0) // with no ship free to send, it waits while hostiles remain
+                    {
                         TaskStep = 7;
+                        task.PeakFleetStrength = 0f; // the fight won, a later one is counted on its own
+                    }
                     break;
                 case 7:
                     if (DoOrbitTaskArea(task, excludeInvade: true))
@@ -1445,15 +1448,39 @@ namespace Ship_Game.Fleets
         }
 
         // the hostiles known in the system now, each empire by its own multiplier, are more than the fleet can take on
-        bool OutmatchedIn(SolarSystem system, bool inCombat)
+        bool OutmatchedIn(MilitaryTask task, SolarSystem system, bool inCombat)
         {
-            if (CanTakeWeightedFight(Owner, GetStrength(), Owner.Threats.GetWeightedHostileStrengthAt(system.Position, system.Radius)))
+            float strength = FightStrength(task, inCombat);
+            if (CanTakeWeightedFight(Owner, strength, Owner.Threats.GetWeightedHostileStrengthAt(system.Position, system.Radius)))
                 return false;
 
-            if (inCombat) // the lost fight counts against the strongest empire there
+            if (LostItsFight(task, inCombat, strength)) // the lost fight counts against the strongest empire there
                 Owner.IncreaseFleetStrEmpireMultiplier(Owner.Threats.GetStrongestHostileAt(system));
             return true;
         }
+
+        // a fleet that gives up its task's fight has lost it once its strength is below this share of the most it had in that fight
+        const float LostFightStrengthShare = 0.75f;
+
+        // the fleet's strength, kept on its task as the most it has had in the task's fight while it fights; a new target planet, however the task got it, is a new fight
+        float FightStrength(MilitaryTask task, bool inCombat)
+        {
+            float strength = GetStrength();
+            if (inCombat)
+            {
+                if (task.PeakFleetPlanet != task.TargetPlanet)
+                {
+                    task.PeakFleetPlanet = task.TargetPlanet;
+                    task.PeakFleetStrength = 0f;
+                }
+                task.PeakFleetStrength = task.PeakFleetStrength.LowerBound(strength);
+            }
+            return strength;
+        }
+
+        // a fleet that only found the odds against it did not lose the fight; one that lost more than a quarter of its strength in it did
+        static bool LostItsFight(MilitaryTask task, bool inCombat, float strength)
+            => inCombat && strength < task.PeakFleetStrength * LostFightStrengthShare;
 
         // the ships that went in and can be sent at the enemy, carriers and bombers among them; troop ships, stranded ships and ships under a priority order are not
         Ship[] FreeShipsGoingIn() => Ships.Filter(s => !s.IsTroopShip && !s.EnginesKnockedOut && !s.AI.HasPriorityOrder);
@@ -1996,6 +2023,7 @@ namespace Ship_Game.Fleets
                         break;
 
                     TaskStep = 4;
+                    task.PeakFleetStrength = 0f; // the fight won, a later one is counted on its own
                     break;
                 case 4:
                     if (task.TargetPlanet == null)
@@ -2009,11 +2037,15 @@ namespace Ship_Game.Fleets
                     if (threatIncoming)
                     {
                         if (enemyStrength < 1)
+                        {
                             TaskStep = 6; // search and destroy the threat, which is parked somewhere, doing nothing
+                            task.PeakFleetStrength = 0f; // the fight here won, the hunt is a fight of its own
+                        }
                     }
                     else if (enemyStrength < 1) // No threats and no enemies
                     {
                         TaskStep = 5;
+                        task.PeakFleetStrength = 0f; // the fight won, a later one is counted on its own
                     }
                     else
                     {
@@ -2456,15 +2488,16 @@ namespace Ship_Game.Fleets
 
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool inCombat)
-            => CanTakeWeightedFight(enemyFleetStrength * Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire), task, inCombat);
+            => CanTakeWeightedFight(enemyFleetStrength * 0.75f * Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire), task, inCombat);
 
         bool CanTakeWeightedFight(float weightedEnemyStrength, MilitaryTask task, bool inCombat)
         {
-            if (CanTakeWeightedFight(Owner, GetStrength(), weightedEnemyStrength))
+            float strength = FightStrength(task, inCombat);
+            if (CanTakeWeightedFight(Owner, strength, weightedEnemyStrength))
                 return true;
 
-            // We fighting and cannot win, update fleet multipliers for next time
-            if (inCombat)
+            // a fight lost, not just one found too strong, asks for more strength next time
+            if (LostItsFight(task, inCombat, strength))
                 Owner.IncreaseFleetStrEmpireMultiplier(task.TargetEmpire);
 
             return false;
@@ -3207,9 +3240,9 @@ namespace Ship_Game.Fleets
                 return;
             }
 
-            // closest killable: clusters are distance-sorted, take the nearest we can favourably engage.
+            // closest killable: clusters are distance-sorted, take the nearest we can favorably engage.
             // Weight enemy strength by the per-empire fleet multiplier (Remnants/difficulty scaling),
-            // matching CanTakeThisFight and the cluster-distribution code above.
+            // as every fleet fight check and the cluster-distribution code above do.
             float killable = GetStrength() * (Owner.PersonalityModifiers?.CanWeTakeThisFightMultiplier ?? 1f);
             ThreatCluster chosen = null;
             for (int i = 0; i < clusters.Length; i++)

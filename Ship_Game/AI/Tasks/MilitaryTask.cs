@@ -26,6 +26,8 @@ namespace Ship_Game.AI.Tasks
 
         [StarData] public float EnemyStrength;
         [StarData] public float MinimumTaskForceStrength;
+        [StarData] public float PeakFleetStrength; // the most strength its fleet has had in the task's fight, 0 before the fight
+        [StarData] public Planet PeakFleetPlanet; // the target planet of the fight PeakFleetStrength was kept for
         [StarData] public int Priority = 5;
         [StarData] public int NeededTroopStrength;
         [StarData] public int TaskBombTimeNeeded;
