@@ -57,7 +57,9 @@ public class HullColorTests : StarDriveTest
     [DataRow("Model/Stations/spacestation01_outer.fbx", 0.013f)]
     [DataRow("Model/Ships/CargoShips/CargoHaulerShort.fbx", 0.279f)]
     [DataRow("Model/Ships/Platforms/platform_base.fbx", 0.112f)]
-    [DataRow("Model/Ships/Remnant/ship09e.fbx", 0f)]
+    [DataRow("Model/Ships/Remnant/ship09e.fbx", 0.344f)]
+    [DataRow("Model/Ships/Remnant/XenoFighterGreen/ship09a.fbx", 0.344f)]
+    [DataRow("Model/Ships/Speeder/ship07.fbx", 0f)]
     public void AShipModelTakesTheTintMapNextToItsDiffuseMap(string model, float markedShare)
     {
         StaticMesh mesh = Content.LoadStaticMesh(model);
@@ -151,6 +153,21 @@ public class HullColorTests : StarDriveTest
 
         Assert.AreEqual(new Vector4(pirates.EmpireColor.ToVector3(), 1f), pirates.HullTint, "pirates wear their color");
         Assert.AreEqual(0f, rebels.HullTint.W, "rebels keep their look");
+    }
+
+    // the Remnant hulls mark paint, so only the faction rule keeps the Remnants' own ships in their look
+    [TestMethod]
+    public void TheRemnantsOwnShipsKeepTheirLookWithTheOpponentsBoxOn()
+    {
+        CreateUniverseAndPlayerEmpire("Vulfen", "Cordrazine");
+        CreateAMinorFaction("Remnant");
+        UState.Remnants = Faction;
+        Empire remnants = Faction;
+        remnants.data.HullColors = HullColorParts.Paint; // as a mod's Remnant race could have it
+        Assert.IsTrue(remnants.WeAreRemnants && remnants.IsFaction, "setup: the Remnants are a faction");
+        UState.P.OpponentHullColors = true;
+
+        Assert.AreEqual(0f, remnants.HullTint.W, "the Remnants' own ships keep their look");
     }
 
     [TestMethod]
