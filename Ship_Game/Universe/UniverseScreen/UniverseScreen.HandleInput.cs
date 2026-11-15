@@ -415,12 +415,12 @@ namespace Ship_Game
             // clear the fleet if no ships selected and pressing Ctrl + NumKey[1-9]
             if (SelectedShipList.IsEmpty)
             {
-                selectedFleet?.Reset(fleeIfInCombat: false);
+                selectedFleet?.Reset(fleeIfOutmatched: false);
                 return;
             }
 
             // else: we have selected some ships, delete old fleet
-            selectedFleet?.Reset(fleeIfInCombat: false, clearOrders: false);
+            selectedFleet?.Reset(fleeIfOutmatched: false, clearOrders: false);
 
             // create new fleet
             Fleet fleet = CreateNewFleet(index, SelectedShipList);

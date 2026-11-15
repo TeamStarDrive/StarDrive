@@ -802,7 +802,7 @@ public class FleetFlankTests : StarDriveTest
         AssertTrue(Attack(), "setup: the fleet attacks");
         AssertEqual(1, FlankPlanCount(), "setup: the fleet plans a split");
 
-        AIFleet.Reset(fleeIfInCombat: false);
+        AIFleet.Reset(fleeIfOutmatched: false);
 
         AssertEqual(0, FlankPlanCount(), "a reset fleet keeps no plans");
     }

@@ -2771,7 +2771,7 @@ namespace Ship_Game.Fleets
             }
             else if (!Owner.isPlayer) // no fleet task
             {
-                Reset(fleeIfInCombat: false);
+                Reset(fleeIfOutmatched: false);
             }
         }
 
@@ -2862,12 +2862,19 @@ namespace Ship_Game.Fleets
         /// <summary>
         /// Resets this entire fleet by removing all ships and clearing fleet tasks & goals
         /// </summary>
-        public void Reset(bool fleeIfInCombat, bool clearOrders = true)
+        public void Reset(bool fleeIfOutmatched, bool clearOrders = true)
         {
+            Ship[] fleeing = fleeIfOutmatched ? ShipsFightingWhereOutmatched() : Empty<Ship>.Array; // before clearing orders ends their combat
             if (clearOrders)
                 ClearPatrol();
 
-            RemoveAllShips(clearOrders: clearOrders, fleeIfInCombat);
+            RemoveAllShips(clearOrders: clearOrders);
+            for (int i = 0; i < fleeing.Length; ++i)
+            {
+                if (fleeing[i].Active)
+                    fleeing[i].AI.OrderFlee();
+            }
+
             Owner.AI?.RemoveFleetFromGoals(this);
             TaskStep = 0;
             FleetTask = null;
@@ -2879,15 +2886,70 @@ namespace Ship_Game.Fleets
         /// <summary>
         /// Removes all ships from this fleet, without resetting fleet goals
         /// </summary>
-        public void RemoveAllShips(bool clearOrders, bool fleeIfInCombat)
+        public void RemoveAllShips(bool clearOrders)
         {
             while (Ships.Count > 0)
             {
                 var ship = Ships.PopLast();
                 RemoveShip(ship, clearOrders: clearOrders);
-                if (fleeIfInCombat && ship.Active)
-                    ship.AI.OrderFlee();
             }
+        }
+
+        // the fleet's ships in combat that cannot take their fight, each hostile empire weighed by its own multiplier
+        Ship[] ShipsFightingWhereOutmatched()
+        {
+            var fleeing = new Array<Ship>();
+            var canTakeSystem = new Map<SolarSystem, bool>(); // worked out once per system
+            for (int i = 0; i < Ships.Count; ++i)
+            {
+                Ship ship = Ships[i];
+                if (!ship.Active || !ship.InCombat)
+                    continue;
+
+                bool canTake;
+                if (ship.System is { } system)
+                {
+                    if (!canTakeSystem.TryGetValue(system, out canTake))
+                    {
+                        float hostiles = Owner.Threats.GetWeightedHostileStrengthAt(system.Position, system.Radius);
+                        canTake = CanTakeWeightedFight(Owner, StrengthOfShipsIn(system), hostiles);
+                        canTakeSystem[system] = canTake;
+                    }
+                }
+                else
+                {
+                    float hostiles = Owner.Threats.GetWeightedHostileStrengthAt(ship.Position, AssaultEnemyScanRadius);
+                    canTake = CanTakeWeightedFight(Owner, StrengthOfShipsWithin(ship.Position, AssaultEnemyScanRadius), hostiles);
+                }
+
+                if (!canTake)
+                    fleeing.Add(ship);
+            }
+            return fleeing.ToArray();
+        }
+
+        float StrengthOfShipsIn(SolarSystem system)
+        {
+            float strength = 0f;
+            for (int i = 0; i < Ships.Count; ++i)
+            {
+                Ship ship = Ships[i];
+                if (ship.Active && ship.System == system)
+                    strength += ship.GetStrength();
+            }
+            return strength;
+        }
+
+        float StrengthOfShipsWithin(Vector2 position, float radius)
+        {
+            float strength = 0f;
+            for (int i = 0; i < Ships.Count; ++i)
+            {
+                Ship ship = Ships[i];
+                if (ship.Active && ship.Position.InRadius(position, radius))
+                    strength += ship.GetStrength();
+            }
+            return strength;
         }
 
 
