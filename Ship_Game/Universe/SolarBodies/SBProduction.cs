@@ -603,7 +603,8 @@ namespace Ship_Game.Universe.SolarBodies
                 }
                 else
                 {
-                    if (P.Owner.AutoBuildTerraformers && P.Owner.data.Traits.TerraformingLevel > 0 && !item.IsPlayerAdded)
+                    if (P.Owner.AutoBuildTerraformers && P.Owner.data.Traits.TerraformingLevel > 0 && !item.IsPlayerAdded
+                        && !(P.HasBlueprints && P.Blueprints.OkToBuildTerraformers))
                         DePrioritizeTerraformer();
 
                     if (item.Rush && item.QType == QueueItemType.OrbitalUrgent)
@@ -651,6 +652,20 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueItem item = ConstructionQueue.Find(q => q.Goal == g);
                 item?.SetCanceled();
                 return item != null;
+            }
+        }
+
+        // cancels the goal's queued item but not the goal, which goes on with a ship it found elsewhere
+        public bool CancelWithoutGoal(Goal g)
+        {
+            lock (ConstructionQueue)
+            {
+                QueueItem item = ConstructionQueue.Find(q => q.Goal == g);
+                if (item == null)
+                    return false;
+                item.Goal = null;
+                item.SetCanceled();
+                return true;
             }
         }
 

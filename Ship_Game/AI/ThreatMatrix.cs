@@ -141,6 +141,16 @@ public sealed partial class ThreatMatrix
         return GetStrength(FindHostileClusters(pos, radius));
     }
 
+    /// <summary> Get all strength of all hostiles in a system, each weighted by our fleet strength multiplier against its empire</summary>
+    public float GetWeightedHostileStrengthAt(Vector2 pos, float radius)
+    {
+        ThreatCluster[] clusters = FindHostileClusters(pos, radius);
+        float strength = 0f;
+        for (int i = 0; i < clusters.Length; ++i) // PERF: using for loop instead of lambdas
+            strength += clusters[i].Strength * Owner.GetFleetStrEmpireMultiplier(clusters[i].Loyalty);
+        return strength;
+    }
+
     /// <summary> Get all strength of all hostiles in a system without Research Stations Strength</summary>
     public float GetHostileStrengthNoResearchStationsAt(Vector2 pos, float radius)
     {

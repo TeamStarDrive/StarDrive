@@ -209,6 +209,7 @@ namespace Ship_Game
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
+            VerifySelectedOpponents(); // a reload after a device reset starts from the default race, which may be a chosen opponent
 
 
             var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width, 150);

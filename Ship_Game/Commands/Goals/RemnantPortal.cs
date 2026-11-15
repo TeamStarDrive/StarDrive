@@ -97,7 +97,7 @@ namespace Ship_Game.Commands.Goals
             Vector2 systemPos = Portal.System?.Position 
                                 ?? Owner.Universe.Systems.FindMin(s => s.Position.SqDist(Portal.Position)).Position;
 
-            Vector2 desiredPos = Portal.Position = systemPos + TetherOffset;
+            Vector2 desiredPos = systemPos + TetherOffset;
             if (!Portal.Position.InRadius(desiredPos, 1000))
                 MoveToPos(desiredPos);
         }

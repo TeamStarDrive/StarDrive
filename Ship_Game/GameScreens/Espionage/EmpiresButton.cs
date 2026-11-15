@@ -65,7 +65,7 @@ namespace Ship_Game.GameScreens
                 InfiltrationDefense.Tip = GameText.EspioangeDefenseWeightTip;
                 InfiltrationDefense.OnChange = (s) =>
                 {
-                    Player.SetEspionageDefenseWeight(s.AbsoluteValue.RoundUpTo(1));
+                    Player.SetEspionageDefenseWeight((int)Math.Round(s.AbsoluteValue)); // the weight the slider shows
                     Player.UpdateEspionageDefenseRatio();
                 };
 
@@ -79,8 +79,8 @@ namespace Ship_Game.GameScreens
                     EspionageBudgetMultiplier.Tip = GameText.EspioangeBudgetMuliplierTip;
                     EspionageBudgetMultiplier.OnChange = (s) =>
                     {
-                        Player.UpdateEspionageDefenseRatio();
                         Player.SetEspionageBudgetMultiplier(s.AbsoluteValue.RoundToFractionOf10());
+                        Player.UpdateEspionageDefenseRatio();
                         UpdateCostPerTurn();
                     };
 
@@ -94,7 +94,7 @@ namespace Ship_Game.GameScreens
                 InfiltrationDefense.Tip = GameText.EspioangeInfiltrationWeightTip;
                 InfiltrationDefense.OnChange = (s) =>
                 {
-                    Espionage.SetWeight(s.AbsoluteValue.RoundUpTo(1));
+                    Espionage.SetWeight((int)Math.Round(s.AbsoluteValue)); // the weight the slider shows
                     Player.UpdateEspionageDefenseRatio();
                     if (Empire == InfiltrationScreen.SelectedEmpire)
                         InfiltrationScreen.RefreshInfiltrationLevelStatus(Espionage);

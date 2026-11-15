@@ -101,7 +101,7 @@ public sealed partial class Empire
     void ResetFleets(bool returnShipsToEmpireAI = true)
     {
         foreach (Fleet fleet in Fleets)
-            fleet.Reset(fleeIfInCombat: false, returnShipsToEmpireAI);
+            fleet.Reset(fleeIfOutmatched: false, returnShipsToEmpireAI);
         Fleets.Clear();
     }
 

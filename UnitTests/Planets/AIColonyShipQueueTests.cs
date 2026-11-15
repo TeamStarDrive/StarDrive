@@ -442,4 +442,50 @@ public class AIColonyShipQueueTests : StarDriveTest
         Assert.AreEqual("requisitioned", queue[1].DisplayName, "the requisitioned ship goes right behind it");
         Assert.IsTrue(queue[1].Rush, "with continuous rush");
     }
+
+    // an AI colonization goal waiting for the colony ship it queued, and an idle colony ship of the AI's near its port
+    MarkForColonization GoalWaitingWithAnIdleColonyShipNear(out Planet home, out Ship idle)
+    {
+        CreateUniverseAndPlayerEmpire();
+        UState.Objects.EnableParallelUpdate = false;
+        home = AddHomeWorldToEmpire(new Vector2(200_000), Enemy);
+        IShipDesign colonyShip = ResourceManager.GetShipTemplate("Colony Ship").ShipData;
+        var goal = new MarkForColonization(Enemy) { TargetPlanet = AddTargetInAnEmptySystem(), PlanetBuildingAt = home };
+        Enemy.AI.AddGoal(goal);
+        home.Construction.Enqueue(colonyShip, QueueItemType.ColonyShip, goal);
+        for (int i = 0; i < 3; ++i)
+            goal.AdvanceToNextStep();
+        Assert.AreEqual("EnsureBuildingColonyShip", goal.StepName, "setup: the goal waits for its queued colony ship");
+        idle = SpawnShip("Colony Ship", Enemy, home.Position + new Vector2(5000, 0));
+        RunObjectsSim(TestSimStep);
+        return goal;
+    }
+
+    [TestMethod]
+    public void AColonizationGoalThatTakesAnIdleColonyShipKeepsGoingWhenItsQueuedShipIsCancelled()
+    {
+        MarkForColonization goal = GoalWaitingWithAnIdleColonyShipNear(out Planet home, out Ship idle);
+
+        goal.Evaluate();
+        Assert.AreSame(idle, goal.FinishedShip, "setup: the goal takes the idle colony ship instead");
+        home.Construction.RushProduction(0, 10f);
+
+        Assert.IsTrue(Enemy.AI.HasGoal(g => g == goal), "cancelling its queued colony ship does not remove the goal");
+        Assert.IsTrue(idle.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal order) && order.Goal == goal,
+                      "which still holds the ship it sent to colonize");
+        foreach (QueueItem q in home.Construction.GetConstructionQueue())
+            Assert.AreNotEqual(QueueItemType.ColonyShip, q.QType, "and the colony ship it had queued is gone");
+    }
+
+    [TestMethod]
+    public void AColonizationGoalDoesNotTakeAnIdleColonyShipBeingBoarded()
+    {
+        MarkForColonization goal = GoalWaitingWithAnIdleColonyShipNear(out Planet home, out Ship idle);
+
+        idle.LoyaltyChangeFromBoarding(Player, addNotification: false);
+        goal.Evaluate();
+
+        Assert.IsNull(goal.FinishedShip, "the goal does not take a colony ship changing hands");
+        Assert.AreSame(goal, FindItem(home, goal).Goal, "and keeps the colony ship it queued");
+    }
 }

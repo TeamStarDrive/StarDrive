@@ -189,9 +189,13 @@ namespace Ship_Game
                 ShipModuleType type = m.ModuleType;
                 if (type == ShipModuleType.Shield ||
                     type == ShipModuleType.Countermeasure ||
-                    (type == ShipModuleType.Armor && !m.IsBulkhead && !m.IsPowerArmor))
+                    (type == ShipModuleType.Armor && !m.IsBulkhead && !m.IsPowerArmor && !m.IsRegenArmor))
                 {
                     AddCategoryItem((int)type, type.ToString(), m);
+                }
+                else if (m.IsRegenArmor && type == ShipModuleType.Armor) // before power armor, since regenerating plates draw power
+                {
+                    AddCategoryItem((int)GameText.RegenArmor, Localizer.Token(GameText.RegenArmor), m);
                 }
                 // These need special booleans as they are ModuleType ARMOR - and the armor ModuleType
                 // is needed for vsArmor damage calculations - don't want to use new moduletype therefore.

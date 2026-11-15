@@ -291,7 +291,7 @@ namespace Ship_Game.AI.Tasks
         /// </summary>
         public void DisbandTaskForce()
         {
-            Fleet?.Reset(fleeIfInCombat: !Owner.isPlayer);
+            Fleet?.Reset(fleeIfOutmatched: !Owner.isPlayer);
             TaskForce.Clear();
         }
 
@@ -367,7 +367,7 @@ namespace Ship_Game.AI.Tasks
                     }
                 }
                 TaskForce.Clear();
-                Fleet.Reset(fleeIfInCombat: false);
+                Fleet.Reset(fleeIfOutmatched: false);
 
                 if (Type == TaskType.Exploration)
                 {

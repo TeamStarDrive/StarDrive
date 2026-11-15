@@ -129,7 +129,7 @@ public class ShipPileTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ShipsPiledOnHoldPositionGoBackToTheirSpotsAfterAChase()
+    public void ShipsPiledOnHoldPositionStayOnTheirSpotsWhenTheEnemyMovesOutOfReach()
     {
         TestShip[] pile = PileUp(6, CombatState.HoldPosition, MoveOrder.Regular);
         TestShip enemy = EnemyAt(700f);
@@ -137,26 +137,25 @@ public class ShipPileTests : StarDriveTest
         AssertTrue(Array.TrueForAll(pile, s => s.InCombat), "setup: the ships fight the enemy");
         Vector2[] spots = Array.ConvertAll(pile, s => s.AI.OrderQueue.PeekLast.MovePosition);
 
-        Vector2 outThere = PileAt + new Vector2(0, -12_000f); // beyond the stance's firing distance, so the pile chases it
+        float outOfReach = pile[0].SensorRange * 0.8f;
+        AssertTrue(outOfReach > 7500f && outOfReach > pile[0].DesiredCombatRange, "setup: the enemy moves out of reach but stays in sight");
+        Vector2 outThere = PileAt + new Vector2(0, -outOfReach);
+        enemy.AI.ClearOrders(); // so it does not fly back to the spot it held
         enemy.Position = outThere;
         enemy.AI.OrderHoldPosition(outThere, Vectors.Up, MoveOrder.StandGround | MoveOrder.HoldPosition);
-        float chased = 0f;
+        enemy.AI.IgnoreCombat = true;
+        float strayed = 0f;
         RunObjectsSim(15f, () =>
         {
             Mend(enemy);
             for (int i = 0; i < pile.Length; ++i)
-                chased = Math.Max(chased, pile[i].Position.Distance(spots[i]));
+                strayed = Math.Max(strayed, pile[i].Position.Distance(spots[i]));
         });
-        AssertGreaterThan(chased, 500f, $"setup: the pile chases the enemy{Describe(pile)}");
 
-        enemy.Die(null, cleanupOnly: true);
-        RunObjectsSim(60f);
+        AssertTrue(Array.TrueForAll(pile, s => s.InCombat && s.AI.Target == enemy), $"setup: the ships still fight the enemy out there{Describe(pile)}");
+        AssertLessThan(strayed, 150f, $"the ships hold their spots rather than chase the enemy{Describe(pile)}");
         for (int i = 0; i < pile.Length; ++i)
-        {
-            Vector2 holdAt = pile[i].AI.OrderQueue.PeekLast.MovePosition;
-            AssertLessThan(holdAt.Distance(spots[i]), 150f, $"ship {i} keeps its hold point through the chase{Describe(pile)}");
-            AssertLessThan(pile[i].Position.Distance(holdAt), 100f, $"and goes back to it after the chase{Describe(pile)}");
-        }
+            AssertLessThan(pile[i].AI.OrderQueue.PeekLast.MovePosition.Distance(spots[i]), 150f, $"ship {i} keeps its hold point{Describe(pile)}");
     }
 
     [TestMethod]

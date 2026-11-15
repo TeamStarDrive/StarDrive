@@ -121,6 +121,9 @@ namespace Ship_Game.Ships
             if (pSpecial > 0.10f)
                 return RoleName.support;
 
+            if (Category == ShipCategory.Recon && HullRole != RoleName.drone && !Modules.Any(m => m.InstalledWeapon != null)) // an unarmed design set to Recon scouts on any hull but a drone's
+                return RoleName.scout;
+
             RoleName fixRole = DataRole == RoleName.prototype ? DataRole : HullRole;
             switch (fixRole)
             {

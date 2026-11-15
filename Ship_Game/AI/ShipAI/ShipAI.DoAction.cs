@@ -84,8 +84,10 @@ namespace Ship_Game.AI
                 Owner.Loyalty.IsEmpireAttackable(ship.Loyalty, ship))
                 return true;
 
-            return Owner.Loyalty.isPlayer 
-                   && HasPriorityTarget 
+            return Owner.Loyalty.isPlayer
+                   && HasPriorityTarget
+                   && ship.Active && !ship.Dying
+                   && ship.Loyalty != Owner.Loyalty
                    && ship.InPlayerSensorRange
                    && !Owner.Loyalty.IsAlliedWith(ship.Loyalty);
         }
@@ -97,6 +99,12 @@ namespace Ship_Game.AI
             
             if (State == AIState.Pursue)
                 DequeueCurrentOrder();
+
+            if (HasPriorityTarget && HandOverPriorityTarget())
+            {
+                PlanFlankForNewTarget();
+                return Target;
+            }
 
             Target = PotentialTargets.Find(t => IsTargetValid(t)
                                                 && t.Position.InRadius(Owner.Position, Owner.SensorRange)
@@ -129,14 +137,16 @@ namespace Ship_Game.AI
                 CombatState = CombatState.Evade;
 
             float distanceToTarget = target.Position.Distance(Owner.Position);
+            bool movesToTarget = CombatState != CombatState.HoldPosition || HasPriorityTarget; // on Hold Position only a target the player picked draws the ship out
+            bool priorityMove = HasPriorityOrder && movesToTarget;
 
-            // if ship has priority order, then move towards that order, EVEN when in combat
-            if (HasPriorityOrder)
+            // a priority order moves the ship to its target even in combat
+            if (priorityMove)
             {
                 MoveToEngageTarget(target, timeStep);
             }
             // if we're outside of 7500 and also of desired combat range (which can be huge for carriers) then move towards target
-            else if (distanceToTarget > 7500f && distanceToTarget > Owner.DesiredCombatRange)
+            else if (movesToTarget && distanceToTarget > 7500f && distanceToTarget > Owner.DesiredCombatRange)
             {
                 MoveToEngageTarget(target, timeStep);
             }
@@ -151,35 +161,6 @@ namespace Ship_Game.AI
                     (distanceToTarget < 7500f || distanceToTarget < Owner.DesiredCombatRange * 1.1f))
                 {
                     Owner.HyperspaceReturn();
-                }
-
-                if (FleetNode != null && Owner.Fleet != null && HasPriorityOrder)
-                {
-                    // TODO: need to move this into fleet.
-                    if (Owner.Fleet.FleetTask == null)
-                    {
-                        Vector2 nodePos = Owner.Fleet.AveragePosition() + FleetNode.RelativeFleetOffset;
-                        if (target.Position.OutsideRadius(nodePos, FleetNode.OrdersRadius))
-                        {
-                            if (Owner.Position.OutsideRadius(nodePos, 1000f))
-                            {
-                                ThrustOrWarpToPos(nodePos, timeStep);
-                            }
-                            else
-                            {
-                                DoHoldPositionCombat(timeStep);
-                            }
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var task = Owner.Fleet.FleetTask;
-                        if (target.Position.OutsideRadius(task.AO, Math.Max(task.AORadius, FleetNode.OrdersRadius)))
-                        {
-                            DequeueCurrentOrder();
-                        }
-                    }
                 }
 
                 if (Intercepting && CombatRangeType == StanceType.RangedCombatMovement)
@@ -334,7 +315,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (goal is RefitOrbital && (goal.OldShip?.Active == false || goal.OldShip?.Dismantling == true))
+            if (RefitOrbitalCalledOff(goal))
             {
                 OrderScrapShip();
                 return;
@@ -412,7 +393,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (goal is RefitOrbital && (goal.OldShip?.Active == false || goal.OldShip?.Dismantling == true))
+            if (RefitOrbitalCalledOff(goal))
             {
                 OrderScrapShip();
                 return;
@@ -450,6 +431,11 @@ namespace Ship_Game.AI
                 UpdateMiningOpsGoal(orbital, target, goal.OldShip);
             }
         }
+
+        // the orbital to refit is gone, coming apart, or changed or changing hands
+        bool RefitOrbitalCalledOff(Goal goal)
+            => goal is RefitOrbital && goal.OldShip is { } old
+               && (!old.Active || old.Dismantling || old.Loyalty != Owner.Loyalty || old.LoyaltyTracker.ChangesFrom(Owner.Loyalty));
 
         void UpdateResearchStationGoal(Ship orbital, ExplorableGameObject target, Ship oldShipToRefit)
         {
@@ -597,20 +583,6 @@ namespace Ship_Game.AI
             }
 
             ThrustOrWarpToPos(ExploreThrustTarget(system, MovePosition), timeStep);
-        }
-
-        void DoHoldPositionCombat(FixedSimTime timeStep)
-        {
-            if (Owner.CurrentVelocity > 0f)
-            {
-                ReverseThrustUntilStopped(timeStep);
-                Vector2 interceptPoint = Owner.PredictAim(Target);
-                RotateTowardsPosition(interceptPoint, timeStep, 0.2f);
-            }
-            else
-            {
-                RotateTowardsPosition(Target.Position, timeStep, 0.2f);
-            }
         }
 
         void DoRebase(FixedSimTime timeStep, ShipGoal goal)

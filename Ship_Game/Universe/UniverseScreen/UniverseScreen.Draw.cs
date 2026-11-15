@@ -707,7 +707,7 @@ namespace Ship_Game
 
                     foreach (Ship ship in UState.Objects.VisibleShips)
                     {
-                        if (ship is { InhibitionRadius: > 0f, IsVisibleToPlayer: true })
+                        if (ship is { InhibitionRadius: > 0f, IsVisibleToPlayer: true, Dying: false })
                         {
                             DrawCircleProjected(ship.Position, ship.InhibitionRadius,
                                                 new Color(255, 50, 0, 150).Premultiplied(), 1f, inhibit, new Color(200, 0, 0, 40).Premultiplied());
@@ -1138,17 +1138,19 @@ namespace Ship_Game
                 }
             }
             if (!ship.AI.HasPriorityOrder &&
-                (ship.AI.State == AIState.AttackTarget || ship.AI.State == AIState.Combat) && ship.AI.Target is Ship)
+                (ship.AI.State == AIState.AttackTarget || ship.AI.State == AIState.Combat) && ship.AI.Target is Ship aiTarget)
             {
-                DrawLineProjected(ship.Position, ship.AI.Target.Position, Colors.Attack(alpha));
+                DrawLineProjected(ship.Position, aiTarget.Position, Colors.Attack(alpha));
                 if (ship.AI.TargetQueue.Count > 1)
                 {
-                    for (int i = 0; i < ship.AI.TargetQueue.Count - 1; ++i)
+                    Ship[] queue = ship.AI.TargetQueue.ToArray(); // the sim thread may change the queue while we draw
+                    for (int i = 0; i < queue.Length - 1; ++i)
                     {
-                        var target = ship.AI.TargetQueue[i];
-                        if (target == null || !target.Active)
+                        Ship target = queue[i];
+                        Ship next = queue[i + 1];
+                        if (target is not { Active: true } || next is not { Active: true })
                             continue;
-                        DrawLineProjected(target.Position, ship.AI.TargetQueue[i].Position,
+                        DrawLineProjected(target.Position, next.Position,
                             Colors.Attack((byte) (alpha * .5f)));
                     }
                 }

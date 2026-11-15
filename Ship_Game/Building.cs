@@ -561,7 +561,11 @@ namespace Ship_Game
                 text += $"{BuildShortDescString(Infrastructure, GameText.Infrastructure, ref comma)}";
 
             if (ShipRepair.NotZero())
-                text += $"{BuildShortDescString(ActualShipRepair(p), GameText.ShipRepair, ref comma)}";
+            {
+                text += p?.Owner == null
+                    ? $"{BuildShortDescString(ActualShipRepair(planetLevel: 1), GameText.ShipRepair, ref comma, timesStat: GameText.ColonyLevel)}"
+                    : $"{BuildShortDescString(ActualShipRepair(p), GameText.ShipRepair, ref comma)}";
+            }
 
             if (StorageAdded != 0)
                 text += $"{BuildShortDescString(StorageAdded, GameText.MaxStorage, ref comma)}";

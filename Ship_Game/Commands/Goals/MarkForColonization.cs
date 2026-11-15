@@ -21,6 +21,14 @@ namespace Ship_Game.Commands.Goals
 
         public override bool IsColonizationGoal(Planet planet) => TargetPlanet == planet;
 
+        public Ship OurColonyShip => FinishedShip is { } ship && StillOurs(ship) ? ship : null;
+
+        protected override GoalStep? PreEvaluate()
+        {
+            DropFinishedShipNoLongerOurs();
+            return null;
+        }
+
         [StarDataConstructor]
         public MarkForColonization(Empire owner) : base(GoalType.MarkForColonization, owner)
         {
@@ -107,12 +115,12 @@ namespace Ship_Game.Commands.Goals
         public bool CanSwitchTarget => !IsManualColonizationOrder
                                        && TargetPlanet.Owner != Owner
                                        && Task?.Fleet == null
-                                       && FinishedShip is not { IsLanding: true }
-                                       && FinishedShip?.System != TargetPlanet.System;
+                                       && (OurColonyShip is not { } ship || !ship.IsLanding && ship.System != TargetPlanet.System);
 
         // moves this goal to a safe planet: the old target's claim and guard fleets are called off and the colony ship is re-routed
         public void SwitchTargetPlanet(Planet planet)
         {
+            DropFinishedShipNoLongerOurs();
             Task?.EndTask();
             Owner.AI.EndGuardBeforeColonizeTasks(TargetPlanet);
             TargetPlanet = planet;
@@ -276,7 +284,8 @@ namespace Ship_Game.Commands.Goals
                 FinishedShip = FindIdleColonyShip();
                 if (FinishedShip != null)
                 {
-                    PlanetBuildingAt?.Construction.Cancel(this);
+                    PlanetBuildingAt?.Construction.CancelWithoutGoal(this);
+                    PlanetBuildingAt = null;
                     FinishedShip.OrderColonization(TargetPlanet, this);
                     ChangeToStep(WaitForColonizationComplete);
                     return GoalStep.TryAgain;
@@ -390,12 +399,12 @@ namespace Ship_Game.Commands.Goals
 
         void ReleaseShipFromGoal()
         {
-            if (FinishedShip is { IsLanding: false })
+            if (OurColonyShip is { IsLanding: false } ship)
             {
-                FinishedShip.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders);
-                var nearestRallyPoint = Owner.FindNearestRallyPoint(FinishedShip.Position);
+                ship.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders);
+                var nearestRallyPoint = Owner.FindNearestRallyPoint(ship.Position);
                 if (nearestRallyPoint != null)
-                    FinishedShip.AI.OrderOrbitPlanet(nearestRallyPoint, clearOrders: true);
+                    ship.AI.OrderOrbitPlanet(nearestRallyPoint, clearOrders: true);
             }
         }
 
@@ -425,7 +434,7 @@ namespace Ship_Game.Commands.Goals
             foreach (Ship ship in Owner.OwnedShips)
             {
                 if (ship.ShipData.IsColonyShip && !ship.DoingRefit && !ship.IsLanding
-                    && ship.AI != null && ship.Active && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
+                    && ship.AI != null && ship.Active && StillOurs(ship) && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
                     && NotAssignedToColonizationGoal(ship))
                 {
                     return ship;
@@ -451,8 +460,9 @@ namespace Ship_Game.Commands.Goals
 
         bool ClaimTaskInvalid()
         {
-            return Task?.Fleet != null && LifeTime > 7 // Timeout
-                || Task?.Fleet?.TaskStep < 6; // fleet is not engaging combat or not in target system anymore
+            return Task?.Fleet is { } fleet
+                   && (LifeTime > 7 // Timeout
+                       || fleet.TaskStep < 4 && !fleet.IsInSystem(TargetPlanet.System)); // not sent in and not there
         }
 
         void TryRushColonyShip(int queueIndex)

@@ -383,6 +383,63 @@ public class TroopLandingTests : StarDriveTest
         Assert.IsTrue(shuttle.LandShip.OnSpacePort, "a shuttle with no carrier rebasing to our colony lands on its space port");
     }
 
+    // troops of ours stand on every tile of the planet free to us but the given number
+    void LeaveFreeTiles(Planet planet, int free)
+    {
+        foreach (PlanetGridSquare tile in planet.TilesList)
+            if (planet.GetFreeTiles(Player) > free && tile.IsTileFree(Player))
+                Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", Player).TryLandTroop(planet, tile), "setup: a troop of ours takes the tile");
+        AssertEqual(free, planet.GetFreeTiles(Player), "setup: free tiles left for our troops");
+    }
+
+    int TroopShuttlesOut() => Carrier.Carrier.AllTroopBays.Count(b => b.TryGetHangarShipActive(out _));
+
+    void CarrierReadyToLaunch()
+    {
+        AssertGreaterThan(Carrier.TroopCount, 1, "setup: the carrier carries several troops");
+        AssertGreaterThan(Carrier.Carrier.AllActiveTroopBays.Length, 1, "setup: and has several troop bays");
+        AssertEqual(0, TroopShuttlesOut(), "setup: none of its shuttles is out");
+    }
+
+    [TestMethod]
+    public void ACarrierLaunchesTroopShuttlesOnlyForTheFreeTiles()
+    {
+        CarrierReadyToLaunch();
+        LeaveFreeTiles(EnemyPlanet, 1);
+
+        Carrier.Carrier.AssaultPlanet(EnemyPlanet);
+        AssertEqual(1, TroopShuttlesOut(), "one shuttle goes for the one free tile, the rest stay in their bays");
+        Carrier.Carrier.AssaultPlanet(EnemyPlanet);
+        AssertEqual(1, TroopShuttlesOut(), "and no other follows while it is on its way to that tile");
+    }
+
+    int TroopShuttlesSentTo(Planet planet) => Carrier.Carrier.AllTroopBays.Count(b => b.TryGetHangarShipActive(out Ship s)
+        && s.AI.FindGoal(ShipAI.Plan.LandTroop, out ShipAI.ShipGoal goal) && goal.TargetPlanet == planet);
+
+    [TestMethod]
+    public void WithTroopsOutOnlyAsManyShuttlesAsThereAreFreeTilesGoToLand()
+    {
+        CarrierReadyToLaunch();
+        LeaveFreeTiles(EnemyPlanet, 1);
+        Carrier.Carrier.TroopsOut = true;
+        AssertGreaterThan(TroopShuttlesOut(), 1, "setup: troops out launches every shuttle");
+
+        Carrier.Carrier.AssaultPlanet(EnemyPlanet);
+
+        AssertEqual(1, TroopShuttlesSentTo(EnemyPlanet), "one goes for the one free tile, the rest stay out with the carrier");
+    }
+
+    [TestMethod]
+    public void ACarrierKeepsItsTroopShuttlesWhileNoTileIsFree()
+    {
+        CarrierReadyToLaunch();
+        LeaveFreeTiles(EnemyPlanet, 0);
+
+        Carrier.Carrier.AssaultPlanet(EnemyPlanet);
+
+        AssertEqual(0, TroopShuttlesOut(), "no shuttle flies into the planet's fire with nowhere to land");
+    }
+
     [TestMethod]
     public void AnAssaultShuttleWhoseTroopCannotLandClimbsBackOutWithIt()
     {

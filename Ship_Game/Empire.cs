@@ -2242,12 +2242,12 @@ namespace Ship_Game
                 if (hullTech.Unlocked)
                 {
                     string message = $"{hullString}{Localizer.Token(GameText.ReverseEngineered)}";
-                    Universe.Notifications.AddScrapUnlockNotification(message, modelIcon);
+                    Universe.Notifications?.AddScrapUnlockNotification(message, modelIcon);
                 }
                 else
                 {
                     string message = $"{hullString}{Localizer.Token(GameText.HullScrappedAdvancingResearch)}";
-                    Universe.Notifications.AddScrapProgressNotification(message, modelIcon, hullTech.UID);
+                    Universe.Notifications?.AddScrapProgressNotification(message, modelIcon, hullTech.UID);
                 }
             }
         }
@@ -2598,7 +2598,7 @@ namespace Ship_Game
                 for (int i = 0; i < ships.Count; i++)
                 {
                     Ship ship = ships[i];
-                    if (ship.IsIdleScout())
+                    if (ship.IsIdleScout() && ship.DesignRole == RoleName.scout && ship.ShipData.HullRole is RoleName.scout or RoleName.fighter) // a big Recon ship or an armed pick stays
                         ship.AI.OrderScrapShip();
                 }
 

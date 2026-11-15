@@ -215,7 +215,8 @@ namespace Ship_Game.Ships
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {
                         Ship ship = e.Inhibitors[i];
-                        if (ship != null && !(mobileOnly && ship.IsPlatformOrStation) && Position.InRadius(ship.Position, ship.InhibitionRadius))
+                        if (ship is { Active: true, Dying: false } && ship.Loyalty == e && !(mobileOnly && ship.IsPlatformOrStation)
+                            && Position.InRadius(ship.Position, ship.InhibitionRadius))
                             return true;
                     }
                 }

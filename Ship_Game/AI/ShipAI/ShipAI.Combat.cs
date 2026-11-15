@@ -184,6 +184,7 @@ namespace Ship_Game.AI
             var findEnemies = new SearchOptions(sensorShip.Position, sensorRadius, GameObjectType.Ship)
             {
                 MaxResults = 512,
+                SortByDistance = true, // nearest cells first, so the cap below keeps the closest enemies
                 Exclude = sensorShip,
                 ExcludeLoyalty = us,
             };
@@ -217,7 +218,9 @@ namespace Ship_Game.AI
                 }
             }
 
-            PotentialTargets = ScannedTargets.ToArray();
+            Ship[] targets = ScannedTargets.ToArray();
+            targets.SortByDistance(Owner.Position); // nearest to this ship first: a weapon tracks only the first few
+            PotentialTargets = targets;
             ScannedTargets.Clear();
         }
 
@@ -340,16 +343,7 @@ namespace Ship_Game.AI
         Ship SelectCombatTarget(float radius)
         {
             if (HasPriorityTarget && Target == null)
-            {
-                HasPriorityTarget = false;
-
-                // if we still have items in the priority target queue, just pop them
-                if (TargetQueue.TryPopFirst(out Ship firstPriority))
-                {
-                    HasPriorityTarget = true;
-                    return firstPriority;
-                }
-            }
+                HandOverPriorityTarget();
 
             // TODO: Ships without PD should Evade the planet
             // TODO: Ships with Bombs or PD should Orbit the planet
@@ -365,13 +359,14 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (Target != null)
+            if (Target is { } current)
             {
-                if (Target.Loyalty == Owner.Loyalty)
+                if (current.Loyalty == Owner.Loyalty)
                 {
-                    HasPriorityTarget = false;
+                    if (HasPriorityTarget)
+                        HandOverPriorityTarget();
                 }
-                else if (!Intercepting && Target.IsInWarp)
+                else if (!Intercepting && current.IsInWarp)
                 {
                     Target = null;
                     if (!HasPriorityOrder && !Owner.Loyalty.isPlayer)
@@ -385,16 +380,15 @@ namespace Ship_Game.AI
                 return Target;
 
             // check target validity
-            bool isTargetActive = IsTargetActive(Target);
-            if (!isTargetActive)
+            if (!IsTargetActive(Target) && !(HasPriorityTarget && HandOverPriorityTarget()))
             {
                 Target = null;
                 HasPriorityTarget = false;
             }
-            else if (HasPriorityTarget && Target != null)
+            else if (HasPriorityTarget && Target is { } target)
             {
-                BadGuysNear |= Owner.Loyalty.IsEmpireAttackable(Target.Loyalty, Target);
-                return Target;
+                BadGuysNear |= Owner.Loyalty.IsEmpireAttackable(target.Loyalty, target);
+                return target;
             }
 
             return GetHighestPriorityTarget(); // This is the alternative logic
@@ -403,6 +397,29 @@ namespace Ship_Game.AI
         static bool IsTargetActive(Ship target)
         {
             return target != null && target.Active && !target.Dying;
+        }
+
+        // the target given to the ship is gone: the next live one queued takes its place, else the ship picks its own
+        bool HandOverPriorityTarget()
+        {
+            Ship[] queue = TargetQueue.ToArray(); // a player's order may change the queue from the UI thread
+            Empire us = Owner.Loyalty;
+            for (int i = 0; i < queue.Length; ++i)
+            {
+                Ship queued = queue[i];
+                if (queued != Target && IsTargetActive(queued) && IsTargetValid(queued)
+                    && (us.IsAtWarWith(queued.Loyalty) || us.IsEmpireAttackable(queued.Loyalty, queued)))
+                {
+                    Target = queued;
+                    Intercepting = true;
+                    return true;
+                }
+            }
+
+            HasPriorityTarget = false;
+            Intercepting = false;
+            TargetQueue.Clear();
+            return false;
         }
 
         Fleet.FleetFocus FocusClump;
@@ -771,12 +788,13 @@ namespace Ship_Game.AI
             if (!canAttack)
                 return false;
 
-            // always enter combat if we're in Aggressive Stance, even if ship is in warp
-            if (order.IsSet(MoveOrder.Aggressive))
+            // always enter combat if we're in Aggressive Stance, even if ship is in warp, unless it is a player's ship on Hold Position
+            bool playerHolds = Owner.Loyalty.isPlayer && CombatState == CombatState.HoldPosition;
+            if (order.IsSet(MoveOrder.Aggressive) && !playerHolds)
                 return true; // waaaagh!
 
-            // in regular move stance, respect CombatState settings
-            if (order == 0 || order.IsSet(MoveOrder.Regular))
+            // in regular move stance, or a player's attack move on Hold Position, respect CombatState settings
+            if (order == 0 || order.IsSet(MoveOrder.Regular) || order.IsSet(MoveOrder.Aggressive))
             {
                 // regular move stance never exits warp
                 if (Owner.IsInWarp)
@@ -932,10 +950,10 @@ namespace Ship_Game.AI
                 return 0;
             }
 
-            if (Owner.IsHangarShip)
+            if (Owner.Mothership is { } mothership) // read once: the sim thread clears it when the carrier dies
             {
                 // get the motherships sensor status.
-                float motherRange = Owner.Mothership.AI.GetSensorRadius(out sensorShip);
+                float motherRange = mothership.AI.GetSensorRadius(out sensorShip);
 
                 // in radius of the motherships sensors then use that.
                 if (Owner.Position.InRadius(sensorShip.Position, motherRange - Owner.SensorRange))

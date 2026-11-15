@@ -212,35 +212,15 @@ namespace Ship_Game
 
             // Concat ship class restrictions
             string shipRest = "";
-            bool specialString = false;
             bool destroyers = GlobalStats.Defaults.UseDestroyers;
-
-            if (destroyers)
+            bool allHulls = mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule
+                            && (mod.DestroyerModule || !destroyers) && mod.CruiserModule && mod.BattleshipModule
+                            && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule;
+            if (allHulls)
             {
-                if (mod.DroneModule && mod.FighterModule && mod.CorvetteModule 
-                    && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule 
-                    && mod.BattleshipModule && mod.BattleshipModule && mod.PlatformModule 
-                    && mod.StationModule && mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                    specialString = true;
-                }
+                shipRest = "All Hulls";
             }
-
-            if (!destroyers)
-            {
-                if (mod.FighterModule && mod.CorvetteModule && mod.FrigateModule 
-                    && mod.CruiserModule && mod.CruiserModule && mod.CapitalModule 
-                    && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                }
-            }
-
-            if (!specialString && !mod.DroneModule || (!mod.DestroyerModule && destroyers) 
-                     || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule 
-                     || !mod.CruiserModule || !mod.BattleshipModule  || !mod.CapitalModule 
-                     || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
+            else
             {
                  if (mod.DroneModule)                         shipRest += "Dr ";
                  if (mod.FighterModule)                       shipRest += "Fi ";
@@ -551,7 +531,7 @@ namespace Ship_Game
                 int projectiles = w.ProjectileCount > 0 ? w.ProjectileCount : 1;
                 DrawStat(ref cursor, "DPS", WeaponTemplate.DamagePerSecondWithTechs(w, Player.data), GameText.IndicatesTheMaximumDamagePer);
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, GameText.ThisWeaponsFireASalvo);
-                if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, GameText.ThisWeaponFiresMoreThan);
+                if (projectiles > 1) DrawStat(ref cursor, GameText.Projectiles, projectiles, GameText.ThisWeaponFiresMoreThan);
             }
 
             if (w.FireImprecisionAngle > 0)

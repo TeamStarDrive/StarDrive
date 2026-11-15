@@ -433,7 +433,7 @@ namespace Ship_Game.AI
             Goal goal = FindGoal(g => g.IsColonizationGoal(p));
             if (goal != null)
             {
-                goal.FinishedShip?.AI.OrderOrbitNearest(true);
+                (goal as MarkForColonization)?.OurColonyShip?.AI.OrderOrbitNearest(true);
                 goal.PlanetBuildingAt?.Construction.Cancel(goal);
                 RemoveGoal(goal);
             }

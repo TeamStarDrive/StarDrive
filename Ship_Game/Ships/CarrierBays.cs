@@ -321,7 +321,7 @@ namespace Ship_Game.Ships
 
         public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
 
-        public bool ScrambleAssaultShips(float strengthNeeded)
+        public bool ScrambleAssaultShips(float strengthNeeded, int maxShuttles = int.MaxValue)
         {
             if (Owner == null || !Owner.HasOurTroops)
                 return false;
@@ -335,7 +335,7 @@ namespace Ship_Game.Ships
             {
                 if (hangar.HangarTimer <= 0 && Owner.HasOurTroops)
                 {
-                    if (limitAssaultSize && strengthNeeded < 0)
+                    if ((limitAssaultSize && strengthNeeded < 0) || maxShuttles <= 0)
                         break;
 
                     if (Owner.GetOurFirstTroop(out Troop troop) &&
@@ -343,11 +343,35 @@ namespace Ship_Game.Ships
                     {
                         sentAssault = true;
                         strengthNeeded -= troop.Strength;
+                        --maxShuttles;
                     }
                 }
             }
 
             return sentAssault;
+        }
+
+        // a shuttle of ours bringing troops to the planet, on the way or landing
+        static bool BoundFor(Ship shuttle, Planet planet)
+        {
+            return shuttle.IsLanding ? shuttle.LandShip is { DropsTroops: true } land && land.Planet == planet
+                                     : shuttle.AI.FindGoal(ShipAI.Plan.LandTroop, out ShipAI.ShipGoal goal) && goal.TargetPlanet == planet;
+        }
+
+        // out of their bays with troops: those bound for the planet, and idle ones that could be sent
+        void CountTroopShuttlesOut(Planet planet, out int bound, out int idle)
+        {
+            bound = idle = 0;
+            ShipModule[] bays = AllTroopBays;
+            for (int i = 0; i < bays.Length; ++i)
+            {
+                if (!bays[i].TryGetHangarShipActive(out Ship shuttle) || !shuttle.HasOurTroops)
+                    continue;
+                if (BoundFor(shuttle, planet))
+                    ++bound;
+                else if (!shuttle.AI.HasPriorityOrder)
+                    ++idle;
+            }
         }
 
         public void ResetAllHangarTimers()
@@ -475,13 +499,23 @@ namespace Ship_Game.Ships
             if (HasAssaultTransporters)
                 AssaultPlanetWithTransporters(planet);
 
-            ScrambleAllAssaultShips();
+            CountTroopShuttlesOut(planet, out int bound, out int idle);
+            int freeTiles = planet.GetFreeTiles(Owner.Loyalty) - bound;
+            if (freeTiles > idle)
+                ScrambleAssaultShips(0, maxShuttles: freeTiles - idle);
+
             foreach (ShipModule bay in AllTroopBays)
             {
                 if (bay.TryGetHangarShipActive(out Ship hangarShip)
                     && !hangarShip.AI.HasPriorityOrder
                     && hangarShip.HasOurTroops)
                 {
+                    if (!BoundFor(hangarShip, planet))
+                    {
+                        if (freeTiles <= 0)
+                            continue; // stays out with its carrier until a tile opens
+                        --freeTiles;
+                    }
                     hangarShip.AI.OrderLandAllTroops(planet, clearOrders:true);
                     hangarShip.Rotation = Owner.Position.DirectionToTarget(planet.Position).ToRadians();
                 }

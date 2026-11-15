@@ -246,6 +246,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep AddShipDataAndFleet()
         {
+            DropFinishedShipNoLongerOurs();
             if (FinishedShip == null)
             {
                 RemoveGoalFromFleet();

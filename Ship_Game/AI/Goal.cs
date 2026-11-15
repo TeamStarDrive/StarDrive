@@ -125,6 +125,16 @@ namespace Ship_Game.AI
             }
             set => ShipBuilt = value;
         }
+
+        // a ship boarded or changing hands is no longer the goal's to order
+        protected bool StillOurs(Ship ship) => ship.Loyalty == Owner && !ship.LoyaltyTracker.ChangesFrom(Owner);
+
+        // a finished ship that changed hands is lost to the goal, as one destroyed is
+        protected void DropFinishedShipNoLongerOurs()
+        {
+            if (FinishedShip is { } ship && !StillOurs(ship))
+                FinishedShip = null;
+        }
         
         /////////////////////////////////////////////////////
         /// --- Virtual accessors for filtering Goals --- ///

@@ -126,6 +126,48 @@ namespace UnitTests.Planets
                 "the one researched building of the plan is not up yet, so terraformers wait");
         }
 
+        // the governor queues a terraformer and then a plan building, as the player's governor does (not player added)
+        bool TerraformerStaysAheadOfAPlanBuildingQueuedAfterIt()
+        {
+            Player.AutoBuildTerraformers = true;
+            Player.data.Traits.TerraformingLevel = 2;
+            Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
+            Assert.IsTrue(P.Construction.Enqueue(terraformer), "setup: the governor queues a terraformer");
+            Building planned = Plannable.First(b => !P.BuildingBuiltOrQueued(b));
+            Assert.IsTrue(P.Construction.Enqueue(planned), "setup: the governor queues a plan building");
+
+            int terraformerAt = -1, plannedAt = -1;
+            for (int i = 0; i < P.ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = P.ConstructionQueue[i];
+                if (q.isBuilding && q.Building.IsTerraformer) terraformerAt = i;
+                else if (q.isBuilding && q.Building.Name == planned.Name) plannedAt = i;
+            }
+            Assert.IsTrue(terraformerAt >= 0 && plannedAt >= 0, "setup: both are queued");
+            return terraformerAt < plannedAt;
+        }
+
+        [TestMethod]
+        public void OnceThePlanLetsTerraformersInTheGovernorQueuesItsPlanBehindTheTerraformer()
+        {
+            int size = BigPlanSize;
+            PlanBuildings(size);
+            BuildFirst(size / 2 + 1);
+            Assert.IsTrue(P.Blueprints.OkToBuildTerraformers, "setup: the plan lets terraformers in");
+
+            Assert.IsTrue(TerraformerStaysAheadOfAPlanBuildingQueuedAfterIt(),
+                "the terraformer keeps its place, so the plan does not take every free tile before it is built");
+        }
+
+        [TestMethod]
+        public void WhileThePlanHoldsTerraformersBackTheGovernorPutsItsPlanFirst()
+        {
+            PlanBuildings(BigPlanSize);
+            Assert.IsFalse(P.Blueprints.OkToBuildTerraformers, "setup: the plan holds terraformers back");
+
+            Assert.IsFalse(TerraformerStaysAheadOfAPlanBuildingQueuedAfterIt(), "the plan's buildings go ahead of a terraformer");
+        }
+
         [TestMethod]
         public void AnUnreachablePlanNeverBlocksTerraformers()
         {
