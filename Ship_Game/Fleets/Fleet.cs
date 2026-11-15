@@ -1353,7 +1353,11 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    if (ShouldGatherAtRallyFirst(task))
+                    if (IsInSystem(task.TargetPlanet.System))
+                    {
+                        TaskStep = 4; // formed in the target system: straight to the planet, no gathering at the system's edge
+                    }
+                    else if (ShouldGatherAtRallyFirst(task))
                     {
                         FleetTaskGatherAtRally(task);
                         TaskStep = 1;
@@ -1657,6 +1661,8 @@ namespace Ship_Game.Fleets
                 return false;
             }
         }
+
+        public bool IsInSystem(SolarSystem system) => AveragePosition().InRadius(system.Position, system.Radius);
 
         bool TryCalcEtaToPlanet(MilitaryTask task, out float starDateEta)
         {
