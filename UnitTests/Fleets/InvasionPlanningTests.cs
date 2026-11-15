@@ -358,6 +358,204 @@ public class InvasionPlanningTests : StarDriveTest
         Assert.IsFalse(invadingElsewhere, "control: shuttles flying to another planet are no wave on this one");
     }
 
+    const string TroopCarrier = "Neutron Troopship Mk2";
+
+    // a troop carrier of the player near the planet, a troop aboard for each of its bays, each bay ready to launch
+    Ship TroopCarrierNear(Planet planet)
+    {
+        Ship carrier = SpawnShip(TroopCarrier, Player, planet.Position + new Vector2(planet.Radius + 3000f, 0f));
+        carrier.KillAllTroops();
+        foreach (ShipModule bay in carrier.Carrier.AllTroopBays)
+        {
+            bay.HangarTimer = 0f;
+            ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(carrier);
+        }
+        AssertGreaterThan(carrier.TroopCount, 1, "setup: the carrier carries several troops");
+        return carrier;
+    }
+
+    Ship TroopShipNear(Planet planet)
+    {
+        Ship troopShip = SpawnShip(Player.data.DefaultTroopShip, Player, planet.Position + new Vector2(planet.Radius + 6000f, 0f));
+        ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(troopShip);
+        return troopShip;
+    }
+
+    // troops of ours stand on every tile of the planet free to us but the given number
+    void LeaveFreeTiles(Planet planet, int free)
+    {
+        foreach (PlanetGridSquare tile in planet.TilesList)
+            if (planet.GetFreeTiles(Player) > free && tile.IsTileFree(Player))
+                Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", Player).TryLandTroop(planet, tile), "setup: a troop of ours takes the tile");
+        AssertEqual(free, planet.GetFreeTiles(Player), "setup: free tiles left for our troops");
+    }
+
+    (Fleet Fleet, MilitaryTask Task, Planet Target) InvasionOfAnEnemyHomeworld()
+    {
+        LoadStarterShips(TroopCarrier, Player.data.DefaultTroopShip, Player.data.DefaultAssaultShuttle);
+        Player.GetRelations(Enemy).TurnsAtWar = 5;
+        Planet target = AddHomeWorldToEmpire(new Vector2(400_000), Enemy);
+        var task = new MilitaryTask(target, Player, MilitaryTaskImportance.Normal);
+        return (new Fleet(UState, Player) { FleetTask = task }, task, target);
+    }
+
+    [TestMethod]
+    public void TheTroopsACarrierStillCarriesHoldTheirTilesFromOtherTroopShips()
+    {
+        (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
+        Ship carrier = TroopCarrierNear(target);
+        Ship troopShip = TroopShipNear(target);
+        fleet.AddShip(carrier);
+        fleet.AddShip(troopShip);
+        Assert.IsTrue(carrier.AI.OrderLandAllTroops(target, clearOrders: true) && carrier.AI.State == AIState.AssaultPlanet,
+                      "setup: the carrier is landing its troops");
+        LeaveFreeTiles(target, carrier.TroopCount);
+
+        CallFleet(fleet, "OrderShipsToInvade", new[] { troopShip, carrier }, task, false);
+
+        Assert.AreNotEqual(AIState.AssaultPlanet, troopShip.AI.State, "the troops still aboard the carrier hold every free tile, so no troop ship is sent for them");
+    }
+
+    [TestMethod]
+    public void ACarrierIsSentToLandAheadOfATroopShip()
+    {
+        (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
+        Ship carrier = TroopCarrierNear(target);
+        Ship troopShip = TroopShipNear(target);
+        fleet.AddShip(troopShip);
+        fleet.AddShip(carrier);
+        LeaveFreeTiles(target, 1);
+
+        CallFleet(fleet, "OrderShipsToInvade", new[] { troopShip, carrier }, task, false);
+
+        Assert.AreEqual(AIState.AssaultPlanet, carrier.AI.State, "the carrier goes in first, as its shuttles land faster");
+        Assert.AreNotEqual(AIState.AssaultPlanet, troopShip.AI.State, "and no troop ship is sent for the same tile");
+    }
+
+    [TestMethod]
+    public void ACarrierTakesAsManyFreeTilesAsItCarriesTroops()
+    {
+        (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
+        Ship carrier = TroopCarrierNear(target);
+        Ship troopShip = TroopShipNear(target);
+        fleet.AddShip(troopShip);
+        fleet.AddShip(carrier);
+        LeaveFreeTiles(target, carrier.TroopCount);
+
+        CallFleet(fleet, "OrderShipsToInvade", new[] { troopShip, carrier }, task, false);
+
+        Assert.AreEqual(AIState.AssaultPlanet, carrier.AI.State, "the carrier goes in");
+        Assert.AreNotEqual(AIState.AssaultPlanet, troopShip.AI.State, "and its troops fill every free tile, so no troop ship is sent");
+    }
+
+    [TestMethod]
+    public void ACarrierWhoseTroopBaysAreAllDestroyedHoldsNoTileFromTheTroopShips()
+    {
+        (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
+        Ship carrier = TroopCarrierNear(target);
+        Ship troopShip = TroopShipNear(target);
+        fleet.AddShip(carrier);
+        fleet.AddShip(troopShip);
+        foreach (ShipModule bay in carrier.Carrier.AllTroopBays)
+            bay.SetHealth(0f, "Test");
+        Assert.IsTrue(carrier.HasOurTroops && !carrier.CanLandTroops, "setup: the carrier's troops are aboard, with no bay left to launch them");
+        LeaveFreeTiles(target, 1);
+
+        CallFleet(fleet, "OrderShipsToInvade", new[] { carrier, troopShip }, task, false);
+
+        Assert.AreEqual(AIState.AssaultPlanet, troopShip.AI.State, "the troop ship goes for the free tile the carrier cannot land on");
+    }
+
+    [TestMethod]
+    public void ACarrierLandingOnAnotherPlanetHoldsNoTileHere()
+    {
+        (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
+        Planet other = AddDummyPlanetToEmpire(new Vector2(700_000), Enemy);
+        Ship carrier = TroopCarrierNear(target);
+        Ship troopShip = TroopShipNear(target);
+        fleet.AddShip(carrier);
+        fleet.AddShip(troopShip);
+        Assert.IsTrue(carrier.AI.OrderLandAllTroops(other, clearOrders: true) && carrier.AI.State == AIState.AssaultPlanet,
+                      "setup: the carrier is landing its troops on another planet");
+        LeaveFreeTiles(target, 1);
+
+        CallFleet(fleet, "OrderShipsToInvade", new[] { troopShip, carrier }, task, false);
+
+        Assert.AreEqual(AIState.AssaultPlanet, troopShip.AI.State, "the troop ship goes for the free tile here");
+    }
+
+    [TestMethod]
+    public void ACarrierLandingTroopsIsNotPulledOffToScreenTheFleet()
+    {
+        (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
+        Ship carrier = TroopCarrierNear(target);
+        fleet.AddShip(carrier);
+        Assert.IsTrue(carrier.AI.OrderLandAllTroops(target, clearOrders: true) && carrier.AI.State == AIState.AssaultPlanet,
+                      "setup: the carrier is landing its troops");
+
+        CallFleet(fleet, "RearShipsToCombat", MoveOrder.Aggressive);
+
+        Assert.AreEqual(AIState.AssaultPlanet, carrier.AI.State, "a carrier landing troops keeps landing them");
+    }
+
+    [TestMethod]
+    public void ACarrierLandingThatLosesItsTroopBaysHoldsNoTileFromTheTroopShips()
+    {
+        (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
+        Ship carrier = TroopCarrierNear(target);
+        Ship troopShip = TroopShipNear(target);
+        fleet.AddShip(carrier);
+        fleet.AddShip(troopShip);
+        Assert.IsTrue(carrier.AI.OrderLandAllTroops(target, clearOrders: true) && carrier.AI.State == AIState.AssaultPlanet,
+                      "setup: the carrier is landing its troops");
+        foreach (ShipModule bay in carrier.Carrier.AllTroopBays)
+            bay.SetHealth(0f, "Test");
+        Assert.IsTrue(carrier.HasOurTroops && !carrier.CanLandTroops && carrier.AI.State == AIState.AssaultPlanet,
+                      "setup: then loses every troop bay while still landing");
+        LeaveFreeTiles(target, 1);
+
+        CallFleet(fleet, "OrderShipsToInvade", new[] { troopShip, carrier }, task, false);
+
+        Assert.AreEqual(AIState.AssaultPlanet, troopShip.AI.State, "the troops it can no longer land hold no tile, so the troop ship goes");
+    }
+
+    [TestMethod]
+    public void ACarrierThatCanNoLongerLandItsTroopsIsScreenedWithTheFleet()
+    {
+        (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
+        Ship carrier = TroopCarrierNear(target);
+        fleet.AddShip(carrier);
+        Assert.IsTrue(carrier.AI.OrderLandAllTroops(target, clearOrders: true) && carrier.AI.State == AIState.AssaultPlanet,
+                      "setup: the carrier is landing its troops");
+        foreach (ShipModule bay in carrier.Carrier.AllTroopBays)
+            bay.SetHealth(0f, "Test");
+        Assert.IsTrue(carrier.HasOurTroops && !carrier.CanLandTroops && carrier.AI.State == AIState.AssaultPlanet,
+                      "setup: then loses every troop bay while still landing");
+
+        CallFleet(fleet, "RearShipsToCombat", MoveOrder.Aggressive);
+
+        Assert.AreNotEqual(AIState.AssaultPlanet, carrier.AI.State, "a carrier that can no longer land its troops screens with the fleet instead of circling the planet");
+    }
+
+    [TestMethod]
+    public void ATroopShipAlreadyLandingCountsOnce()
+    {
+        (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
+        Ship landing = TroopShipNear(target);
+        Ship next = SpawnShip(Player.data.DefaultTroopShip, Player, target.Position + new Vector2(0f, target.Radius + 6000f));
+        ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(next);
+        fleet.AddShip(landing);
+        fleet.AddShip(next);
+        Assert.IsTrue(landing.AI.OrderLandAllTroops(target, clearOrders: true), "setup: a troop ship is ordered to land");
+        RunSimWhile((simTimeout: 60, fatal: true), () => !landing.IsLanding);
+        Assert.IsTrue(landing.IsLanding && landing.HasOurTroops && landing.AI.State == AIState.AssaultPlanet, "setup: it touches down with its troop");
+        LeaveFreeTiles(target, 2);
+
+        CallFleet(fleet, "OrderShipsToInvade", new[] { next }, task, false);
+
+        Assert.AreEqual(AIState.AssaultPlanet, next.AI.State, "the landing ship takes one free tile, so the other goes to the next troop ship");
+    }
+
     [TestMethod]
     public void TroopsReachingTheGroundAreRecordedAsTheyLand()
     {

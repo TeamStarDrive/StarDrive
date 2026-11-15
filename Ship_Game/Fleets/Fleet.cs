@@ -2710,7 +2710,7 @@ namespace Ship_Game.Fleets
             var notBombersOrTroops = new Array<Ship>();
             foreach(var ship in RearShips)
             {
-                if (!ship.IsSingleTroopShip && !ship.IsBomber)
+                if (!ship.IsSingleTroopShip && !ship.IsBomber && (ship.AI.State != AIState.AssaultPlanet || !ship.CanLandTroops)) // a ship landing troops keeps landing them while it can
                     notBombersOrTroops.Add(ship);
             }
 
@@ -2752,7 +2752,7 @@ namespace Ship_Game.Fleets
         /// </summary>
         bool OrderShipsToInvade(IEnumerable<Ship> ships, MilitaryTask task, bool targetBeingBombed)
         {
-            int shipsInvading = task.TargetPlanet.ShipsLandingTroopsHere(Owner);
+            int troopsLanding = task.TargetPlanet.ShipsLandingTroopsHere(Owner);
             float planetAssaultStrength = 0f;
             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength = FleetTask.TargetPlanet.GetGroundStrength(Owner);
@@ -2766,8 +2766,9 @@ namespace Ship_Game.Fleets
                 Ship ship = Ships[i];
                 planetAssaultStrength += ship.Carrier.PlanetAssaultStrength; 
 
-                if (ship.AI.State == AIState.AssaultPlanet) shipsInvading++;
-                shipsInvading += ShuttlesFlyingTroopsTo(ship, task.TargetPlanet);
+                if (ship.AI.State == AIState.AssaultPlanet && !ship.IsLanding && ship.CanLandTroops && LandingOn(ship, task.TargetPlanet)) // one already touching down is counted by the planet
+                    troopsLanding += ship.TroopCount; // a carrier's troops still aboard hold their tiles
+                troopsLanding += ShuttlesFlyingTroopsTo(ship, task.TargetPlanet);
             }
 
             planetAssaultStrength += ourGroundStrength;
@@ -2783,25 +2784,34 @@ namespace Ship_Game.Fleets
             // If we arent bombing and no troops are fighting or on their way
             // and we dont have enough strength to open a few tiles with brute force troops.
             // give up. 
-            if (!targetBeingBombed && ourGroundStrength < 1 && shipsInvading < 1 && freeLandingSpots < landingSpotsNeeded)
+            if (!targetBeingBombed && ourGroundStrength < 1 && troopsLanding < 1 && freeLandingSpots < landingSpotsNeeded)
                 return false;
 
-            int numberOfShipsToSend = freeLandingSpots - shipsInvading;
+            int troopsToSend = freeLandingSpots - troopsLanding;
 
-            for (int x = 0; x < invasionShips.Length && numberOfShipsToSend > 0; x++)
+            // carriers first, as their shuttles land faster than troop ships flying in
+            for (int pass = 0; pass < 2; ++pass)
             {
-                Ship ship = invasionShips[x];
-                if (ship.IsTroopShip && ship.AI.State != AIState.AssaultPlanet && ship.Carrier.PlanetAssaultStrength > 0)
+                for (int x = 0; x < invasionShips.Length && troopsToSend > 0; x++)
                 {
-                    if (ship.AI.OrderLandAllTroops(task.TargetPlanet, clearOrders:true))
-                        task.TroopsSent = true;
-                    numberOfShipsToSend--;
-                    shipsInvading++;
+                    Ship ship = invasionShips[x];
+                    if ((ship.Carrier.AllTroopBays.Length > 0) == (pass == 0) && ship.CanLandTroops
+                        && ship.IsTroopShip && ship.AI.State != AIState.AssaultPlanet && ship.Carrier.PlanetAssaultStrength > 0)
+                    {
+                        if (ship.AI.OrderLandAllTroops(task.TargetPlanet, clearOrders:true))
+                            task.TroopsSent = true;
+                        int troops = ship.TroopCount.LowerBound(1);
+                        troopsToSend -= troops;
+                        troopsLanding += troops;
+                    }
                 }
             }
 
-            return shipsInvading > 0;
+            return troopsLanding > 0;
         }
+
+        static bool LandingOn(Ship ship, Planet target)
+            => ship.AI.FindGoal(ShipAI.Plan.LandTroop, out ShipAI.ShipGoal landing) && landing.TargetPlanet == target;
 
         static int ShuttlesFlyingTroopsTo(Ship carrier, Planet target)
         {
