@@ -1312,7 +1312,8 @@ namespace Ship_Game.Fleets
         Planet TryGetNewTargetPlanetInvasion(SolarSystem system, MilitaryTask task)
         {
             var potentialSystems = system.FiveClosestSystems.Filter(s => s.PlanetList.Any(p => !task.RepelledAWave(p) && p.Owner?.IsAtWarWith(Owner) == true
-                                                                                             && !Owner.LeavesToBombers(p)));
+                                                                                             && !Owner.LeavesToBombers(p))
+                                                                         && !Owner.RemnantsRaid(s));
             if (potentialSystems.Length == 0)
                 return null;
 
@@ -1329,7 +1330,7 @@ namespace Ship_Game.Fleets
             {
                 Planet p = planets[i];
                 float distance = p.Position.Distance(system.Position);
-                if (distance < closestDistance && !task.RepelledAWave(p) && !Owner.LeavesToBombers(p))
+                if (distance < closestDistance && !task.RepelledAWave(p) && !Owner.LeavesToBombers(p) && !Owner.RemnantsRaid(p.System))
                 {
                     closest = p;
                     closestDistance = distance;
@@ -1898,11 +1899,11 @@ namespace Ship_Game.Fleets
             if (task.TargetEmpire == null && FleetTask.TargetSystem != null)
                 task.TargetEmpire = Owner.AI.ThreatMatrix.GetStrongestHostileAt(FleetTask.TargetSystem);
 
-            float enemyStrength = Owner.AI.ThreatMatrix.GetHostileStrengthAt(task.AO, task.AORadius);
+            float enemyStrength = Owner.AI.ThreatMatrix.GetWeightedHostileStrengthAt(task.AO, task.AORadius);
             bool threatIncoming = Owner.IsSystemUnderThreatForUs(FleetTask.TargetSystem)
                 || Owner.IsSystemUnderThreatForAllies(FleetTask.TargetSystem);
 
-            if (threatIncoming && EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task, inCombat: TaskStep >= 2)))
+            if (threatIncoming && EndInvalidTask(!CanTakeWeightedFight(enemyStrength*0.5f, task, inCombat: TaskStep >= 2)))
                 return; // If no threat is incoming, stay put to clear remaining lone ships
 
             float aoRadius = task.TargetSystem?.Radius * 2 ?? task.RallyPlanet.System.Radius * 2;
@@ -2402,9 +2403,6 @@ namespace Ship_Game.Fleets
             => Owner.Universe?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         public const float AssaultEnemyScanRadius = 100_000;
-
-        public static bool CanTakeThisFight(Empire owner, float ourStrength, float enemyStrength, Empire enemy)
-            => CanTakeWeightedFight(owner, ourStrength, enemyStrength * owner.GetFleetStrEmpireMultiplier(enemy));
 
         // the enemy strength already carries each empire's own fleet strength multiplier
         public static bool CanTakeWeightedFight(Empire owner, float ourStrength, float weightedEnemyStrength)
