@@ -435,6 +435,7 @@ namespace Ship_Game.AI
             }
 
             // Evaluate ShipGoals
+            Orbit.SuspendOrbit(); // in orbit only while this update's goal orbits
             if (OrderQueue.TryPeekFirst(out ShipGoal first))
             {
                 EvaluateShipGoal(timeStep, first);
