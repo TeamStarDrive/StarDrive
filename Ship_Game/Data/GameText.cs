@@ -6408,6 +6408,8 @@ namespace Ship_Game
         RegenArmor = 7288,
         /// <summary>Colony Level</summary>
         ColonyLevel = 7289,
+        /// <summary>Projectiles</summary>
+        Projectiles = 7290,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

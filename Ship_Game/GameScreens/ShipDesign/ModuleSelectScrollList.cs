@@ -193,7 +193,7 @@ namespace Ship_Game
                 {
                     AddCategoryItem((int)type, type.ToString(), m);
                 }
-                else if (m.IsRegenArmor) // before power armor, since regenerating plates draw power
+                else if (m.IsRegenArmor && type == ShipModuleType.Armor) // before power armor, since regenerating plates draw power
                 {
                     AddCategoryItem((int)GameText.RegenArmor, Localizer.Token(GameText.RegenArmor), m);
                 }

@@ -531,7 +531,7 @@ namespace Ship_Game
                 int projectiles = w.ProjectileCount > 0 ? w.ProjectileCount : 1;
                 DrawStat(ref cursor, "DPS", WeaponTemplate.DamagePerSecondWithTechs(w, Player.data), GameText.IndicatesTheMaximumDamagePer);
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, GameText.ThisWeaponsFireASalvo);
-                if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, GameText.ThisWeaponFiresMoreThan);
+                if (projectiles > 1) DrawStat(ref cursor, GameText.Projectiles, projectiles, GameText.ThisWeaponFiresMoreThan);
             }
 
             if (w.FireImprecisionAngle > 0)
