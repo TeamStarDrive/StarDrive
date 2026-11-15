@@ -1341,10 +1341,14 @@ namespace Ship_Game.Fleets
 
         void DoClaimDefense(MilitaryTask task)
         {
+            bool inCombat = TaskStep >= 4;
+            SolarSystem system = task.TargetPlanet.System;
             if (EndInvalidTask(task.TargetPlanet.Owner != null 
                                && !task.TargetPlanet.Owner.IsFaction 
                                && !task.TargetPlanet.Owner.data.IsRebelFaction
-                               || !CanTakeThisFight(task.EnemyStrength, task, inCombat: TaskStep >= 4)))
+                               || !CanTakeThisFight(task.EnemyStrength, task, inCombat)
+                               || OutmatchedIn(system, inCombat)
+                               || TaskStep >= 4 && !Ships.Any(s => !s.IsTroopShip || s.AI.State == AIState.AssaultPlanet))) // troop ships alone do not take or hold a claim, unless they are landing
             {
                 return;
             }
@@ -1395,22 +1399,27 @@ namespace Ship_Game.Fleets
                     break;
                 case 4:
                     CombatMoveToAO(task, FleetTask.TargetPlanet.GravityWellRadius * 1.5f);
+                    InvadeTactics(Ships.Filter(s => s.IsTroopShip), InvasionTactics.Wait, FinalPosition, MoveOrder.Regular); // troop ships hold back until the fight is won
                     TaskStep = 5;
                     break;
                 case 5:
-                    if (!ArrivedAtCombatRally(FinalPosition))
+                    Ship[] goingIn = Ships.Filter(s => !s.IsTroopShip && !s.EnginesKnockedOut); // a stranded ship does not hold up the rest
+                    if (goingIn.Length > 0 && !ArrivedAtCombatRally(FinalPosition, ships: goingIn))
                         break;
 
                     TaskStep = 6;
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 6:
-                    if (!AttackEnemyStrengthClumpsInAO(task))
+                    if (!AttackEnemyStrengthClumpsInAO(task, FreeShipsGoingIn())
+                        && Owner.AI.ThreatMatrix.FindHostileClustersByDist(task.AO, task.AORadius).Length == 0) // with no ship free to send, it waits while hostiles remain
                         TaskStep = 7;
                     break;
                 case 7:
-                    if (!DoOrbitTaskArea(task, excludeInvade: true))
-                        AttackEnemyStrengthClumpsInAO(task);
+                    if (DoOrbitTaskArea(task, excludeInvade: true))
+                        WaitingTroopShipsToOrbit(task);
+                    else
+                        AttackEnemyStrengthClumpsInAO(task, FreeShipsGoingIn());
 
                     OrderShipsToInvade(Ships, task, false);
                     TaskStep = task.TargetPlanet != null ? 8 : 9; // if we need to capture the planet, go to 8.
@@ -1426,10 +1435,40 @@ namespace Ship_Game.Fleets
                     TaskStep = 9;
                     break;
                 case 9: // waiting for colonization goal to issue orders to this fleet
-                    if (!DoOrbitTaskArea(task, excludeInvade: true))
-                        AttackEnemyStrengthClumpsInAO(task);
+                    if (DoOrbitTaskArea(task, excludeInvade: true))
+                        WaitingTroopShipsToOrbit(task);
+                    else
+                        AttackEnemyStrengthClumpsInAO(task, FreeShipsGoingIn());
 
                     break;
+            }
+        }
+
+        // the hostiles known in the system now, each empire by its own multiplier, are more than the fleet can take on
+        bool OutmatchedIn(SolarSystem system, bool inCombat)
+        {
+            if (CanTakeWeightedFight(Owner, GetStrength(), Owner.Threats.GetWeightedHostileStrengthAt(system.Position, system.Radius)))
+                return false;
+
+            if (inCombat) // the lost fight counts against the strongest empire there
+                Owner.IncreaseFleetStrEmpireMultiplier(Owner.Threats.GetStrongestHostileAt(system));
+            return true;
+        }
+
+        // the ships that went in and can be sent at the enemy, carriers and bombers among them; troop ships, stranded ships and ships under a priority order are not
+        Ship[] FreeShipsGoingIn() => Ships.Filter(s => !s.IsTroopShip && !s.EnginesKnockedOut && !s.AI.HasPriorityOrder);
+
+        // the troop ships that waited join the fleet in orbit once the area is clear and a ship that went in is there
+        void WaitingTroopShipsToOrbit(MilitaryTask task)
+        {
+            if (!Ships.Any(s => !s.IsTroopShip && !s.Resupplying && s.Position.InRadius(task.AO, task.AORadius)))
+                return;
+
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                if (ship.IsTroopShip && ship.CanTakeFleetOrders && ship.AI.State is AIState.HoldPosition or AIState.AwaitingOrders)
+                    ship.OrderToOrbit(task.TargetPlanet, clearOrders: true, MoveOrder.Aggressive);
             }
         }
 
@@ -2189,11 +2228,12 @@ namespace Ship_Game.Fleets
             MoveTo(finalPos, finalDir, order);
         }
 
-        bool ArrivedAtCombatRally(Vector2 position, float radiusMultiplier = 2f)
+        bool ArrivedAtCombatRally(Vector2 position, float radiusMultiplier = 2f, IReadOnlyList<Ship> ships = null)
         {
+            ships ??= Ships;
             float radius = GetRelativeSize().Length() * radiusMultiplier;
             radius = Math.Max(1000, radius);
-            MoveStatus status = FleetMoveStatus(radius, position);
+            MoveStatus status = FleetMoveStatus(radius, position, ships);
 
             if (status.IsSet(MoveStatus.AssembledInCombat))
                 ClearPriorityOrderForShipsInAO(Ships, position, radius);
@@ -2205,9 +2245,9 @@ namespace Ship_Game.Fleets
                 if (radius < fleetRadius)
                     size = radius / fleetRadius;
                 
-                for (int i = 0; i < Ships.Count; i++)
+                for (int i = 0; i < ships.Count; i++)
                 {
-                    var ship = Ships[i];
+                    var ship = ships[i];
                     if (!ship.IsSpoolingOrInWarp
                         && !ship.InCombat
                         && (ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.HoldPosition && HasPatrolPlan)
