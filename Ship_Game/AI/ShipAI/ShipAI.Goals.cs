@@ -174,14 +174,14 @@ namespace Ship_Game.AI
             EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, theGoal, 0f, "", 0f, wantedState, null));
         }
 
-        internal void SetTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer = 120f)
+        internal void SetTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer = BlockadeWaitSeconds)
         {
             ClearOrders(AIState.SystemTrader);
             var goal = new ShipGoal(plan, exportPlanet, importPlanet, goodsType, Owner, blockadeTimer, AIState.SystemTrader);
             EnqueueOrPush(goal);
         }
 
-        internal void SetTradePlan(Plan plan, Planet exportPlanet, Ship targetStation, Goods goodsType, float blockadeTimer = 120f)
+        internal void SetTradePlan(Plan plan, Planet exportPlanet, Ship targetStation, Goods goodsType, float blockadeTimer = BlockadeWaitSeconds)
         {
             ClearOrders(AIState.SystemTrader);
             var goal = new ShipGoal(plan, exportPlanet, targetStation, goodsType, Owner, blockadeTimer, AIState.SystemTrader);
@@ -497,6 +497,7 @@ namespace Ship_Game.AI
             [StarData] public readonly float StardateAdded;
             [StarData] public readonly Ship TargetStation;
             [StarData] public float BlockadeTimer; // Indicates how much time to wait with freight when trade is blocked
+            public bool WaitingOutBlockade => BlockadeTimer <= BlockadeWaitSeconds - BlockadeNoticeSeconds;
 
             // Pathfinder detour chain for the current trade leg only — pickup phase routes
             // freighter.Position -> exportPlanet, dropoff phase routes exportPlanet -> import

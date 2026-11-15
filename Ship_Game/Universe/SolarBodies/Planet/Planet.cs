@@ -86,6 +86,8 @@ namespace Ship_Game
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
+        // while none of its buildings fires or launches at a target, a colony keeps its space combat flag this long, then rechecks for threats near it
+        public const float SpaceCombatRecheckSeconds = 2f;
         float NoSpaceCombatTargetsFoundDelay = 0;
         bool SpaceCombatBuildingsActive;
 
@@ -733,23 +735,23 @@ namespace Ship_Game
             if (!enemyInRange)
                 SpaceCombatNearPlanet = false;
 
-            if (NoSpaceCombatTargetsFoundDelay < 2f || enemyInRange)
+            if (NoSpaceCombatTargetsFoundDelay < SpaceCombatRecheckSeconds || enemyInRange)
             {
                 SpaceCombatBuildingsActive = true;
-                bool targetNear = false;
+                bool fightNear = false;
                 NoSpaceCombatTargetsFoundDelay -= timeStep.FixedTime;
 
                 foreach (Building b in Buildings)
                 {
-                    bool targetFound = b.UpdateSpaceCombatActions(timeStep, this);
-                    targetNear |= targetFound;
+                    bool fighting = b.UpdateSpaceCombatActions(timeStep, this);
+                    fightNear |= fighting;
                 }
 
-                SpaceCombatNearPlanet |= targetNear;
-                if (!targetNear && NoSpaceCombatTargetsFoundDelay <= 0)
+                SpaceCombatNearPlanet |= fightNear;
+                if (!fightNear && NoSpaceCombatTargetsFoundDelay <= 0)
                 {
                     SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange);
-                    NoSpaceCombatTargetsFoundDelay = 2f;
+                    NoSpaceCombatTargetsFoundDelay = SpaceCombatRecheckSeconds;
                 }
             }
             else
@@ -765,7 +767,10 @@ namespace Ship_Game
 
             SpaceCombatBuildingsActive = false;
             foreach (Building b in Buildings)
+            {
                 b.EndSalvo();
+                b.EndLaunchWait();
+            }
         }
 
         bool ThreatsNearPlanet(bool enemyInRange)
@@ -838,7 +843,6 @@ namespace Ship_Game
             if (troop != null)
                 closest = troop;
 
-            SpaceCombatNearPlanet = closest != null;
             return closest;
         }
 

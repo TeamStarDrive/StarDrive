@@ -205,33 +205,45 @@ namespace Ship_Game
             return fireDelay;
         }
 
-        bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100;
+        // after a launch that launches nothing, the hangar waits this long before it looks for a target again
+        const float DefenseShipRetrySeconds = 5f;
+        float DefenseShipRetryTimer;
+
+        // a new fight or a new owner does not wait out a failed launch from before
+        public void EndLaunchWait() => DefenseShipRetryTimer = 0f;
+
+        bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100 && DefenseShipRetryTimer <= 0f;
 
         static IShipDesign GetDefenseShipName(RoleName roleName, Empire empire) 
                     => ShipBuilder.PickCostEffectiveShipToBuild(roleName, empire, 
                         empire.Money - 90, empire.Money/10);
 
-        void LaunchDefenseShips(Planet p, Ship target, Empire empire)
+        // whether a defense ship launched at the target
+        bool LaunchDefenseShips(Planet p, Ship target, Empire empire)
         {
             if (CurrentNumDefenseShips <= 0 || target == null)
-                return;
+                return false;
 
             IShipDesign selectedShip = GetDefenseShipName(DefenseShipsRole, empire);
             if (selectedShip == null) // the empire does not have any ship of this role to launch
-                return;
+            {
+                DefenseShipRetryTimer = DefenseShipRetrySeconds;
+                return false;
+            }
 
             Vector2 launchVector = NewMathExt.RandomOffsetAndDistance(p.Position, 1000, p.Random);
             Ship defenseShip = Ship.CreateDefenseShip(p.Universe, selectedShip.Name, empire, launchVector, p);
             if (defenseShip == null)
             {
                 Log.Warning($"Could not create defense ship, ship name = {selectedShip}");
+                DefenseShipRetryTimer = DefenseShipRetrySeconds;
+                return false;
             }
-            else
-            {
-                defenseShip.Level = empire.data.BonusFighterLevels.LowerBound(3);
-                UpdateCurrentDefenseShips(-1);
-                empire.ChargeCreditsHomeDefense(defenseShip);
-            }
+
+            defenseShip.Level = empire.data.BonusFighterLevels.LowerBound(3);
+            UpdateCurrentDefenseShips(-1);
+            empire.ChargeCreditsHomeDefense(defenseShip);
+            return true;
         }
 
         public void UpdateOffense(Planet p) => UpdateOffense(p.Level, p.Universe);
@@ -282,6 +294,8 @@ namespace Ship_Game
                 ContinueSalvo(timeStep, p);
             }
 
+            if (DefenseShipRetryTimer > 0f)
+                DefenseShipRetryTimer -= timeStep.FixedTime;
             bool canLaunchShips = CanLaunchDefenseShips(p.Owner);
 
             if (canFireWeapon || canLaunchShips)
@@ -291,6 +305,7 @@ namespace Ship_Game
                 Ship target = p.ScanForSpaceCombatTargets(TheWeapon, range, canLaunchShips);
                 if (target != null)
                 {
+                    bool acted = canFireWeapon;
                     if (canFireWeapon)
                     {
                         TheWeapon.FireFromPlanet(p, target);
@@ -304,10 +319,8 @@ namespace Ship_Game
                         }
                     }
                     if (canLaunchShips)
-                    {
-                        LaunchDefenseShips(p, target, p.Owner);
-                    }
-                    return true;
+                        acted |= LaunchDefenseShips(p, target, p.Owner);
+                    return acted; // a target counts as a fight near the colony only when the building fires or launches at it
                 }
             }
             return false;
