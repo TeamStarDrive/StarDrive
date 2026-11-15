@@ -413,6 +413,8 @@ namespace Ship_Game.AI.Tasks
 
             float ownerBuildCapacity = Owner.AI.BuildCapacity;
             float enemyBuildCapacity = TargetEmpire.AI.BuildCapacity;
+            if (ownerBuildCapacity <= 0f || enemyBuildCapacity <= 0f)
+                return 1f; // a capacity of 0 is one not yet set, before that empire's budget has run, so the strength stays as asked
             return (enemyBuildCapacity / ownerBuildCapacity).UpperBound(1);
         }
 

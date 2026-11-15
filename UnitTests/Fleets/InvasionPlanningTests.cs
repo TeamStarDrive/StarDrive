@@ -294,6 +294,20 @@ public class InvasionPlanningTests : StarDriveTest
         Assert.IsNotNull(fleet.FleetTask, "and the fleet stays to guard it");
     }
 
+    [TestMethod]
+    public void AShipInAFightIsNotReadyForANewFleet()
+    {
+        Ship idle = SpawnShip(Warship, Enemy, new Vector2(700_000f));
+        Ship fighting = SpawnShip(Warship, Enemy, new Vector2(720_000f));
+        UState.Objects.Update(TestSimStep); // the empire takes the new ships into its list
+        fighting.InCombat = true;
+
+        var ready = Enemy.AllFleetReadyShips();
+
+        Assert.IsTrue(ready.Contains(idle), "setup: an idle warship is ready for a new fleet");
+        Assert.IsFalse(ready.Contains(fighting), "a warship in a fight stays in it");
+    }
+
     // the search a fleet makes for troops when its target is given away works before its empire's first turn after a load
     [TestMethod]
     public void AFleetCanLookForTroopsBeforeItsEmpiresFirstTurnAfterALoad()
