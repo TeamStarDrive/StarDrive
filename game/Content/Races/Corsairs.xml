@@ -2,6 +2,7 @@
 <EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Faction>1</Faction>
   <IsPirateFaction>true</IsPirateFaction>
+  <HullColors>Paint</HullColors>
   <PiratePaymentPeriodTurns>250</PiratePaymentPeriodTurns> <!-- Every turn is 5 seconds by default-->
   <MinimumColoniesForStartPayment>5</MinimumColoniesForStartPayment>
   <PortraitName>unknown</PortraitName>

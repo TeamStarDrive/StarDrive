@@ -163,7 +163,7 @@ namespace Ship_Game.GameScreens.NewGame
             int previewTop = top + pickerHeight + gap;
             ShipPreview = Add(new ShipColorPreview(new Rectangle(pickerX, previewTop, pickerWidth, bottom - previewTop),
                 Picker, TransientContent, () => PickingPlayerColor ? RaceScreen.SelectedData : PickingColorFor,
-                () => PickingPlayerColor ? Params.PlayerHullColors : Params.OpponentHullColors && Params.IsColorPicked(PickingColorFor)));
+                () => PickingPlayerColor ? Params.PlayerHullColors : Params.OpponentHullColors));
 
             for (int i = 0; i < Slides.Count; ++i)
                 Slides[i].Element.SlideInFromOffset(Slides[i].Offset, TransitionOnTime);
@@ -398,7 +398,7 @@ namespace Ship_Game.GameScreens.NewGame
                 if (PickingPlayerColor && Picker.CurrentColor != RaceScreen.PlayerColor)
                     RaceScreen.PickPlayerColor(Picker.CurrentColor);
                 else if (PickingColorFor != null && Picker.CurrentColor != LookOf(PickingColorFor).Color)
-                    Params.OpponentLooks[PickingColorFor] = (Picker.CurrentColor, LookOf(PickingColorFor).Flag);
+                    Params.PickOpponentLook(PickingColorFor, Picker.CurrentColor, LookOf(PickingColorFor).Flag);
             }
             base.Update(fixedDeltaTime);
         }

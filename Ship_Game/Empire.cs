@@ -100,10 +100,9 @@ namespace Ship_Game
         [StarData] public Remnants Remnants { get; private set; }
 
         [StarData] public Color EmpireColor;
-        [StarData] public bool ColorPicked; // the player picked this opponent's color on the Game Setup screen
 
-        // the player's ships take the empire color while the player's box is on, an opponent's while the opponents' box is and its color was picked
-        bool WearsOwnColor => isPlayer ? Universe.P.PlayerHullColors : ColorPicked && Universe.P.OpponentHullColors;
+        // the player's ships take the empire color while the player's box is on, every opponent's and the pirates' while the opponents' box is; other factions keep their look
+        bool WearsOwnColor => isPlayer ? Universe.P.PlayerHullColors : Universe.P.OpponentHullColors && (!IsFaction || WeArePirates);
 
         public Microsoft.Xna.Framework.Vector4 HullTint => HullTintOf(data.HullColors, EmpireColor, WearsOwnColor);
 
