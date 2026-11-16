@@ -457,6 +457,9 @@ namespace Ship_Game.AI
             switch (attitude)
             {
                 case Attitude.Pleading:
+                    if (OpenBordersWouldLapse())
+                        return "OfferResponse_InsufficientTrust";
+
                     if (totalTrustRequiredFromUs > usToThem.Trust + trustToDecide)
                     {
                         if (offerQuality is OfferQuality.Great)
@@ -504,6 +507,9 @@ namespace Ship_Game.AI
 
                     break;
                 case Attitude.Respectful:
+                    if (OpenBordersWouldLapse())
+                        return "OfferResponse_InsufficientTrust";
+
                     if (totalTrustRequiredFromUs + usToThem.TrustUsed <= usToThem.Trust + trustToDecide)
                     {
                         switch (offerQuality)
@@ -542,6 +548,9 @@ namespace Ship_Game.AI
                         return "OfferResponse_InsufficientFear";
 
                     usToThem.TurnsSinceLastThreathened = 0;
+                    if (OpenBordersWouldLapse())
+                        return "OfferResponse_InsufficientTrust";
+
                     if (offerQuality == OfferQuality.Great)
                     {
                         Accept();
@@ -574,6 +583,9 @@ namespace Ship_Game.AI
                 usToThem.ImproveRelations(giftTrust, giftAngerRelief);
                 AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
             }
+
+            // the AI would cancel open borders at its next trust check, even with the trust this offer's gift earns
+            bool OpenBordersWouldLapse() => openBorders && usToThem.Trust + giftTrust < Relationship.OpenBordersMinTrust;
 
             void DamageRelationsAllied()
             {

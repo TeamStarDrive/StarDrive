@@ -1435,12 +1435,15 @@ namespace Ship_Game.Gameplay
             return them.ExpansionScore > us.ExpansionScore * 1.25f && TotalAnger > 20f;
         }
 
+        // an AI keeps open borders only while it trusts the other empire at least this much
+        public const float OpenBordersMinTrust = 5;
+
         void UpdateTreatiesByTrust(Empire us, Empire them)
         {
             if (turnsSinceLastContact < 10)
                 return;
 
-            if (Treaty_OpenBorders && Trust < 5)
+            if (Treaty_OpenBorders && Trust < OpenBordersMinTrust)
             {
                 if (them.isPlayer)
                     DiplomacyScreen.Show(us, "TRUST_LOW_OPEN_BORDERS");
