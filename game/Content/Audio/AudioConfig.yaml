@@ -241,6 +241,10 @@
       Volume: 0.5
       Sound: "UI/sd_ui_notification_encounter.m4a"
     - SoundEffect:
+      Id: sd_ui_notification_salvage # a derelict recovered or broken apart
+      Volume: 0.6
+      Sound: "Salvage/salvage_ship_UI_notification.m4a"
+    - SoundEffect:
       Id: sd_ui_research_select
       Volume: 0.5
       Sound: "UI/sd_ui_research_select.m4a"
@@ -522,21 +526,24 @@
       MaxConcurrent: 4
 
     - SoundEffect:
-      Id: sd_derelict_break_in # a derelict's recovery breaking in, once a turn: the shield static
-      Volume: 0.4
-      Sound: "Weapons/sd_shield_static_1.m4a"
+      Id: sd_derelict_break_in # a derelict's recovery breaking in, once a turn: one of the three unseal sounds
+      Volume: 0.9
+      Sounds:
+        - "Salvage/salvage_ship-unseal_0.m4a"
+        - "Salvage/salvage_ship-unseal_1.m4a"
+        - "Salvage/salvage_ship-unseal_2.m4a"
       MaxConcurrent: 2
 
     - SoundEffect:
-      Id: sd_derelict_give_way # a derelict giving way as its recovery fails, once: the ShipSlow sound, at half the break-up's volume
-      Volume: 0.4
-      Sound: "Weapons/ShipSlow.m4a"
+      Id: sd_derelict_give_way # a derelict giving way as its recovery fails, once
+      Volume: 0.22
+      Sound: "Salvage/salvage_ship-break.m4a"
       MaxConcurrent: 2
 
     - SoundEffect:
-      Id: sd_derelict_recovered # a recovered derelict rising to a ship's depth, once: the Afterburner sound's first 6 seconds, fading out over the last 2
-      Volume: 0.8
-      Sound: "Explosions/sd_derelict_recovered.m4a"
+      Id: sd_derelict_recovered # a recovered derelict rising to a ship's depth, once
+      Volume: 1.1
+      Sound: "Salvage/salvage_ship-repaired.m4a"
       MaxConcurrent: 2
 
     - SoundEffect:

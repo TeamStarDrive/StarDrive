@@ -957,7 +957,7 @@ namespace Ship_Game
                 IconPath        = d.Design.BaseHull?.IconPath,
                 SymbolPath      = "NewUI/icon_recovered_notification",
                 Action          = "SnapToShipOrSystem"
-            }, "sd_ui_notification_colonized_01");
+            }, "sd_ui_notification_salvage");
         }
 
         // a recovery whose roll broke its derelict apart, or blew it up with its platform; a click shows the system, as the derelict is gone
@@ -974,7 +974,7 @@ namespace Ship_Game
                 IconPath        = order.DerelictIcon,
                 SymbolPath      = exploded ? "NewUI/icon_recovery_exploded_notification" : "NewUI/icon_recovery_failed_notification",
                 Action          = "SnapToSystem"
-            }, exploded ? "sd_ui_notification_warning" : "sd_ui_notification_encounter");
+            }, exploded ? "sd_ui_notification_warning" : "sd_ui_notification_salvage");
         }
 
         // a salvage that ended before its platform sent its last load; a click selects the derelict while it can still be salvaged
