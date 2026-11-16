@@ -228,14 +228,15 @@ namespace Ship_Game.AI
             // FB - we are also setting speed limit for group formation movement
             float speedLimit = Owner.Carrier.RecallingShipsBeforeWarp ? Owner.STLSpeedLimit : 0;
             Vector2 movePos = goal.MovePosition; // dynamic move position
-            ThrustOrWarpToPos(movePos, timeStep, speedLimit, isDetourLeg: goal.IsDetourWaypoint);
-
             float distance = Owner.Position.Distance(movePos);
+            bool passingEnemy = Owner.IsInWarp && distance <= Math.Max(Owner.WarpOutDistance, FormationWarpExitDistance)
+                                && WarpsOnPastEnemy(movePos, distance, timeStep);
+            ThrustOrWarpToPos(movePos, timeStep, speedLimit, isDetourLeg: goal.IsDetourWaypoint, holdWarp: passingEnemy);
 
             // we need to bail out way earlier when warping
             if (Owner.engineState == Ship.MoveState.Warp)
             {
-                if (distance <= Owner.WarpOutDistance)
+                if (distance <= Owner.WarpOutDistance && !passingEnemy)
                     DequeueMoveLeg(goal);
             }
             else if (distance <= 1000f)
@@ -266,6 +267,32 @@ namespace Ship_Game.AI
                 if (BadGuysNear)
                     EnterCombatState(AIState.Combat);
             }
+        }
+
+        const float FormationWarpExitDistance = 7500f;
+        const float WarpExitEnemyClearance = 5000f;
+
+        // a ship stopping beyond an enemy keeps its warp past that enemy and leaves it with just room to brake
+        bool WarpsOnPastEnemy(Vector2 destination, float distance, FixedSimTime timeStep)
+        {
+            float lastExit = distance - Owner.WarpExitBrakingDistance - Math.Max(Owner.MaxFTLSpeed, Owner.CurrentVelocity) * timeStep.FixedTime * 2f;
+            Ship[] enemies = PotentialTargets;
+            if (!(lastExit > 0f) || enemies.Length == 0 || WayPoints.Count > 1
+                || !OrderQueue.Any(g => g.Plan == Plan.MakeFinalApproach))
+                return false;
+
+            Vector2 dir = Owner.Position.DirectionToTarget(destination);
+            for (int i = 0; i < enemies.Length; ++i)
+            {
+                Vector2 toEnemy = enemies[i].Position - Owner.Position;
+                float along = toEnemy.Dot(dir);
+                if (along >= lastExit)
+                    continue;
+                float offPath = along <= 0f ? toEnemy.Length() : Math.Abs(toEnemy.X * dir.Y - toEnemy.Y * dir.X);
+                if (offPath < WarpExitEnemyClearance)
+                    return true;
+            }
+            return false;
         }
 
         void MakeFinalApproach(FixedSimTime timeStep, ShipGoal goal)
@@ -441,7 +468,8 @@ namespace Ship_Game.AI
          * @param warpExitDistance [0] If set to nonzero, ships will exit warp at this distance
          *                   but only if this is the last WayPoint
          */
-        internal void ThrustOrWarpToPos(Vector2 pos, FixedSimTime timeStep, float speedLimit = 0f, float warpExitDistance = 0f, bool isDetourLeg = false)
+        internal void ThrustOrWarpToPos(Vector2 pos, FixedSimTime timeStep, float speedLimit = 0f, float warpExitDistance = 0f, bool isDetourLeg = false,
+                                        bool holdWarp = false)
         {
             if (Owner.EnginesKnockedOut)
                 return;
@@ -506,11 +534,11 @@ namespace Ship_Game.AI
                     // A pathfinder detour is a pass-through swing-by: keep formation warp
                     // engaged so the fleet doesn't drop out of warp at every detour (matching
                     // single-ship behavior). Only disengage near a real user/final waypoint.
-                    if (distance > 7500f || isDetourLeg) // Not near destination, or just a detour
+                    if (distance > FormationWarpExitDistance || isDetourLeg) // Not near destination, or just a detour
                     {
                         EngageFormationWarp();
                     }
-                    else
+                    else if (!holdWarp)
                     {
                         DisEngageFormationWarp();
                     }
