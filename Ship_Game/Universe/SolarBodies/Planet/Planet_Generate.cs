@@ -270,16 +270,12 @@ namespace Ship_Game
         {
             if (!Terraformable)
             {
-                // no doable job is left at the current terraform level, e.g. an event
-                // terraformer died mid-job above the empire's own tech level: clear the
-                // in-progress status and scrap the now-useless terraformers.
-                // A live event terraformer is exempt - RemoveTerraformers never scraps
-                // those, so scrapping+notifying would repeat every turn
+                // no doable job is left at this terraform level, so the job is done: every terraformer goes, an event terraformer too
                 if (TerraformPoints > 0 || TerraformingHere)
                 {
                     TerraformPoints = 0;
-                    if (TerraformingHere && !ContainsEventTerraformers)
-                        RemoveTerraformers();
+                    if (TerraformingHere)
+                        RemoveTerraformers(fullCompletion: true);
                 }
                 return;
             }
@@ -369,7 +365,7 @@ namespace Ship_Game
 
             TerraformPoints = 0; // Start terraforming a new tile or remove terraformers if terra level is 1.
             if (!Terraformable)
-                RemoveTerraformers();
+                RemoveTerraformers(fullCompletion: true);
             else if (TerraformersHere > TerraformerLimit)
                 RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
         }
@@ -384,7 +380,7 @@ namespace Ship_Game
 
             TerraformPoints = 0; // Start terraforming a new tile
             if (!Terraformable)
-                RemoveTerraformers();
+                RemoveTerraformers(fullCompletion: true);
             else if (TerraformersHere > TerraformerLimit)
                 RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
         }
@@ -415,13 +411,15 @@ namespace Ship_Game
 
         public bool ContainsEventTerraformers => HasBuilding(b => b.IsEventTerraformer);
 
+        // commodity terraformers work at terraform level 3 whatever the owner has researched
+        public int TerraformLevelHere => ContainsEventTerraformers ? 3 : Owner?.data.Traits.TerraformingLevel ?? 0;
+
         // Checks if the owner can terraform the planet or parts of it
-        // Commodity terraformers will set the Terraform level to 3.
-        public bool Terraformable 
+        public bool Terraformable
         {
             get
             {
-                int terraLevel = ContainsEventTerraformers ? 3 : Owner?.data.Traits.TerraformingLevel ?? 0;
+                int terraLevel = TerraformLevelHere;
                 return terraLevel >= 1 && HasTerrainToTerraform
                     || terraLevel >= 2 && HasTilesToTerraform
                     || terraLevel == 3 && BioSpheresToTerraform
@@ -445,6 +443,7 @@ namespace Ship_Game
 
         void RemoveTerraformers(bool removeOne = false, bool fullCompletion = false)
         {
+            int levelUsed = TerraformLevelHere;
             foreach (PlanetGridSquare tile in TilesList)
             {
                 if (tile.BuildingOnTile && (tile.Building.IsTerraformer || fullCompletion && tile.Building.IsEventTerraformer))
@@ -458,7 +457,7 @@ namespace Ship_Game
             // Notify player that the planet was terraformed
             if (OwnerIsPlayer)
             {
-                string msg = $"{Localizer.Token(GameText.TerraformLevel)} {Owner.data.Traits.TerraformingLevel}:\n" +
+                string msg = $"{Localizer.Token(GameText.TerraformLevel)} {levelUsed}:\n" +
                              $"{Name} {Localizer.Token(GameText.TerraformingCompletedAndTerraformersWere)}";
                 Universe.Notifications.AddRandomEventNotification(msg, PType.IconPath, "SnapToPlanet", this);
             }

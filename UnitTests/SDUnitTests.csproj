@@ -164,6 +164,7 @@
     <Compile Include="Planets\GovernorScrapGuardsTests.cs" />
     <Compile Include="Planets\GovernorScrapRulesTests.cs" />
     <Compile Include="Planets\PlanetTroopLoadingTests.cs" />
+    <Compile Include="Planets\TerraformCompletionTests.cs" />
     <Compile Include="Planets\PlanetWeaponFireDelayTests.cs" />
     <Compile Include="Planets\PlanetCallForHelpTests.cs" />
     <Compile Include="Planets\YoungColonyTradeStateTests.cs" />
