@@ -364,14 +364,21 @@ namespace Ship_Game.AI.Tasks
 
         public bool FleetWouldCallItselfOff(float fleetStrength)
         {
-            if (Type is not (TaskType.StrikeForce or TaskType.AssaultPlanet))
+            float enemyNear;
+            if (Type == TaskType.DefendClaim && TargetPlanet?.System is { } system)
+            {
+                // a claim fleet gives up against the hostiles known anywhere in the claimed system
+                enemyNear = Owner.AI.ThreatMatrix.GetWeightedHostileStrengthAt(system.Position, system.Radius);
+            }
+            else if (Type is TaskType.StrikeForce or TaskType.AssaultPlanet && Owner.IsEmpireAttackable(TargetPlanet?.Owner))
+            {
+                enemyNear = Owner.AI.ThreatMatrix.GetWeightedHostileStrengthAt(AO, Ship_Game.Fleets.Fleet.AssaultEnemyScanRadius);
+            }
+            else
+            {
                 return false;
+            }
 
-            Empire enemy = TargetPlanet?.Owner;
-            if (!Owner.IsEmpireAttackable(enemy))
-                return false;
-
-            float enemyNear = Owner.AI.ThreatMatrix.GetWeightedHostileStrengthAt(AO, Ship_Game.Fleets.Fleet.AssaultEnemyScanRadius);
             if (Ship_Game.Fleets.Fleet.CanTakeWeightedFight(Owner, fleetStrength, enemyNear))
                 return false;
 

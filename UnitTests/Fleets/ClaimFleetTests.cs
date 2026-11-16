@@ -16,10 +16,10 @@ namespace UnitTests.Fleets;
 /// An AI fleet claiming a planet for colonization that forms inside the planet's system goes straight to the planet
 /// instead of gathering at the system's edge, and the colonization goal gives up on its claim fleet only when the fleet
 /// is neither moving in nor in the system. The fleet gives up its claim when it finds a stronger force in the system,
-/// and the lost fight counts against the empire whose ships it found. When it goes in, its carriers and bombers go in
-/// with the warships and are sent at the enemy, a bombarding bomber keeps bombarding, and a stranded ship does not hold
-/// up the rest. Its troop ships hold back until the fight is won and a ship that went in is at the planet; troop ships
-/// left alone give up the claim unless they are landing.
+/// and the lost fight counts against the empire whose ships it found; a fleet that would give up at once is not formed
+/// at all. When it goes in, its carriers and bombers go in with the warships and are sent at the enemy, a bombarding
+/// bomber keeps bombarding, and a stranded ship does not hold up the rest. Its troop ships hold back until the fight is
+/// won and a ship that went in is at the planet; troop ships left alone give up the claim unless they are landing.
 /// </summary>
 [TestClass]
 public class ClaimFleetTests : StarDriveTest
@@ -116,6 +116,27 @@ public class ClaimFleetTests : StarDriveTest
         ClaimDefense(fleet, task);
 
         Assert.IsNull(fleet.FleetTask, "a claim fleet that finds a stronger force in the system gives up its claim");
+    }
+
+    // a claim made against no empire asks for the raw strength known there, while the AI weighs the player's ships at three times theirs
+    [TestMethod]
+    public void AClaimWhoseFleetWouldGiveUpAtOnceFormsNoFleet()
+    {
+        for (int i = 0; i < 4; ++i)
+            SpawnShip(Warship, Enemy, OutsideSystem + new Vector2(0f, 1000f * i));
+        UState.Objects.Update(new FixedSimTime(2f));
+        SeenAtThePlanet(ships: 4);
+        Enemy.FleetStrEmpireMultiplier[Player.Id] = 3f;
+        Enemy.ShipsReadyForFleet = new FleetShips(Enemy, Enemy.AllFleetReadyShips()); // as the empire's update does
+        AssertGreaterThan(Enemy.Threats.GetWeightedHostileStrengthAt(Target.System.Position, Target.System.Radius),
+                          Enemy.ShipsReadyForFleet.AccumulatedStrength * Enemy.PersonalityModifiers.CanWeTakeThisFightMultiplier,
+                          "setup: the force the AI knows in the system is more than all its ready ships can take on");
+        MilitaryTask task = MilitaryTask.CreateClaimTask(Enemy, Target, 100f, targetEmpire: null, fleetCount: 1);
+
+        task.Evaluate(Enemy);
+
+        Assert.IsTrue(task.QueuedForRemoval, "the claim ends instead of forming a fleet that would give it up at once");
+        Assert.IsNull(task.Fleet, "no fleet is formed");
     }
 
     // the fleet went into its task's fight whole and lost half its warships there
