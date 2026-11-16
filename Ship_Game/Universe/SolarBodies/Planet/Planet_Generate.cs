@@ -151,6 +151,8 @@ namespace Ship_Game
                 tile.Terraformable = !habitableTile && Random.RollDice(25);
             }
 
+            UpdateMaxPopulation();
+            UpdateTileCounts();
             for (int i = ConstructionQueue.Count - 1; i >= 0; i--)
             {
                 QueueItem qi = ConstructionQueue[i];
@@ -479,6 +481,7 @@ namespace Ship_Game
             tile.SetHabitable(true);
             tile.Terraformable = false;
             UpdateMaxPopulation();
+            UpdateTileCounts();
         }
 
         // Refactored by Fat Bastard && RedFox
