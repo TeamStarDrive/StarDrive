@@ -225,13 +225,16 @@ namespace Ship_Game.AI
                 // fighting in place.
                 // a ship on its fleet's move keeps that move, which an overtake would clear
                 if (Owner.IsInWarp || target.IsInWarp || Owner.Stats.IsStationary || Owner.EnginesKnockedOut || Owner.TractorDamage > 0f
-                    || OnFleetMove || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
+                    || !CanWarpNow || OnFleetMove || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
                     return false;
 
                 float distance = Owner.Position.Distance(target.Position);
                 return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && OutpacedAt < target.CurrentVelocity;
             }
         }
+
+        // an overtake is flown in warp, so a ship held out of it, or with no working warp drive, stays in its fight
+        bool CanWarpNow => Owner.ShipEngines.ReadyForWarp != WarpStatus.UnableToWarp;
 
         // above Normal difficulty a target at three quarters of the chaser's top speed is cut off too
         float OutpacedAt => Owner.Universe.P.Difficulty > GameDifficulty.Normal ? Owner.MaxSTLSpeed * 0.75f : Owner.MaxSTLSpeed;
@@ -263,7 +266,7 @@ namespace Ship_Game.AI
         internal bool TryOvertakeTargetInReach(Ship target, float distance)
         {
             if (Owner.Loyalty.isPlayer || Owner.IsHangarShip || CombatState == CombatState.Evade || Owner.IsInWarp || target.IsInWarp
-                || Owner.Stats.IsStationary || Owner.EnginesKnockedOut || Owner.TractorDamage > 0f || OnFleetMove
+                || Owner.Stats.IsStationary || Owner.EnginesKnockedOut || Owner.TractorDamage > 0f || !CanWarpNow || OnFleetMove
                 || distance >= 7500f || distance <= Owner.DesiredCombatRange || distance <= Owner.WeaponsMaxRange * 0.7f
                 || (distance < 3000f && distance <= Owner.WeaponsMaxRange) // close in and under its guns, the target is fought where it is
                 || OutpacedAt >= target.CurrentVelocity || target.Velocity.Dot(target.Position - Owner.Position) <= 0f

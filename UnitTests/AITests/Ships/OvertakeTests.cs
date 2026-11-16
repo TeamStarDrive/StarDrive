@@ -3,6 +3,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 using UnitTests.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -70,10 +71,10 @@ public class OvertakeTests : StarDriveTest
     }
 
     // on Hard and Short Range, a target just past the chaser's guns but in its reach, flying straight away from it or at it at four fifths of its top speed
-    (TestShip Chaser, TestShip Target, float Distance) InReach(bool backingAway)
+    (TestShip Chaser, TestShip Target, float Distance) InReach(bool backingAway, float y = 100_000f)
     {
         UState.P.Difficulty = GameDifficulty.Hard;
-        TestShip chaser = SpawnShip(Armed, Enemy, new Vector2(100_000f, 100_000f));
+        TestShip chaser = SpawnShip(Armed, Enemy, new Vector2(100_000f, y));
         chaser.AI.CombatState = CombatState.ShortRange;
         float distance = Math.Max(3_100f, Math.Max(chaser.WeaponsMaxRange, chaser.DesiredCombatRange) + 200f);
         TestShip target = SpawnShip(Design, Player, chaser.Position + new Vector2(distance, 0f));
@@ -82,6 +83,21 @@ public class OvertakeTests : StarDriveTest
         Assert.IsTrue(chaser.Weapons.Count > 0 && distance < 7_500f && chaser.AI.IsTargetValid(target),
                       $"setup: an armed chaser with a target in its reach (range {chaser.WeaponsMaxRange:0}, desired {chaser.DesiredCombatRange:0}, target at {distance:0})");
         return (chaser, target, distance);
+    }
+
+    // a target 8,000 ahead of an AI ship, fleeing at four fifths of its top speed
+    TestShip Fleeing(TestShip chaser)
+    {
+        TestShip fleeing = SpawnShip(Design, Player, chaser.Position + new Vector2(8_000f, 0f));
+        fleeing.Velocity = new Vector2(chaser.MaxSTLSpeed * 0.8f, 0f);
+        return fleeing;
+    }
+
+    bool CutsOffFromFar(TestShip chaser, TestShip fleeing)
+    {
+        for (int i = 0; i < 1000 && chaser.AI.State != AIState.Pursue; ++i)
+            chaser.AI.MoveToEngageTarget(fleeing, TestSimStep);
+        return chaser.AI.State == AIState.Pursue;
     }
 
     bool CutsOffInItsFight(TestShip chaser)
@@ -183,6 +199,43 @@ public class OvertakeTests : StarDriveTest
         AssertEqual(0, CutOffs(carrier, target, distance), "a carrier within the range it chose keeps its distance");
         Assert.IsTrue(carrier.DesiredCombatRange + 100f < 7_500f, $"setup: the carrier's chosen range leaves room in its reach ({carrier.DesiredCombatRange:0})");
         AssertGreaterThan(CutOffs(carrier, target, carrier.DesiredCombatRange + 100f), 0, "setup: just past that range the carrier cuts it off");
+    }
+
+    [TestMethod]
+    public void AShipThatCannotWarpNowSetsOffToCutNoTargetOff()
+    {
+        (TestShip held, TestShip target, float distance) = InReach(backingAway: true);
+        HoldOutOfWarp(held);
+        AssertEqual(0, CutOffs(held, target, distance), "in reach, held out of warp by an enemy ship");
+
+        (TestShip driveLost, TestShip target2, float distance2) = InReach(backingAway: true, y: 125_000f);
+        LoseWarpDrive(driveLost);
+        AssertEqual(0, CutOffs(driveLost, target2, distance2), "in reach, its warp drive lost");
+
+        UState.P.Difficulty = GameDifficulty.Hard; // a target at four fifths of the chaser's speed is cut off from far only above Normal
+        TestShip farHeld = SpawnShip(Design, Enemy, new Vector2(300_000f, 100_000f));
+        HoldOutOfWarp(farHeld);
+        Assert.IsFalse(CutsOffFromFar(farHeld, Fleeing(farHeld)), "farther out, held out of warp");
+
+        TestShip farDriveLost = SpawnShip(Design, Enemy, new Vector2(300_000f, 125_000f));
+        LoseWarpDrive(farDriveLost);
+        Assert.IsFalse(CutsOffFromFar(farDriveLost, Fleeing(farDriveLost)), "farther out, its warp drive lost");
+
+        TestShip farFree = SpawnShip(Design, Enemy, new Vector2(300_000f, 200_000f));
+        Assert.IsTrue(CutsOffFromFar(farFree, Fleeing(farFree)), "setup: one that can warp cuts it off from there");
+
+        static void HoldOutOfWarp(Ship ship)
+        {
+            ship.SetWarpInhibited(Ship.InhibitionType.EnemyShip, secondsToInhibit: 60f);
+            ship.ShipEngines.Update(ship); // as each frame's status update does
+        }
+
+        static void LoseWarpDrive(Ship ship)
+        {
+            ship.MaxFTLSpeed = 0f; // its warp modules destroyed, its sublight engines working
+            ship.ShipEngines.Update(ship);
+            Assert.IsTrue(!ship.EnginesKnockedOut && !ship.Inhibited, "setup: only the warp drive is lost");
+        }
     }
 
     [TestMethod]
