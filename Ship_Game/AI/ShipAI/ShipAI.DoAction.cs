@@ -233,8 +233,8 @@ namespace Ship_Game.AI
             }
         }
 
-        // an overtake is flown in warp, so a ship held out of it, or with no working warp drive, stays in its fight
-        bool CanWarpNow => Owner.ShipEngines.ReadyForWarp != WarpStatus.UnableToWarp;
+        // an overtake is flown in warp, so a ship held out of it, even one caught after this step counted its readiness, or with no working warp drive, stays in its fight
+        bool CanWarpNow => Owner.ShipEngines.ReadyForWarp != WarpStatus.UnableToWarp && !Owner.Inhibited;
 
         // above Normal difficulty a target at three quarters of the chaser's top speed is cut off too
         float OutpacedAt => Owner.Universe.P.Difficulty > GameDifficulty.Normal ? Owner.MaxSTLSpeed * 0.75f : Owner.MaxSTLSpeed;

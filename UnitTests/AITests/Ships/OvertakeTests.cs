@@ -227,7 +227,7 @@ public class OvertakeTests : StarDriveTest
         static void HoldOutOfWarp(Ship ship)
         {
             ship.SetWarpInhibited(Ship.InhibitionType.EnemyShip, secondsToInhibit: 60f);
-            ship.ShipEngines.Update(ship); // as each frame's status update does
+            Assert.IsTrue(ship.ShipEngines.ReadyForWarp != WarpStatus.UnableToWarp, "setup: held this step, its warp readiness not yet counted again");
         }
 
         static void LoseWarpDrive(Ship ship)
