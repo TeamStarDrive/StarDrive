@@ -866,6 +866,9 @@ namespace Ship_Game.AI
             //Log.Write(ConsoleColor.Red, $"EXIT combat: {Owner}");
             Owner.InCombat = false;
             IsFlanking = false;
+            // a round the fight ends is over
+            if (FleetRound is { At: FleetFlankRound.Stage.Flying } round)
+                round.At = FleetFlankRound.Stage.Done;
 
             if (OrderQueue.IsEmpty) // need to change the state to prevent re-enter combat bug
                 OrderAwaitOrders(false);

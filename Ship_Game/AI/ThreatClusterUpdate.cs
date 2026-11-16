@@ -268,7 +268,6 @@ public sealed class ClusterUpdate
         bool hasStarBases = false;
         float strength = 0f;
         float researchStationsStrength = 0f;
-        float inhibitionRadius = 0f;
         SolarSystem system = null;
 
         for (int i = 0; i < ships.Length; ++i)
@@ -277,8 +276,6 @@ public sealed class ClusterUpdate
             strength += s.GetStrength();
             if (s.IsStation)
                 hasStarBases = true;
-
-            inhibitionRadius = Math.Max(inhibitionRadius, s.InhibitionRadius);
 
             if (s.IsResearchStation)
                 researchStationsStrength += s.GetStrength();
@@ -293,7 +290,6 @@ public sealed class ClusterUpdate
         Cluster.StrengthNoResearchStations = strength - researchStationsStrength;
         Cluster.Ships = ships;
         Cluster.HasStarBases = hasStarBases;
-        Cluster.InhibitionRadius = inhibitionRadius;
         Cluster.InBorders = inBorders;
         return system;
     }

@@ -2317,7 +2317,7 @@ namespace Ship_Game.Fleets
             ThreatCluster[] clusters = Owner.AI.ThreatMatrix.FindHostileClustersByDist(task.AO, task.AORadius);
             if (clusters.Length == 0)
             {
-                FlankPlans.Clear();
+                DropFlankPlans();
                 return false;
             }
 
@@ -2358,7 +2358,7 @@ namespace Ship_Game.Fleets
                 attackStr += ship.GetStrength();
                 if (attackStr >= wantedStr)
                 {
-                    SendAtGroup(sent, currentCluster, clusters, Splits());
+                    SendAtGroup(sent, currentCluster, Splits());
                     freeStr -= attackStr;
                     sent.Clear();
                     if (++clusterIndex < clusters.Length)
@@ -2376,15 +2376,18 @@ namespace Ship_Game.Fleets
             }
 
             if (sent.Count > 0)
-                SendAtGroup(sent, currentCluster, clusters, Splits());
+                SendAtGroup(sent, currentCluster, Splits());
 
-            // if some ships remaining, let them escort the rear ships (which are usually troop ships); only free ships, never the rear ships, take left-over orders
+            // if some ships remaining, let them escort the rear ships (which are usually troop ships); only free ships, never the rear ships, take left-over orders, and drop any round they were to fly
             for (int i = shipIndex + 1, j = 0; i < ships.Count && j < RearShips.Count; i++)
             {
                 Ship ship = ships[i];
                 shipIndex = i;
                 if (CanBeSentAtGroup(ship) && !RearShips.ContainsRef(ship))
+                {
+                    ship.AI.FleetRound = null;
                     ship.DoEscort(RearShips[j++]);
+                }
             }
 
             // remaining free ships move to the area
@@ -2392,7 +2395,10 @@ namespace Ship_Game.Fleets
             {
                 Ship ship = ships[i];
                 if (CanBeSentAtGroup(ship) && !RearShips.ContainsRef(ship))
+                {
+                    ship.AI.FleetRound = null;
                     ship.AI.OrderMoveTo(task.AO, FinalPosition.DirectionToTarget(task.AO));
+                }
             }
 
             return true;
@@ -2961,7 +2967,7 @@ namespace Ship_Game.Fleets
             Owner.AI?.RemoveFleetFromGoals(this);
             TaskStep = 0;
             FleetTask = null;
-            FlankPlans.Clear();
+            DropFlankPlans();
             FlankPlansTask = null;
             Key = 0;
         }

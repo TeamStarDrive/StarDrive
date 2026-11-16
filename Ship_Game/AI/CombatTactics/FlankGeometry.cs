@@ -84,17 +84,14 @@ public static class FlankGeometry
         readonly Vector2 Center;
         readonly IReadOnlyList<Keepout> Keepouts;
         readonly float Range;
-        readonly Func<Vector2, Vector2, Vector2> Place; // the point a flanker takes for one found out along a direction
         readonly Func<Vector2, bool> IsBadExit;
 
-        public FlankSearch(Vector2 from, Vector2 center, IReadOnlyList<Keepout> keepouts, float range,
-                           Func<Vector2, Vector2, Vector2> place, Func<Vector2, bool> isBadExit)
+        public FlankSearch(Vector2 from, Vector2 center, IReadOnlyList<Keepout> keepouts, float range, Func<Vector2, bool> isBadExit)
         {
             From = from;
             Center = center;
             Keepouts = keepouts;
             Range = range;
-            Place = place;
             IsBadExit = isBadExit;
         }
 
@@ -103,7 +100,7 @@ public static class FlankGeometry
             float clear = ClearDistance(Center, side, Keepouts, Range);
             for (int step = 0; step <= 4; ++step)
             {
-                point = Place(Center + side * (clear * (1f + step * 0.25f)), side);
+                point = Center + side * (clear * (1f + step * 0.25f));
                 if (IsLegClear(From, point, Keepouts, Range) && !IsBadExit(point))
                     return true;
             }
@@ -119,7 +116,7 @@ public static class FlankGeometry
             {
                 float distance = clear * (1f + step * 0.25f);
                 waypoint = Center + side * distance;
-                point = Place(Center + rear * distance, rear);
+                point = Center + rear * distance;
                 straight = IsLegClear(From, point, Keepouts, Range);
                 if (!straight && (!IsLegClear(From, waypoint, Keepouts, Range)
                                   || !IsLegClear(waypoint, point, Keepouts, Range)

@@ -517,7 +517,7 @@ namespace Ship_Game
 
         /// <summary>
         /// Orders the group's ships in the area to orbit the planet. A ship already orbiting or heading to a supply ship,
-        /// one that can't take fleet orders, and one on a move the group must not cut short keep their orders.
+        /// and one that can't take fleet orders, keep their orders.
         /// </summary>
         internal void DoOrbitAreaRestricted(Planet planet, Vector2 position, float radius, bool excludeInvade = false)
         {
@@ -528,7 +528,7 @@ namespace Ship_Game
                     continue;
 
                 if (ship.AI.State is AIState.Orbit or AIState.ResupplyEscort || !ship.CanTakeFleetOrders
-                    || !ship.Position.InRadius(position, radius) || KeepsItsMove(ship))
+                    || !ship.Position.InRadius(position, radius))
                     continue;
 
                 ship.OrderToOrbit(planet, clearOrders: true, MoveOrder.Aggressive);
@@ -645,18 +645,14 @@ namespace Ship_Game
             if (!ship.CanTakeFleetOrders || ship.Position.OutsideRadius(position + ship.FleetOffset, combatRadius))
                 return CombatStatus.ClearSpace;
 
-            // a ship kept on its move into the fight is in it
-            if (ship.InCombat || ship.AI.BadGuysNear && KeepsItsMove(ship)) return CombatStatus.InCombat;
+            if (ship.InCombat) return CombatStatus.InCombat;
             if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
             return CombatStatus.ClearSpace;
         }
 
-        // a ship on a move the group's own checks must not cut short
-        protected virtual bool KeepsItsMove(Ship ship) => false;
-
         protected void ClearPriorityOrderIfSubLight(Ship ship)
         {
-            if (!ship.Loyalty.isPlayer && !ship.IsSpoolingOrInWarp && !KeepsItsMove(ship))
+            if (!ship.Loyalty.isPlayer && !ship.IsSpoolingOrInWarp)
             {
                 ship.AI.ClearPriorityOrderAndTarget();
                 ship.AI.ChangeAIState(AIState.AwaitingOrders);

@@ -139,14 +139,19 @@ namespace Ship_Game.AI
             float distanceToTarget = target.Position.Distance(Owner.Position);
             bool movesToTarget = CombatState != CombatState.HoldPosition || HasPriorityTarget; // on Hold Position only a target the player picked draws the ship out
             bool priorityMove = HasPriorityOrder && movesToTarget;
+            bool inReach = distanceToTarget <= 7500f || distanceToTarget <= Owner.DesiredCombatRange;
 
             // a priority order moves the ship to its target even in combat
             if (priorityMove)
             {
                 MoveToEngageTarget(target, timeStep);
             }
+            else if (movesToTarget && FlyFlankRound(target, inReach, timeStep))
+            {
+                Owner.Carrier.TryAssaultShipCombat();
+            }
             // if we're outside of 7500 and also of desired combat range (which can be huge for carriers) then move towards target
-            else if (movesToTarget && distanceToTarget > 7500f && distanceToTarget > Owner.DesiredCombatRange)
+            else if (movesToTarget && !inReach)
             {
                 MoveToEngageTarget(target, timeStep);
             }
@@ -283,7 +288,7 @@ namespace Ship_Game.AI
             return true;
         }
 
-        internal const float MaxGroupSpread = 3750f;
+        const float MaxGroupSpread = 3750f;
 
         // the point where a straight line from this ship passes the target at its place in its fleet or group
         Vector2 SpreadByGroupPlace(Vector2 targetPos)
