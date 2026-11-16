@@ -153,6 +153,9 @@ namespace Ship_Game.AI
             else // we are in range:
             {
                 IsFlanking = false; // a flanker in reach of its target is in the fight
+                if (movesToTarget && TryOvertakeTargetInReach(target, distanceToTarget))
+                    return;
+
                 // Disengage from warp if we get close enough to the target
                 // For big ships this can be 110% of DesiredCombatRange,
                 // but also ensure we are far enough to prevent warping on top of enemy fleets
@@ -188,23 +191,9 @@ namespace Ship_Game.AI
 
             if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget() && !Owner.IsInhibitedByUnfriendlyGravityWell)
             {
-                Vector2 heading = target.CurrentVelocity > 1f ? target.VelocityDirection : target.Direction;
-                Vector2 prediction = target.Position.GenerateRandomPointOnForwardHalfArc(heading.ToRadians(), 2000, Owner.Loyalty.Random)
-                    + (heading * (target.CurrentVelocity * 4 + 7500 + Owner.Radius*5));
-
+                Vector2 prediction = OvertakePoint(target, out Vector2 heading);
                 if (Owner.Position.Distance(prediction) > 15_000)
-                {
-                    Planet orbiting = FindGoal(Plan.Orbit, out ShipGoal orbit) ? orbit.TargetPlanet : null;
-                    AIState orbitState = orbit?.WantedState ?? AIState.Orbit;
-                    Ship escorting = FindGoal(Plan.Escort, out ShipGoal escort) ? escort.TargetShip : null;
-                    OrderMoveToNoStop(prediction, heading, AIState.Pursue, MoveOrder.Pursue);
-                    if (orbiting != null)
-                        AddOrbitPlanetGoal(orbiting, orbitState);
-                    else if (escorting is { Active: true })
-                        AddEscortGoal(escorting, clearOrders: false);
-
-                    ChangeAIState(AIState.Pursue);
-                }
+                    OrderOvertake(prediction, heading);
 
                 return;
             }
@@ -235,14 +224,60 @@ namespace Ship_Game.AI
                 // point). This is what left Remnant portals oscillating Combat<->Pursue instead of
                 // fighting in place.
                 // a ship on its fleet's move keeps that move, which an overtake would clear
-                if (Owner.IsInWarp || target.IsInWarp || Owner.Stats.IsStationary || OnFleetMove || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
+                if (Owner.IsInWarp || target.IsInWarp || Owner.Stats.IsStationary || Owner.EnginesKnockedOut || Owner.TractorDamage > 0f
+                    || OnFleetMove || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
                     return false;
 
-                // above Normal difficulty a target at three quarters of the chaser's top speed is cut off too
-                float outpacedAt = Owner.Universe.P.Difficulty > GameDifficulty.Normal ? Owner.MaxSTLSpeed * 0.75f : Owner.MaxSTLSpeed;
                 float distance = Owner.Position.Distance(target.Position);
-                return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && outpacedAt < target.CurrentVelocity;
+                return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && OutpacedAt < target.CurrentVelocity;
             }
+        }
+
+        // above Normal difficulty a target at three quarters of the chaser's top speed is cut off too
+        float OutpacedAt => Owner.Universe.P.Difficulty > GameDifficulty.Normal ? Owner.MaxSTLSpeed * 0.75f : Owner.MaxSTLSpeed;
+
+        // a point ahead of a target getting away, on the forward half of a circle around where it is headed
+        Vector2 OvertakePoint(Ship target, out Vector2 heading)
+        {
+            heading = target.CurrentVelocity > 1f ? target.VelocityDirection : target.Direction;
+            return target.Position.GenerateRandomPointOnForwardHalfArc(heading.ToRadians(), 2000, Owner.Loyalty.Random)
+                   + heading * (target.CurrentVelocity * 4 + 7500 + Owner.Radius*5);
+        }
+
+        // a pursuit to the point, keeping the orbit or escort the ship had
+        void OrderOvertake(Vector2 point, Vector2 heading)
+        {
+            Planet orbiting = FindGoal(Plan.Orbit, out ShipGoal orbit) ? orbit.TargetPlanet : null;
+            AIState orbitState = orbit?.WantedState ?? AIState.Orbit;
+            Ship escorting = FindGoal(Plan.Escort, out ShipGoal escort) ? escort.TargetShip : null;
+            OrderMoveToNoStop(point, heading, AIState.Pursue, MoveOrder.Pursue);
+            if (orbiting != null)
+                AddOrbitPlanetGoal(orbiting, orbitState);
+            else if (escorting is { Active: true })
+                AddEscortGoal(escorting, clearOrders: false);
+
+            ChangeAIState(AIState.Pursue);
+        }
+
+        // an AI ship in reach of a target backing away from it fast enough to be cut off goes for a point ahead of it now and then, a close-range attacker more often
+        internal bool TryOvertakeTargetInReach(Ship target, float distance)
+        {
+            if (Owner.Loyalty.isPlayer || Owner.IsHangarShip || CombatState == CombatState.Evade || Owner.IsInWarp || target.IsInWarp
+                || Owner.Stats.IsStationary || Owner.EnginesKnockedOut || Owner.TractorDamage > 0f || OnFleetMove
+                || distance >= 7500f || distance <= Owner.DesiredCombatRange || distance <= Owner.WeaponsMaxRange * 0.7f
+                || (distance < 3000f && distance <= Owner.WeaponsMaxRange) // close in and under its guns, the target is fought where it is
+                || OutpacedAt >= target.CurrentVelocity || target.Velocity.Dot(target.Position - Owner.Position) <= 0f
+                || Owner.IsInhibitedByUnfriendlyGravityWell)
+            {
+                return false;
+            }
+
+            float chance = CombatState is CombatState.ShortRange or CombatState.AttackRuns ? 0.5f : 0.1f;
+            if (!Owner.Loyalty.Random.RollDice(chance))
+                return false;
+
+            OrderOvertake(OvertakePoint(target, out Vector2 heading), heading);
+            return true;
         }
 
         internal const float MaxGroupSpread = 3750f;
