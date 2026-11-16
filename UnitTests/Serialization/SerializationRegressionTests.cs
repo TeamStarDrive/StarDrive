@@ -160,6 +160,30 @@ public class SerializationRegressionTests : StarDriveTest
                    "loaded in a mod with the flag off, as a vanilla setup can be, the box is unticked");
     });
 
+    [TestMethod]
+    public void ASetupSavedBeforeTheOpponentsHullColorMarkStartsThatBoxOff()
+    {
+        string path = SavedFile(new SetupSave(new()) { Name = "Saved before the mark" });
+        string[] lines = File.ReadAllLines(path);
+        string[] withoutMark = lines.Where(line => !line.Contains("OpponentHullColorsChosen")).ToArray();
+        AssertEqual(lines.Length - 1, withoutMark.Length, "setup: the file loses its one mark line, as one saved before it has none");
+        File.WriteAllLines(path, withoutMark);
+
+        SetupSave load = SaveNewGameSetupScreen.Load(new(path));
+        AssertTrue(load.Settings.OpponentHullColors, "setup: the setup holds the box ticked, as it was by default then");
+        AssertFalse(load.SettingsToStart().OpponentHullColors, "a new game from it starts with the opponents' box off");
+    }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void ASetupKeepsTheOpponentsHullColorBoxAsThePlayerLeftIt(bool ticked)
+    {
+        SetupSave load = SavedAndLoaded(new SetupSave(new() { OpponentHullColors = ticked }) { Name = "Saved with the mark" });
+        AssertTrue(load.OpponentHullColorsChosen, "setup: the box was the player's");
+        Assert.AreEqual(ticked, load.SettingsToStart().OpponentHullColors, "a new game from it starts with the box as the player left it");
+    }
+
     // The save list draws the player's flag straight from the header, using FlagIndex == -1
     // to mean "written before the field existed, fall back to the race-name lookup".
     // Flag 0 is a real, pickable flag and must survive as 0, never as the sentinel.

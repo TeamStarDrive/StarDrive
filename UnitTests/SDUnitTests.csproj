@@ -109,6 +109,7 @@
     <Compile Include="Data\Ship17EndToEndTest.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
+    <Compile Include="Empires\PlayerPersonalityTests.cs" />
     <Compile Include="Empires\HostilePresenceAlertTests.cs" />
     <Compile Include="Empires\ThreatenedColonyOfferTests.cs" />
     <Compile Include="Empires\RefitPortSelectionTests.cs" />
@@ -154,13 +155,17 @@
     <Compile Include="Planets\CapitalTransfer.cs" />
     <Compile Include="Planets\ColonyGraceTests.cs" />
     <Compile Include="Planets\ColonyTargetSwitchTests.cs" />
+    <Compile Include="Planets\ColonyShieldChargeTests.cs" />
     <Compile Include="Planets\ColonyTilePickingTests.cs" />
+    <Compile Include="Planets\CoreGovernorProductionTests.cs" />
     <Compile Include="Planets\CrashSiteOwnershipTests.cs" />
     <Compile Include="Planets\CyberneticProdStateTests.cs" />
     <Compile Include="Planets\DysonSwarmLaunchTests.cs" />
     <Compile Include="Planets\GovernorMoneyPriorityTests.cs" />
     <Compile Include="Planets\GovernorScrapGuardsTests.cs" />
     <Compile Include="Planets\GovernorScrapRulesTests.cs" />
+    <Compile Include="Planets\PlanetTroopLoadingTests.cs" />
+    <Compile Include="Planets\TerraformCompletionTests.cs" />
     <Compile Include="Planets\PlanetWeaponFireDelayTests.cs" />
     <Compile Include="Planets\PlanetCallForHelpTests.cs" />
     <Compile Include="Planets\YoungColonyTradeStateTests.cs" />
@@ -191,6 +196,8 @@
     <Compile Include="Ships\ShipDesignSaveTests.cs" />
     <Compile Include="Ships\AdjacentShipExplosionTests.cs" />
     <Compile Include="Ships\ShipLightsTests.cs" />
+    <Compile Include="Ships\OrbitEngineTrailTests.cs" />
+    <Compile Include="Ships\TradeBlockadeTests.cs" />
     <Compile Include="Ships\BeamPowerTests.cs" />
     <Compile Include="Ships\ColonyShipLandingTests.cs" />
     <Compile Include="Ships\CapturedColonyShipTests.cs" />
@@ -282,6 +289,7 @@
     <Compile Include="Ships\ShipFinalizerTests.cs" />
     <Compile Include="Ships\LegacyShipDesignUtils.cs" />
     <Compile Include="Ships\ShipPowerCalcTests.cs" />
+    <Compile Include="Ships\LeftBehindHangarShipTests.cs" />
     <Compile Include="Ships\ShipStrengthTests.cs" />
     <Compile Include="Ships\RegenerationTests.cs" />
     <Compile Include="Ships\TestShip.cs" />

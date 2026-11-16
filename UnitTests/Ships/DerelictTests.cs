@@ -1501,13 +1501,14 @@ public class DerelictTests : StarDriveTest
         AssertTrue(UState.Derelicts.TryAttachModel(Newest(), loaded), "setup: a model loaded later is attached");
         Assert.AreEqual(Player.HullTint, loaded.HullTint, "and drawn in its owner's color");
 
+        UState.P.OpponentHullColors = false;
         TestShip enemyShip = SpawnShip("Dreadnought mk1-a", Enemy, Site(2));
         UState.Objects.Update(TestSimStep);
         var enemySO = new SceneObject(enemyShip.Name);
         Derelict enemyWreck = Drifting(enemyShip, enemySO);
         Step(enemyWreck, 0.1f);
         AssertEqual(GlobalStats.ShipVisibility, enemySO.Visibility, "setup: an enemy's wreck on screen is drawn");
-        AssertEqual(0.001f, 0f, enemySO.HullTint.W, "bare, as the player picked no color for that opponent");
+        AssertEqual(0.001f, 0f, enemySO.HullTint.W, "bare, as the opponents' box is off");
     }
 
     [TestMethod]

@@ -243,7 +243,8 @@ public partial class Planet
         {
             var scrapGoalsTargetingThis = scrapGoals.Filter(g => g is (ScrapShip or DeliverRefund) && g.PlanetBuildingAt == this);
             if (scrapGoalsTargetingThis.Length > 0)
-                effectiveProd += scrapGoalsTargetingThis.Sum(g => g is DeliverRefund delivery ? delivery.Load : g.OldShip?.GetScrapCost() ?? 0);
+                effectiveProd += scrapGoalsTargetingThis.Sum(g => g is DeliverRefund delivery ? delivery.Load
+                                                                : g is ScrapShip { NoRefund: true } ? 0 : g.OldShip?.GetScrapCost() ?? 0);
         }
 
         return Storage.Max - effectiveProd; // Negative means we have excess prod
@@ -299,6 +300,7 @@ public partial class Planet
             tile.Terraformable = Random.RollDice(50);
 
         UpdateMaxPopulation();
+        UpdateTileCounts();
     }
 
     public void ScrapBuilding(Building b)
@@ -494,11 +496,7 @@ public partial class Planet
         TotalInvadeInjure = SumBuildings(b => b.InvadeInjurePoints);
         BuildingGeodeticOffense = SumBuildings(b => b.Offense);
 
-        HabitablePercentage = (float)TilesList.Count(tile => tile.Habitable) / TileArea;
-
-        FreeHabitableTiles = TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
-        TotalHabitableTiles = TilesList.Count(tile => tile.Habitable);
-        NumFreeBiospheres = TilesList.Count(t => t.Biosphere && !t.BuildingOnTile);
+        UpdateTileCounts();
 
         TotalMoneyBuildings = TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);
         MoneyBuildingRatio = (float)TotalMoneyBuildings / TotalBuildings;
@@ -516,5 +514,13 @@ public partial class Planet
         SetShieldStrengthMax(SumBuildings(bb => bb.PlanetaryShieldStrengthAdded) * (1 + (Owner?.data.ShieldPowerMod ?? 0)));
         ChangeCurrentplanetaryShield(0); // done for clamping the shields
         TotalRepair = SumBuildings(bb => bb.ShipRepair).LowerBound(0);
+    }
+
+    void UpdateTileCounts()
+    {
+        HabitablePercentage = (float)TilesList.Count(tile => tile.Habitable) / TileArea;
+        FreeHabitableTiles = TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
+        TotalHabitableTiles = TilesList.Count(tile => tile.Habitable);
+        NumFreeBiospheres = TilesList.Count(t => t.Biosphere && !t.BuildingOnTile);
     }
 }

@@ -415,9 +415,9 @@ namespace Ship_Game.AI
             }
         }
 
-        public void AddScrapShipGoal(Ship ship, bool immediateScuttle)
+        public void AddScrapShipGoal(Ship ship, bool immediateScuttle, bool refund = true)
         {
-            AddGoalAndEvaluate(new ScrapShip(ship, OwnerEmpire, immediateScuttle));
+            AddGoalAndEvaluate(new ScrapShip(ship, OwnerEmpire, immediateScuttle) { NoRefund = !refund });
         }
 
         public void AddPlanetaryRearmGoal(Ship ship, Planet p, Ship existingSupplyShip = null)

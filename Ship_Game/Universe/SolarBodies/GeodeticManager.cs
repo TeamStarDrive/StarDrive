@@ -217,6 +217,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 ship.ChangeOrdnance(supply);
             }
 
+            if (!spaceCombat && !ship.IsInRecentCombat) // the same charge for every shield, however far amplifiers raised it
+                ship.ChargeShields(Level * 100f * P.Universe.P.TurnTimer);
+
             ship.HealTroops(Level.LowerBound(1));
         }
 
@@ -238,10 +241,11 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             if (ship.TroopCapacity == 0 || ship.TroopCapacity <= ship.TroopCount)
                 return;
 
-            int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
+            // a troop launched here joins the empire's OwnedShips only on the next update, so count our launches down ourselves
+            int room = ship.TroopCapacity - ship.Carrier.NumTroopsInShipAndInSpace - ship.NumTroopsRebasingHere;
             foreach (PlanetGridSquare pgs in TilesList)
             {
-                if (troopCount + ship.NumTroopsRebasingHere >= ship.TroopCapacity || garrisonSize == 0)
+                if (room <= 0 || garrisonSize == 0)
                     break;
 
                 if (pgs.LockOnOurTroop(ship.Loyalty, out Troop troop))
@@ -250,6 +254,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     if (troopShip != null)
                     {
                         garrisonSize--;
+                        room--;
                         troopShip.AI.OrderRebaseToShip(ship);
                     }
                 }

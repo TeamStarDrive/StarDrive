@@ -242,5 +242,73 @@ namespace UnitTests.AITests.Empire
                 AssertEqual(0.001f, 60 - 50 / divisor, AiToPlayer.Anger_DiplomaticConflict, $"{difficulty}: anger left");
             }
         }
+
+        // a much stronger player threatens the AI into open borders
+        string ThreatenForOpenBorders()
+        {
+            AiToPlayer.Treaty_Trade_TurnsExisted = 1000; // past the too-soon gate for open borders
+            AiToPlayer.TurnsSinceLastThreathened = 1000;
+            AiToPlayer.Threat = 100;
+            AiToPlayer.FearUsed = 0;
+            return Enemy.AI.AnalyzeOffer(new Offer { OpenBorders = true }, new Offer { OpenBorders = true }, Player, Offer.Attitude.Threaten);
+        }
+
+        [TestMethod]
+        public void AThreatCannotWinOpenBordersFromAnAIThatWouldCancelThem()
+        {
+            Setup();
+            AiToPlayer.Trust = Relationship.OpenBordersMinTrust - 1;
+
+            AssertEqual("OfferResponse_InsufficientTrust", ThreatenForOpenBorders(), "the AI refuses a treaty it would cancel at its next check");
+            Assert.IsFalse(Enemy.IsOpenBordersTreaty(Player), "and signs no open borders");
+            AssertEqual(0, AiToPlayer.TurnsSinceLastThreathened, "the refused threat still counts as a threat");
+        }
+
+        // the player offers open borders and `playerGives` artifacts for nothing else
+        string OfferOpenBorders(int playerGives, Offer.Attitude attitude)
+        {
+            AiToPlayer.Treaty_Trade_TurnsExisted = 1000; // past the too-soon gate for open borders
+            var fromPlayer = new Offer { OpenBorders = true };
+            for (int i = 0; i < playerGives; ++i)
+            {
+                Player.AddArtifact(Artifacts[i]);
+                fromPlayer.ArtifactsOffered.Add(Artifacts[i].Name);
+            }
+            return Enemy.AI.AnalyzeOffer(fromPlayer, new Offer { OpenBorders = true }, Player, attitude);
+        }
+
+        [TestMethod]
+        public void NoToneWinsOpenBordersFromAnAIThatWouldCancelThemDespiteTheGift()
+        {
+            // pleading takes a great offer without the trust, and two gifts give a respectful offer the trust to decide
+            foreach ((Offer.Attitude attitude, int gifts) in new[] { (Offer.Attitude.Pleading, 1), (Offer.Attitude.Respectful, 2) })
+            {
+                Setup();
+                AiToPlayer.Trust = Relationship.OpenBordersMinTrust - 25 - 10; // a gift earns 25
+
+                AssertEqual("OfferResponse_InsufficientTrust", OfferOpenBorders(gifts, attitude), $"{attitude}: the AI refuses a treaty it would cancel at its next check");
+                Assert.IsFalse(Enemy.IsOpenBordersTreaty(Player), $"{attitude}: and signs no open borders");
+            }
+        }
+
+        [TestMethod]
+        public void TheGiftsTrustCountsTowardKeepingOpenBorders()
+        {
+            Setup();
+            AiToPlayer.Trust = Relationship.OpenBordersMinTrust - 10; // a gift earns 25
+
+            AssertEqual("OfferResponse_Accept_Great", OfferOpenBorders(1, Offer.Attitude.Respectful), "an AI the gift leaves trusting enough refused open borders");
+            Assert.IsTrue(Enemy.IsOpenBordersTreaty(Player), "and signed no open borders");
+        }
+
+        [TestMethod]
+        public void AThreatStillWinsOpenBordersFromAnAIThatWouldKeepThem()
+        {
+            Setup();
+            AiToPlayer.Trust = Relationship.OpenBordersMinTrust + 1;
+
+            string response = ThreatenForOpenBorders();
+            Assert.IsTrue(Enemy.IsOpenBordersTreaty(Player), $"a feared player still wins open borders from an AI that trusts it enough ({response})");
+        }
     }
 }

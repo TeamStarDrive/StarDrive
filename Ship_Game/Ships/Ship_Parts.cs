@@ -14,8 +14,10 @@ namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-        // a hull part can go once more than this share of its slot area is dead: an update with a death under it rolls the share dead past it, and with all of it dead it goes with no roll
+        // a hull part can go once more than this share of its slot area is dead: an update with a death under it rolls a chance growing from none there toward PartLossTopChance as the rest dies, and with all of it dead it goes with no roll
         public const float PartLossDeadShare = 0.75f;
+        // the chance a hull part's roll nears as the last of its modules dies
+        public const float PartLossTopChance = 0.5f;
 
         // each hull part's slot area alive at its lowest since it was lost, -1 while it is on; null while no part is lost
         [StarData] int[] LostPartLow;
@@ -102,7 +104,7 @@ namespace Ship_Game.Ships
                         continue;
                     if (alive[part] > 0)
                     {
-                        float chance = (area[part] - alive[part]) / (float)area[part] - PartLossDeadShare;
+                        float chance = ((area[part] - alive[part]) / (float)area[part] - PartLossDeadShare) / (1f - PartLossDeadShare) * PartLossTopChance;
                         if (chance <= 0f || !Loyalty.Random.RollDice(100f * chance))
                             continue;
                     }

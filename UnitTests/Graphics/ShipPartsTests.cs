@@ -585,7 +585,7 @@ public class ShipPartsTests : StarDriveTest
     [DataRow(4)]
     [DataRow(5)]
     [DataRow(6)]
-    public void ADeathPastThreeQuartersLosesThePlateByTheShareDeadPastItAndTheLastWithNoRoll(int plate)
+    public void ADeathPastThreeQuartersLosesThePlateByTwiceTheShareDeadPastItAndTheLastWithNoRoll(int plate)
     {
         SetupGunboats(sureRolls: false);
         Ship ship = SpawnGunboat();
@@ -597,7 +597,7 @@ public class ShipPartsTests : StarDriveTest
             before += modules[killed++].Area;
         int dead = before + modules[killed].Area;
         if (dead < area)
-            AssertLossRate(dead / (float)area - 0.75f, LossRate(ship, modules, System.MemoryExtensions.AsSpan(modules, 0, killed).ToArray(), modules[killed], tries), tries,
+            AssertLossRate(2f * (dead / (float)area - 0.75f), LossRate(ship, modules, System.MemoryExtensions.AsSpan(modules, 0, killed).ToArray(), modules[killed], tries), tries,
                            $"the death taking the plate to {dead} of {area} dead");
 
         FixedDice never = NeverDice();

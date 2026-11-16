@@ -34,7 +34,7 @@ Globals:
   BaseShipyardRepair: 10.0 # multiplier of the ShipRepair of planetary buildings, giving repair per second
   BonusRepairPerColonyLevel: 0.1 # colony repair is multiplied by colony level times this: 0.1 gives x0.1 at level 1 and x0.5 at level 5
   InCombatRepairModifier: 0.5 # share of a colony's ship repair while there is fighting near the colony
-  BonusColonyEMPRecovery: 5.0 # multiplier of EMP damage removed from shipyard repair when orbiting a colony
+  BonusColonyEMPRecovery: 5.0 # multiplier of EMP damage removed from shipyard repair when orbiting or stopped near a colony
   SelfRepairMultiplier: 1.0 # base repair rate from ship command/engineering modules per SECOND
   BonusRepairPerCrewLevel: 0.2 # +bonus rate based on crew level, 0.2 would be +20% increase per each crew level
   ShieldPowerMultiplier: 1.0 # Global multiplier for Shields

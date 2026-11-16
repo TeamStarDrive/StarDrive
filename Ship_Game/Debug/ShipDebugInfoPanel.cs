@@ -114,7 +114,7 @@ public class ShipDebugInfoPanel : Submenu
             {
                 Text.String($"Trade Timer:{s.TradeTimer}");
                 ShipAI.ShipGoal g = s.AI.OrderQueue.PeekLast;
-                if (g?.Trade != null && g.Trade.BlockadeTimer < 120)
+                if (g?.Trade != null && g.Trade.BlockadeTimer < ShipAI.BlockadeWaitSeconds)
                     Text.String($"Blockade Timer:{g.Trade.BlockadeTimer}");
             }
 

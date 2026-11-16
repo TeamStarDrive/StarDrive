@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
+using Ship_Game.AI;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 #pragma warning disable CA2213
@@ -107,6 +108,81 @@ public class PlanetRepairTests : StarDriveTest
         float orbiting = OrbitRepair(ForeignWorld);
         AssertGreaterThan(ForeignWorld.GeodeticManager.RepairRatePerSecond, 0f);
         AssertEqual(0.01f, self, orbiting, "a foreign world we are not allied with must not repair our ship");
+    }
+
+    TestShip StoppedNear(Planet p, float distance, bool damaged = true)
+    {
+        TestShip ship = SpawnShip("Vulcan Scout", Player, p.Position + new Vector2(distance, 0));
+        ship.AI.OrderHoldPosition(MoveOrder.HoldPosition);
+        RunObjectsSim(TestSimStep);
+        RunObjectsSim(TestSimStep);
+        Assert.AreSame(p.System, ship.System, "setup: the ship is in the planet's system");
+        if (damaged)
+            foreach (ShipModule m in ship.Modules)
+                m.SetHealth(m.ActualMaxHealth * 0.5f, "Test");
+        ship.Velocity = Vector2.Zero;
+        return ship;
+    }
+
+    [TestMethod]
+    public void ADamagedShipStoppedNearOurPlanetIsRepairedByIt()
+    {
+        float self = SelfRepair();
+        OurWorld.GeodeticManager.AffectNearbyShips();
+        TestShip ship = StoppedNear(OurWorld, 3000);
+        Assert.IsFalse(ship.AI.IsInOrbit, "setup: the ship is not orbiting");
+        Assert.AreSame(OurWorld, ship.RepairPlanet, "the planet close by repairs it");
+
+        RunObjectsSim(3f);
+        AssertEqual(1f, self + OurWorld.GeodeticManager.RepairRatePerSecond, ship.CurrentRepairPerSecond,
+                    "with its full repair rate, as in orbit");
+    }
+
+    [TestMethod]
+    public void AShipAtFullHealthLooksForNoPlanetToRepairIt()
+    {
+        TestShip ship = StoppedNear(OurWorld, 3000, damaged: false);
+        Assert.IsNull(ship.RepairPlanet, "nothing to repair, so no planet");
+    }
+
+    [TestMethod]
+    public void AMovingShipIsNotRepairedByAPlanetItPasses()
+    {
+        TestShip ship = StoppedNear(OurWorld, 3000);
+        ship.Velocity = new Vector2(300, 0);
+        Assert.IsNull(ship.RepairPlanet, "a ship flying by is not repaired");
+    }
+
+    [TestMethod]
+    public void AShipStoppedTooFarFromThePlanetIsNotRepairedByIt()
+    {
+        TestShip ship = StoppedNear(OurWorld, 8000);
+        Assert.IsNull(ship.RepairPlanet, "a ship farther than 5000 from the planet is not repaired");
+    }
+
+    [TestMethod]
+    public void AShipStoppedNearAnAllysPlanetIsRepairedByIt()
+    {
+        Player.SignAllianceWith(ThirdMajor);
+        AssertTrue(Player.IsAlliedWith(ThirdMajor));
+        TestShip ship = StoppedNear(ForeignWorld, 3000);
+        Assert.AreSame(ForeignWorld, ship.RepairPlanet, "an ally's world close by repairs it");
+    }
+
+    [TestMethod]
+    public void AShipStoppedNearAForeignPlanetAtPeaceIsNotRepairedByIt()
+    {
+        AssertFalse(Player.IsAlliedWith(ThirdMajor));
+        TestShip ship = StoppedNear(ForeignWorld, 3000);
+        Assert.IsNull(ship.RepairPlanet, "a foreign world we are not allied with does not repair it");
+    }
+
+    [TestMethod]
+    public void AShipJustHitIsNotRepairedByAPlanetCloseBy()
+    {
+        TestShip ship = StoppedNear(OurWorld, 3000);
+        ship.SetLastDamagedBy(EnemyWorld);
+        Assert.IsNull(ship.RepairPlanet, "a ship just hit is not repaired");
     }
 
     [TestMethod]

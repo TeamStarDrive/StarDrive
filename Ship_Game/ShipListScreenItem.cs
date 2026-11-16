@@ -253,7 +253,7 @@ namespace Ship_Game
                     if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last2))
                     {
                         string goodsType = last2.Trade?.Goods.ToString();
-                        string blockade  = last2.Trade?.BlockadeTimer < 120 ? Localizer.Token(GameText.Blockade) : "";
+                        string blockade  = last2.Trade?.WaitingOutBlockade == true ? Localizer.Token(GameText.Blockade) : "";
                         string status    = "";
                         switch (last2.Plan)
                         {

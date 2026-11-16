@@ -18,6 +18,8 @@ public sealed class SetupSave
     [StarData] public bool SalvageOpsChosen;
     // the same for the hull plates box
     [StarData] public bool HullPlatesChosen;
+    // the opponents' hull color box started off in a new game as it was saved, so its tick is the player's; otherwise a new game starts it off
+    [StarData] public bool OpponentHullColorsChosen;
 
     public SetupSave()
     {
@@ -31,6 +33,7 @@ public sealed class SetupSave
         Settings = settings;
         SalvageOpsChosen = GlobalStats.Defaults.EnableSalvageOps;
         HullPlatesChosen = GlobalStats.Defaults.EnableHullPlates;
+        OpponentHullColorsChosen = true;
 
         DateTime now = DateTime.Now;
         string date = now.ToString("M/d/yyyy");
@@ -38,13 +41,15 @@ public sealed class SetupSave
         Date = date + " " + time;
     }
 
-    // the settings a new game starts from: each Globals flag decides its feature unless the box was the player's and the flag is on
+    // the settings a new game starts from: each Globals flag decides its feature unless the box was the player's and the flag is on, and the opponents' hull color box starts off unless it was the player's
     public UniverseParams SettingsToStart()
     {
         if (Settings != null && (!SalvageOpsChosen || !GlobalStats.Defaults.EnableSalvageOps))
             Settings.DisableSalvageOps = !GlobalStats.Defaults.EnableSalvageOps;
         if (Settings != null && (!HullPlatesChosen || !GlobalStats.Defaults.EnableHullPlates))
             Settings.DisableHullPlates = !GlobalStats.Defaults.EnableHullPlates;
+        if (Settings != null && !OpponentHullColorsChosen)
+            Settings.OpponentHullColors = false;
         return Settings;
     }
 }

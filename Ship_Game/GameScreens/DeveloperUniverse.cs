@@ -45,7 +45,7 @@ public class DeveloperUniverse : UniverseScreen
         var s = Stopwatch.StartNew();
         ScreenManager.Instance.ClearScene();
 
-        var settings = new UniverseParams();
+        var settings = UniverseParams.NewGame();
         var universe = new DeveloperUniverse(settings, 1_000_000f);
         UniverseState us = universe.UState;
 

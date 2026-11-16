@@ -435,6 +435,7 @@ namespace Ship_Game.AI
             }
 
             // Evaluate ShipGoals
+            Orbit.SuspendOrbit(); // in orbit only while this update's goal orbits
             if (OrderQueue.TryPeekFirst(out ShipGoal first))
             {
                 EvaluateShipGoal(timeStep, first);
@@ -761,11 +762,19 @@ namespace Ship_Game.AI
             return OrderQueue.Any(g => g.Trade?.Goods == goods);
         }
 
+        // a freighter outside a blockaded planet's system waits this long for the blockade to lift, then gives up the trip
+        public const float BlockadeWaitSeconds = 25f;
+        // a blockade must last this long before a freighter stops for it: longer than a colony's recheck, so the blockade one gun shot leaves does not drop it out of warp
+        const float BlockadeNoticeSeconds = Planet.SpaceCombatRecheckSeconds + 0.5f;
+
         public bool WaitForBlockadeRemoval(ShipGoal g, Planet planet, FixedSimTime timeStep)
         {
             if (planet.TradeBlocked && Owner.System != planet.System)
             {
-                g.Trade.BlockadeTimer -= timeStep.FixedTime;
+                g.Trade.BlockadeTimer = Math.Min(g.Trade.BlockadeTimer, BlockadeWaitSeconds) - timeStep.FixedTime;
+                if (!g.Trade.WaitingOutBlockade && !planet.Quarantine)
+                    return false;
+
                 if (g.Trade.BlockadeTimer > 0f && !planet.Quarantine)
                 {
                     ReverseThrustUntilStopped(timeStep);
@@ -782,7 +791,7 @@ namespace Ship_Game.AI
                 return true;
             }
 
-            g.Trade.BlockadeTimer = 120f; // blockade was removed, continue as planned
+            g.Trade.BlockadeTimer = BlockadeWaitSeconds; // blockade was removed, continue as planned
             return false;
         }
 

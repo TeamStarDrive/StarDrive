@@ -136,7 +136,14 @@ namespace Ship_Game
         void UpdateTerraformTab()
         {
             if (TerraformLevel < 1)
+            {
+                TerraformTitle.Visible        = TerraformStatusTitle.Visible = TerraformStatus.Visible      =
+                TerraformersHereTitle.Visible = TerraformersHere.Visible     = TerrainTerraformTitle.Visible =
+                VolcanoTerraformDone.Visible  = TileTerraformTitle.Visible   = TileTerraformDone.Visible     =
+                PlanetTerraformTitle.Visible  = PlanetTerraformDone.Visible  = TargetFertilityTitle.Visible  =
+                TargetFertility.Visible       = EstimatedMaxPopTitle.Visible = EstimatedMaxPop.Visible       = false;
                 return;
+            }
 
             TerrainTerraformTitle.Visible =
             TerraformStatusTitle.Visible  =

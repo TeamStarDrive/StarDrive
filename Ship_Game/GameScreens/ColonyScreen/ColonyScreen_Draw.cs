@@ -980,7 +980,7 @@ namespace Ship_Game
                 IncomingFood           = P.IncomingFood.RoundUpTo(1);
                 IncomingProd           = P.IncomingProd.RoundUpTo(1);
                 IncomingPop            = (P.IncomingPop / 1000f).RoundToFractionOf100();
-                Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
+                Blockade               = P.TradeBlocked;
                 TroopConsumption       = P.TotalTroopConsumption;
                 Terraformable          = P.Terraformable;
                 NumTerraformersHere    = P.TerraformersHere;
@@ -990,7 +990,7 @@ namespace Ship_Game
                 NeedLevel3Terraform    = P.Category != P.Owner.data.PreferredEnvPlanet || P.BaseMaxFertility.Less(P.TerraformedMaxFertility);
                 NumTerrain             = P.CountBuildings(b => b.CanBeTerraformed);
                 NumTerraformableTiles  = P.TilesList.Count(t => t.CanTerraform);
-                TerraformLevel         = P.ContainsEventTerraformers ? 3 : P.Owner.data.Traits.TerraformingLevel;
+                TerraformLevel         = P.TerraformLevelHere;
                 TerraTargetFertility   = TerraformTargetFertility();
                 MinEstimatedMaxPop     = P.PotentialMaxPopBillionsFor(P.Owner);
                 TerraMaxPopBillion     = P.PotentialMaxPopBillionsFor(P.Owner, true);

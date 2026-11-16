@@ -85,7 +85,7 @@ public class UniverseParams
     [StarData] public bool DisableBoardingWarning;
     [StarData] public bool DisableTechLeechWarning;
     [StarData] public bool PlayerHullColors; // off in a new game until the player takes a color other than the race's own
-    [StarData(DefaultValue=true)] public bool OpponentHullColors = true;
+    [StarData(DefaultValue=true)] public bool OpponentHullColors = true; // a loaded game keeps it as saved; a new game starts it off (NewGame)
     [StarData] bool SavedWithHullColors; // set as it is saved, so a game saved before the hull color boxes loads with both off
     [StarData] public bool PrioitizeProjectors;
     [StarData(DefaultValue=true)] public bool ShowAllDesigns = true;
@@ -173,9 +173,20 @@ public class UniverseParams
         return SelectedOpponents.Remove(race);
     }
 
+    // a new game's settings: the opponents' box starts off and ticks itself when the player picks an opponent a color
+    public static UniverseParams NewGame() => new() { OpponentHullColors = false };
+
     // whether a chosen opponent was picked a color other than its race's own; a picked flag alone does not count
-    public bool IsColorPicked(IEmpireData race)
+    bool IsColorPicked(IEmpireData race)
         => OpponentLooks.TryGetValue(race, out (Color Color, int Flag) look) && look.Color != race.Traits.Color;
+
+    // a color other than the race's own ticks the opponents' box; only the player unticks it
+    public void PickOpponentLook(IEmpireData race, Color color, int flag)
+    {
+        OpponentLooks[race] = (color, flag);
+        if (IsColorPicked(race))
+            OpponentHullColors = true;
+    }
 
     // the race to create a chosen opponent from: its own, or a copy wearing the color and flag picked for it
     public IEmpireData OpponentData(IEmpireData race)

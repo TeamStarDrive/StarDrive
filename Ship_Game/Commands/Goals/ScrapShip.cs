@@ -11,6 +11,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     {
         [StarData] public sealed override Ship OldShip { get; set; }
         [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public bool NoRefund; // a carrier's ship paid for with ordnance gives back nothing
 
         [StarDataConstructor]
         public ScrapShip(Empire owner) : base(GoalType.ScrapShip, owner)
@@ -105,13 +106,16 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (OldShip.LandShip is { Done: false })
                 return GoalStep.TryAgain;
 
-            Owner.RefundCreditsPostRemoval(OldShip);
-            if (PlanetBuildingAt.Owner == Owner)
+            if (!NoRefund)
             {
-                PlanetBuildingAt.ProdHere += OldShip.GetScrapCost();
-                UnloadCargo(PlanetBuildingAt);
+                Owner.RefundCreditsPostRemoval(OldShip);
+                if (PlanetBuildingAt.Owner == Owner)
+                {
+                    PlanetBuildingAt.ProdHere += OldShip.GetScrapCost();
+                    UnloadCargo(PlanetBuildingAt);
+                }
+                Owner.TryUnlockByScrap(OldShip);
             }
-            Owner.TryUnlockByScrap(OldShip);
             OldShip.QueueTotalRemoval();
             return GoalStep.GoalComplete;
         }

@@ -49,6 +49,47 @@ namespace UnitTests.Planets
         QueueItem QueuedBiosphere => Colony.ConstructionQueue.FirstOrDefault(q => q.isBuilding && q.Building.IsBiospheres);
 
         [TestMethod]
+        public void ATileMadeHabitableIsFreeGroundAtOnce()
+        {
+            OccupyTheColonyLeaving(bareTiles: 1);
+            PlanetGridSquare bare = Colony.TilesList.Find(t => !t.Habitable && t.NoBuildingOnTile);
+
+            Colony.MakeTileHabitable(bare);
+
+            AssertEqual(1, Colony.FreeHabitableTiles, "a tile just terraformed is free ground for the governor at once");
+        }
+
+        [TestMethod]
+        public void ADestroyedTileIsNoLongerFreeGroundAtOnce()
+        {
+            Colony.UpdatePlanetStatsByRecalculation();
+            int free = Colony.FreeHabitableTiles;
+            AssertGreaterThan(free, 0, "setup: the colony has free ground");
+
+            Colony.DestroyTile(Colony.TilesList.Find(t => t.Habitable && t.NoBuildingOnTile));
+
+            AssertEqual(free - 1, Colony.FreeHabitableTiles, "a tile just wrecked is no longer free ground for the governor");
+        }
+
+        [TestMethod]
+        public void GroundAnEventMakesHabitableIsFreeAtOnce()
+        {
+            foreach (PlanetGridSquare tile in Colony.TilesList.Filter(t => t.NoBuildingOnTile && !t.VolcanoHere && !t.LavaHere))
+                tile.SetHabitable(false);
+            Colony.UpdatePlanetStatsByRecalculation();
+            AssertEqual(0, Colony.FreeHabitableTiles, "setup: no free ground");
+
+            Colony.AlterPlanet(ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran), Colony.Scale);
+
+            int free = Colony.TilesList.Count(t => t.Habitable && t.NoBuildingOnTile);
+            AssertGreaterThan(free, 0, "setup: the event made bare ground habitable");
+            AssertEqual(free, Colony.FreeHabitableTiles, "ground an event makes habitable is free for the governor at once");
+            float maxPop = Colony.MaxPopulation;
+            Colony.UpdateMaxPopulation();
+            AssertEqual(0.01f, Colony.MaxPopulation, maxPop, "and its people count toward the population cap at once");
+        }
+
+        [TestMethod]
         public void ABiosphereForRoomGoesOnBareGround()
         {
             OccupyTheColonyLeaving(bareTiles: 1);

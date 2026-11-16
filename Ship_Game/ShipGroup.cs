@@ -6,6 +6,7 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Vector2 = SDGraphics.Vector2;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -515,9 +516,8 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// This will force all ships in fleet to orbit planet.
-        /// Only ships on a move the group must not cut short are left alone, not other ships already in some action.
-        /// this can cause a cancel current order and orbit loop.
+        /// Orders the group's ships in the area to orbit the planet. A ship already orbiting or heading to a supply ship,
+        /// one that can't take fleet orders, and one on a move the group must not cut short keep their orders.
         /// </summary>
         internal void DoOrbitAreaRestricted(Planet planet, Vector2 position, float radius, bool excludeInvade = false)
         {
@@ -527,7 +527,8 @@ namespace Ship_Game
                 if (excludeInvade && (ship.DesignRole == RoleName.troopShip || ship.ShipData.Role == RoleName.troop))
                     continue;
 
-                if (ship.AI.State == AIState.Orbit || !ship.Position.InRadius(position, radius) || KeepsItsMove(ship))
+                if (ship.AI.State is AIState.Orbit or AIState.ResupplyEscort || !ship.CanTakeFleetOrders
+                    || !ship.Position.InRadius(position, radius) || KeepsItsMove(ship))
                     continue;
 
                 ship.OrderToOrbit(planet, clearOrders: true, MoveOrder.Aggressive);
@@ -562,8 +563,9 @@ namespace Ship_Game
 
         }
 
-        public MoveStatus FleetMoveStatus(float radius, Vector2? ao = null)
+        public MoveStatus FleetMoveStatus(float radius, Vector2? ao = null, IReadOnlyList<Ship> ships = null)
         {
+            ships ??= Ships;
             Vector2 finalPos = ao ?? FinalPosition;
             float ourStrengthInAO = Owner.AI.ThreatMatrix.GetStrengthAt(Owner, finalPos, radius);
             float enemyStrengthInAO = Owner.AI.ThreatMatrix.GetHostileStrengthAt(finalPos, radius);
@@ -572,9 +574,9 @@ namespace Ship_Game
             float surfaceAssembled = 0;
             int totalShipSurface = 0;
 
-            for (int i = 0; i < Ships.Count; i++)
+            for (int i = 0; i < ships.Count; i++)
             {
-                Ship ship = Ships[i];
+                Ship ship = ships[i];
                 if (ship.AI.State is AIState.Bombard or AIState.AssaultPlanet or AIState.Resupply)
                     continue;
 

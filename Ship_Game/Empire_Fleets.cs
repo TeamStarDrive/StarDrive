@@ -253,7 +253,8 @@ public sealed partial class Empire
                 || ship.IsHomeDefense
                 || ship.IsConstructor
                 || ship.IsSalvageShip
-                || ship.IsHangarShip)
+                || ship.IsHangarShip
+                || ship.InCombat) // a ship in a fight stays in it, and is ready once the fight is over
             {
                 continue;
             }

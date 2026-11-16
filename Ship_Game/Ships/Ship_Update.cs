@@ -402,6 +402,7 @@ namespace Ship_Game.Ships
             float velocity = Velocity.Length();
             float velocityPercent = velocity / VelocityMax;
             bool notPaused = timeStep.FixedTime > 0f;
+            bool exhaust = !AI.IsInOrbit && !IsInWarp; // in orbit or in warp a ship shows only its thruster glow
 
             Vector3 direction3d = Direction3D;
             float[] shown = PartShown;
@@ -436,7 +437,7 @@ namespace Ship_Game.Ships
                     thruster.Update(direction3d, 0.1f, 1.0f / 500.0f, thrust0, thrust1);
                 }
 
-                if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused && ReactorsWork && !ThrusterOut(i, shown, thrusterParts))
+                if (GlobalStats.EnableEngineTrails && exhaust && velocityPercent > 0.1f && notPaused && ReactorsWork && !ThrusterOut(i, shown, thrusterParts))
                 {
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
                     float thrustScale = thruster.Scale * shipScale / 32f;

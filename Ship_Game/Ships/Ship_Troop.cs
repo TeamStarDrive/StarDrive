@@ -21,6 +21,9 @@ namespace Ship_Game.Ships
         // @warning Some of these MAY be enemy troops!
         public bool HasOurTroops => OurTroops.NotEmpty;
 
+        // lands its troops when ordered to: a single troop ship or an assault shuttle, or a ship with a working troop bay, or a troop transporter
+        public bool CanLandTroops => IsSingleTroopShip || IsDefaultAssaultShuttle || Carrier.AnyAssaultOpsAvailable;
+
         // TRUE if we have own troops or if we launched these troops on to operations
         public bool HasTroopsPresentOrLaunched => HasOurTroops || Carrier.LaunchedAssaultShuttlesWithTroops > 0;
 

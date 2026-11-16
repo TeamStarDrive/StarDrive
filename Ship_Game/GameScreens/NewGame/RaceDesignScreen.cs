@@ -20,7 +20,7 @@ namespace Ship_Game
         readonly MainMenuScreen MainMenu;
         readonly Array<TraitEntry> AllTraits = new();
         RacialTrait RaceSummary = new();
-        UniverseParams P = new();
+        UniverseParams P = UniverseParams.NewGame();
 
         Rectangle FlagLeft;
         Rectangle FlagRight;
@@ -113,13 +113,15 @@ namespace Ship_Game
         // a setup holds no chosen opponents, so a loaded one keeps those chosen before it, as far as its opponent count allows
         public void SetCustomSetup(UniverseParams settings)
         {
-            foreach (IEmpireData race in P.SelectedOpponents)
+            UniverseParams before = P;
+            foreach (IEmpireData race in before.SelectedOpponents)
                 settings.SelectedOpponents.Add(race);
-            foreach (var look in P.OpponentLooks)
-                settings.OpponentLooks[look.Key] = look.Value;
             P = settings;
             PickPlayerColor(PlayerColor); // a color other than the race's own ticks the box again whatever the setup holds
             VerifySelectedOpponents();
+            foreach (IEmpireData race in P.SelectedOpponents)
+                if (before.OpponentLooks.TryGetValue(race, out var look))
+                    P.PickOpponentLook(race, look.Color, look.Flag); // a color picked for an opponent still chosen ticks the opponents' box again whatever the setup holds
         }
         
         Graphics.Font DescriptionTextFont => LowRes ? Fonts.Arial10 

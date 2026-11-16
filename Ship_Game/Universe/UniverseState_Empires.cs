@@ -287,8 +287,9 @@ public partial class UniverseState
         else if (data.MinorRace) Log.Info($"Creating MinorRace {data.Traits.Name}");
         else                     Log.Info($"Creating MajorEmpire {data.Traits.Name}");
 
-        data.DiplomaticPersonality = CreateDiplomaticTrait();
-        data.EconomicPersonality = CreateEconimicTrait();
+        // as on the race screen, the player's empire draws no personality and so is Generalists
+        data.DiplomaticPersonality = isPlayer ? new DTrait() : CreateDiplomaticTrait();
+        data.EconomicPersonality = isPlayer ? null : CreateEconimicTrait();
         // Added by McShooterz: set values for alternate race file structure
         data.Traits.LoadTraitConstraints(isPlayer, Random, data.Name, P.DisableAlternateAITraits, out data.SelectedTraitSet);
         empire.dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);

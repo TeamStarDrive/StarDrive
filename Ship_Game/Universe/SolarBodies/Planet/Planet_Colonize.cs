@@ -107,6 +107,8 @@ namespace Ship_Game
             {
                 NumBuildShipsLaunched = 0;
                 SupplyShuttlesOut = 0;
+                foreach (Building b in Buildings)
+                    b.EndLaunchWait();
             }
 
             UpdateShipyards();
