@@ -212,14 +212,12 @@ namespace Ship_Game
             }
 
 
-            // the player's governor splits the same way whatever personality the empire drew
-            const float evenRatio = 0.25f;
             EconomicResearchStrategy strategy = Owner.Research.Strategy;
-            float military    = OwnerIsPlayer ? evenRatio : strategy.MilitaryRatio;
-            float expansion   = OwnerIsPlayer ? evenRatio : strategy.ExpansionRatio;
-            float research    = OwnerIsPlayer ? evenRatio : strategy.ResearchRatio;
-            float industry    = OwnerIsPlayer ? evenRatio : strategy.IndustryRatio;
-            float opportunism = OwnerIsPlayer ? 0 : Owner.data.DiplomaticPersonality?.Opportunism ?? 1;
+            float military    = strategy.MilitaryRatio;
+            float expansion   = strategy.ExpansionRatio;
+            float research    = strategy.ResearchRatio;
+            float industry    = strategy.IndustryRatio;
+            float opportunism = Owner.data.DiplomaticPersonality?.Opportunism ?? 1;
             float buildDesire = opportunism + military + expansion + industry;
 
             // colony level ranges from 1 to 5, giving a base of about 0.13 to 0.23

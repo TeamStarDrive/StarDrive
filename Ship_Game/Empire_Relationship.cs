@@ -122,20 +122,33 @@ namespace Ship_Game
 
         public float GetWarOffensiveRatio()
         {
-            float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
+            float territorialism = 1 - (isPlayer ? AverageTrait(t => t.Territorialism) : data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
             float militaryRatio  = Research.Strategy.MilitaryRatio;
-            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            float opportunism    = isPlayer ? AverageTrait(t => t.Opportunism) : data.DiplomaticPersonality?.Opportunism ?? 1;
             return (territorialism + militaryRatio + opportunism) / 3;
         }
 
         public float GetExpansionRatio()
         {
-            float territorialism = (data.DiplomaticPersonality?.Territorialism ?? 1) / 100f;
-            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            float territorialism = (isPlayer ? AverageTrait(t => t.Territorialism) : data.DiplomaticPersonality?.Territorialism ?? 1) / 100f;
+            float opportunism    = isPlayer ? AverageTrait(t => t.Opportunism) : data.DiplomaticPersonality?.Opportunism ?? 1;
             float expansion      = Research.Strategy.ExpansionRatio;
             float cybernetic     = IsCybernetic ? 1 : 0;
 
             return (territorialism + expansion + opportunism + cybernetic);
+        }
+
+        // the player's blank diplomatic trait has zero territorialism and opportunism, so its war offensive and expansion ratios use the traits' average
+        static float AverageTrait(Func<DTrait, float> trait)
+        {
+            Array<DTrait> traits = ResourceManager.DiplomaticTraits?.DiplomaticTraitsList;
+            if (traits == null || traits.Count == 0)
+                return 0;
+
+            float sum = 0;
+            for (int i = 0; i < traits.Count; ++i)
+                sum += trait(traits[i]);
+            return sum / traits.Count;
         }
 
         public void UpdateRelationships(bool takeTurn)

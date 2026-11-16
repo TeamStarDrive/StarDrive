@@ -113,17 +113,7 @@ public class CoreGovernorProductionTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ThePlayersCoreWorldSplitsTheSameWhateverPersonalityTheEmpireDrew()
-    {
-        SetPersonality(Player, "Generalists", 0.2f);
-        float generalists = ProductionShare(Homeworld, Planet.ColonyType.Core);
-        SetPersonality(Player, "Technologists", 0.75f);
-        float technologists = ProductionShare(Homeworld, Planet.ColonyType.Core);
-        AssertEqual(0.0001f, generalists, technologists, "the player's governor ignores the empire's hidden personality");
-    }
-
-    [TestMethod]
-    public void AnAICoreWorldStillSplitsByItsPersonality()
+    public void AnAICoreWorldSplitsByItsPersonality()
     {
         Planet aiHome = AddBuildingHomeworld(new Vector2(600_000), Enemy);
         SetPersonality(Enemy, "Generalists", 0.2f);
