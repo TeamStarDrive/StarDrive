@@ -794,11 +794,9 @@ namespace Ship_Game.Fleets
         void DoExplorePlanet(MilitaryTask task)
         {
             Planet targetPlanet = task.TargetPlanet;
-            bool eventBuildingFound = targetPlanet.EventsOnTiles();
             task.TargetEmpire ??= Owner.AI.ThreatMatrix.GetStrongestHostileAt(targetPlanet.System);
 
-            if (EndInvalidTask(!eventBuildingFound
-                               || targetPlanet.Owner != null
+            if (EndInvalidTask(!task.PlanetLeftToExplore
                                || !MajorityTroopShipsAreInWell(targetPlanet) && (!StillInvasionEffective(task) 
                                || !StillCombatEffective(task, inCombat: TaskStep >= 4))))
             {
@@ -2465,7 +2463,7 @@ namespace Ship_Game.Fleets
         /// </summary>
         Status StatusOfPlanetAssault(MilitaryTask task)
         {
-            bool bombing = StartBombing(task.TargetPlanet);
+            bool bombing = task.Type != MilitaryTask.TaskType.Exploration && StartBombing(task.TargetPlanet); // bombs could wreck the event an exploration force came for
             bool readyToInvade = ReadyToInvade(task);
 
             if (readyToInvade)

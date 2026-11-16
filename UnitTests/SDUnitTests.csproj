@@ -120,6 +120,7 @@
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
     <Compile Include="Fleets\ClaimFleetTests.cs" />
+    <Compile Include="Fleets\ExplorationFleetTests.cs" />
     <Compile Include="Fleets\FleetCatchUpTests.cs" />
     <Compile Include="Fleets\FleetFlankTests.cs" />
     <Compile Include="Fleets\FleetFocusFireTests.cs" />
