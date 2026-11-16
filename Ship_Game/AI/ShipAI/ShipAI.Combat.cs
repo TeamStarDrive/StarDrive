@@ -650,7 +650,7 @@ namespace Ship_Game.AI
             value /= distanceNorm <= 1f ? distanceNorm : distanceNorm * distanceNorm * distanceNorm;
             if (debug) Debug($"dn={distanceNorm.String(2),-4}");
 
-            // prefer targets near our own size; floored low so a lone small ship is still pickable
+            // prefer targets near our own size; a far smaller ship carrying troops or bombs keeps a floor ten times higher
             float relSize = (float)tgt.SurfaceArea / Owner.SurfaceArea;
             if (relSize < 1f)
             {
@@ -658,7 +658,7 @@ namespace Ship_Game.AI
                 if (Owner.ShipData.HangarDesignation == HangarOptions.Interceptor)
                     value *= (1 / relSize);
                 else if (!boardingOurs)
-                    value *= (relSize * relSize).LowerBound(0.005f);
+                    value *= (relSize * relSize).LowerBound(tgt.TroopCount > 0 || tgt.HasBombs ? 0.005f : 0.0005f);
             }
             else if (relSize > 1f)
             {
