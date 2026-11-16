@@ -323,10 +323,19 @@ public sealed partial class Empire
 
         if (!ship.BaseCanWarp)
         {
+            // a ship that cannot warp is scrapped at a safe port close by, or else at a safe colony of ours in its own system
             planet = FindNearestRallyPoint(ship.Position);
-            if (planet == null || planet.Position.Distance(ship.Position) > 50000)
-                ship.ScuttleTimer = 5;
+            if (planet != null && planet.Safe && planet.Position.InRadius(ship.Position, 50000))
+                return true;
 
+            Planet colony = ship.System?.PlanetList.FindClosestTo(ship, p => p.Owner == this && p.Safe);
+            if (colony != null)
+            {
+                planet = colony;
+                return true;
+            }
+
+            ship.ScuttleTimer = 5;
             return planet != null;
         }
 

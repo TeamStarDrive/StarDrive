@@ -243,7 +243,8 @@ public partial class Planet
         {
             var scrapGoalsTargetingThis = scrapGoals.Filter(g => g is (ScrapShip or DeliverRefund) && g.PlanetBuildingAt == this);
             if (scrapGoalsTargetingThis.Length > 0)
-                effectiveProd += scrapGoalsTargetingThis.Sum(g => g is DeliverRefund delivery ? delivery.Load : g.OldShip?.GetScrapCost() ?? 0);
+                effectiveProd += scrapGoalsTargetingThis.Sum(g => g is DeliverRefund delivery ? delivery.Load
+                                                                : g is ScrapShip { NoRefund: true } ? 0 : g.OldShip?.GetScrapCost() ?? 0);
         }
 
         return Storage.Max - effectiveProd; // Negative means we have excess prod
