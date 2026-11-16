@@ -662,7 +662,7 @@ namespace Ship_Game.AI
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
         void LaunchShuttlesFromTroopShip(FixedSimTime timeStep, Planet planet, Vector2 launchPos, ShipGoal goal)
         {
-            if (!Orbit.InOrbit && Owner.Position.InRadius(planet.Position, planet.Radius *1.4f))
+            if (Owner.Position.InRadius(planet.Position, planet.Radius *1.4f))
                 ThrustOrWarpToPos(launchPos, timeStep, warpExitDistance: Owner.WarpOutDistance);
             else if (!TryRouteToOrbitTarget(goal, timeStep)) // Doing orbit with AssaultPlanet state to continue landing troops if possible
                 Orbit.Orbit(planet, timeStep);
