@@ -64,13 +64,13 @@ public class ExplorationFleetTests : StarDriveTest
 
     Planet EventPlanet(Empire owner, bool withEvent = true) => EventPlanet(owner, new Vector2(400_000), withEvent);
 
-    // the AI's exploration force for the planet at the given step of its task, just outside the planet's well
-    Fleet ExplorationForce(Planet target, int taskStep, out MilitaryTask task, bool bomber = false)
+    // the AI's exploration force for the planet at the given step of its task, just outside the planet's well or at the planet
+    Fleet ExplorationForce(Planet target, int taskStep, out MilitaryTask task, bool bomber = false, bool atThePlanet = false)
     {
         task = MilitaryTask.CreateExploration(target, Enemy);
         var fleet = new Fleet(UState, Enemy) { FleetTask = task, TaskStep = taskStep };
         typeof(MilitaryTask).GetProperty(nameof(MilitaryTask.Fleet))!.SetValue(task, fleet);
-        Vector2 at = target.Position + new Vector2(target.GravityWellRadius + 10_000f, 0f);
+        Vector2 at = target.Position + new Vector2(atThePlanet ? target.Radius + 2000f : target.GravityWellRadius + 10_000f, 0f);
         fleet.AddShip(SpawnShip(Warship, Enemy, at));
         fleet.AddShip(SpawnShip(TroopShip, Enemy, at + new Vector2(0f, 1000f)));
         if (bomber)
@@ -169,6 +169,25 @@ public class ExplorationFleetTests : StarDriveTest
         Assert.AreEqual(AIState.Bombard, BomberOf(unknown).AI.State, "setup: the bomber does bomb the planet when it is sent");
     }
 
+    [TestMethod]
+    public void AnExplorationForceAtAPlanetOfTheUnknownEmpireLandsItsTroopsWithoutBombing()
+    {
+        CreateAMinorFaction("Corsairs");
+        UState.Unknown = Faction;
+        Planet target = EventPlanet(Faction);
+        Fleet fleet = ExplorationForce(target, taskStep: 5, out MilitaryTask task, bomber: true, atThePlanet: true);
+        Ship troopShip = fleet.Ships.Find(s => s.IsTroopShip);
+        if (troopShip.Carrier.PlanetAssaultStrength <= 0f)
+            ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(troopShip);
+        Assert.IsTrue(troopShip.Carrier.PlanetAssaultStrength > 0f, "setup: the troop ship carries troops");
+
+        ExplorePlanet(fleet, task);
+
+        Assert.AreEqual(task, fleet.FleetTask, "the force keeps its task while its troops go in");
+        Assert.AreEqual(AIState.AssaultPlanet, troopShip.AI.State, "its troop ship is sent to land on the planet at once");
+        Assert.AreNotEqual(AIState.Bombard, BomberOf(fleet).AI.State, "and no bomber is sent to bomb it");
+    }
+
     // ends the task of a force that landed a troop of the empire on the planet
     int TroopsLeftAfterTheTaskEnds(Planet target)
     {
@@ -247,5 +266,19 @@ public class ExplorationFleetTests : StarDriveTest
         task.Evaluate(Enemy);
         AssertEqual(0.01f, known, task.EnemyStrength, "more known than half of what it asked: it asks what is known");
         Assert.IsFalse(task.QueuedForRemoval, "setup: the task goes on all along");
+    }
+
+    [TestMethod]
+    public void AnAskThatIsNotANumberStartsOverFromTheLeastATaskAsks()
+    {
+        Planet target = EventPlanet(null);
+        ReadyShipsForFleets();
+        MilitaryTask task = MilitaryTask.CreateExploration(target, Enemy);
+        task.EnemyStrength = float.NaN;
+
+        task.Evaluate(Enemy);
+
+        Assert.IsNull(task.Fleet, "setup: no force is formed");
+        AssertEqual(0.01f, 100f, task.EnemyStrength, "an ask that is not a number starts over from the least a task asks");
     }
 }

@@ -277,7 +277,9 @@ namespace Ship_Game.AI.Tasks
             AORadius = TargetPlanet.System.Radius;
             float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
             // what the task asks falls at most to half of what it asked the time before
-            float wantedStrength = GetHostileStrengthAtAO().LowerBound(EnemyStrength * 0.5f).LowerBound(100);
+            float knownStrength = GetHostileStrengthAtAO();
+            float askedBefore = float.IsFinite(EnemyStrength) ? EnemyStrength : 0f;
+            float wantedStrength = (float.IsFinite(knownStrength) ? knownStrength : 0f).LowerBound(askedBefore * 0.5f).LowerBound(100);
             EnemyStrength = wantedStrength;
 
             float minTroopStr = TargetPlanet.Owner == null ? 10 : (TargetPlanet.GetGroundStrengthOther(Owner) * TargetPlanet.InvasionResistance).LowerBound(40);

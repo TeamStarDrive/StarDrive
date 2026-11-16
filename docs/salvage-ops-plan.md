@@ -795,11 +795,13 @@ station stood in the system (they show from the start, 332 A) no longer holds.
     - the success is told as the ship appears, from the derelict, so it comes even with the platform or the station
       lost during the rise and never when no ship could be made, to the player whenever the ship is the player's
       (623 A): "{0}: the {1} is recovered" (7215), the hull icon with the crossed hammers in green, a click
-      selecting the ship, or once it is gone showing the system (624 A), with the colonized chime (626 A);
+      selecting the ship, or once it is gone showing the system (624 A), with the salvage notification sound
+      (1943 A);
     - a plain failure is told at the roll, "your recovery of the {1} failed, and it broke apart" (7216), the hammers
-      in yellow, with the encounter sound; a catastrophe at the roll too, "the {1} exploded as your platform worked to
-      recover it, destroying the platform" (7217), the hammers in red, with the warning sound, and no notification of
-      the platform's loss; a click on either shows the system (625 A, 626 A, 627: a C, b B, c C);
+      in yellow, with the salvage notification sound (1943 A); a catastrophe at the roll too, "the {1} exploded as
+      your platform worked to recover it, destroying the platform" (7217), the hammers in red, with the warning
+      sound, and no notification of the platform's loss; a click on either shows the system (625 A, 626 A, 627: a C,
+      b B, c C);
     - none pauses the game; the hammers are the Recover button's, at 0.8 of the symbol as the hourglass and the
       research symbol;
     - not told: the production and research an earlier salvage brought (629 A), the platform or the station lost once
@@ -864,8 +866,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
     draw for the derelict told the player a rival's outcome after a reload; 620 A, the seed the empire's rather than
     the derelict's, for other rolls to use later); the Codex says so;
   - a plain failure breaks the derelict apart as a drifting one breaks up, 3 to 5 seconds of flashes and lightning
-    on its hull but none of the small blasts, which are left to a catastrophe (585 B), with one ShipSlow sound at half
-    the break-up's volume as it gives way where the player sees it (583, 584 B), and it sinks away at a stripped
+    on its hull but none of the small blasts, which are left to a catastrophe (585 B), with the break sound once as it
+    gives way where the player sees it (583, 584 B, 1940-1942 A), and it sinks away at a stripped
     derelict's speed; the Codex says it breaks up without explosions (592 A). Nothing
     is left to strip; the order ends, and the platform takes itself apart over two turns as after a salvage, freeing
     its unit (517 A);
@@ -879,9 +881,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
     attacker of each ship it hits, so a ship it kills is nobody's kill (577 B). The platform dies as any ship does,
     its own small death blast its owner's (578 A). One notification tells of it (133, 155, 526 A, 527 A; part 5);
   - a success brings the derelict up from its rest depth to a ship's depth, evenly over 3 seconds (576 C), with the
-    Afterburner sound where the player sees it (586 H), running on past the rise and fading out over its last 2
-    seconds to end at 6 (587 C, a file of its own, 589 A), and the ship takes its place as it reaches that depth (595 A;
-    see The recovered ship).
+    repaired sound where the player sees it (586 H, 1940-1942 A), and the ship takes its place as it reaches that
+    depth (595 A; see The recovered ship).
 - **On the panel and in the derelicts window (523, 524, 534 A, 535 A, 549-553):** during a recovery the tech icons
   give way to a yellow bar of the work done, with its percent rounded down, on the panel and in the window's
   Technologies column, from the order on, at 0% until the work starts; the tech count stays. On the platform's own
@@ -900,7 +901,7 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   shows a station build's effect (`ConstructionShip.AddEffects`: sparks, lightning, flashes and flying parts) at the
   recovery's progress, spreading out from its center to half its radius as the progress rises, so the break-in shows
   a tight knot of sparks at its center (580 A), from planet view or closer, where the shuttles show (581 B). Each
-  break-in turn plays the shield static once, quietly, where the player sees the effect (583). The roll ends the
+  break-in turn plays one of three unseal sounds once, where the player sees the effect (583, 1940-1942 A). The roll ends the
   effect: its parts rise with the derelict and shrink away over its rise on a success (590 A), fade out as a
   finished build's on a plain failure, and go at once in a blast. The effect sits on the hull's surface facing the
   camera, as the derelict lies, its top or, upside down, its back (588 A), as its smoke does, since particles inside
@@ -1296,6 +1297,10 @@ Implementation notes:
      the player sees it (`sd_derelict_give_way`); the catastrophe keeps the ship's death sound, and a success plays
      the Afterburner sound once as it rises, where the player sees it (`sd_derelict_recovered`, 586 H), cut to 6
      seconds of its 23 with a 2-second fade (587 C);
+   - the sound designer's sounds replaced these stand-ins on 2026-11-16 (1940-1943 A), in `Audio/Salvage`: one of
+     three unseal sounds each break-in turn, a break sound as a failure gives way, a repaired sound as a success
+     rises, and a salvage notification sound (`sd_ui_notification_salvage`) for the recovered and broke-apart
+     notifications; the Afterburner cut is gone;
    - a plain failure's break-up drops its small blasts and their sound, leaving flashes and lightning (585 B); a
      ship's death break-up keeps both;
    - after a play-test (Gilad, 2026-10-20): the break-in static at half the volume first set (0.4); the roll ends the
