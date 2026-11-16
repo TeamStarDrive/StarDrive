@@ -1309,7 +1309,7 @@ namespace Ship_Game.Ships
 
         const float LeftBehindDistance = 100_000f;
 
-        // a carrier this far away frees the bay of a ship that cannot warp after it: a troop ship or assault shuttle lands its troops on a safe colony of ours in its system with room, a ship with no troops is scrapped with no refund, and any other is scuttled
+        // a carrier this far away frees the bay of a ship that cannot warp after it: a troop ship or assault shuttle lands its troops on a safe colony of ours in its system with room, a ship with no troops is scrapped with no refund where a ship that cannot warp is scrapped, and any other is scuttled
         void LeaveCarrier()
         {
             if (!Active || Mothership == null)
@@ -1318,9 +1318,9 @@ namespace Ship_Game.Ships
             Mothership.OnLaunchedShipDie(this);
             Mothership = null;
             // only a troop ship or an assault shuttle lands its troops on a colony
-            Planet colony = HasOurTroops && !IsDefaultTroopTransport ? null
-                          : System?.PlanetList.FindClosestTo(this, p => p.Owner == Loyalty && p.Safe
-                                                                    && (!HasOurTroops || p.FreeTilesWithRebaseOnTheWay(Loyalty) > 0));
+            Planet colony = !HasOurTroops ? Loyalty.SublightScrapPlanet(this)
+                          : !IsDefaultTroopTransport ? null
+                          : System?.PlanetList.FindClosestTo(this, p => p.Owner == Loyalty && p.Safe && p.FreeTilesWithRebaseOnTheWay(Loyalty) > 0);
             if (colony == null)
                 AI.OrderScuttleShip();
             else if (HasOurTroops)

@@ -12,10 +12,10 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// A hangar ship that cannot warp, whose carrier is far away, is let go and the carrier's bay is freed: an assault
-/// shuttle lands its troops on a safe colony of ours in its system with room, another ship lands there itself and is
-/// removed with no refund, and either is scuttled when its system has no such colony; any other ship carrying troops is
-/// scuttled. One that can warp, or whose carrier is only out of sight, flies back. A ship that cannot warp is scrapped
-/// at a safe port close by, or else at a safe colony of ours in its system.
+/// shuttle lands its troops on a safe colony of ours in its system with room, or is scuttled when there is none; a ship
+/// with no troops is removed with no refund where a ship that cannot warp is scrapped, or is scuttled when there is no
+/// such place; any other ship carrying troops is scuttled. One that can warp, or whose carrier is only out of sight, flies
+/// back. A ship that cannot warp is scrapped at a safe port close by, or else at a safe colony of ours in its system.
 /// </summary>
 [TestClass]
 public class LeftBehindHangarShipTests : StarDriveTest
@@ -80,6 +80,11 @@ public class LeftBehindHangarShipTests : StarDriveTest
     {
         RunObjectsSim(TestSimStep);
         RunObjectsSim(TestSimStep);
+        Recall(ship);
+    }
+
+    void Recall(Ship ship)
+    {
         typeof(Ship).GetMethod("RecallHangarShipIfTooFarFromCarrier", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(ship, null);
         Universe.InvokePendingSimThreadActions();
     }
@@ -175,6 +180,23 @@ public class LeftBehindHangarShipTests : StarDriveTest
 
         ship.AI.OrderScrapShip();
         Assert.AreSame(outpost, ScrapGoal(ship)?.PlanetBuildingAt, "it is scrapped at the safe colony in its system");
+    }
+
+    [TestMethod]
+    public void AFighterLeftInASystemWithNoColonyOfOursIsScrappedAtOurPortCloseBy()
+    {
+        Planet nobodys = AddDummyPlanet(Homeworld.Position + new Vector2(30_000, -5_000));
+        Ship fighter = Launched(NoWarpFighter(Beside(nobodys)));
+        RunObjectsSim(TestSimStep);
+        RunObjectsSim(TestSimStep);
+        fighter.SetSystem(nobodys.System); // the two systems overlap, and each turn either may claim the ship
+        Assert.IsTrue(!nobodys.System.HasPlanetsOwnedBy(Player) && Homeworld.HasSpacePort && Homeworld.Position.InRadius(fighter.Position, 50_000),
+                      "setup: no colony of ours in its system, and our port close by in another");
+
+        Recall(fighter);
+
+        Assert.IsTrue(fighter.Active && fighter.ScuttleTimer <= 0, "it is not scuttled");
+        Assert.AreSame(Homeworld, ScrapGoal(fighter)?.PlanetBuildingAt, "it is scrapped at our port close by");
     }
 
     [TestMethod]
