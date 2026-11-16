@@ -31,7 +31,7 @@ public class ColonyGraceTests : StarDriveTest
         AddHomeWorldToEmpire(new Vector2(20_000), Player);
         AddHomeWorldToEmpire(new Vector2(60_000), Enemy);
 
-        var system = new SolarSystem(UState, new Vector2(100_000)) { Sun = SunType.RandomHabitableSun(UState.Random) };
+        var system = new SolarSystem(UState, new Vector2(100_000)) { Sun = RandomHarmlessSun() };
         Lost = AddPlanet(system, new Vector2(105_000));
         Neighbour = AddPlanet(system, new Vector2(109_000));
         Lost.Name = "Grace Test Lost";

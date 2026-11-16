@@ -396,9 +396,12 @@ public partial class StarDriveTest : IDisposable
             throw new ArgumentException("SolarSystem position must not be Zero");
         return new SolarSystem(UState, sysPos)
         {
-            Sun = SunType.RandomHabitableSun(UState.Random)
+            Sun = RandomHarmlessSun()
         };
     }
+
+    // a star with no radiation, as test planets sit close to their star; a test that wants radiation names its star
+    public SunType RandomHarmlessSun() => SunType.RandomHabitableSun(UState.Random, s => s.DangerRadius == 0f);
         
     int NumRemoteSystems;
 

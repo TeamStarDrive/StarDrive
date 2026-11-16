@@ -36,7 +36,7 @@ namespace UnitTests.AITests.Empire
             Gift.SetOwner(Player);
         }
 
-        SolarSystem AddSystem(Vector2 pos) => new(UState, pos) { Sun = SunType.RandomHabitableSun(UState.Random) };
+        SolarSystem AddSystem(Vector2 pos) => new(UState, pos) { Sun = RandomHarmlessSun() };
 
         static Planet AddPlanet(SolarSystem system, Vector2 pos, string name)
         {
