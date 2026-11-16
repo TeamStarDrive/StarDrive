@@ -33,15 +33,29 @@ public partial class Ship
     public bool IsInRecentCombat => InCombat || TimeSinceLastDamage < RecentlyDamagedSeconds;
 
     /// <summary>
-    /// Our or an ally's planet this ship is tethered to or orbiting, which adds its repair to the ship's own
+    /// Our or an ally's planet this ship is tethered to, orbiting, or stopped close to while damaged, which adds its repair to the ship's own
     /// </summary>
     public Planet RepairPlanet
     {
         get
         {
-            Planet p = GetTether() ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
+            Planet p = GetTether() ?? (AI.IsInOrbit ? AI.OrbitTarget : null) ?? StoppedNearPlanet();
             return p != null && (p.Owner == Loyalty || Loyalty.IsAlliedWith(p.Owner)) ? p : null;
         }
+    }
+
+    const float NearPlanetRepairRange = 5000f;
+    const float StoppedSpeed = 10f;
+
+    // a damaged ship standing still out of combat close to our or an ally's planet is repaired by it as if in orbit; only such a ship looks for one
+    Planet StoppedNearPlanet()
+    {
+        SolarSystem system = System; // the ship panel reads this on the UI thread while the sim may clear it
+        if (system == null || HealthPercent >= 1f || CurrentVelocity > StoppedSpeed || IsInRecentCombat)
+            return null;
+
+        return system.PlanetList.FindClosestTo(Position, p => p.Owner != null && (p.Owner == Loyalty || Loyalty.IsAlliedWith(p.Owner))
+                                                             && p.Position.InRadius(Position, NearPlanetRepairRange));
     }
 
     void Repair(FixedSimTime timeSinceLastUpdate)
