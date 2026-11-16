@@ -217,6 +217,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 ship.ChangeOrdnance(supply);
             }
 
+            if (!spaceCombat && !ship.IsInRecentCombat) // the same charge for every shield, however far amplifiers raised it
+                ship.ChargeShields(Level * 100f * P.Universe.P.TurnTimer);
+
             ship.HealTroops(Level.LowerBound(1));
         }
 

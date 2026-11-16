@@ -2064,6 +2064,17 @@ namespace Ship_Game.Ships
             ShieldPower = shieldPower.UpperBound(ShieldMax);
         }
 
+        public void ChargeShields(float chargePerShield)
+        {
+            if (ShieldPower >= ShieldMax)
+                return;
+
+            foreach (ShipModule shield in GetShields())
+                shield.ChargeShield(chargePerShield);
+
+            UpdateShields();
+        }
+
         public enum MoveState
         {
             Sublight,

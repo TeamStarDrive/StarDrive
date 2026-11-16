@@ -1305,6 +1305,13 @@ namespace Ship_Game.Ships
             return (shieldPower + rechargeRate*rechargeExoticBonus).Clamped(0, shieldMax);
         }
 
+        // a charge from outside the ship reaches only a shield that would recharge by itself
+        public void ChargeShield(float charge)
+        {
+            if (Active && Powered && Is(ShipModuleType.Shield) && ShieldPower < ActualShieldPowerMax)
+                ShieldPower = (ShieldPower + charge).UpperBound(ActualShieldPowerMax);
+        }
+
         public float GetActualMass(Empire loyalty, float ordnancePercent, bool useMassModifier = true)
         {
             float mass = Mass;
