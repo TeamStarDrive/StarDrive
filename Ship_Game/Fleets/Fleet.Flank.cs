@@ -38,6 +38,9 @@ namespace Ship_Game.Fleets
         readonly Array<FlankPlan> FlankPlans = new();
         MilitaryTask FlankPlansTask;
 
+        // the Remnants and the AI races; the player and the other factions never split
+        static bool Flanks(Empire empire) => empire.WeAreRemnants || !empire.isPlayer && !empire.IsFaction;
+
         static bool CanFlank(Ship ship) => ship.Weapons.Count > 0 || ship.Carrier.HasActiveHangars;
 
         float GroupStrength(ThreatCluster group) => group.Strength * Owner.GetFleetStrEmpireMultiplier(group.Loyalty);

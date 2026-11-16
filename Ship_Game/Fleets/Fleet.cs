@@ -8,7 +8,6 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
-using Ship_Game.AI.CombatTactics;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Empires;
@@ -2327,7 +2326,7 @@ namespace Ship_Game.Fleets
 
             // from Hard the AI races and the Remnants split; at Insane the strongest group comes first, with half again its strength
             GameDifficulty difficulty = Owner.Universe.P.Difficulty;
-            bool canSplit = difficulty > GameDifficulty.Normal && FlankGeometry.Flanks(Owner);
+            bool canSplit = difficulty > GameDifficulty.Normal && Flanks(Owner);
             bool concentrate = canSplit && difficulty == GameDifficulty.Insane;
             if (concentrate)
                 StrongestGroupFirst(clusters);

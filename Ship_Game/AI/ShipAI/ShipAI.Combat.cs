@@ -541,7 +541,8 @@ namespace Ship_Game.AI
         [StarData] Vector2 FightBackSpot;
 
         // an enemy ship that moves, not a platform or station, holds this ship out of warp with its inhibitor
-        bool HeldByMobileEnemyInhibitor => HeldByEnemyInhibitor && Owner.IsInhibitedFromEnemyShips(mobileOnly: true);
+        bool HeldByMobileEnemyInhibitor => Owner.Inhibited && Owner.InhibitionSource == Ship.InhibitionType.EnemyShip
+                                           && Owner.IsInhibitedFromEnemyShips(mobileOnly: true);
 
         // once a second, an AI fleet ship on its fleet's locked move fights back while an enemy ship holds it out of warp, and moves locked again once free
         public void UpdateFightBackOnFleetMove()
@@ -757,10 +758,9 @@ namespace Ship_Game.AI
 
                     // automatically choose `Target` if ship does not have Priority
                     // or if current target already died
-                    if (!HasPriorityOrder && !HasPriorityTarget && selectedTarget != Target)
+                    if (!HasPriorityOrder && !HasPriorityTarget)
                     {
                         Target = selectedTarget;
-                        PlanFlankForNewTarget();
                     }
                 }
             }
@@ -827,7 +827,6 @@ namespace Ship_Game.AI
             if (!Owner.InCombat)
             {
                 Owner.InCombat = true;
-                PlanFlank();
                 //Log.Write(ConsoleColor.Green, $"ENTER combat: {Owner}");
             }
 
@@ -865,7 +864,6 @@ namespace Ship_Game.AI
 
             //Log.Write(ConsoleColor.Red, $"EXIT combat: {Owner}");
             Owner.InCombat = false;
-            IsFlanking = false;
             // a round the fight ends is over
             if (FleetRound is { At: FleetFlankRound.Stage.Flying } round)
                 round.At = FleetFlankRound.Stage.Done;

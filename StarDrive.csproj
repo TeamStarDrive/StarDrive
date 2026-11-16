@@ -322,7 +322,6 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.DoAction.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Flank.cs" />
-    <Compile Include="Ship_Game\AI\CombatTactics\FlankGeometry.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goals.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Movement.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderAction.cs" />

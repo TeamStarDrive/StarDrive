@@ -101,15 +101,11 @@ namespace Ship_Game.AI
                 DequeueCurrentOrder();
 
             if (HasPriorityTarget && HandOverPriorityTarget())
-            {
-                PlanFlankForNewTarget();
                 return Target;
-            }
 
             Target = PotentialTargets.Find(t => IsTargetValid(t)
                                                 && t.Position.InRadius(Owner.Position, Owner.SensorRange)
                                                 && MayChase(t));
-            PlanFlankForNewTarget();
             return Target;
         }
 
@@ -157,7 +153,6 @@ namespace Ship_Game.AI
             }
             else // we are in range:
             {
-                IsFlanking = false; // a flanker in reach of its target is in the fight
                 if (movesToTarget && TryOvertakeTargetInReach(target, distanceToTarget))
                     return;
 
@@ -191,9 +186,6 @@ namespace Ship_Game.AI
 
         internal void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
         {
-            if (FlyToFlank(timeStep))
-                return;
-
             if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget() && !Owner.IsInhibitedByUnfriendlyGravityWell)
             {
                 Vector2 prediction = OvertakePoint(target, out Vector2 heading);
