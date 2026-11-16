@@ -15,7 +15,7 @@ namespace Ship_Game.SpriteSystem
     /// </summary>
     public sealed partial class TextureAtlas : IDisposable
     {
-        const int Version = 30; // changing this will force all caches to regenerate
+        const int Version = 31; // changing this will force all caches to regenerate
         const string CacheVersionFile = "version.txt";
 
         // Run once per LoadAllResources, BEFORE any atlas loads. Compares the
@@ -183,7 +183,9 @@ namespace Ship_Game.SpriteSystem
 
             if (atlasTex.Exists)
             {
-                var atlas = ResourceManager.RootContent.LoadUncachedTexture(atlasTex);
+                var atlas = Path.PrePackedTex != null
+                    ? ResourceManager.RootContent.LoadUncachedTexture(atlasTex)
+                    : ResourceManager.RootContent.LoadUncachedTextureCacheFile(atlasTex);
                 Width = atlas.Width;
                 Height = atlas.Height;
 

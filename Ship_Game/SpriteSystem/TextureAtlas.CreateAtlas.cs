@@ -39,12 +39,7 @@ namespace Ship_Game.SpriteSystem
             }
             else
             {
-                // PNG fallback for AtlasNoCompress atlases (EmpireTopBar, NewUI, Popup).
-                // SpriteBatch's AlphaBlend uses the premultiplied formula. The atlas-DDS
-                // path gets premul applied at LoadDds time; the PNG path's LoadPng does
-                // not premultiply, so we bake premultiplication into the saved PNG to
-                // keep the same on-GPU contract. Without this, bright-and-transparent
-                // pixels in NewUI/EmpireTopBar/Popup atlases saturate to white at draw.
+                // a PNG atlas holds premultiplied pixels; TransferTextureToAtlas premultiplied each texture already
                 ImageUtils.PremultiplyAlpha(color, color.Length);
                 ImageUtils.SaveAsPng(pngPath, Width, Height, color);
                 DeleteStaleSibling(texturePath);
@@ -116,7 +111,7 @@ namespace Ship_Game.SpriteSystem
                     {
                         if (t.HasAlpha)
                             flags |= AtlasFlags.Alpha;
-                        t.TransferTextureToAtlas(atlasPixels, Width, Height);
+                        t.TransferTextureToAtlas(atlasPixels, Width, Height, straight: (flags & AtlasFlags.Compress) != 0);
                         if (DebugDrawBounds)
                             ImageUtils.DrawRectangle(atlasPixels, Width, Height,
                                 new Rectangle(t.X, t.Y, t.Width, t.Height), Color.YellowGreen);

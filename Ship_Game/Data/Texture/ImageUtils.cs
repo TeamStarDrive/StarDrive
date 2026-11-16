@@ -23,6 +23,14 @@ namespace Ship_Game.Data.Texture
         Dxt5BGRA = Dxt5 | SourceBGRA,
     }
 
+    // what LoadDds does with the alpha of the pixels it reads
+    public enum DdsAlpha
+    {
+        PremultiplyIfStraight, // premultiplied, unless no pixel is brighter than its alpha
+        Straight,              // kept as the file holds them
+        Premultiply,           // all premultiplied, for a file known to hold straight pixels
+    }
+
     public static class ImageUtils
     {
         // Color is a BGRA little-endian struct
@@ -77,13 +85,12 @@ namespace Ship_Game.Data.Texture
         // Default `premultiplyAlpha=true` since Phase 3.3 (2026-05-03): MonoGame's
         // BlendState.AlphaBlend expects premul bytes, and most direct PNG callers
         // (YouLose/YouWin text panels, cursors, faction art, ad-hoc UI sprites)
-        // need premul to avoid white-edge halos. PremultiplyAlpha is idempotent
-        // (heuristic-skipped on already-premul buffers — see its body), so atlas-
-        // pipeline reloads of premul-baked atlas-PNG files don't double-premul.
-        // Atlas SOURCE PNG loads end up premul'd by this default, but downstream
-        // CreateAtlasTexture and LoadDds calls to PremultiplyAlpha are now no-ops
-        // for already-premul data. Net effect: every path converges to "premul'd
-        // on GPU exactly once".
+        // need premul to avoid white-edge halos. PremultiplyAlpha skips a buffer
+        // with no pixel brighter than its alpha (see its body), so atlas-pipeline
+        // reloads of premul-baked atlas-PNG files don't double-premul.
+        // Atlas sources load straight instead (an XNB's color pixels arrive premultiplied and are
+        // unpremultiplied for a DDS copy); the texture cache premultiplies its DDS copies on load
+        // and its PNG copies as a direct load of the source file would.
         public static Texture2D LoadPng(GraphicsDevice device, string filename, bool premultiplyAlpha = true)
         {
             Texture2D tex = null;
@@ -104,7 +111,8 @@ namespace Ship_Game.Data.Texture
             return tex;
         }
 
-        public static Texture2D LoadDds(GraphicsDevice device, string filename, bool keepDxt1 = false)
+        public static Texture2D LoadDds(GraphicsDevice device, string filename, bool keepDxt1 = false,
+                                        DdsAlpha alpha = DdsAlpha.PremultiplyIfStraight)
         {
             using FileStream fs = File.OpenRead(filename);
             DxtReader dds;
@@ -146,14 +154,19 @@ namespace Ship_Game.Data.Texture
             // "transparent black" placeholder pixels with A=0 (e.g. the
             // 4x4 blank.dds stub) — those don't need rescuing, and forcing
             // them opaque would change their semantics.
-            if (dds.Format == DxtReader.PixelFormat.DXT5
+            // a texture cache file holds pixels its source load already rescued
+            if (alpha != DdsAlpha.Premultiply && dds.Format == DxtReader.PixelFormat.DXT5
                 && HasBrokenAlphaPlane(dds.DecodedImage, pixelCount))
             {
                 for (int i = 0; i < pixelCount; ++i)
                     dds.DecodedImage[i].A = 255;
                 Log.Warning($"LoadDds '{filename}': broken alpha plane (A=0 everywhere); forcing opaque");
             }
-            else
+            else if (alpha == DdsAlpha.Premultiply)
+            {
+                MultiplyAlpha(dds.DecodedImage, pixelCount);
+            }
+            else if (alpha == DdsAlpha.PremultiplyIfStraight)
             {
                 // Pre-multiply RGB by alpha. DxtReader produces non-premultiplied
                 // data, but MonoGame's SpriteBatch default (BlendState.AlphaBlend)
@@ -186,17 +199,16 @@ namespace Ship_Game.Data.Texture
             return anyRgb;
         }
 
-        // Idempotent in-place premultiply.
+        // In-place premultiply that leaves alone a buffer which already looks premultiplied.
         //
-        // Phase 3.3 (2026-05-03): added heuristic skip so callers that may receive
-        // already-premul data (LoadDds reloading a premul'd atlas, CreateAtlasTexture
-        // composing pixels sourced from premul'd LoadPng output, etc.) don't double-
-        // multiply. The heuristic mirrors Xna31Compat.PremultiplyAlphaIfNeeded /
+        // The heuristic skip lets callers that may receive already-premul data (a PNG
+        // texture cache file, a PNG atlas packed from premultiplied textures) leave it
+        // as it is. The heuristic mirrors Xna31Compat.PremultiplyAlphaIfNeeded /
         // Primitives2D.ToPremulIfNeeded: a pixel with RGB > A on any channel proves
         // the buffer is non-premul; if no such pixel exists the buffer is consistent
-        // with premultiplied or fully-opaque data and is left untouched. False
-        // positives (re-premul'ing a premul buffer) are mathematically impossible
-        // because RGB > A is incompatible with `RGB = orig_RGB * A`.
+        // with premultiplied or fully-opaque data and is left untouched. A premul
+        // buffer read back from a DXT encode can show RGB > A from rounding and be
+        // premultiplied again, so the texture cache keeps its DDS files straight.
         public static void PremultiplyAlpha(Color[] pixels, int count)
         {
             // Heuristic short-circuit: scan for proof of non-premul. Returns on the
@@ -215,6 +227,12 @@ namespace Ship_Game.Data.Texture
             if (!needsPremul)
                 return;
 
+            MultiplyAlpha(pixels, count);
+        }
+
+        // premultiplies every pixel, for pixels known to be straight
+        public static void MultiplyAlpha(Color[] pixels, int count)
+        {
             for (int i = 0; i < count; ++i)
             {
                 Color c = pixels[i];
@@ -222,6 +240,21 @@ namespace Ship_Game.Data.Texture
                 pixels[i] = new Color((byte)((c.R * c.A) / 255),
                                       (byte)((c.G * c.A) / 255),
                                       (byte)((c.B * c.A) / 255),
+                                      c.A);
+            }
+        }
+
+        // undoes a premultiply as closely as the rounding allows; a fully transparent pixel stays black
+        public static void UnpremultiplyAlpha(Color[] pixels, int count)
+        {
+            for (int i = 0; i < count; ++i)
+            {
+                Color c = pixels[i];
+                if (c.A == 255 || c.A == 0) continue;
+                int half = c.A / 2;
+                pixels[i] = new Color((byte)Math.Min(255, (c.R * 255 + half) / c.A),
+                                      (byte)Math.Min(255, (c.G * 255 + half) / c.A),
+                                      (byte)Math.Min(255, (c.B * 255 + half) / c.A),
                                       c.A);
             }
         }
