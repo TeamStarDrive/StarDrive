@@ -921,10 +921,27 @@ public class FleetFlankTests : StarDriveTest
         TestShip ship = FlankerOnItsWay();
 
         AIFleet.RemoveShip(ship, clearOrders: false);
-        RunObjectsSim(TestSimStep);
-
         Assert.IsNull(RoundOf(ship), "a ship out of the fleet no longer goes round for it");
+
+        RunObjectsSim(TestSimStep);
         Assert.IsTrue(ship.InCombat, "and fights on");
+    }
+
+    [TestMethod]
+    public void ARoundStopsWhenItsFleetTakesANewTask()
+    {
+        TestShip ship = FlankerOnItsWay();
+
+        AIFleet.FleetTask = NewTask();
+        ship.AI.Update(TestSimStep);
+
+        Assert.IsNull(RoundOf(ship), "a fleet given a new task, as when an invasion turns to holding the planet, ends its ships' rounds");
+        Assert.IsTrue(ship.InCombat, "and its ships fight on");
+
+        var plan = new Fleet.FlankPlan(AIFleet, GroupCenter, ToRear, barredSide: ToLeft);
+        Assert.IsFalse(plan.Over, "a plan made under the fleet's task stands");
+        AIFleet.FleetTask = NewTask();
+        Assert.IsTrue(plan.Over, "until the fleet's task is another");
     }
 
     [TestMethod]

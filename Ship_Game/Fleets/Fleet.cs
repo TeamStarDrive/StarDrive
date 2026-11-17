@@ -2918,6 +2918,8 @@ namespace Ship_Game.Fleets
             {
                 ship.Fleet = null;
                 ship.CatchingUpToFleet = false; // don't carry catch-up state into the next fleet
+                if (ship.AI != null)
+                    ship.AI.FleetRound = null;
                 if (ship.Active) // if ship is not dead, it means it's being transferred
                 {
                     if (clearOrders)

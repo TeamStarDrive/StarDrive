@@ -22,6 +22,7 @@ namespace Ship_Game.Fleets
             public Vector2 Center; // where the group was last known
             public readonly Vector2 Toward; // from the fleet to the group, as planned
             public readonly Vector2 BarredSide; // a side in reach of an enemy planet's guns, none for zero
+            public readonly MilitaryTask Task; // the fleet's task when the plan was made
             public bool Dropped;
 
             public FlankPlan(Fleet fleet, Vector2 center, Vector2 toward, Vector2 barredSide)
@@ -30,7 +31,10 @@ namespace Ship_Game.Fleets
                 Center = center;
                 Toward = toward;
                 BarredSide = barredSide;
+                Task = fleet.FleetTask;
             }
+
+            public bool Over => Dropped || Task != Fleet.FleetTask;
 
             public bool Sent(Ship ship) => ship.AI.FleetRound?.Plan == this;
         }

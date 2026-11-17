@@ -46,7 +46,7 @@ namespace Ship_Game.AI
             if (FleetRound is not { } round)
                 return false;
 
-            if (round.Plan.Dropped || round.Plan.Fleet != Owner.Fleet)
+            if (round.Plan.Over || round.Plan.Fleet != Owner.Fleet)
             {
                 FleetRound = null;
                 return false;
