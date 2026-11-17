@@ -44,7 +44,7 @@ namespace Ship_Game.Data.Texture
             return tex;
         }
 
-        // an atlas source as its file holds it, not premultiplied
+        // an atlas source as its file holds it, not premultiplied, but a DDS's broken DXT5 alpha plane is forced opaque
         public Texture2D LoadStraight(string texturePath)
         {
             Texture2D tex;

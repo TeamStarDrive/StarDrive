@@ -47,7 +47,7 @@ public sealed class Derelict
     public const float MinInsidesHeat = 0.1f;
     // the breakup's small blasts, with their volume and limit in AudioConfig.yaml
     public const string BreakupBlastSound = "sd_derelict_breakup";
-    // a recovery's sounds, with their volumes in AudioConfig.yaml: each break-in turn's static, a plain failure's as the derelict gives way, and a success's as it rises
+    // a recovery's sounds, with their volumes in AudioConfig.yaml: one of three unseal sounds on each break-in turn, a break as a plain failure gives way, and a repaired sound as a success rises
     public const string BreakInSound = "sd_derelict_break_in";
     public const string GiveWaySound = "sd_derelict_give_way";
     public const string RecoveredSound = "sd_derelict_recovered";

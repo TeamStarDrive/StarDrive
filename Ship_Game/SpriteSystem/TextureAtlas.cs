@@ -51,23 +51,42 @@ namespace Ship_Game.SpriteSystem
             Log.Write(ConsoleColor.Cyan,
                 $"[TextureAtlas] cache version {storedVersion} -> {Version}; purging {cacheDir}");
 
+            if (DeleteCacheEntries(cacheDir))
+                File.WriteAllText(sentinelPath, Version.ToString());
+        }
+
+        // empties the cache folder, read-only files too; false if anything is left
+        static bool DeleteCacheEntries(string cacheDir)
+        {
+            bool deletedAll = true;
             foreach (string entry in Directory.EnumerateFileSystemEntries(cacheDir))
             {
                 try
                 {
                     FileAttributes attr = File.GetAttributes(entry);
                     if ((attr & FileAttributes.Directory) != 0)
+                    {
+                        if ((attr & FileAttributes.ReparsePoint) == 0)
+                        {
+                            var within = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+                            foreach (string file in Directory.EnumerateFiles(entry, "*", within))
+                                File.SetAttributes(file, FileAttributes.Normal);
+                        }
                         Directory.Delete(entry, recursive: true);
+                    }
                     else
+                    {
+                        File.SetAttributes(entry, FileAttributes.Normal);
                         File.Delete(entry);
+                    }
                 }
-                catch (IOException ex)
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
+                    deletedAll = false;
                     Log.Warning($"[TextureAtlas] could not delete {entry}: {ex.Message}");
                 }
             }
-
-            File.WriteAllText(sentinelPath, Version.ToString());
+            return deletedAll;
         }
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?

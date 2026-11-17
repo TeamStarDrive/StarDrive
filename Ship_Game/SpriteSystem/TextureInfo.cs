@@ -158,7 +158,6 @@ namespace Ship_Game.SpriteSystem
                     return pngPath;
                 }
 
-                // DXT keeps soft edges best from straight pixels
                 if (Premultiplied)
                     ImageUtils.UnpremultiplyAlpha(color, color.Length);
                 DDSFlags flags = alpha ? DDSFlags.Dxt5 : DDSFlags.Dxt1;

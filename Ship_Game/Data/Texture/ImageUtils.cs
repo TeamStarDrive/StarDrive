@@ -27,7 +27,7 @@ namespace Ship_Game.Data.Texture
     public enum DdsAlpha
     {
         PremultiplyIfStraight, // premultiplied, unless no pixel is brighter than its alpha
-        Straight,              // kept as the file holds them
+        Straight,              // kept as the file holds them, but a broken DXT5 alpha plane is forced opaque
         Premultiply,           // all premultiplied, for a file known to hold straight pixels
     }
 
@@ -154,7 +154,7 @@ namespace Ship_Game.Data.Texture
             // "transparent black" placeholder pixels with A=0 (e.g. the
             // 4x4 blank.dds stub) — those don't need rescuing, and forcing
             // them opaque would change their semantics.
-            // a texture cache file holds pixels its source load already rescued
+            // a texture cache file is not rescued: its source's load rescued a broken plane, though an XNB's DXT5 blocks are copied as they are
             if (alpha != DdsAlpha.Premultiply && dds.Format == DxtReader.PixelFormat.DXT5
                 && HasBrokenAlphaPlane(dds.DecodedImage, pixelCount))
             {
@@ -206,9 +206,7 @@ namespace Ship_Game.Data.Texture
         // as it is. The heuristic mirrors Xna31Compat.PremultiplyAlphaIfNeeded /
         // Primitives2D.ToPremulIfNeeded: a pixel with RGB > A on any channel proves
         // the buffer is non-premul; if no such pixel exists the buffer is consistent
-        // with premultiplied or fully-opaque data and is left untouched. A premul
-        // buffer read back from a DXT encode can show RGB > A from rounding and be
-        // premultiplied again, so the texture cache keeps its DDS files straight.
+        // with premultiplied or fully-opaque data and is left untouched.
         public static void PremultiplyAlpha(Color[] pixels, int count)
         {
             // Heuristic short-circuit: scan for proof of non-premul. Returns on the
