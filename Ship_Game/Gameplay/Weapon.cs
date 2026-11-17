@@ -480,11 +480,13 @@ namespace Ship_Game.Gameplay
         // a beam that only pulls, never damages
         bool IsPureTractor => TractorDamage > 0f && DamageAmount < 1f;
 
-        // a ship this tractor can reach that is not already held still
-        bool CanPull(Ship ship) => ship != null && !ship.IsInWarp && ship.TractorDamage < ship.Mass
-                                   && TargetValid(ship) && IsTargetAliveAndInRange(ship);
+        // a ship already held still or at warp, which no tractor can pull
+        static bool PastPulling(Ship ship) => ship.IsInWarp || ship.TractorDamage >= ship.Mass;
 
-        // the ship's priority target if the tractor can pull it, else the fastest ship it can pull
+        // a ship this tractor can reach that is not already held still
+        bool CanPull(Ship ship) => ship != null && !PastPulling(ship) && TargetValid(ship) && IsTargetAliveAndInRange(ship);
+
+        // the ship's priority target if the tractor can pull it, else the fastest ship it can pull, looking past ships held or at warp
         Ship ShipToPull(Ship mainTarget, Ship[] potentialTargets)
         {
             bool canPullMain = CanPull(mainTarget);
@@ -493,9 +495,12 @@ namespace Ship_Game.Gameplay
 
             Ship fastest = canPullMain ? mainTarget : null;
             int maxTracking = 1 + Owner.TrackingPower + Owner.Level;
-            for (int i = 0; i < potentialTargets.Length && i < maxTracking; ++i)
+            for (int i = 0, tracked = 0; i < potentialTargets.Length && tracked < maxTracking; ++i)
             {
                 Ship ship = potentialTargets[i];
+                if (ship == null || PastPulling(ship))
+                    continue;
+                ++tracked;
                 if ((fastest == null || ship.CurrentVelocity > fastest.CurrentVelocity) && CanPull(ship))
                     fastest = ship;
             }

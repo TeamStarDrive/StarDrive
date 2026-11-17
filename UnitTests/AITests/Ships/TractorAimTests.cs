@@ -71,6 +71,38 @@ public class TractorAimTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ATractorLooksPastShipsAlreadyHeldForOneItCanPull()
+    {
+        int tracked = 1 + Us.TrackingPower + Us.Level;
+        var around = new Ship[tracked + 1];
+        for (int i = 0; i < tracked; ++i)
+            around[i] = SpawnShipNoCombatHoldPos("Fang Strafer", Enemy, InTractorArc(800f + 150f * i));
+        around[tracked] = Cruiser;
+        RunObjectsSim(TestSimStep);
+        for (int i = 0; i < tracked; ++i)
+            around[i].CauseTractorDamage(around[i].Mass + 1f, hittingShields: false);
+        Cruiser.Velocity = Vector2.Zero;
+
+        AssertEqual(Cruiser, Pulled(around[0], around), "held ships as many as the ship can track must not keep a tractor from the next ship it can pull");
+    }
+
+    [TestMethod]
+    public void ShipsATractorCanPullStillCountAgainstWhatItsShipCanTrack()
+    {
+        int tracked = 1 + Us.TrackingPower + Us.Level;
+        var around = new Ship[tracked + 1];
+        for (int i = 0; i < tracked; ++i)
+            around[i] = SpawnShipNoCombatHoldPos("Fang Strafer", Enemy, InTractorArc(800f + 150f * i));
+        around[tracked] = Fighter;
+        RunObjectsSim(TestSimStep);
+        for (int i = 0; i < tracked; ++i)
+            around[i].Velocity = Vectors.Right * (100f + 10f * i);
+        Fighter.Velocity = Vectors.Right * 600f;
+
+        AssertEqual(around[tracked - 1], Pulled(around[0], around), "a faster ship past as many ships as ours can track and pull must be left out of the tractor's choice");
+    }
+
+    [TestMethod]
     public void ATractorPicksAgainAtItsNextShot()
     {
         AssertEqual(Cruiser, Pulled(Cruiser, Cruiser), "setup: the first pull must go to the only ship in reach");
