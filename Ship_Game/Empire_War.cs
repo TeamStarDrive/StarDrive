@@ -270,7 +270,7 @@ namespace Ship_Game
 
             var currentEnemies = AllActiveWars.FilterSelect(w => !w.Them.IsFaction, w => w.Them);
             int minStr = DifficultyModifiers.MinimumThreatStr * (them.isPlayer ? 500 : 1000);
-            float currentEnemyStr   = currentEnemies.Sum(e => e.isPlayer ? e.OffensiveStrength : e.ShipsReadyForFleet.AccumulatedStrength);
+            float currentEnemyStr   = currentEnemies.Sum(e => e.isPlayer ? e.OffensiveStrength : e.StrengthReadyForTasks());
             float currentEnemyBuild = currentEnemies.Sum(e => e.AI.BuildCapacity);
 
 
@@ -284,13 +284,13 @@ namespace Ship_Game
             (float alliesStr , float alliesBuildCapacity) GetAlliedStr(Empire e)
             {
                 float buildCap = e.AI.BuildCapacity;
-                float currentStr = e.isPlayer ? e.OffensiveStrength : e.ShipsReadyForFleet.AccumulatedStrength;
+                float currentStr = e.isPlayer ? e.OffensiveStrength : e.StrengthReadyForTasks();
                 var array = Universe.GetAllies(e);
                 for (int i = 0; i < array.Count; i++)
                 {
                     var ally = array[i];
                     buildCap += ally.AI.BuildCapacity;
-                    currentStr += ally.isPlayer ? ally.OffensiveStrength : ally.ShipsReadyForFleet.AccumulatedStrength;
+                    currentStr += ally.isPlayer ? ally.OffensiveStrength : ally.StrengthReadyForTasks();
                 }
 
                 return (currentStr, buildCap);

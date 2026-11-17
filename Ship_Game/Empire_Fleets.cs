@@ -185,8 +185,20 @@ public sealed partial class Empire
             RemoveResetFleets();
     }
 
-    // a reset fleet has key 0 and no ships
-    void RemoveResetFleets() => Fleets.RemoveAll(f => f.Key == 0 && f.Ships.IsEmpty);
+    // a reset fleet has key 0 and no ships; a kept fleet with no task goes once it has lost its ships
+    void RemoveResetFleets() => Fleets.RemoveAll(f => f.Ships.IsEmpty && (f.Key == 0 || f.IsIdle));
+
+    // the AI's strength free for a new task: its warships in no fleet and its idle kept fleets
+    public float StrengthReadyForTasks()
+    {
+        float strength = ShipsReadyForFleet?.AccumulatedStrength ?? 0f;
+        foreach (Fleet fleet in ActiveFleets)
+        {
+            if (fleet.IsIdle)
+                strength += fleet.ReadyStrength;
+        }
+        return strength;
+    }
 
     public void TrySendInitialFleets(Planet p)
     {

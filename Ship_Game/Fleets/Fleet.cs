@@ -2857,7 +2857,10 @@ namespace Ship_Game.Fleets
             }
             else if (!Owner.isPlayer) // no fleet task
             {
-                Reset(fleeIfOutmatched: false);
+                if (Kept)
+                    UpdateIdle();
+                else
+                    Reset(fleeIfOutmatched: false);
             }
         }
 
