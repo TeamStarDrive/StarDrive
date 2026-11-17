@@ -579,7 +579,7 @@ namespace Ship_Game.AI.Tasks
         {
             int maxFleets = Owner.ShipsReadyForFleet.CurrentUseableFleets;
             int wantedNumberOfFleets = FleetCount;
-            if (TargetPlanet?.Owner != null)
+            if (TargetPlanet?.Owner != null && (Type != TaskType.Exploration || TargetPlanet.Owner != Owner))
             {
                 wantedNumberOfFleets +=(int)Math.Floor(Owner.GetFleetStrEmpireMultiplier(TargetPlanet.Owner) + 0.5f);
                 wantedNumberOfFleets += TargetPlanet.System.PlanetList.Max(p =>

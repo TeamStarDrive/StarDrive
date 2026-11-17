@@ -149,6 +149,25 @@ public class ExplorationFleetTests : StarDriveTest
         Assert.IsFalse(unknown.QueuedForRemoval, "a task for a planet of the Unknown empire goes on");
     }
 
+    static int FleetSetsWanted(MilitaryTask task)
+        => (int)typeof(MilitaryTask).GetMethod("WantedNumberOfFleets", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(task, null)!;
+
+    [TestMethod]
+    public void AnExplorationTaskForItsOwnColonyAsksNoMoreFleetsThanForAFreePlanet()
+    {
+        CreateAMinorFaction("Corsairs");
+        UState.Unknown = Faction;
+        ReadyShipsForFleets();
+        typeof(FleetShips).GetProperty(nameof(FleetShips.CurrentUseableFleets))!.SetValue(Enemy.ShipsReadyForFleet, 5); // ships for several fleets
+        MilitaryTask free = MilitaryTask.CreateExploration(EventPlanet(null, new Vector2(400_000)), Enemy);
+        MilitaryTask own = MilitaryTask.CreateExploration(EventPlanet(Enemy, new Vector2(800_000)), Enemy);
+        MilitaryTask unknown = MilitaryTask.CreateExploration(EventPlanet(Faction, new Vector2(1_200_000)), Enemy);
+
+        AssertEqual(1, FleetSetsWanted(free), "setup: a task for a free planet asks one fleet set");
+        AssertEqual(1, FleetSetsWanted(own), "a task for the empire's own colony asks no more, as no enemy holds it");
+        AssertGreaterThan(FleetSetsWanted(unknown), 1, "a task for a planet of the Unknown empire still asks more for its owner");
+    }
+
     [TestMethod]
     public void AnExplorationForceNeverBombsItsTarget()
     {
