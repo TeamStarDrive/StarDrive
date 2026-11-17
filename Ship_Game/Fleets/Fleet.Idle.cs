@@ -3,6 +3,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -18,6 +19,13 @@ namespace Ship_Game.Fleets
         [StarData] public Planet IdleRally { get; private set; }
 
         public bool IsIdle => Kept && FleetTask == null;
+
+        // the strength a split leaves the fleet: the most its tasks needed, fading while it is idle
+        [StarData] public float StrengthToKeep { get; private set; }
+
+        const float StrengthToKeepFadePerTurn = 0.995f;
+
+        internal void FadeStrengthToKeep() => StrengthToKeep *= StrengthToKeepFadePerTurn;
 
         // the strength of the ships ready for a task, without those away resupplying
         public float ReadyStrength => Ships.Sum(s => s is { Active: true, Resupplying: false } ? s.GetStrength() : 0f);
@@ -70,6 +78,7 @@ namespace Ship_Game.Fleets
             Ship[] fleeing = ShipsFightingWhereOutmatched(both); // both fleets weigh their fights together, before the join ends them
             Ship[] fighting = both.Filter(s => s.InCombat);
 
+            StrengthToKeep = Math.Max(StrengthToKeep, other.StrengthToKeep);
             other.JoinInto(this);
             AutoArrange();
             if (IdleRally != null)
@@ -117,6 +126,7 @@ namespace Ship_Game.Fleets
                 return;
             }
 
+            StrengthToKeep = Math.Max(StrengthToKeep, FleetTask?.MinimumTaskForceStrength ?? 0f);
             Owner.AI?.RemoveFleetFromGoals(this);
             TaskStep = 0;
             FleetTask = null;
@@ -210,8 +220,110 @@ namespace Ship_Game.Fleets
         void GoToIdleRally(Planet rally)
         {
             IdleRally = rally;
+            RefitCheckDue = true;
             Vector2 center = AveragePosition(force: true);
             MoveTo(rally.Position, center.DirectionToTarget(rally.Position));
+        }
+
+        // the refit check is due once the fleet is in orbit of its rally planet with no enemies near it, after it heads there and when new tech comes in
+        [StarData(DefaultValue = true)] bool RefitCheckDue = true;
+
+        internal void RefitCheckOnNewTech() => RefitCheckDue = true;
+
+        internal bool TakeRefitCheckAtRally()
+        {
+            if (!RefitCheckDue || IdleRally == null || !InOrbitOfIdleRally() || Ships.Any(s => s.AI.BadGuysNear))
+                return false;
+
+            RefitCheckDue = false;
+            return true;
+        }
+
+        bool InOrbitOfIdleRally()
+        {
+            int orbiting = 0;
+            for (int i = 0; i < Ships.Count; ++i)
+            {
+                if (Ships[i].AI.IsOrbiting(IdleRally))
+                    ++orbiting;
+            }
+            return orbiting * 2 > Ships.Count;
+        }
+
+        // the ships away refitting whose places the fleet holds
+        internal int ShipsAwayRefitting()
+        {
+            int away = 0;
+            for (int i = 0; i < DataNodes.Count; ++i)
+            {
+                if (DataNodes[i].Ship == null && DataNodes[i].Goal is RefitShip)
+                    ++away;
+            }
+            return away;
+        }
+
+        // a third of the fleet, rounded up and ships away refitting counted, may be away refitting at a time, and one ship always stays
+        internal int RoomToRefit()
+        {
+            int away = ShipsAwayRefitting();
+            return Math.Min((Ships.Count + away + 2) / 3 - away, Ships.Count - 1);
+        }
+
+        // in orbit of its rally planet with no ship away refitting, the fleet splits: the new fleet takes half of each role from its repaired ships, in turns across the roles, while this one keeps its strength to keep, and each keeps a full fleet ratio's number of ships
+        internal void SplitOff(float shipsPerFullFleet)
+        {
+            if (IdleRally == null || ShipsAwayRefitting() > 0 || !InOrbitOfIdleRally())
+                return;
+
+            var shares = new Map<RoleName, int>();
+            var healthy = new Map<RoleName, Array<Ship>>(); // damaged, resupplying and fighting ships stay
+            for (int i = 0; i < Ships.Count; ++i)
+            {
+                Ship ship = Ships[i];
+                shares.TryGetValue(ship.DesignRole, out int count);
+                shares[ship.DesignRole] = count + 1;
+                if (ship.Active && !ship.Resupplying && !ship.InCombat && ship.HealthPercent >= ShipResupply.RepairDoneThreshold)
+                {
+                    if (!healthy.TryGetValue(ship.DesignRole, out Array<Ship> ships))
+                        healthy[ship.DesignRole] = ships = new();
+                    ships.Add(ship);
+                }
+            }
+
+            var candidates = new Array<(int Turn, RoleName Role, Ship Ship)>();
+            foreach (var role in healthy)
+            {
+                for (int turn = 0; turn < shares[role.Key] / 2 && turn < role.Value.Count; ++turn)
+                    candidates.Add((turn, role.Key, role.Value[turn]));
+            }
+
+            var leaving = new Array<Ship>();
+            float staying = ReadyStrength;
+            foreach (var (_, _, ship) in candidates.Sorted(c => (c.Turn, c.Role)))
+            {
+                float strength = ship.GetStrength();
+                if (staying - strength < StrengthToKeep)
+                    break;
+
+                staying -= strength;
+                leaving.Add(ship);
+            }
+
+            if (leaving.Count < shipsPerFullFleet)
+                return;
+
+            Fleet split = Owner.CreateFleet(Owner.CreateFleetKey(), null);
+            for (int i = 0; i < leaving.Count; ++i)
+            {
+                Ship ship = leaving[i];
+                if (RemoveShip(ship, clearOrders: true))
+                    split.AddShip(ship);
+            }
+
+            DropEmptyNodes(); // not rearranged, so the staying ships keep their orbit
+            split.Kept = true;
+            split.AutoArrange();
+            split.GoToIdleRally(IdleRally);
         }
 
         bool ArrivedAtIdleRally()

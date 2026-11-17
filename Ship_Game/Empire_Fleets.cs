@@ -152,9 +152,16 @@ public sealed partial class Empire
         // replace existing?
         int index = Fleets.IndexOf(f => f.Key == fleetId);
         if (index != -1)
+        {
+            Fleet replaced = Fleets[index];
+            if (replaced != fleet && replaced.IsIdle) // a kept fleet with every ship away refitting: the refits go to the pool
+                AI?.RemoveFleetFromGoals(replaced);
             Fleets[index] = fleet;
+        }
         else
+        {
             Fleets.Add(fleet);
+        }
     }
 
     // Creates a fleet with specified ID and overwrites that fleet slot
@@ -186,8 +193,20 @@ public sealed partial class Empire
             RemoveResetFleets();
     }
 
-    // a reset fleet has key 0 and no ships; a kept fleet with no task goes once it has lost its ships
-    void RemoveResetFleets() => Fleets.RemoveAll(f => f.Ships.IsEmpty && (f.Key == 0 || f.IsIdle));
+    // a reset fleet has key 0 and no ships; a kept fleet with no task goes once it has lost its ships, and its ships away refitting go to the pool
+    void RemoveResetFleets()
+    {
+        for (int i = Fleets.Count - 1; i >= 0; --i)
+        {
+            Fleet fleet = Fleets[i];
+            if (fleet.Ships.IsEmpty && (fleet.Key == 0 || fleet.IsIdle))
+            {
+                if (fleet.Key != 0)
+                    AI?.RemoveFleetFromGoals(fleet);
+                Fleets.RemoveAt(i);
+            }
+        }
+    }
 
     // the AI's strength free for a new task: its warships in no fleet and its idle kept fleets
     public float StrengthReadyForTasks()

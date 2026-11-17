@@ -38,7 +38,7 @@ namespace Ship_Game.AI
             var offensiveGoals = SearchForGoals(GoalType.BuildOffensiveShips);
             BuildWarShips(offensiveGoals.Count);
             PrioritizeTasks();
-            JoinIdleFleetsOverTheCap();
+            UpdateIdleFleets();
             int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
             int taskEvalCounter = 0;
 
@@ -477,33 +477,42 @@ namespace Ship_Game.AI
                     return RoleBuildBudget / CurrentMaintenance.LowerBound(0.01f);
                 }
 
+                bool WithinBudget => CurrentCount <= DesiredCount + 1
+                                     || CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax;
+
+                // oldest designs first, ships in no fleet before the weakest idle fleet's for the same age; one ship of each role a turn, or all it takes below the money line where the AI stops building freighters
                 public void ScrapAsNeeded(Empire empire)
                 {
-                    if (CurrentCount <= DesiredCount + 1 
-                        || CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
+                    if (WithinBudget)
                     {
                         WeAreScrapping = false;
                         return;
                     }
 
                     WeAreScrapping = true;
-                    foreach (var ship in CurrentShips
-                        .OrderBy(ship => ship.ShipData.TechsNeeded.Count))
+                    bool toBudgetAtOnce = !empire.EconomicSafeToBuildFreighter;
+                    foreach (Ship ship in CurrentShips.Filter(s => MayScrap(s, empire))
+                                                      .OrderBy(s => s.ShipData.TechsNeeded.Count)
+                                                      .ThenBy(s => s.Fleet?.GetStrength() ?? 0f))
                     {
-                        if (ship.OnLowAlert 
-                            && ship.Fleet == null
-                            && ship.AI.State != AIState.Scuttle
-                            && ship.AI.State != AIState.Resupply
-                            && ship.CanBeScrapped && ship.Active
-                            && ship.GetMaintCost(empire) > 0
-                            && ship.AI.State != AIState.Scrap)
-                        {
-                            CurrentCount--;
-                            CurrentMaintenance -= ship.GetMaintCost();
-                            ship.AI.OrderScrapShip();
-                            break; // screp one of each role at a time
-                        }
+                        CurrentCount--;
+                        CurrentMaintenance -= ship.GetMaintCost();
+                        ship.AI.OrderScrapShip();
+                        if (!toBudgetAtOnce || WithinBudget)
+                            break;
                     }
+                }
+
+                // a ship in no fleet or in an idle fleet, never one of a fleet on a task
+                static bool MayScrap(Ship ship, Empire empire)
+                {
+                    return ship.OnLowAlert
+                        && (ship.Fleet == null || ship.Fleet.IsIdle)
+                        && ship.AI.State != AIState.Scuttle
+                        && ship.AI.State != AIState.Resupply
+                        && ship.CanBeScrapped && ship.Active
+                        && ship.GetMaintCost(empire) > 0
+                        && ship.AI.State != AIState.Scrap;
                 }
 
                 public enum CombatRole

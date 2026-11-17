@@ -221,7 +221,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (FinishedShip == null && PlanetBuildingAt.Owner != Owner)
                 return QueueAtAnotherPort();
 
-            return WaitForShipBuilt();
+            GoalStep step = WaitForShipBuilt();
+            if (step == GoalStep.GoalFailed)
+                RemoveGoalFromFleet(); // the build is gone, so the fleet place held for it is freed
+            return step;
         }
 
         GoalStep QueueAtAnotherPort()
