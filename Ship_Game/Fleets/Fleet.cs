@@ -2987,13 +2987,16 @@ namespace Ship_Game.Fleets
         }
 
         // the fleet's ships in combat that cannot take their fight, each hostile empire weighed by its own multiplier
-        Ship[] ShipsFightingWhereOutmatched()
+        Ship[] ShipsFightingWhereOutmatched() => ShipsFightingWhereOutmatched(Ships);
+
+        // the ships in combat that cannot take their fight together with the others, each hostile empire weighed by its own multiplier
+        Ship[] ShipsFightingWhereOutmatched(IReadOnlyList<Ship> ships)
         {
             var fleeing = new Array<Ship>();
             var canTakeSystem = new Map<SolarSystem, bool>(); // worked out once per system
-            for (int i = 0; i < Ships.Count; ++i)
+            for (int i = 0; i < ships.Count; ++i)
             {
-                Ship ship = Ships[i];
+                Ship ship = ships[i];
                 if (!ship.Active || !ship.InCombat)
                     continue;
 
@@ -3003,14 +3006,14 @@ namespace Ship_Game.Fleets
                     if (!canTakeSystem.TryGetValue(system, out canTake))
                     {
                         float hostiles = Owner.Threats.GetWeightedHostileStrengthAt(system.Position, system.Radius);
-                        canTake = CanTakeWeightedFight(Owner, StrengthOfShipsIn(system), hostiles);
+                        canTake = CanTakeWeightedFight(Owner, StrengthOfShipsIn(ships, system), hostiles);
                         canTakeSystem[system] = canTake;
                     }
                 }
                 else
                 {
                     float hostiles = Owner.Threats.GetWeightedHostileStrengthAt(ship.Position, AssaultEnemyScanRadius);
-                    canTake = CanTakeWeightedFight(Owner, StrengthOfShipsWithin(ship.Position, AssaultEnemyScanRadius), hostiles);
+                    canTake = CanTakeWeightedFight(Owner, StrengthOfShipsWithin(ships, ship.Position, AssaultEnemyScanRadius), hostiles);
                 }
 
                 if (!canTake)
@@ -3019,24 +3022,24 @@ namespace Ship_Game.Fleets
             return fleeing.ToArray();
         }
 
-        float StrengthOfShipsIn(SolarSystem system)
+        static float StrengthOfShipsIn(IReadOnlyList<Ship> ships, SolarSystem system)
         {
             float strength = 0f;
-            for (int i = 0; i < Ships.Count; ++i)
+            for (int i = 0; i < ships.Count; ++i)
             {
-                Ship ship = Ships[i];
+                Ship ship = ships[i];
                 if (ship.Active && ship.System == system)
                     strength += ship.GetStrength();
             }
             return strength;
         }
 
-        float StrengthOfShipsWithin(Vector2 position, float radius)
+        static float StrengthOfShipsWithin(IReadOnlyList<Ship> ships, Vector2 position, float radius)
         {
             float strength = 0f;
-            for (int i = 0; i < Ships.Count; ++i)
+            for (int i = 0; i < ships.Count; ++i)
             {
-                Ship ship = Ships[i];
+                Ship ship = ships[i];
                 if (ship.Active && ship.Position.InRadius(position, radius))
                     strength += ship.GetStrength();
             }

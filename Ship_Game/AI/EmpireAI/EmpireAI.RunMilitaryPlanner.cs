@@ -38,6 +38,7 @@ namespace Ship_Game.AI
             var offensiveGoals = SearchForGoals(GoalType.BuildOffensiveShips);
             BuildWarShips(offensiveGoals.Count);
             PrioritizeTasks();
+            JoinIdleFleetsOverTheCap();
             int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
             int taskEvalCounter = 0;
 

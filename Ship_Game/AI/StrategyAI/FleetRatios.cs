@@ -77,7 +77,7 @@ namespace Ship_Game.AI
         {
             if(IsRandomFleetSize) 
             {
-                SeededRandom seededRandom = new SeededRandom();
+                SeededRandom seededRandom = new SeededRandom(OwnerEmpire.FleetRatioSeed);
 
                 MinFighters    = CountIndexed[0] = (int) counts[0].Generate(seededRandom);
                 MinCorvettes   = CountIndexed[1] = (int) counts[1].Generate(seededRandom);

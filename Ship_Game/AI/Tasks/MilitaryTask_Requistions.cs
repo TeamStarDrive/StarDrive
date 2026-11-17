@@ -150,6 +150,7 @@ namespace Ship_Game.AI.Tasks
                 && !TargetSystem.DangerousForcesPresent(Owner))
             {
                 EndTask();
+                return;
             }
 
             if (AO.AlmostZero())
@@ -461,64 +462,73 @@ namespace Ship_Game.AI.Tasks
         /// <returns>The return is either complete for success or the type of failure in fleet creation.</returns>
         RequisitionStatus CreateTaskFleet(float battleFleetSize, bool highTroopPriority = false)
         {
-            if (!RoomForMoreFleets())
-            {
-                ReqStatus = RequisitionStatus.NotEnoughAvailableFleets;
-                return ReqStatus;
-            }
-
             // where the fleet will gather after requisition before moving to target AO.
             Planet rallyPoint = TargetPlanet ?? Owner.FindNearestRallyPoint(AO); 
             if (rallyPoint == null)
+                return ReqStatus = RequisitionStatus.NoRallyPoint;
+
+            if (Owner.KeepsFleets)
             {
-                ReqStatus = RequisitionStatus.NoRallyPoint;
-                return ReqStatus;
+                if (UsesKeptFleets(Type))
+                    return ReqStatus = FindKeptForce(rallyPoint, battleFleetSize, highTroopPriority);
+
+                if (IdleFleetForSmallTask() is { } idle)
+                    return ReqStatus = TakeKeptForce(idle, null, rallyPoint, highTroopPriority);
             }
 
-            var troopsOnPlanets = new Array<Troop>();
+            if (!RoomForMoreFleets())
+                return ReqStatus = RequisitionStatus.NotEnoughAvailableFleets;
 
+            return ReqStatus = FormFleetFromPool(rallyPoint, battleFleetSize, highTroopPriority, WantedNumberOfFleets());
+        }
+
+        // a new fleet of pool ships, the troops it lacks gathered from planets
+        RequisitionStatus FormFleetFromPool(Planet rallyPoint, float battleFleetSize, bool highTroopPriority, int wantedFleets)
+        {
             FleetShips fleetShips = Owner.ShipsReadyForFleet;
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
+            RequisitionStatus needs = CheckSupportNeeds(fleetShips, forceBombSecs: 0, forceTroopStrength: 0f, rallyPoint,
+                                                        highTroopPriority, out Array<Troop> troopsOnPlanets);
+            if (needs != RequisitionStatus.Complete)
+                return needs;
 
-            if (NeededTroopStrength > 0)
-            {
-                CoverMissingBombingWithTroops(fleetShips.BombSecsAvailable);
-
-                // See if we need to gather troops from planets. Bail if not enough
-                if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out troopsOnPlanets, rallyPoint.Position, highTroopPriority))
-                {
-                    ReqStatus = RequisitionStatus.NotEnoughTroopStrength;
-                    return ReqStatus;
-                }
-            }
-            else if (TaskBombTimeNeeded > fleetShips.BombSecsAvailable)
-            {
-                ReqStatus = RequisitionStatus.NotEnoughBomberStrength;
-                return ReqStatus;
-            }
-
-            int wantedNumberOfFleets = WantedNumberOfFleets();
-            // All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, this,
+            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedFleets, this,
                                                   out int fleetSetsGot, out bool outmatched);
             if (outmatched)
             {
                 EndTask();
-                ReqStatus = RequisitionStatus.NotEnoughShipStrength;
-                return ReqStatus;
+                return RequisitionStatus.NotEnoughShipStrength;
             }
 
             if (TaskForce.IsEmpty)
-            {
-                ReqStatus = RequisitionStatus.FailedToCreateAFleet;
-                return ReqStatus;
-            }
+                return RequisitionStatus.FailedToCreateAFleet;
 
             Log.Info($"{Owner.Name} Formed TaskForce {GetFleetName()} NumShips={TaskForce.Count} Strength={GetTaskForceStrength()} MinStrength={MinimumTaskForceStrength}");
             CreateFleet(TaskForce, GetFleetName());
-            Owner.ShipsReadyForFleet.RemoveUsableFleets(fleetSetsGot);
-            ReqStatus = RequisitionStatus.Complete;
-            return ReqStatus;
+            fleetShips.RemoveUsableFleets(fleetSetsGot);
+            return RequisitionStatus.Complete;
+        }
+
+        // the pool and planets have the bombing and troops the force lacks, troops making up for missing bombing
+        RequisitionStatus CheckSupportNeeds(FleetShips pool, int forceBombSecs, float forceTroopStrength, Planet rallyPoint,
+                                            bool highTroopPriority, out Array<Troop> troopsOnPlanets)
+        {
+            troopsOnPlanets = new Array<Troop>();
+            int bombSecs = pool.BombSecsAvailable + forceBombSecs;
+            if (NeededTroopStrength > 0)
+            {
+                CoverMissingBombingWithTroops(bombSecs);
+                if (!AreThereEnoughTroopsToInvade(pool.InvasionTroopStrength + forceTroopStrength, out troopsOnPlanets,
+                                                  rallyPoint.Position, highTroopPriority))
+                {
+                    return RequisitionStatus.NotEnoughTroopStrength;
+                }
+            }
+            else if (TaskBombTimeNeeded > bombSecs)
+            {
+                return RequisitionStatus.NotEnoughBomberStrength;
+            }
+            return RequisitionStatus.Complete;
         }
 
         // the bombing time the bombers cannot cover is made up with troops, at a standard troop strength of 10
