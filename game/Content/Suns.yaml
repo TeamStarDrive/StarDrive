@@ -359,6 +359,44 @@
       PulseColor: [1.0,1.20]      
 
 - Sun:
+  Id: star_trinary
+  ResearchableChance: 10
+  IconPath: Suns/star_trinary_icon.png
+  IconScale: 6
+  LightIntensity: 1.7
+  Radius: 50000
+  LightColor: [255,220,200] # warm white
+  Habitable: true
+  MultiSun: true
+  Layers:
+    - Layer:
+      TexturePath: Suns/star_trinary.dds
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.05
+      PulsePeriod: 5.0
+      PulseScale: [1,1]
+      PulseColor: [1.0,1.20]
+
+- Sun:
+  Id: star_trinary2
+  ResearchableChance: 10
+  IconPath: Suns/star_trinary2_icon.png
+  IconScale: 6
+  LightIntensity: 1.7
+  Radius: 50000
+  LightColor: [255,205,195] # pinkish warm white
+  Habitable: true
+  MultiSun: true
+  Layers:
+    - Layer:
+      TexturePath: Suns/star_trinary2.dds
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.05
+      PulsePeriod: 5.0
+      PulseScale: [1,1]
+      PulseColor: [1.0,1.20]
+
+- Sun:
   Id: star_green
   IconPath: Suns/star_green_icon.png
   IconScale: 9
@@ -635,4 +673,267 @@
       RotationSpeed: -0.5
       RotationStart: 0.0
       LayerScale: 0.065
+
+# a cooler, smaller orange cousin of the yellow star
+- Sun:
+  Id: star_orange_dwarf
+  IconPath: Suns/star_orange_dwarf_icon.png
+  IconScale: 7
+  LightIntensity: 1.3
+  Radius: 110000
+  LightColor: [255,180,110]
+  Habitable: true
+  Layers:
+    - Layer:
+      TexturePath: Suns/star_orange_dwarf.dds
+      RotationSpeed: 0.03
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_orange_dwarf.dds
+      TextureColor: [1.0,0.887,0.781,1.0]
+      RotationSpeed: -0.015
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
+
+# a red dwarf that flares every few seconds; its flares are looks only, with no radiation
+- Sun:
+  Id: star_flare
+  IconPath: Suns/star_flare_icon.png
+  IconScale: 6
+  IconLayer: 1 # the red star
+  LightIntensity: 1.2
+  Radius: 100000
+  LightColor: [255,140,110]
+  Habitable: true
+  Layers:
+    - Layer: # the flare
+      TexturePath: Suns/red_giant.dds
+      TextureColor: [1.0,0.5,0.3,1.0]
+      BlendMode: Additive
+      LayerScale: 0.22
+      RotationSpeed: 0.05
+      PulsePeriod: 8.0
+      PulseScale: [0.7,1.15]
+      PulseColor: [0.0,1.5]
+    - Layer:
+      TexturePath: Suns/star_red.dds
+      LayerScale: 0.8
+      RotationSpeed: 0.03
+    - Layer:
+      TexturePath: Suns/star_red.dds
+      LayerScale: 0.8
+      RotationSpeed: -0.015
+      PulsePeriod: 8.0
+      PulseColor: [1.0,1.4]
+
+# a green dwarf that flares, found only in barren systems; the flare layer comes first, so its radiation comes in bursts with the flares
+- Sun:
+  Id: star_flare_green
+  IconPath: Suns/star_flare_green_icon.png
+  IconScale: 6
+  IconLayer: 1 # the green star
+  LightIntensity: 1.2
+  Radius: 100000
+  LightColor: [150,255,160]
+  Habitable: false
+  RadiationDamage: 4
+  RadiationRadius: 10000
+  ResearchableChance: 50
+  Layers:
+    - Layer: # the flare: the red giant with its red and green swapped
+      TexturePath: Suns/star_flare_green.dds
+      TextureColor: [0.5,1.0,0.3,1.0]
+      BlendMode: Additive
+      LayerScale: 0.22
+      RotationSpeed: 0.05
+      PulsePeriod: 8.0
+      PulseScale: [0.7,1.15]
+      PulseColor: [0.0,1.5]
+    - Layer:
+      TexturePath: Suns/star_green.dds
+      LayerScale: 0.8
+      RotationSpeed: 0.03
+    - Layer:
+      TexturePath: Suns/star_green.dds
+      LayerScale: 0.8
+      RotationSpeed: -0.015
+      PulsePeriod: 8.0
+      PulseColor: [1.0,1.4]
+
+# a neutron star with a crushing magnetic field: the strongest radiation and the widest danger zone
+- Sun:
+  Id: star_magnetar
+  IconPath: Suns/star_magnetar_icon.png
+  IconScale: 4
+  IconLayer: 2 # the purple star
+  LightIntensity: 1.5
+  Radius: 150000
+  LightColor: [230,170,255]
+  Habitable: false
+  RadiationDamage: 25
+  RadiationRadius: 30000
+  ResearchableChance: 70
+  Layers:
+    - Layer: # huge radiation layer
+      TexturePath: Suns/radiation_purple.dds
+      BlendMode: Additive
+      TextureColor: 0.4
+      LayerScale: 0.8
+      RotationSpeed: 0.01
+      PulsePeriod: 6.0
+      PulseScale: [1.0,1.03]
+      PulseColor: [0.6,1.0]
+    - Layer: # huge radiation layer
+      TexturePath: Suns/radiation_purple.dds
+      BlendMode: Additive
+      TextureColor: 0.4
+      LayerScale: 0.8
+      RotationSpeed: -0.01
+      RotationStart: 1.57
+      PulsePeriod: 6.0
+      PulseScale: [1.0,1.04]
+      PulseColor: [0.6,1.0]
+    - Layer:
+      TexturePath: Suns/star_purple.dds
+      BlendMode: AlphaBlend
+      LayerScale: 0.28
+      RotationSpeed: 1.5
+      PulsePeriod: 1.5
+      PulseScale: [0.95,1.08]
+      PulseColor: [0.85,1.05]
+    - Layer: # spinning white core
+      TexturePath: Suns/star_neutron1.dds
+      BlendMode: AlphaBlend
+      RotationSpeed: -8
+      RotationStart: 0.0
+      LayerScale: 0.12
+      PulsePeriod: 3.0
+      PulseColor: [0.7,1.1]
+    - Layer:
+      TexturePath: Suns/star_purple.dds
+      BlendMode: Additive
+      LayerScale: 0.18
+      RotationSpeed: -2.5
+      PulsePeriod: 1.5
+      PulseColor: [0.2,0.5]
+
+# a blazing blue star blowing off a shell of gas
+- Sun:
+  Id: star_wolf_rayet
+  IconPath: Suns/star_wolf_rayet_icon.png
+  IconScale: 5
+  IconLayer: 2 # the blue star
+  LightIntensity: 1.7
+  Radius: 150000
+  LightColor: [190,220,255]
+  Habitable: false
+  RadiationDamage: 6
+  RadiationRadius: 15000
+  ResearchableChance: 40
+  Layers:
+    - Layer: # gas shell
+      TexturePath: Suns/radiation_purple.dds
+      BlendMode: Additive
+      TextureColor: [0.1,1.0,0.85,1.0]
+      LayerScale: 0.55
+      RotationSpeed: 0.004
+      PulsePeriod: 12.0
+      PulseScale: [1.0,1.05]
+      PulseColor: [1.2,1.8]
+    - Layer: # gas shell
+      TexturePath: Suns/radiation_purple.dds
+      BlendMode: Additive
+      TextureColor: [0.3,0.6,1.0,1.0]
+      LayerScale: 0.4
+      RotationSpeed: -0.006
+      RotationStart: 1.57
+      PulsePeriod: 12.0
+      PulseColor: [0.8,1.2]
+    - Layer:
+      TexturePath: Suns/star_blue.dds
+      BlendMode: AlphaBlend
+      LayerScale: 0.75
+      RotationSpeed: 0.05
+      PulsePeriod: 3.0
+      PulseScale: [0.97,1.03]
+      PulseColor: [1.0,1.3]
+    - Layer:
+      TexturePath: Suns/star_blue.dds
+      BlendMode: Additive
+      LayerScale: 0.75
+      RotationSpeed: -0.03
+      PulsePeriod: 3.0
+      PulseColor: [0.4,0.7]
+
+# a young star still inside the dust disk it formed from
+- Sun:
+  Id: star_protostar
+  IconPath: Suns/star_protostar_icon.png
+  IconScale: 5
+  IconLayer: 2 # the young star
+  LightIntensity: 1.0
+  Radius: 120000
+  LightColor: [255,190,140]
+  Habitable: false
+  ResearchableChance: 90
+  Layers:
+    - Layer: # outer dust disk
+      TexturePath: Suns/x3.dds
+      TextureColor: [1.0,0.6,0.3,1.0]
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.08
+      RotationStart: 0.0
+      LayerScale: 0.9
+      PulsePeriod: 8.0
+      PulseColor: [1.8,2.0]
+    - Layer: # inner dust disk
+      TexturePath: Suns/x3.dds
+      TextureColor: [1.0,0.75,0.45,1.0]
+      BlendMode: Additive
+      RotationSpeed: -0.2
+      RotationStart: 0.0
+      LayerScale: 0.6
+      PulsePeriod: 8.0
+      PulseColor: [0.8,1.0]
+    - Layer:
+      TexturePath: Suns/star_red.dds
+      LayerScale: 0.35
+      RotationSpeed: 0.03
+      PulsePeriod: 4.0
+      PulseColor: [1.0,1.4]
+    - Layer:
+      TexturePath: Suns/star_yellow.dds
+      TextureColor: [1.0,0.6,0.3,1.0]
+      BlendMode: Additive
+      LayerScale: 0.5
+      RotationSpeed: -0.02
+      PulsePeriod: 4.0
+      PulseColor: [0.3,0.6]
+
+# a star whose light slowly swells and fades
+- Sun:
+  Id: star_variable
+  IconPath: Suns/star_variable_icon.png
+  IconScale: 5
+  LightIntensity: 1.5
+  Radius: 150000
+  LightColor: [255,240,200]
+  Habitable: true
+  Layers:
+    - Layer:
+      TexturePath: Suns/star_variable.dds
+      RotationSpeed: 0.02
+      PulsePeriod: 20.0
+      PulseScale: [0.82,1.12]
+      PulseColor: [0.7,1.5]
+    - Layer:
+      TexturePath: Suns/star_variable.dds
+      TextureColor: [1.0,0.889,0.786,1.0]
+      RotationSpeed: -0.01
+      PulsePeriod: 20.0
+      PulseScale: [0.82,1.12]
+      PulseColor: [0.7,1.5]
 

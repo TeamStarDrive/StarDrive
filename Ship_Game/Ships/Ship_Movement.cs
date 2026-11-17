@@ -201,6 +201,9 @@ namespace Ship_Game.Ships
             return distance;
         }
 
+        // a ship leaves warp at its top sublight speed, and this is the room it needs to stop from it
+        public float WarpExitBrakingDistance => MaxSTLSpeed * MaxSTLSpeed / (2f * Stats.Thrust / Mass * DecelThrustPower);
+
         // the drift speed the stability thrusters can still stop within this distance
         public float SideDriftStopSpeed(float distance)
         {

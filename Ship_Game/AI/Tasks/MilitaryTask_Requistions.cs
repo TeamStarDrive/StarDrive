@@ -264,10 +264,7 @@ namespace Ship_Game.AI.Tasks
 
         void RequisitionExplorationForce()
         {
-            if (TargetPlanet.Owner != null 
-                && TargetPlanet.Owner != Owner
-                && TargetPlanet.Owner != Owner.Universe.Unknown
-                && !TargetPlanet.Owner.data.IsRebelFaction || !TargetPlanet.EventsOnTiles())
+            if (!PlanetLeftToExplore)
             {
                 EndTask();
                 return;
@@ -279,11 +276,16 @@ namespace Ship_Game.AI.Tasks
             AO = TargetPlanet.Position;
             AORadius = TargetPlanet.System.Radius;
             float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
-            EnemyStrength = GetHostileStrengthAtAO().LowerBound(100);
+            // what the task asks falls at most to half of what it asked the time before
+            float knownStrength = GetHostileStrengthAtAO();
+            float askedBefore = float.IsFinite(EnemyStrength) ? EnemyStrength : 0f;
+            float wantedStrength = (float.IsFinite(knownStrength) ? knownStrength : 0f).LowerBound(askedBefore * 0.5f).LowerBound(100);
+            EnemyStrength = wantedStrength;
 
             float minTroopStr = TargetPlanet.Owner == null ? 10 : (TargetPlanet.GetGroundStrengthOther(Owner) * TargetPlanet.InvasionResistance).LowerBound(40);
             UpdateMinimumTaskForceStrength(buildingGeodeticOffense);
             InitFleetRequirements(MinimumTaskForceStrength, (int)minTroopStr, minBombMinutes: 0);
+            EnemyStrength = wantedStrength;
             float battleFleetSize = MinimumTaskForceStrength < 100 ? 0.1f : 1f;
             if (CreateTaskFleet(Completeness * battleFleetSize, true) == RequisitionStatus.Complete)
             {
@@ -577,7 +579,7 @@ namespace Ship_Game.AI.Tasks
         {
             int maxFleets = Owner.ShipsReadyForFleet.CurrentUseableFleets;
             int wantedNumberOfFleets = FleetCount;
-            if (TargetPlanet?.Owner != null)
+            if (TargetPlanet?.Owner != null && (Type != TaskType.Exploration || TargetPlanet.Owner != Owner))
             {
                 wantedNumberOfFleets +=(int)Math.Floor(Owner.GetFleetStrEmpireMultiplier(TargetPlanet.Owner) + 0.5f);
                 wantedNumberOfFleets += TargetPlanet.System.PlanetList.Max(p =>

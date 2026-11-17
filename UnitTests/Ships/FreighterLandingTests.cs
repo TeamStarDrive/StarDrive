@@ -179,19 +179,37 @@ public class FreighterLandingTests : StarDriveTest
         Assert.IsTrue(freighter.ThrustersShown, "the thrusters show again once the freighter is up");
     }
 
-    // how far from where it lands the freighter leaves warp on its way in
-    float WarpExitOnTheWayIn(Ship freighter, Vector2 landAt)
+    // how far from where it lands the freighter leaves warp on its way in, and the step of warp travel it allowed for when it did
+    (float distance, float step) WarpExitOnTheWayIn(Ship freighter, Vector2 landAt)
     {
         bool wasInWarp = false;
-        float warpExit = 0f;
+        float warpExit = 0f, step = 0f, lastWarpStep = 0f;
         RunSimWhile((simTimeout: 120, fatal: true), () => !freighter.IsLanding, () =>
         {
-            if (wasInWarp && !freighter.IsInWarp)
-                warpExit = Math.Max(warpExit, freighter.Position.Distance(landAt));
+            float stepNow = Math.Max(freighter.MaxFTLSpeed, freighter.CurrentVelocity) * TestSimStep.FixedTime;
+            if (wasInWarp && !freighter.IsInWarp && freighter.Position.Distance(landAt) > warpExit)
+            {
+                warpExit = freighter.Position.Distance(landAt);
+                step = Math.Max(lastWarpStep, stepNow);
+            }
             wasInWarp = freighter.IsInWarp;
+            if (wasInWarp)
+                lastWarpStep = stepNow;
         });
         AssertGreaterThan(warpExit, 0f, "setup: the freighter warps in");
-        return warpExit;
+        return (warpExit, step);
+    }
+
+    // a trade stop leaves warp past its glide zone, but no more than a step of warp travel before it
+    void AssertLeavesWarpJustBeforeItsGlide(Ship freighter, Vector2 landAt, float range, string where)
+    {
+        float glideZone = range + freighter.WarpExitBrakingDistance + 500f;
+        float topStep = freighter.MaxFTLSpeed * TestSimStep.FixedTime;
+        AssertLessThan(glideZone + topStep + 500f, Math.Min(range + freighter.WarpOutDistance, 7000f), "setup: other landings leave warp well before that");
+
+        (float warpExit, float step) = WarpExitOnTheWayIn(freighter, landAt);
+        AssertGreaterThan(warpExit, glideZone - 1f, $"a trade stop {where} leaves warp with room to brake before its glide in, never inside it");
+        AssertLessThan(warpExit, glideZone + step, $"a trade stop {where} leaves warp no more than a step of warp travel before its glide in begins");
     }
 
     [TestMethod]
@@ -199,11 +217,7 @@ public class FreighterLandingTests : StarDriveTest
     {
         Ship freighter = SpawnFreighter(Exporter, new Vector2(0, 150_000));
         freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
-        float range = LandShip.SpacePortLandingRange(freighter);
-        float glideZone = range + freighter.GetMinDecelerationDistance(freighter.MaxSTLSpeed) + 500f;
-        AssertLessThan(glideZone + 1000f, Math.Min(range + freighter.WarpOutDistance, 7000f), "setup: other landings leave warp well before that");
-
-        AssertLessThan(WarpExitOnTheWayIn(freighter, Exporter.Position), glideZone, "a trade stop leaves warp where its glide into the space port begins");
+        AssertLeavesWarpJustBeforeItsGlide(freighter, Exporter.Position, LandShip.SpacePortLandingRange(freighter), "at a space port");
     }
 
     [TestMethod]
@@ -213,11 +227,7 @@ public class FreighterLandingTests : StarDriveTest
         Ship freighter = SpawnFreighter(Exporter, new Vector2(30_000, 150_000));
         freighter.LoadProduction(5f);
         freighter.AI.SetTradePlan(ShipAI.Plan.DropOffGoodsForStation, Exporter, station, Goods.Production);
-        float range = LandShip.ShipyardLandingRange(freighter);
-        float glideZone = range + freighter.GetMinDecelerationDistance(freighter.MaxSTLSpeed) + 500f;
-        AssertLessThan(glideZone + 1000f, Math.Min(range + freighter.WarpOutDistance, 7000f), "setup: other landings leave warp well before that");
-
-        AssertLessThan(WarpExitOnTheWayIn(freighter, station.Position), glideZone, "a supply stop at a station leaves warp where its glide in begins");
+        AssertLeavesWarpJustBeforeItsGlide(freighter, station.Position, LandShip.ShipyardLandingRange(freighter), "at a station");
     }
 
     [TestMethod]
@@ -226,11 +236,7 @@ public class FreighterLandingTests : StarDriveTest
         Exporter.HasSpacePort = false;
         Ship freighter = SpawnFreighter(Exporter, new Vector2(0, 150_000));
         freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
-        float range = Exporter.Radius + 300f;
-        float closeBy = range + freighter.GetMinDecelerationDistance(freighter.MaxSTLSpeed) + 500f;
-        AssertLessThan(closeBy + 1000f, Math.Min(range + freighter.WarpOutDistance, 7000f), "setup: other landings leave warp well before that");
-
-        AssertLessThan(WarpExitOnTheWayIn(freighter, Exporter.Position), closeBy, "a trade stop on a planet leaves warp close to it");
+        AssertLeavesWarpJustBeforeItsGlide(freighter, Exporter.Position, Exporter.Radius + 300f, "on a planet without a space port");
     }
 
     [TestMethod]

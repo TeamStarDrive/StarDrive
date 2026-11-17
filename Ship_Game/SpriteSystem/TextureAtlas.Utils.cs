@@ -20,7 +20,7 @@ namespace Ship_Game.SpriteSystem
                 FileInfo info = textureFiles[i];
                 string texName = info.NameNoExt();
                 string ext = info.Extension.Substring(1);
-                Texture2D tex = ResourceManager.RootContent.LoadUncachedTexture(info, ext);
+                Texture2D tex = ResourceManager.RootContent.LoadUncachedTexture(info, ext, straightAlpha: true);
                 bool noPack = noPackAll || ignore.Contains(texName);
                 textures[i] = new TextureInfo
                 {
@@ -31,6 +31,7 @@ namespace Ship_Game.SpriteSystem
                     Texture        = tex,
                     NoPack         = noPack,
                     LosslessAlpha  = losslessAlpha,
+                    Premultiplied  = ext == "xnb",
                 };
             }
             return textures;

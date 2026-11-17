@@ -20,6 +20,8 @@ namespace Ship_Game.SpriteSystem
         // a PNG (lossless) instead of DXT5 (banded). Set per-folder via
         // ResourceManager.AtlasLosslessAlphaFolders during CreateTextureInfos.
         public bool LosslessAlpha;
+        // the loader may have premultiplied the color pixels, as it does an XNB's
+        public bool Premultiplied;
 
         public string SourcePath;
 
@@ -40,10 +42,12 @@ namespace Ship_Game.SpriteSystem
         public override string ToString() => $"X:{X} Y:{Y} W:{Width} H:{Height} Name:{Name} Type:{Type} Format:{Texture?.Format.ToString() ?? ""}";
 
         // @note this will destroy Texture after transferring it to atlas
-        public void TransferTextureToAtlas(Color[] atlas, int atlasWidth, int atlasHeight)
+        // straight: a DXT atlas is encoded from straight pixels, a PNG atlas from premultiplied ones
+        public void TransferTextureToAtlas(Color[] atlas, int atlasWidth, int atlasHeight, bool straight)
         {
             Color[] colorData;
             SurfaceFormat format = Texture.Format;
+            bool premultiplied = false;
             if (format == SurfaceFormat.Dxt5)
             {
                 colorData = ImageUtils.DecompressDxt5(Texture);
@@ -56,6 +60,7 @@ namespace Ship_Game.SpriteSystem
             {
                 colorData = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(colorData);
+                premultiplied = Premultiplied;
             }
             else if (format == SurfaceFormat.Bgr32)
             {
@@ -70,6 +75,10 @@ namespace Ship_Game.SpriteSystem
                 return;
             }
 
+            if (straight && premultiplied)
+                ImageUtils.UnpremultiplyAlpha(colorData, colorData.Length);
+            else if (!straight && !premultiplied)
+                ImageUtils.PremultiplyAlpha(colorData, colorData.Length);
             ImageUtils.CopyPixelsWithPadding(atlas, atlasWidth, atlasHeight, X, Y, colorData, Width, Height);
         }
 
@@ -142,15 +151,15 @@ namespace Ship_Game.SpriteSystem
                     // the noisy art content, and PNG encoding is ~20× slower
                     // per nopack texture on full-rebuild.
                     //
-                    // Stored non-premultiplied. Most consumers of UI/node use
-                    // additive or SourceAlphaSaturation blends which want
-                    // non-premul source; the only AlphaBlend consumers
-                    // (FleetDesign sensor halo, FOW sensor highlights) must
-                    // pre-multiply their tint at the call site.
+                    // stored premultiplied, as a direct load of its file gives it
+                    if (!Premultiplied)
+                        ImageUtils.PremultiplyAlpha(color, color.Length);
                     ImageUtils.SaveAsPng(pngPath, Width, Height, color);
                     return pngPath;
                 }
 
+                if (Premultiplied)
+                    ImageUtils.UnpremultiplyAlpha(color, color.Length);
                 DDSFlags flags = alpha ? DDSFlags.Dxt5 : DDSFlags.Dxt1;
                 ImageUtils.ConvertToDDS(ddsPath, Width, Height, color, flags);
                 return ddsPath;

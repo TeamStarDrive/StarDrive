@@ -97,6 +97,10 @@ namespace Ship_Game.AI.Tasks
             };
         }
 
+        // an exploration target with an event left on it, free, ours or the Unknown empire's
+        public bool PlanetLeftToExplore => TargetPlanet.EventsOnTiles()
+            && (TargetPlanet.Owner == null || TargetPlanet.Owner == Owner || TargetPlanet.Owner == Owner.Universe.Unknown);
+
         public static MilitaryTask CreateGuardTask(Empire owner, Planet tgtPlanet)
         {
             return new(TaskType.GuardBeforeColonize, owner, tgtPlanet.Position, 
@@ -271,7 +275,7 @@ namespace Ship_Game.AI.Tasks
             if (!FleetNeededForNextTask)
                 DisbandTaskForce();
 
-            if (Type == TaskType.Exploration && TargetPlanet != null)
+            if (Type == TaskType.Exploration && TargetPlanet != null && TargetPlanet.Owner != Owner)
                 RemoveTaskTroopsFromPlanet();
         }
 

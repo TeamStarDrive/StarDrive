@@ -32,7 +32,7 @@ namespace UnitTests.AITests.Empire
             EnemyHome = AddHomeWorldToEmpire(new Vector2(400_000), Enemy);
             CreateAMinorFaction("Remnant");
 
-            PortalSystem = new SolarSystem(UState, new Vector2(-200_000, 0)) { Sun = SunType.RandomHabitableSun(UState.Random) };
+            PortalSystem = new SolarSystem(UState, new Vector2(-200_000, 0)) { Sun = RandomHarmlessSun() };
             EmptyPlanet = AddPlanet(PortalSystem, PortalSystem.Position + new Vector2(6_000, 0));
             Colony = AddPlanet(PortalSystem, PortalSystem.Position + new Vector2(30_000, 0));
             UState.AddSolarSystem(PortalSystem);
@@ -58,7 +58,7 @@ namespace UnitTests.AITests.Empire
 
         SolarSystem EmptySystem(Vector2 pos)
         {
-            var system = new SolarSystem(UState, pos) { Sun = SunType.RandomHabitableSun(UState.Random) };
+            var system = new SolarSystem(UState, pos) { Sun = RandomHarmlessSun() };
             UState.AddSolarSystem(system);
             return system;
         }
@@ -449,7 +449,7 @@ namespace UnitTests.AITests.Empire
         public void ARaidHoldsOnlyTheColonyInItsOwnPortalsSystem()
         {
             FocusRemnantsOnEnemy();
-            var otherPortalSystem = new SolarSystem(UState, new Vector2(0, -300_000)) { Sun = SunType.RandomHabitableSun(UState.Random) };
+            var otherPortalSystem = new SolarSystem(UState, new Vector2(0, -300_000)) { Sun = RandomHarmlessSun() };
             Planet otherColony = AddPlanet(otherPortalSystem, otherPortalSystem.Position + new Vector2(20_000, 0));
             UState.AddSolarSystem(otherPortalSystem);
             otherColony.SetOwner(Player);

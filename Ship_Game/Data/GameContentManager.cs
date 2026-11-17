@@ -590,17 +590,25 @@ namespace Ship_Game.Data
         /// <summary>
         /// Loads a textures and DOES NOT cache it inside GameContentManager.
         /// WARNING: This method can easily cause memory leaks since there is no cache checks. Ensure it is always synchronized.
+        /// straightAlpha leaves a PNG or DDS unpremultiplied; an XNB loads as always.
         /// </summary>
-        public Texture2D LoadUncachedTexture(FileInfo file, string ext)
+        public Texture2D LoadUncachedTexture(FileInfo file, string ext, bool straightAlpha = false)
         {
             // the file path may be from AppData folder, in which case RelPath() doesn't work
             if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadUncachedTexture {file.FullName}  Thread={Thread.CurrentThread.Name}");
             if (ext != "xnb")
-                return RawContent.LoadTexture(file);
+                return straightAlpha ? RawContent.LoadStraightTexture(file) : RawContent.LoadTexture(file);
 
             // needed for TextureExporter tool
             string assetPath = file.RelPath(); // XNB can only load from Content dir
             return ReadXnaAsset<Texture2D>(assetPath); 
+        }
+
+        // a file the texture atlas cache wrote, not kept in this content manager either
+        public Texture2D LoadUncachedTextureCacheFile(FileInfo file)
+        {
+            if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadUncachedTextureCacheFile {file.FullName}  Thread={Thread.CurrentThread.Name}");
+            return RawContent.LoadTextureCacheFile(file);
         }
 
         // Loads a texture and caches it inside GameContentManager if useCache=true

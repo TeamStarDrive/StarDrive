@@ -45,7 +45,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float LightIntensity = 1.5f;
         [StarData] public readonly float Radius = 150000f;
         [StarData] public readonly Color LightColor = Color.White;
-        [StarData] public readonly bool  Habitable = true; // is this star habitable, or is this a dangerous type?
+        [StarData] public readonly bool  Habitable = true; // in the pool for ordinary systems, else in the one for small barren systems; a multi-sun has its own pool too
         [StarData] public readonly float RadiationDamage = 0f; // is this star dangerous and damages nearby ships??
         [StarData] public readonly float RadiationRadius = 0f;
         [StarData] public readonly Array<SunLayerInfo> Layers;
@@ -60,9 +60,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         static readonly Map<string, SunType> Map = new();
         public static SunType FindSun(string id) => Map[id];
-        static SunType[] HabitableSuns;
+        internal static SunType[] HabitableSuns;
         static SunType[] BarrenSuns;
-        static SunType[] MultiSuns;
+        internal static SunType[] MultiSuns;
 
         public static SunType RandomHabitableSun(RandomBase random, Predicate<SunType> filter = null)
         {

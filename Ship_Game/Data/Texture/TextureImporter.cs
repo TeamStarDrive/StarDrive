@@ -44,6 +44,30 @@ namespace Ship_Game.Data.Texture
             return tex;
         }
 
+        // an atlas source as its file holds it, not premultiplied, but a DDS's broken DXT5 alpha plane is forced opaque
+        public Texture2D LoadStraight(string texturePath)
+        {
+            Texture2D tex;
+            if (texturePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+                tex = ImageUtils.LoadPng(Device, texturePath, premultiplyAlpha: false);
+            else if (texturePath.EndsWith(".dds", StringComparison.OrdinalIgnoreCase))
+                tex = ImageUtils.LoadDds(Device, texturePath, alpha: DdsAlpha.Straight);
+            else
+                tex = LoadXna(texturePath);
+            tex.Name = FileSystemExtensions.GetAppRootRelPath(texturePath);
+            return tex;
+        }
+
+        // the texture cache keeps its DDS files straight and its PNG files premultiplied
+        public Texture2D LoadTextureCacheFile(string texturePath)
+        {
+            if (!texturePath.EndsWith(".dds", StringComparison.OrdinalIgnoreCase))
+                return Load(texturePath);
+            Texture2D tex = ImageUtils.LoadDds(Device, texturePath, alpha: DdsAlpha.Premultiply);
+            tex.Name = FileSystemExtensions.GetAppRootRelPath(texturePath);
+            return tex;
+        }
+
         Texture2D LoadTexture(string fullPath)
         {
             if (Type == ImporterType.ImageUtilsPNG_XnaDDS)

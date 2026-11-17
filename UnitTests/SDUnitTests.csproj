@@ -74,7 +74,6 @@
     <Compile Include="AITests\Ships\ChaseLimitTests.cs" />
     <Compile Include="AITests\Ships\InhibitedFleetMoveTests.cs" />
     <Compile Include="AITests\Ships\SafeRebaseTests.cs" />
-    <Compile Include="AITests\Ships\GuardFlankTests.cs" />
     <Compile Include="AITests\Ships\TestShipExploration.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
@@ -121,6 +120,7 @@
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
     <Compile Include="Fleets\ClaimFleetTests.cs" />
+    <Compile Include="Fleets\ExplorationFleetTests.cs" />
     <Compile Include="Fleets\FleetCatchUpTests.cs" />
     <Compile Include="Fleets\FleetFlankTests.cs" />
     <Compile Include="Fleets\FleetFocusFireTests.cs" />
@@ -137,6 +137,7 @@
     <Compile Include="Graphics\LightingEffectBinderTests.cs" />
     <Compile Include="Graphics\MeshLightingEffectTests.cs" />
     <Compile Include="Graphics\ModelTextureTests.cs" />
+    <Compile Include="Graphics\TextureCacheTests.cs" />
     <Compile Include="Graphics\ParticleManagerTests.cs" />
     <Compile Include="Graphics\ParticleVertexBufferTests.cs" />
     <Compile Include="Graphics\PostProcessChainTests.cs" />
@@ -279,6 +280,9 @@
     <Compile Include="Data\GameTextDataTests.cs" />
     <Compile Include="AITests\Empire\DefenseTaskStrengthTests.cs" />
     <Compile Include="AITests\Ships\OvertakeTests.cs" />
+    <Compile Include="AITests\Ships\WarpPastEnemyTests.cs" />
+    <Compile Include="AITests\Ships\BigShipTargetTests.cs" />
+    <Compile Include="AITests\Ships\TractorAimTests.cs" />
     <Compile Include="AITests\Ships\ColonyShipAttackTests.cs" />
     <Compile Include="Ships\ModuleGridFlyweightTests.cs" />
     <Compile Include="Ships\ShipDesignWriterTests.cs" />

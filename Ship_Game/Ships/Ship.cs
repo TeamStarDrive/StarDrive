@@ -1263,7 +1263,6 @@ namespace Ship_Game.Ships
                 UpdateSystem();
                 UpdateRebaseTarget();
                 AI.UpdateFightBackOnFleetMove();
-                AI.UpdateFlankLegHeldOutOfWarp();
                 SecondsAlive += 1;
                 if (Loyalty.WeAreRemnants)
                     RemnantGuardianBombard();

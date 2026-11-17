@@ -474,7 +474,37 @@ namespace Ship_Game.Gameplay
             // Reasons for this weapon not to choose a new target
             return TargetChangeReady // ready to change targets
                 && !IsRepairDrone // TODO: is this correct?
-                && !IsTargetAliveAndInRange(FireTarget); // Target is dead or out of range
+                && (IsPureTractor || !IsTargetAliveAndInRange(FireTarget)); // a tractor picks again at every shot
+        }
+
+        // a beam that only pulls, never damages
+        bool IsPureTractor => TractorDamage > 0f && DamageAmount < 1f;
+
+        // a ship already held still or at warp, which no tractor can pull
+        static bool PastPulling(Ship ship) => ship.IsInWarp || ship.TractorDamage >= ship.Mass;
+
+        // a ship this tractor can reach that is not already held still
+        bool CanPull(Ship ship) => ship != null && !PastPulling(ship) && TargetValid(ship) && IsTargetAliveAndInRange(ship);
+
+        // the ship's priority target if the tractor can pull it, else the fastest ship it can pull, looking past ships held or at warp
+        Ship ShipToPull(Ship mainTarget, Ship[] potentialTargets)
+        {
+            bool canPullMain = CanPull(mainTarget);
+            if (canPullMain && Owner.AI.HasPriorityTarget)
+                return mainTarget;
+
+            Ship fastest = canPullMain ? mainTarget : null;
+            int maxTracking = 1 + Owner.TrackingPower + Owner.Level;
+            for (int i = 0, tracked = 0; i < potentialTargets.Length && tracked < maxTracking; ++i)
+            {
+                Ship ship = potentialTargets[i];
+                if (ship == null || PastPulling(ship))
+                    continue;
+                ++tracked;
+                if ((fastest == null || ship.CurrentVelocity > fastest.CurrentVelocity) && CanPull(ship))
+                    fastest = ship;
+            }
+            return fastest;
         }
 
         public bool TargetValid(GameObject fireTarget)
@@ -513,8 +543,12 @@ namespace Ship_Game.Gameplay
 
             Ship newTargetShip = null;
 
+            if (IsPureTractor)
+            {
+                newTargetShip = ShipToPull(mainTarget, potentialTargets);
+            }
             // prefer our main target:
-            if (IsTargetAliveAndInRange(mainTarget) && TargetValid(mainTarget))
+            else if (IsTargetAliveAndInRange(mainTarget) && TargetValid(mainTarget))
             {
                 newTargetShip = mainTarget;
             }

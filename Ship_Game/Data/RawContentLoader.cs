@@ -98,6 +98,16 @@ namespace Ship_Game.Data
             return TexImport.Load(file);
         }
 
+        public Texture2D LoadStraightTexture(FileInfo file)
+        {
+            return TexImport.LoadStraight(file.FullName);
+        }
+
+        public Texture2D LoadTextureCacheFile(FileInfo file)
+        {
+            return TexImport.LoadTextureCacheFile(file.FullName);
+        }
+
         public Texture2D LoadTexture(string fileNameWithExt)
         {
             string contentPath = GetContentPath(fileNameWithExt);

@@ -15,7 +15,7 @@ public class LoneSystemTests : StarDriveTest
 
     SolarSystem AddSystemWithoutPlanets(Vector2 pos)
     {
-        var system = new SolarSystem(UState, pos) { Sun = SunType.RandomHabitableSun(UState.Random) };
+        var system = new SolarSystem(UState, pos) { Sun = RandomHarmlessSun() };
         UState.AddSolarSystem(system);
         return system;
     }

@@ -82,7 +82,7 @@ public class TextureBinding
         }
         try
         {
-            var texture = ResourceManager.RootContent.LoadUncachedTexture(file, Atlas.Name);
+            var texture = ResourceManager.RootContent.LoadUncachedTextureCacheFile(file);
             SubTexture subTex = new(Name, texture, SourcePath);
             return (texture, subTex);
         }
