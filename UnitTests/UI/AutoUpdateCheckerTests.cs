@@ -259,5 +259,44 @@ namespace UnitTests.UI
             Assert.IsFalse(AutoUpdateChecker.IsModLatestNewer("garbage", "v1.60.0009"));
             Assert.IsFalse(AutoUpdateChecker.IsModLatestNewer("", "v1.60.0009"));
         }
+
+        static ReleaseInfo PatchRelease(params string[] extraAssets)
+        {
+            string assets = "{ \"name\": \"001-patch.zip\", \"size\": 10, \"browser_download_url\": \"https://x/001-patch.zip\" }";
+            foreach (string name in extraAssets)
+                assets += $", {{ \"name\": \"{name}\", \"size\": 3, \"browser_download_url\": \"https://x/{name}\" }}";
+            string json = "{ \"name\": \"Jupiter Patch v1.60.00093\", \"tag_name\": \"jupiter-patch-1.60.00093\", \"body\": \"notes\", \"assets\": [" + assets + "] }";
+            using JsonDocument doc = JsonDocument.Parse(json);
+            return AutoUpdateChecker.ToReleaseInfo(doc.RootElement);
+        }
+
+        [TestMethod]
+        public void ReleaseInfo_ReadsTheSaveVersionFromItsMarkerAsset()
+        {
+            ReleaseInfo info = PatchRelease("save-version-22.txt");
+            Assert.AreEqual(22, info.SaveVersion);
+            CollectionAssert.AreEqual(new[] { "https://x/001-patch.zip" }, info.ZipUrls, "the marker is not part of the download");
+        }
+
+        [TestMethod]
+        public void ReleaseInfo_WithoutAMarkerAssetHasNoSaveVersion()
+        {
+            Assert.AreEqual(0, PatchRelease().SaveVersion, "a release from before the marker says nothing");
+            Assert.AreEqual(0, PatchRelease("save-version-x.txt", "notes.txt").SaveVersion, "nor does a name that is not a marker");
+        }
+
+        [TestMethod]
+        public void OnlyABaseGamePatchWritingANewerSaveVersionBreaksSaves()
+        {
+            int current = Ship_Game.SavedGame.SaveGameVersion;
+            Assert.IsTrue(AutoUpdateChecker.UpdateBreaksSaves(PatchRelease($"save-version-{current + 1}.txt"), isMod: false),
+                "a patch writing a newer save version breaks this build's saves");
+            Assert.IsFalse(AutoUpdateChecker.UpdateBreaksSaves(PatchRelease($"save-version-{current}.txt"), isMod: false),
+                "one writing the same version does not");
+            Assert.IsFalse(AutoUpdateChecker.UpdateBreaksSaves(PatchRelease(), isMod: false),
+                "nor one with no marker");
+            Assert.IsFalse(AutoUpdateChecker.UpdateBreaksSaves(PatchRelease($"save-version-{current + 1}.txt"), isMod: true),
+                "mod releases are not checked");
+        }
     }
 }

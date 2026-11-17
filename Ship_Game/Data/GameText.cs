@@ -6410,6 +6410,10 @@ namespace Ship_Game
         ColonyLevel = 7289,
         /// <summary>Projectiles</summary>
         Projectiles = 7290,
+        /// <summary>Old saves will not load</summary>
+        UpdateBreaksSaves = 7291,
+        /// <summary>This update changes how games are saved. Games saved before it cannot be loaded after it and will no longer be listed under Load Game, and the same goes for saved races. Continue?</summary>
+        UpdateBreaksSavesWarning = 7292,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

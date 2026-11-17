@@ -57,8 +57,9 @@ time.
   saves load.
 - Anything rebuilt on load (`OnDeserialized`, `Ship.InitializeStatus` with `fromSave`) must carry
   over the state the save just loaded into the object it replaces.
-- Adding or removing a `[StarData]` field does not need a `SaveGameVersion` bump. Ask before
-  bumping it.
+- Adding or removing a `[StarData]` field does not need a `SaveGameVersion` bump. A change that
+  stops older saves loading does: each patch publishes the number it writes, and the game warns
+  players before they take a patch that raises it. Ask before bumping it.
 - Fields are matched by name, so renaming one loads old saves with the initializer instead of
   the saved value. Deleting a `[StarDataType]` type that old saves still hold in a collection
   makes those saves fail to load. Ask before doing either.
