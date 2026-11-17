@@ -181,6 +181,37 @@ jobs:
           py -3 Deploy/MakeInstaller.py --root_dir=. --patch --type=zip
           py -3 Deploy/MakeInstaller.py --root_dir=. --patch --type=nsis
 
+      - name: Save version marker
+        # The game reads the save version a patch writes from this asset's name
+        # (AutoUpdateChecker.ToReleaseInfo) and warns before a patch that raises it,
+        # since saves from an older version no longer load. The draft notes say so too.
+        id: savever
+        shell: pwsh
+        run: |
+          $pattern = 'const int SaveGameVersion = (\d+);'
+          $found = Select-String -Path Ship_Game/SavedGame.cs -Pattern $pattern
+          if (-not $found) { throw "SaveGameVersion not found in Ship_Game/SavedGame.cs" }
+          $current = [int]$found.Matches[0].Groups[1].Value
+
+          $codename = $env:CODENAME.ToLower()
+          $prev = git tag --list "$codename-patch-*" --sort=-v:refname | Select-Object -First 1
+          $previous = $current
+          if ($prev) {
+            git cat-file -e "${prev}:Ship_Game/SavedGame.cs" 2>$null
+            if ($LASTEXITCODE -eq 0) {
+              $old = git show "${prev}:Ship_Game/SavedGame.cs" | Select-String -Pattern $pattern
+              if ($old) { $previous = [int]$old.Matches[0].Groups[1].Value }
+              else { Write-Warning "SaveGameVersion not found at $prev; the notes will not say whether this patch changes it" }
+            } else {
+              Write-Warning "Ship_Game/SavedGame.cs not found at $prev; the notes will not say whether this patch changes it"
+            }
+          }
+          Write-Host "SaveGameVersion $current (previous patch $prev`: $previous)"
+
+          Set-Content -Path "Deploy/upload/save-version-$current.txt" -Value $current -Encoding ascii
+          "raised=$(if ($current -gt $previous) { '1' } else { '0' })" >> $env:GITHUB_OUTPUT
+          exit 0
+
       - name: List produced artefacts
         shell: pwsh
         run: Get-ChildItem -Path Deploy/upload -File | Select-Object Name, Length
@@ -220,8 +251,12 @@ jobs:
         run: |
           $tag    = '${{ steps.version.outputs.tag }}'
           $title  = '${{ steps.version.outputs.title }}'
+          $saveWarning = ''
+          if ('${{ steps.savever.outputs.raised }}' -eq '1') {
+            $saveWarning = "**This patch changes how games are saved: games saved with earlier patches cannot be loaded after it, and the Load screen no longer lists them.**`n`n"
+          }
           $body   = @"
-          ## Changes since previous patch
+          ${saveWarning}## Changes since previous patch
 
           ${{ steps.summary.outputs.summary }}
           "@

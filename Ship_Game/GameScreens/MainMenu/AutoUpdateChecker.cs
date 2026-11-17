@@ -21,6 +21,7 @@ namespace Ship_Game.GameScreens.MainMenu;
 public record struct ReleaseInfo(string Name, string Version, string Changelog, List<string> ZipUrls, string InstallerUrl)
 {
     public long DownloadBytes { get; init; }
+    public int SaveVersion { get; init; } // the save version a patch writes, from its save-version-N.txt asset; 0 when the release has none
 }
 
 /// <summary>
@@ -88,6 +89,7 @@ public class AutoUpdateChecker : UIElementContainer
         readonly AutoUpdateChecker Updater;
         readonly ReleaseInfo Info;
         readonly bool IsMod;
+        readonly bool BreaksSaves;
 
         public NewVersionPopup(AutoUpdateChecker updater, in ReleaseInfo info, bool isMod)
             : base(updater.ContentManager.LoadTextureOrDefault("Textures/MMenu/popup_banner_small.png"))
@@ -95,16 +97,24 @@ public class AutoUpdateChecker : UIElementContainer
             Updater = updater;
             Info = info;
             IsMod = isMod;
+            BreaksSaves = UpdateBreaksSaves(info, isMod);
 
             string text = "New Version!\n" + info.Name;
             UILabel textLabel = base.Add(new UILabel(text, Fonts.Pirulen16));
             textLabel.TextAlign = TextAlign.HorizontalCenter;
             textLabel.AxisAlign = Align.CenterLeft;
-            textLabel.SetLocalPos(125, 0);
+            textLabel.SetLocalPos(125, BreaksSaves ? -12 : 0);
             UILabel textLabelClick = base.Add(new UILabel("(click to update)", Fonts.Pirulen12));
             textLabelClick.TextAlign = TextAlign.HorizontalCenter;
             textLabelClick.AxisAlign = Align.CenterLeft;
-            textLabelClick.SetLocalPos(125, 30);
+            textLabelClick.SetLocalPos(125, BreaksSaves ? 14 : 30);
+            if (BreaksSaves)
+            {
+                UILabel breaksSaves = base.Add(new UILabel(GameText.UpdateBreaksSaves, Fonts.Pirulen12, Microsoft.Xna.Framework.Color.Red));
+                breaksSaves.TextAlign = TextAlign.HorizontalCenter;
+                breaksSaves.AxisAlign = Align.CenterLeft;
+                breaksSaves.SetLocalPos(125, 30);
+            }
 
             SubTexture portraitTex = isMod 
                 ? GlobalStats.ActiveMod?.LoadPortrait(Screen)
@@ -143,7 +153,9 @@ public class AutoUpdateChecker : UIElementContainer
         {
             //Log.LogEventStats(Log.GameEvent.AutoUpdateClicked);
             Remove();
-            var mb = new MessageBoxScreen(Screen, "This will automatically update to the latest version. Continue?", 10f);
+            var mb = BreaksSaves
+                ? new MessageBoxScreen(Screen, Localizer.Token(GameText.UpdateBreaksSavesWarning))
+                : new MessageBoxScreen(Screen, "This will automatically update to the latest version. Continue?", 10f);
             mb.Accepted = () => Screen.ScreenManager.AddScreen(new AutoPatcher(Screen, Info, IsMod ? GlobalStats.ModPath : null));
             Screen.ScreenManager.AddScreen(mb);
         }
@@ -322,9 +334,23 @@ public class AutoUpdateChecker : UIElementContainer
                 downloadBytes += size.GetInt64();
         }
 
+        int saveVersion = 0;
+        foreach (JsonElement asset in release.GetProperty("assets").EnumerateArray())
+        {
+            Match match = SaveVersionAsset.Match(asset.GetProperty("name").GetString() ?? "");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out int version))
+                saveVersion = Math.Max(saveVersion, version);
+        }
+
         return new(release.GetProperty("name").GetString(), ExtractVersionPartFromTag(tagName),
-                   release.GetProperty("body").GetString(), zipUrls, null) { DownloadBytes = downloadBytes };
+                   release.GetProperty("body").GetString(), zipUrls, null) { DownloadBytes = downloadBytes, SaveVersion = saveVersion };
     }
+
+    // the asset patch-build.yml uploads with every patch, named for the save version that patch writes
+    static readonly Regex SaveVersionAsset = new(@"^save-version-(\d+)\.txt$", RegexOptions.IgnoreCase);
+
+    // a base game patch that writes a newer save version than this build can no longer load this build's saves
+    internal static bool UpdateBreaksSaves(in ReleaseInfo info, bool isMod) => !isMod && info.SaveVersion > SavedGame.SaveGameVersion;
 
     void GetVersionAsync(string modName, string downloadUrl, bool isMod)
     {
