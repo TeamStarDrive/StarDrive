@@ -23,7 +23,7 @@ namespace UnitTests.Fleets;
 /// idle fleet only of at most twice its need, else it forms a temporary force. A fleet that takes a task does it under
 /// the task's name, drops the places held for ships away, and gets from the pool only the troops it lacks. A random
 /// fleet ratio rolls the same every time, after a load too. A fleet freed by a defense task that ended its task goes
-/// to that defense, and an ended defense takes no fleet.
+/// to that defense; an ended defense takes no fleet and ends no other task to free one.
 /// </summary>
 [TestClass]
 public class KeptFleetForceTests : StarDriveTest
@@ -578,5 +578,27 @@ public class KeptFleetForceTests : StarDriveTest
         Requisition(defense, one);
 
         Assert.AreEqual(fleet, defense.Fleet, "the defense task takes the fleet it freed");
+    }
+
+    [TestMethod]
+    public void AnEndedDefenseEndsNoOtherTaskToFreeShips()
+    {
+        Planet invaded = AddDummyPlanetToEmpire(new Vector2(0f, 400_000f), Enemy);
+        Fleet fleet = FleetFor(WarTask(), Warships(2, invaded.Position + new Vector2(5000f, 0f)));
+        MilitaryTask postInvasion = MilitaryTask.CreatePostInvasion(invaded, fleet, Enemy);
+        fleet.FleetTask = postInvasion;
+        SolarSystem threatened = Rally.System;
+        var defense = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, Enemy, threatened.Position, threatened.Radius,
+                                       threatened, 500f, MilitaryTaskImportance.Important);
+        Enemy.AI.AddPendingTask(postInvasion);
+        Enemy.AI.AddPendingTask(defense);
+        typeof(EmpireAI).GetMethod("ApplyPendingChanges", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(Enemy.AI, null);
+        defense.EndTask();
+        Assert.IsTrue(defense.QueuedForRemoval && Enemy.AI.GetDefendSystemTasks().Contains(defense),
+                      "setup: the defense has ended and is still listed until the planner's next pass");
+
+        typeof(EmpireDefense).GetMethod("AssessDefense", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(new EmpireDefense(Enemy), null);
+
+        Assert.IsFalse(postInvasion.QueuedForRemoval, "an ended defense calls off no other task to free ships for it");
     }
 }

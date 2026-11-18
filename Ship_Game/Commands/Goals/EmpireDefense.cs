@@ -75,8 +75,8 @@ namespace Ship_Game.Commands.Goals
             var defendSystemTasks = Owner.AI.GetDefendSystemTasks();
             foreach (MilitaryTask defendSystem in defendSystemTasks)
             {
-                if (defendSystem.Fleet != null || defendSystem.Fleet == null && defendSystem.Goal?.LifeTime > 5)
-                    continue; // We have a fleet for this task or too old to prioritize
+                if (defendSystem.QueuedForRemoval || defendSystem.Fleet != null || defendSystem.Goal?.LifeTime > 5)
+                    continue; // ended, has its fleet, or too old to prioritize
 
                 foreach (MilitaryTask possibleTask in Owner.AI.GetPotentialTasksToCompare())
                 {
