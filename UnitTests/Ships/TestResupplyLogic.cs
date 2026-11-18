@@ -3,6 +3,7 @@ using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Empires;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 #pragma warning disable CA2213
@@ -117,6 +118,56 @@ namespace UnitTests.Ships
             station.ChangeOrdnance(-station.OrdinanceMax);
 
             AssertEqual(ResupplyReason.LowOrdnanceCombatOrDepleted, station.Supply.Resupply(), "a station with kinetic weapons out of ordnance in combat asks no colony");
+        }
+
+        // a fleet ship out of ordnance heads home to resupply, then waits by a supply ship that comes in sight, and enemies near send it back to its fleet before it is rearmed
+        Fleet FleetShipSentBackFromASupplyShip()
+        {
+            LoadStarterShips("TEST_Excalibur-Class Supercarrier");
+            SpawnOurShip();
+            Ship supplyShip = SpawnShip("TEST_Excalibur-Class Supercarrier", Player, OurShip.Position + new Vector2(1000, 0));
+            supplyShip.ChangeOrdnance(supplyShip.OrdinanceMax * 0.9f - supplyShip.Ordinance); // a spawned ship can hold more than its maximum, which reads as no ordnance status
+            Assert.IsTrue(supplyShip.SupplyShipCanSupply, "setup: a supply ship with ordnance to give is beside the ship");
+            Fleet fleet = Player.CreateFleet(1, null);
+            fleet.AddShip(OurShip);
+            Player.UpdateRallyPoints();
+            OurShip.ChangeOrdnance(-OurShip.OrdinanceMax);
+            OurShip.AI.BadGuysNear = true;
+
+            OurShip.AI.ProcessResupply(ResupplyReason.LowOrdnanceCombatOrDepleted);
+            Assert.IsTrue(OurShip.AI.State == AIState.Resupply && OurShip.AI.FindGoal(ShipAI.Plan.Orbit, out ShipAI.ShipGoal home) && home.TargetPlanet == Homeworld,
+                          "setup: with no supply ship in sight, the ship heads home to resupply");
+            OurShip.AI.FriendliesNearby = new[] { supplyShip };
+            OurShip.AI.ProcessResupply(ResupplyReason.LowOrdnanceCombatOrDepleted);
+            Assert.AreEqual(AIState.ResupplyEscort, OurShip.AI.State, "setup: then a supply ship comes in sight and it waits by that instead");
+
+            OurShip.AI.TerminateResupplyIfDone(SupplyType.Rearm, terminateIfEnemiesNear: true);
+            AssertLessThan(OurShip.OrdnancePercent, ShipResupply.OrdnanceThresholdCombat, "setup: enemies near send it back before it is rearmed");
+            return fleet;
+        }
+
+        [TestMethod]
+        public void AFleetShipSentBackFromItsSupplyShipByEnemiesRejoinsItsFleetOutOfResupply()
+        {
+            Fleet fleet = FleetShipSentBackFromASupplyShip();
+
+            Assert.IsFalse(OurShip.Resupplying, "the ship rejoins its fleet out of the resupply state, so a supply shuttle on its way keeps on to it");
+            Assert.IsTrue(OurShip.CanTakeFleetOrders, "and its fleet can order it again");
+            Assert.IsTrue(System.Array.Exists(OurShip.AI.OrderQueue.ToArray(), g => g.Plan == ShipAI.Plan.MakeFinalApproach && g.MovePosition == fleet.GetFinalPos(OurShip)),
+                          "it flies back to its spot in the fleet");
+        }
+
+        [TestMethod]
+        public void AFleetShipSentBackFromItsSupplyShipHeadsHomeToResupplyOnceNoSupplyShipIsInSight()
+        {
+            FleetShipSentBackFromASupplyShip();
+            OurShip.AI.FriendliesNearby = Empty<Ship>.Array;
+            OurShip.AI.ClearPriorityOrderAndTarget(); // as when it begins its final approach to its fleet spot
+
+            OurShip.UpdateResupply();
+
+            Assert.IsTrue(OurShip.AI.FindGoal(ShipAI.Plan.Orbit, out ShipAI.ShipGoal home) && home.TargetPlanet == Homeworld,
+                          "with no supply ship in sight, it heads home to resupply instead of holding its fleet spot");
         }
 
         [TestMethod]
