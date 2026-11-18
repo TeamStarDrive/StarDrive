@@ -220,7 +220,7 @@ public sealed partial class Empire
         return strength;
     }
 
-    // a major AI empire keeps its war and defense fleets after their tasks
+    // a major AI empire keeps its war, defense and claim fleets after their tasks
     public bool KeepsFleets => !isPlayer && !IsFaction;
 
     [StarData] int RatioSeed;

@@ -8,11 +8,12 @@ namespace Ship_Game.AI.Tasks
 {
     public partial class MilitaryTask
     {
-        // war and defense tasks keep their fleet when done; expansion forces break up
+        // war, defense and claim tasks keep their fleet when done; guard and exploration forces break up
         public static bool UsesKeptFleets(TaskType type)
         {
             switch (type)
             {
+                case TaskType.DefendClaim:
                 case TaskType.StrikeForce:
                 case TaskType.AssaultPlanet:
                 case TaskType.GlassPlanet:
@@ -115,7 +116,7 @@ namespace Ship_Game.AI.Tasks
             if (needs != RequisitionStatus.Complete)
                 return needs;
 
-            if (FleetWouldCallItselfOff(strength))
+            if (ForceTooWeakToGoIn(strength))
             {
                 EndTask();
                 return RequisitionStatus.NotEnoughShipStrength;

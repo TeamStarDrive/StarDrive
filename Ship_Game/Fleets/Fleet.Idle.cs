@@ -111,7 +111,7 @@ namespace Ship_Game.Fleets
             }
         }
 
-        // the task is over but the fleet stays: single troop ships go home, outmatched fighters flee, the rest head for the nearest rally planet in a system the fleet can hold, else the nearest safe one
+        // the task is over but the fleet stays: single troop ships go home, outmatched fighters flee, the rest wait at the planet its claim won, else the nearest rally planet in a system the fleet can hold, else the nearest safe one
         internal void KeepAfterTask()
         {
             Ship[] fleeing = ShipsFightingWhereOutmatched(); // before the task's orders are dropped
@@ -119,8 +119,8 @@ namespace Ship_Game.Fleets
             SendSingleTroopShipsHome();
             IdleRally = null; // the rally planet from before the task is no fallback where the task ended
 
-            Planet rally = Ships.IsEmpty ? null : FindIdleRally();
-            if (rally == null) // nothing left to keep, or no planet of the empire to wait at
+            Planet rally = Ships.IsEmpty || TooSmallToKeep() ? null : ClaimedPlanetToHold() ?? FindIdleRally();
+            if (rally == null) // nothing worth keeping, or no planet of the empire to wait at
             {
                 Reset(fleeIfOutmatched: true);
                 return;
@@ -134,9 +134,18 @@ namespace Ship_Game.Fleets
             FlankPlansTask = null;
             Kept = true;
 
-            GoToIdleRally(rally); // the move replaces every ship's task orders
+            GoToIdleRally(rally); // the move or orbit replaces the ships' task orders, but a ship already orbiting the rally planet keeps its orbit
             LeaveFightsToTheShips(fighting, fleeing);
         }
+
+        // fewer ships than half a fleet ratio, ships away refitting counted
+        internal bool TooSmallToKeep()
+            => Owner.ShipsReadyForFleet is { } pool && Ships.Count + ShipsAwayRefitting() < pool.ShipsPerFullFleet / 2f;
+
+        // the planet a claim won, while the fleet can hold its system
+        Planet ClaimedPlanetToHold()
+            => FleetTask is { Type: MilitaryTask.TaskType.DefendClaim, TargetPlanet: { } claimed } && claimed.Owner == Owner && CanHold(claimed.System)
+                ? claimed : null;
 
         void SendSingleTroopShipsHome()
         {
@@ -217,10 +226,18 @@ namespace Ship_Game.Fleets
             return nearest;
         }
 
+        // the fleet heads for its rally planet, or orbits it at once when most of it is already there
         void GoToIdleRally(Planet rally)
         {
             IdleRally = rally;
             RefitCheckDue = true;
+            if (InOrbitOfIdleRally() || ArrivedAtIdleRally())
+            {
+                FinalPosition = rally.Position; // where the fleet is, for those that read where it is headed
+                OrbitIdleRally();
+                return;
+            }
+
             Vector2 center = AveragePosition(force: true);
             MoveTo(rally.Position, center.DirectionToTarget(rally.Position));
         }

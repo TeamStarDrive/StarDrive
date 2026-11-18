@@ -84,6 +84,7 @@ namespace Ship_Game.Commands.Goals
 
             if (PositiveEnemyPresence(out float spaceStrength))
             {
+                Task?.EndTask(); // a restarted goal's old claim gives way to the new one, its fleet free to take it
                 EmpireAI empireAi = Owner.AI;
                 TargetEmpire = empireAi.ThreatMatrix.GetStrongestHostileAt(TargetPlanet.System);
                 float strMultiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
@@ -217,7 +218,8 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoToNextStep;
                 }
 
-                if (enemyStr > Owner.OffensiveStrength)
+                float weighed = Task.Fleet != null ? enemyStr * Ship_Game.Fleets.Fleet.StayInFightEnemyShare : enemyStr; // once its fleet formed, as a fleet on its task weighs it
+                if (weighed > Owner.OffensiveStrength)
                 {
                     ReleaseColonyShipAndTask();
                     return GoalStep.GoalFailed;

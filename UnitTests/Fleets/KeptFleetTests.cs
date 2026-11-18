@@ -12,12 +12,14 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Fleets;
 
 /// <summary>
-/// When an AI war or defense task ends, its fleet stays together: single troop ships leave it and assault troop ships
-/// stay, goals let go of it, every ship's task orders give way to the fleet's move while its fleet tactic stays, an
-/// outmatched ship that is fighting flees but stays in it, a ship in a fight it can take is left to fight, and the
-/// rest head for the nearest rally planet in a system the fleet can hold, where it goes into orbit once most of it is
-/// there; the rally planet it had before the task is forgotten. An expansion force, and a fleet whose empire has no
-/// planet left, still break up. A kept fleet with no task is not disbanded; it leaves a rally planet the empire lost at
+/// When an AI war, defense or claim task ends, its fleet stays together: single troop ships leave it and assault troop
+/// ships stay, goals let go of it, every ship's task orders give way to the fleet's move or orbit while its fleet tactic
+/// stays, a ship already orbiting the rally planet keeping its orbit, an outmatched ship that is fighting flees but stays
+/// in it, a ship in a fight it can take is left to fight, and the rest wait at the planet a claim won, else head for the
+/// nearest rally planet in a system the fleet can hold, where it goes into orbit once most of it is there, or at once
+/// when it already is, headed for that planet either way; the rally planet it had before the task is forgotten. A guard
+/// or exploration force, a fleet of fewer ships than half a fleet ratio, and a fleet whose empire has no planet left,
+/// still break up. A kept fleet with no task is not disbanded; it leaves a rally planet the empire lost at
 /// once and one in a system whose enemies outmatch it, counting its ships away resupplying, stays to fight where it
 /// can win, holds a system with no enemies even with no strength, keeps its rally planet when it can hold no system,
 /// and its ships keep to a guard's or a moving fleet's chase limits. It leaves the empire's fleets once it has no
@@ -97,6 +99,55 @@ public class KeptFleetTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AFleetOfFewerShipsThanHalfAFleetRatioBreaksUpWhenItsTaskEnds()
+    {
+        MilitaryTask task = WarTask();
+        Ship[] ships = Warships(1, Away);
+        Fleet fleet = FleetFor(task, ships);
+        FleetShips pool = Enemy.ShipsReadyForFleet = new FleetShips(Enemy, Enemy.AllFleetReadyShips()); // as the empire's turn does
+        AssertGreaterThan(pool.ShipsPerFullFleet / 2f, 1f, "setup: one ship is fewer than half a fleet ratio");
+
+        task.EndTask();
+
+        Assert.IsFalse(fleet.Kept, "the fleet is not kept for a turn only to break up then");
+        Assert.IsNull(ships[0].Fleet, "its ship is free at once");
+    }
+
+    [TestMethod]
+    public void AClaimFleetWaitsAtThePlanetItsClaimWon()
+    {
+        Planet claimed = AddDummyPlanet(new Vector2(0f, 400_000f));
+        MilitaryTask claim = MilitaryTask.CreateClaimTask(Enemy, claimed, 100f, null, fleetCount: 1);
+        Ship[] ships = Warships(2, Rally.Position + new Vector2(150_000f));
+        Fleet fleet = FleetFor(claim, ships);
+        Assert.IsTrue(fleet.AveragePosition(force: true).SqDist(Rally.Position) < fleet.AveragePosition(force: true).SqDist(claimed.Position),
+                      "setup: another planet of the empire is nearer the fleet");
+        claimed.SetOwner(Enemy);
+
+        claim.EndTask();
+
+        Assert.AreEqual(claimed, fleet.IdleRally, "the fleet waits at the planet its claim won");
+    }
+
+    [TestMethod]
+    public void AFleetAlreadyInOrbitOfItsRallyPlanetStaysInOrbitWhenItsTaskEnds()
+    {
+        MilitaryTask task = WarTask();
+        Ship[] ships = Warships(3, Rally.Position + new Vector2(5000f, 0f));
+        Fleet fleet = FleetFor(task, ships);
+        foreach (Ship ship in ships)
+            ship.OrderToOrbit(Rally, clearOrders: true);
+        RunSimWhile((120, fatal: true), () => ships.Any(s => !s.AI.IsOrbiting(Rally)));
+        Assert.IsFalse(fleet.FinalPosition.InRadius(Rally.Position, 1f), "setup: the fleet's task left it headed elsewhere");
+
+        task.EndTask();
+
+        Assert.AreEqual(Rally, fleet.IdleRally, "setup: the fleet waits at the planet it orbits");
+        Assert.IsFalse(ships.Any(s => s.AI.State != AIState.Orbit || !Orbits(s, Rally)), "it stays in orbit instead of forming up beside the planet");
+        Assert.IsTrue(fleet.FinalPosition.InRadius(Rally.Position, 1f), "and is headed for the planet, not where its task last sent it");
+    }
+
+    [TestMethod]
     public void AWarFleetStaysTogetherWhenItsTaskEnds()
     {
         MilitaryTask task = WarTask();
@@ -113,14 +164,40 @@ public class KeptFleetTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AnExpansionForceStillBreaksUpWhenItsTaskEnds()
+    public void AClaimFleetStaysTogetherWhenItsTaskEnds()
     {
         MilitaryTask task = MilitaryTask.CreateClaimTask(Enemy, AddDummyPlanet(new Vector2(0f, 400_000f)), 100f, null, fleetCount: 1);
         Fleet fleet = FleetFor(task, Warships(2, Away));
 
         task.EndTask();
 
-        Assert.IsFalse(fleet.Kept, "a claim fleet is not kept");
+        Assert.IsTrue(fleet.IsIdle, "a claim fleet is kept with no task");
+        AssertEqual(2, fleet.Ships.Count, "its ships stay in it");
+        Assert.AreEqual(Rally, fleet.IdleRally, "and it heads for a rally planet");
+    }
+
+    [TestMethod]
+    public void AGuardForceStillBreaksUpWhenItsTaskEnds()
+    {
+        MilitaryTask task = MilitaryTask.CreateGuardTask(Enemy, AddDummyPlanet(new Vector2(0f, 400_000f)));
+        Fleet fleet = FleetFor(task, Warships(2, Away));
+
+        task.EndTask();
+
+        Assert.IsFalse(fleet.Kept, "a guard force is not kept");
+        Assert.IsTrue(fleet.Ships.IsEmpty, "its ships leave it");
+        AssertEqual(0, fleet.Key, "and it is reset");
+    }
+
+    [TestMethod]
+    public void AnExplorationForceStillBreaksUpWhenItsTaskEnds()
+    {
+        MilitaryTask task = MilitaryTask.CreateExploration(AddDummyPlanet(new Vector2(0f, 400_000f)), Enemy);
+        Fleet fleet = FleetFor(task, Warships(2, Away));
+
+        task.EndTask();
+
+        Assert.IsFalse(fleet.Kept, "an exploration force is not kept");
         Assert.IsTrue(fleet.Ships.IsEmpty, "its ships leave it");
         AssertEqual(0, fleet.Key, "and it is reset");
     }

@@ -63,7 +63,10 @@ public class KeptFleetUpkeepTests : StarDriveTest
         MilitaryTask task = WarTask();
         Fleet fleet = FleetFor(task, ships);
         task.MinimumTaskForceStrength = need;
+        FleetShips pool = Enemy.ShipsReadyForFleet;
+        Enemy.ShipsReadyForFleet = null; // with no pool yet, as before the empire's first turn, a small fleet is kept too
         task.EndTask();
+        Enemy.ShipsReadyForFleet = pool;
         Assert.IsTrue(fleet.IsIdle, "setup: the fleet is kept with no task");
         return fleet;
     }

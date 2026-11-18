@@ -59,14 +59,9 @@ namespace Ship_Game.AI
         // an idle fleet with fewer ships than half a fleet ratio, ships away refitting counted, breaks up into the pool
         void DissolveSmallIdleFleets()
         {
-            FleetShips pool = OwnerEmpire.ShipsReadyForFleet;
-            if (pool == null)
-                return;
-
-            float halfARatio = pool.ShipsPerFullFleet / 2f;
             foreach (Fleet fleet in OwnerEmpire.ActiveFleets.ToArrayList())
             {
-                if (fleet.IsIdle && fleet.Ships.Count + fleet.ShipsAwayRefitting() < halfARatio)
+                if (fleet.IsIdle && fleet.TooSmallToKeep())
                     fleet.Reset(fleeIfOutmatched: true);
             }
         }

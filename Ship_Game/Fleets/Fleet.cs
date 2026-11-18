@@ -1034,7 +1034,7 @@ namespace Ship_Game.Fleets
             {
                 task.TargetEmpire = task.TargetPlanet.Owner;
                 float enemyStr = Owner.Threats.GetWeightedHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
-                if (EndInvalidTask(TaskStep < 5 && !CanTakeWeightedFight(enemyStr, task, inCombat: TaskStep >= 5) && !ThirdPartyAhead(task)))
+                if (EndInvalidTask(TaskStep < 5 && !CanStayInFight(enemyStr, task, inCombat: TaskStep >= 5) && !ThirdPartyAhead(task)))
                     return;
 
                 if (EndInvalidTask(TaskStep == 5 && !task.WentIn && RemnantsTargetingSystemOf(task)))
@@ -1200,7 +1200,7 @@ namespace Ship_Game.Fleets
         void DoDeepSpaceInvestigate(MilitaryTask task)
         {
             float enemyStr = Owner.Threats.GetWeightedHostileStrengthAt(task.AO, 100_000);
-            if (EndInvalidTask(!CanTakeWeightedFight(enemyStr, task, inCombat: TaskStep >= 3)))
+            if (EndInvalidTask(!CanStayInFight(enemyStr, task, inCombat: TaskStep >= 3)))
                 return;
 
             switch (TaskStep)
@@ -1351,6 +1351,12 @@ namespace Ship_Game.Fleets
             }
 
             task.AO = task.TargetPlanet.Position;
+            if (TaskStep is 5 or 6 && !ClaimNeedsTroops(task.TargetPlanet) && Owner.AI.ThreatMatrix.FindHostileClusters(task.AO, task.AORadius).Length == 0)
+            {
+                TaskStep = 7; // going in to a system with no hostile left and no troops to land, the fleet orbits the planet now instead of holding position
+                task.PeakFleetStrength = 0f;
+            }
+
             switch (TaskStep)
             {
                 case 0:
@@ -1421,7 +1427,8 @@ namespace Ship_Game.Fleets
                     else
                         AttackEnemyStrengthClumpsInAO(task, FreeShipsGoingIn());
 
-                    OrderShipsToInvade(Ships, task, false);
+                    if (ClaimNeedsTroops(task.TargetPlanet))
+                        OrderShipsToInvade(Ships, task, false);
                     TaskStep = task.TargetPlanet != null ? 8 : 9; // if we need to capture the planet, go to 8.
 
                     break;
@@ -1444,11 +1451,15 @@ namespace Ship_Game.Fleets
             }
         }
 
-        // the hostiles known in the system now, each empire by its own multiplier, are more than the fleet can take on
+        // troops land only on a planet with an owner or with troops we are at war with; a colony ship takes over a free one as it is
+        bool ClaimNeedsTroops(Planet target) => target.Owner != null || target.TroopsHereAreEnemies(Owner);
+
+        // the hostiles known in the system now, each empire by its own multiplier, are more than the fleet can stay in a fight against
         bool OutmatchedIn(MilitaryTask task, SolarSystem system, bool inCombat)
         {
             float strength = FightStrength(task, inCombat);
-            if (CanTakeWeightedFight(Owner, strength, Owner.Threats.GetWeightedHostileStrengthAt(system.Position, system.Radius)))
+            float hostiles = Owner.Threats.GetWeightedHostileStrengthAt(system.Position, system.Radius);
+            if (CanTakeWeightedFight(Owner, strength, hostiles * StayInFightEnemyShare))
                 return false;
 
             if (LostItsFight(task, inCombat, strength)) // the lost fight counts against the strongest empire there
@@ -1751,7 +1762,7 @@ namespace Ship_Game.Fleets
         void DoPreColonizationGuard(MilitaryTask task)
         {
             if (EndInvalidTask(task.TargetPlanet.Owner != null
-                || Owner.KnownEnemyStrengthIn(task.TargetPlanet.System)
+                || Owner.KnownEnemyStrengthIn(task.TargetPlanet.System) * StayInFightEnemyShare
                     > task.MinimumTaskForceStrength / Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire)))
             {
                 ClearOrders();
@@ -2489,9 +2500,16 @@ namespace Ship_Game.Fleets
         public static bool CanTakeWeightedFight(Empire owner, float ourStrength, float weightedEnemyStrength)
             => weightedEnemyStrength < ourStrength * owner.PersonalityModifiers.CanWeTakeThisFightMultiplier;
 
+        // the share of the enemy strength a fleet weighs in its fights once formed; forming a force, idle fleets and fleeing ships weigh it whole
+        public const float StayInFightEnemyShare = 0.75f;
+
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool inCombat)
-            => CanTakeWeightedFight(enemyFleetStrength * 0.75f * Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire), task, inCombat);
+            => CanStayInFight(enemyFleetStrength * Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire), task, inCombat);
+
+        // a fleet on its task weighs the share of the weighted enemy strength
+        bool CanStayInFight(float weightedEnemyStrength, MilitaryTask task, bool inCombat)
+            => CanTakeWeightedFight(weightedEnemyStrength * StayInFightEnemyShare, task, inCombat);
 
         bool CanTakeWeightedFight(float weightedEnemyStrength, MilitaryTask task, bool inCombat)
         {
@@ -2509,7 +2527,7 @@ namespace Ship_Game.Fleets
         bool StillCombatEffective(MilitaryTask task, bool inCombat)
         {
             float enemyStrength = Owner.AI.ThreatMatrix.GetWeightedHostileStrengthAt(task.AO, task.AORadius);
-            if (CanTakeWeightedFight(enemyStrength, task, inCombat))
+            if (CanStayInFight(enemyStrength, task, inCombat))
                 return true;
 
             DebugInfo(task, $"Enemy Strength too high. Them: {enemyStrength} Us: {GetStrength()}");
@@ -2540,7 +2558,7 @@ namespace Ship_Game.Fleets
                 return false;
 
             float enemyStr = Owner.Threats.GetWeightedHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
-            bool canBeatAll = CanTakeWeightedFight(enemyStr, task, inCombat: false);
+            bool canBeatAll = CanStayInFight(enemyStr, task, inCombat: false);
             if (!thirdParty || allAtWar && canBeatAll)
             {
                 task.ThirdPartyHoldEndsAt = 0f;

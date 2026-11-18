@@ -300,7 +300,7 @@ namespace Ship_Game.AI
         /// <param name="minStrength">Combat strength of fleet ships</param>
         /// <param name="planetTroops">Troops still on planets</param>
         /// <param name="wantedFleetCount">Attempt to get this many fleets</param>
-        /// <param name="outmatched">The set would call off its task at once against the enemy near the target</param>
+        /// <param name="outmatched">The set cannot take on the enemy near the target whole, so the task ends without a fleet</param>
         /// <returns></returns>
         public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int wantedFleetCount,
             MilitaryTask task, out int fleetCount, out bool outmatched)
@@ -321,7 +321,7 @@ namespace Ship_Game.AI
             if (task.NeededTroopStrength > 0)
                 GetTroops(ships, task.NeededTroopStrength);
 
-            if (task.FleetWouldCallItselfOff(ships.Sum(s => s.GetStrength())))
+            if (task.ForceTooWeakToGoIn(ships.Sum(s => s.GetStrength())))
             {
                 fleetCount = 0;
                 outmatched = true;

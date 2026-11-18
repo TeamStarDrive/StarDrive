@@ -550,14 +550,20 @@ namespace Ship_Game
             return num;
         }
 
+        // on a planet with no owner only troops at war with the empire fight it; a colony ship sends the rest off
         public float GroundStrengthOther(Empire allButThisEmpire)
         {
-            float enemyTroopStrength;
+            bool noOwner = Owner == null;
+            float enemyTroopStrength = 0f;
             lock (TroopsHere)
-                enemyTroopStrength = TroopsHere.Sum(t => t.Loyalty != allButThisEmpire ? t.ActualStrengthMax : 0);
+            {
+                foreach (Troop t in TroopsHere)
+                    if (t.Loyalty != allButThisEmpire && (!noOwner || allButThisEmpire.IsAtWarWith(t.Loyalty)))
+                        enemyTroopStrength += t.ActualStrengthMax;
+            }
 
-            if (Owner == allButThisEmpire)
-                return enemyTroopStrength; // The planet is ours, so no need to check from buildings
+            if (noOwner || Owner == allButThisEmpire)
+                return enemyTroopStrength; // the planet is ours, or a colony ship takes it over buildings and all
 
             foreach (Building b in Ground.Buildings)
             {

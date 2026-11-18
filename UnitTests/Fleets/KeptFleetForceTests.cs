@@ -12,18 +12,19 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Fleets;
 
 /// <summary>
-/// A major AI empire's war or defense task finds its force in this order: the nearest idle fleet with the strength on
-/// its own, the nearest idle fleet that reaches it with the nearest pool ships, a new fleet from the pool while the
-/// empire has fewer fleets than its cap or defends its own system, two idle fleets joined into one with pool ships;
-/// else it waits, and a force outmatched at the target leaves the task to end. Two idle fleets joined after a failed
-/// try at a new fleet get the troops and bombing the task needed before that try. The cap is one fleet per ten planet
-/// levels and one more per difficulty step from Normal, never below half the most the empire has had, which is saved;
-/// a temporary force is no kept fleet. Idle fleets merge only half a step below the line: the weakest joins the
-/// nearest, the two weighing their fights together and their fighting ships left to fight. An expansion task takes an
-/// idle fleet only of at most twice its need, else it forms a temporary force. A fleet that takes a task does it under
-/// the task's name, drops the places held for ships away, and gets from the pool only the troops it lacks. A random
-/// fleet ratio rolls the same every time, after a load too. A fleet freed by a defense task that ended its task goes
-/// to that defense; an ended defense takes no fleet and ends no other task to free one.
+/// A major AI empire's war, defense or claim task finds its force in this order: the nearest idle fleet with the
+/// strength on its own, the nearest idle fleet that reaches it with the nearest pool ships, a new fleet from the pool
+/// while the empire has fewer fleets than its cap or defends its own system, two idle fleets joined into one with pool
+/// ships; else it waits, and a force outmatched at the target leaves the task to end. Two idle fleets joined after a
+/// failed try at a new fleet get the troops and bombing the task needed before that try. The cap is one fleet per ten
+/// planet levels and one more per difficulty step from Normal, never below half the most the empire has had, which is
+/// saved; a temporary force is no kept fleet. Idle fleets merge only half a step below the line: the weakest joins the
+/// nearest, the two weighing their fights together and their fighting ships left to fight, and fleets joining at the
+/// rally planet they orbit stay in orbit. A guard or exploration task takes an idle fleet only of at most twice its
+/// need, else it forms a temporary force. A fleet that takes a task does it under the task's name, drops the places
+/// held for ships away, and gets from the pool only the troops it lacks. A random fleet ratio rolls the same every
+/// time, after a load too. A fleet freed by a defense task that ended its task goes to that defense; an ended defense
+/// takes no fleet and ends no other task to free one.
 /// </summary>
 [TestClass]
 public class KeptFleetForceTests : StarDriveTest
@@ -51,6 +52,8 @@ public class KeptFleetForceTests : StarDriveTest
     MilitaryTask WarTask() => new(Target, Enemy, MilitaryTaskImportance.Normal);
 
     MilitaryTask ClaimTask() => MilitaryTask.CreateClaimTask(Enemy, AddDummyPlanet(new Vector2(400_000f, -100_000f)), 100f, null, fleetCount: 1);
+
+    MilitaryTask GuardTask() => MilitaryTask.CreateGuardTask(Enemy, AddDummyPlanet(new Vector2(400_000f, -100_000f)));
 
     static Fleet FleetFor(MilitaryTask task, params Ship[] ships)
     {
@@ -277,32 +280,78 @@ public class KeptFleetForceTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AnExpansionTaskTakesAnIdleFleetOfAtMostTwiceItsNeed()
+    public void AGuardTaskTakesAnIdleFleetOfAtMostTwiceItsNeed()
     {
         Ship[] ships = Warships(1, NearTarget);
         Fleet idle = KeptFleet(ships);
         float one = One(ships[0]);
-        MilitaryTask claim = ClaimTask();
+        MilitaryTask guard = GuardTask();
 
-        Requisition(claim, 0.75f * one);
+        Requisition(guard, 0.75f * one);
 
-        Assert.AreEqual(idle, claim.Fleet, "an idle fleet of no more than twice the need takes the claim");
+        Assert.AreEqual(idle, guard.Fleet, "an idle fleet of no more than twice the need takes the guard task");
         Assert.IsTrue(idle.Kept, "and stays kept for after it");
     }
 
     [TestMethod]
-    public void AnExpansionTaskLeavesABiggerIdleFleetAndFormsATemporaryForce()
+    public void AGuardTaskLeavesABiggerIdleFleetAndFormsATemporaryForce()
     {
         Fleet idle = KeptFleet(Warships(2, NearTarget));
         float one = One(Warships(2, NearTarget + new Vector2(20_000f, 0f))[0]);
+        MilitaryTask guard = GuardTask();
+
+        Requisition(guard, 0.75f * one);
+
+        Assert.IsNotNull(guard.Fleet, "a force from the pool takes the guard task");
+        Assert.AreNotEqual(idle, guard.Fleet, "not the idle fleet of more than twice the need");
+        Assert.IsTrue(idle.IsIdle, "which stays idle");
+        Assert.IsFalse(guard.Fleet.CountsTowardFleetCap, "a temporary force counts toward no cap");
+    }
+
+    [TestMethod]
+    public void AClaimTakesTheNearestIdleFleetWithTheStrengthWhateverItsSize()
+    {
+        Fleet far = KeptFleet(Warships(3, FarFromTarget)); // formed first, so the nearer one is not first by order alone
+        Fleet near = KeptFleet(Warships(3, NearTarget));
+        Ship pooled = Warships(1, NearTarget + new Vector2(20_000f, 0f))[0];
+        float one = One(pooled);
         MilitaryTask claim = ClaimTask();
 
         Requisition(claim, 0.75f * one);
 
-        Assert.IsNotNull(claim.Fleet, "a force from the pool takes the claim");
-        Assert.AreNotEqual(idle, claim.Fleet, "not the idle fleet of more than twice the need");
-        Assert.IsTrue(idle.IsIdle, "which stays idle");
-        Assert.IsFalse(claim.Fleet.CountsTowardFleetCap, "a temporary force counts toward no cap");
+        Assert.AreEqual(near, claim.Fleet, "the nearest idle fleet of more than twice the need takes the claim, as for a war task");
+        Assert.IsTrue(far.IsIdle, "the farther fleet stays idle");
+        Assert.IsNull(pooled.Fleet, "and the pool ship stays free");
+    }
+
+    [TestMethod]
+    public void AClaimFormsANewFleetFromThePoolUnderTheCapAndCountsTowardIt()
+    {
+        float one = One(Warships(3, NearTarget)[0]);
+        MilitaryTask claim = ClaimTask();
+
+        Requisition(claim, 1.5f * one);
+
+        Assert.IsNotNull(claim.Fleet, "a new fleet forms from the pool");
+        Assert.IsTrue(claim.Fleet.CountsTowardFleetCap, "and counts toward the cap");
+    }
+
+    [TestMethod]
+    public void AtTheCapAClaimFormsNoNewFleetAndWaits()
+    {
+        FleetFor(WarTask(), Warships(1, FarFromTarget));
+        Ship[] pooled = Warships(3, NearTarget);
+        float one = One(pooled[0]);
+        ReadyThePool();
+        AssertEqual(1, Enemy.KeptFleetCap(), "setup: too few planet levels for a second fleet");
+        AssertEqual(1, Enemy.KeptFleetCount(), "setup: the empire has one fleet, on a task");
+        MilitaryTask claim = ClaimTask();
+
+        Requisition(claim, 1.5f * one);
+
+        Assert.IsNull(claim.Fleet, "no new fleet forms over the cap, so the claim waits");
+        Assert.IsFalse(claim.QueuedForRemoval, "with its task still open");
+        Assert.IsNull(pooled[0].Fleet, "and the pool ships stay free");
     }
 
     static void SetLevel(Planet planet, int level) => typeof(Planet).GetProperty(nameof(Planet.Level))!.SetValue(planet, level);
@@ -400,6 +449,27 @@ public class KeptFleetForceTests : StarDriveTest
     }
 
     [TestMethod]
+    public void IdleFleetsJoiningAtTheRallyPlanetTheyOrbitStayInOrbit()
+    {
+        Ship[] aShips = Warships(2, Rally.Position + new Vector2(5000f, 0f));
+        Ship[] bShips = Warships(2, Rally.Position + new Vector2(-5000f, 0f));
+        Fleet a = KeptFleet(aShips);
+        Fleet b = KeptFleet(bShips);
+        Ship[] all = { aShips[0], aShips[1], bShips[0], bShips[1] };
+        foreach (Ship ship in all)
+            ship.OrderToOrbit(Rally, clearOrders: true);
+        RunSimWhile((120, fatal: true), () => all.Any(s => !s.AI.IsOrbiting(Rally)));
+        ReadyThePool(simulate: false);
+        AssertEqual(1, Enemy.KeptFleetCap(), "setup: room for one fleet only");
+        Assert.IsTrue(a.IdleRally == Rally && b.IdleRally == Rally, "setup: both fleets wait at the planet they orbit");
+
+        typeof(EmpireAI).GetMethod("JoinIdleFleetsOverTheCap", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(Enemy.AI, null);
+
+        AssertEqual(4, (a.Ships.Count == 4 ? a : b).Ships.Count, "one fleet joins the other");
+        Assert.IsFalse(all.Any(s => s.AI.State != AIState.Orbit), "the joined fleet stays in orbit instead of forming up beside the planet");
+    }
+
+    [TestMethod]
     public void AShipFightingWhenItsIdleFleetJoinsAnotherIsLeftToFight()
     {
         Ship[] aShips = Warships(2, new Vector2(0f, -300_000f));
@@ -439,7 +509,7 @@ public class KeptFleetForceTests : StarDriveTest
 
         Requisition(task, 0.5f * One(ships[0]));
 
-        Assert.IsTrue(task.QueuedForRemoval, "a task its force would call off at once ends");
+        Assert.IsTrue(task.QueuedForRemoval, "a task whose force cannot take on the enemy at the target whole ends");
         Assert.IsTrue(idle.IsIdle, "and the idle fleet stays idle");
     }
 
