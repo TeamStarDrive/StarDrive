@@ -687,7 +687,10 @@ namespace Ship_Game.Universe.SolarBodies
                 }
 
                 if (q.Goal is RefitOrbital)
+                {
                     q.Goal.OldShip?.AI.ClearOrders();
+                    Owner.AI.RemoveGoal(q.Goal);
+                }
             }
 
             lock (ConstructionQueue)

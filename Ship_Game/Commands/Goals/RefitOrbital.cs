@@ -22,7 +22,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 FindOrbitalAndPlanetToRefit,
                 BuildNewShip,
-                WaitForShipBuilt,
+                WaitForRefitBuilt,
                 OrderDeployOrbital,
                 WaitForDeployment
             };
@@ -41,6 +41,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep FindOrbitalAndPlanetToRefit()
         {
+            // an orbital takes one refit at a time
+            if (Owner.AI.HasGoal(g => g != this && g.Type == GoalType.RefitOrbital && g.OldShip == OldShip))
+                return GoalStep.GoalFailed;
+
             if (OldShip.AI.State == AIState.Refit)
                 RemoveOldRefitGoal();
 
@@ -62,9 +66,28 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;
 
             float refitCost = OldShip.RefitCost(ToBuild);
+            if (PlanetBuildingAt?.Owner != Owner)
+            {
+                if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, refitCost, ToBuild, out Planet buildAt))
+                {
+                    OldShip.AI.ClearOrders();
+                    return GoalStep.GoalFailed;
+                }
+                PlanetBuildingAt = buildAt;
+            }
+
             IShipDesign constructor = BuildableShip.GetConstructor(Owner, OldShip.System, refitCost);
             PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, refitCost, this, Rush);
             return GoalStep.GoToNextStep;
+        }
+
+        // a failed wait also ends the orbital's own wait for this refit
+        GoalStep WaitForRefitBuilt()
+        {
+            GoalStep step = WaitForShipBuilt();
+            if (step == GoalStep.GoalFailed && OldShip is { Active: true } old && StillOurs(old) && old.AI.State == AIState.Refit)
+                old.AI.ClearOrders();
+            return step;
         }
 
         GoalStep OrderDeployOrbital()

@@ -57,7 +57,7 @@ namespace Ship_Game.Commands.Goals
             float structureCost = ToBuild.GetCost(Owner);
             IShipDesign constructor = BuildableShip.GetConstructor(Owner, TetherPlanet?.System ?? TargetSystem, structureCost);
 
-            if (PlanetBuildingAt == null)
+            if (PlanetBuildingAt == null || PlanetBuildingAt.Owner != Owner)
             {
                 if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, ToBuild, out Planet planet, priority: 0.25f))
                     return GoalStep.TryAgain;

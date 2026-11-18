@@ -33,7 +33,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetForFleetRequisition()
         {
-            if (PlanetBuildingAt == null || !PlanetBuildingAt.HasSpacePort)
+            if (PlanetBuildingAt == null || PlanetBuildingAt.Owner != Owner || !PlanetBuildingAt.HasSpacePort)
             {
                 if (!Owner.FindPlanetToBuildShipAt(Owner.SpacePorts, Build.Template, out Planet buildAt))
                     return GoalStep.TryAgain;

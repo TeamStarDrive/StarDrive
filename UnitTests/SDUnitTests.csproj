@@ -207,6 +207,7 @@
     <Compile Include="Ships\ColonyShipLandingTests.cs" />
     <Compile Include="Ships\CapturedColonyShipTests.cs" />
     <Compile Include="Ships\CapturedShipGoalTests.cs" />
+    <Compile Include="Ships\RefitOrbitalLostPortTests.cs" />
     <Compile Include="Ships\ScrapLandingTests.cs" />
     <Compile Include="Ships\RefitLandingTests.cs" />
     <Compile Include="Ships\RepairDroneCooldownTests.cs" />
