@@ -2653,34 +2653,61 @@ namespace Ship_Game
         public void AddArtifact(Artifact art)
         {
             data.OwnedArtifacts.Add(art);
-            ApplyFertilityChange(art.GetFertilityBonus(data));
-            data.Traits.DiplomacyMod         += art.GetDiplomacyBonus(data);
-            data.Traits.GroundCombatModifier += art.GetGroundCombatBonus(data);
-            data.Traits.ModHpModifier        += art.GetModuleHpMod(data);
-            data.FlatMoneyBonus              += art.GetFlatMoneyBonus(data);
-            data.Traits.ProductionMod        += art.GetProductionBonus(data);
-            data.Traits.ReproductionMod      += art.GetReproductionMod(data);
-            data.Traits.ResearchMod          += art.GetResearchMod(data);
-            data.SensorModifier              += art.GetSensorMod(data);
-            data.ShieldPenBonusChance        += art.GetShieldPenMod(data);
-            EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
-            ForceUpdateSensorRadiuses = true;
+            ApplyArtifactEffects(art, 1f);
+            RefreshArtifactBonuses();
         }
 
         public void RemoveArtifact(Artifact art)
         {
             data.OwnedArtifacts.Remove(art);
+            ApplyArtifactEffects(art, -1f);
+            RefreshArtifactBonuses();
+        }
 
-            ApplyFertilityChange(-art.GetFertilityBonus(data));
-            data.Traits.DiplomacyMod         -= art.GetDiplomacyBonus(data);
-            data.Traits.GroundCombatModifier -= art.GetGroundCombatBonus(data);
-            data.Traits.ModHpModifier        -= art.GetModuleHpMod(data);
-            data.FlatMoneyBonus              -= art.GetFlatMoneyBonus(data);
-            data.Traits.ProductionMod        -= art.GetProductionBonus(data);
-            data.Traits.ReproductionMod      -= art.GetReproductionMod(data);
-            data.Traits.ResearchMod          -= art.GetResearchMod(data);
-            data.SensorModifier              -= art.GetSensorMod(data);
-            data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
+        // the owned artifacts' effects come off at the old Spiritual value and go back at the new
+        public void SetSpiritual(float spiritual)
+        {
+            if (spiritual.AlmostEqual(data.Traits.Spiritual))
+                return;
+
+            Artifact[] owned = data.OwnedArtifacts.ToArray();
+            float before = ArtifactFertility(owned);
+            foreach (Artifact art in owned)
+                ApplyArtifactEffects(art, -1f, fertility: false);
+            data.Traits.Spiritual = spiritual;
+            foreach (Artifact art in owned)
+                ApplyArtifactEffects(art, 1f, fertility: false);
+            ApplyFertilityChange(ArtifactFertility(owned) - before);
+
+            if (owned.Length > 0)
+                RefreshArtifactBonuses();
+        }
+
+        float ArtifactFertility(Artifact[] artifacts)
+        {
+            float fertility = 0f;
+            foreach (Artifact art in artifacts)
+                fertility += art.GetFertilityBonus(data);
+            return fertility;
+        }
+
+        void ApplyArtifactEffects(Artifact art, float sign, bool fertility = true)
+        {
+            if (fertility)
+                ApplyFertilityChange(sign * art.GetFertilityBonus(data));
+            data.Traits.DiplomacyMod         += sign * art.GetDiplomacyBonus(data);
+            data.Traits.GroundCombatModifier += sign * art.GetGroundCombatBonus(data);
+            data.Traits.ModHpModifier        += sign * art.GetModuleHpMod(data);
+            data.FlatMoneyBonus              += sign * art.GetFlatMoneyBonus(data);
+            data.Traits.ProductionMod        += sign * art.GetProductionBonus(data);
+            data.Traits.ReproductionMod      += sign * art.GetReproductionMod(data);
+            data.Traits.ResearchMod          += sign * art.GetResearchMod(data);
+            data.SensorModifier              += sign * art.GetSensorMod(data);
+            data.ShieldPenBonusChance        += sign * art.GetShieldPenMod(data);
+        }
+
+        void RefreshArtifactBonuses()
+        {
             EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
             ForceUpdateSensorRadiuses = true;
         }

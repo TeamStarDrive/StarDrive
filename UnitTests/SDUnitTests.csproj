@@ -112,6 +112,7 @@
     <Compile Include="Empires\HostilePresenceAlertTests.cs" />
     <Compile Include="Empires\ThreatenedColonyOfferTests.cs" />
     <Compile Include="Empires\RefitPortSelectionTests.cs" />
+    <Compile Include="Empires\TraitAssimilationTests.cs" />
     <Compile Include="Empires\CrippledPortTests.cs" />
     <Compile Include="Empires\SpacePortScaleTests.cs" />
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
