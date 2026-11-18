@@ -52,7 +52,8 @@ namespace Ship_Game.AI.ExpansionAI
                 if (Owner.KnownEnemyStrengthNoResearchStationsIn(system) > 0f)
                 {
                     if (!Owner.isPlayer && CanSendShipTo(system, built) && !Owner.HasWarTaskTargetingSystem(system)
-                        && !Owner.AI.HasGoal(g => g is DefendSystem d && d.TargetSystem == system)) // a fleet another planner asked for this turn has no task yet
+                        && !Owner.AI.HasGoal(g => g is DefendSystem d && d.TargetSystem == system) // a fleet another planner asked for this turn has no task yet
+                        && HelperFunctions.WorthAFleetToClear(Owner, system))
                         Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system), Tasks.MilitaryTaskImportance.Normal);
                     continue;
                 }

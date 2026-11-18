@@ -399,6 +399,22 @@ namespace Ship_Game
                    || influence == InfluenceStatus.Friendly;
         }
 
+        // a fleet goes to clear a system for research, mining or salvage only near home, or wherever pirates or Remnants are known
+        static public bool WorthAFleetToClear(Empire owner, SolarSystem system)
+        {
+            if (system.HasPlanetsOwnedBy(owner) || system.Position.SqDist(owner.WeightedCenter) < owner.AverageSystemsSqdistFromCenter * 1.5f)
+                return true;
+
+            ThreatCluster[] clusters = owner.AI.ThreatMatrix.FindHostileClusters(system.Position, system.Radius);
+            for (int i = 0; i < clusters.Length; ++i)
+            {
+                Empire them = clusters[i].Loyalty;
+                if (them.WeArePirates || them.WeAreRemnants)
+                    return true;
+            }
+            return false;
+        }
+
         static public int GetMiddlePosForTitle(string title, Font font, float width, int x)
         {
             return (int)(x+ width*0.5f - font.MeasureString(title).X*0.5f);

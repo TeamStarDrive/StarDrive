@@ -54,7 +54,7 @@ namespace Ship_Game.AI.ExpansionAI
             float enemyStr = Owner.KnownEnemyStrengthNoResearchStationsIn(planet.System);
             if (enemyStr > 0)
             {
-                if (Owner.isPlayer || Owner.HasWarTaskTargetingSystem(planet.System))
+                if (Owner.isPlayer || Owner.HasWarTaskTargetingSystem(planet.System) || !HelperFunctions.WorthAFleetToClear(Owner, planet.System))
                     return false;
 
                 Owner.AddDefenseSystemGoal(planet.System, Owner.KnownEnemyStrengthIn(planet.System), AI.Tasks.MilitaryTaskImportance.Normal);

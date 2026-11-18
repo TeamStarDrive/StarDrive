@@ -288,7 +288,8 @@ namespace Ship_Game.Commands.Goals
             if ((system.OwnerList.Count == 0 || system.HasPlanetsOwnedBy(Owner))
                 && (ResearchStation.HealthPercent < 0.95 && ResearchStation.AI.BadGuysNear
                    || system.ShipList.Any(s => s.IsResearchStation && s.Loyalty.IsAtWarWith(ResearchStation.Loyalty)))
-                && !Owner.HasWarTaskTargetingSystem(system))
+                && !Owner.HasWarTaskTargetingSystem(system)
+                && HelperFunctions.WorthAFleetToClear(Owner, system))
             {
                 Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system), AI.Tasks.MilitaryTaskImportance.Normal);
             }

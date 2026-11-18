@@ -117,6 +117,7 @@
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
     <Compile Include="Espionage\LegacyAgentTests.cs" />
     <Compile Include="Espionage\UpriseTests.cs" />
+    <Compile Include="ExoticSystems\ClearingFleetTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
     <Compile Include="Fleets\ClaimFleetTests.cs" />
