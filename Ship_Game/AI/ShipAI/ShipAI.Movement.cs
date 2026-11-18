@@ -523,9 +523,9 @@ namespace Ship_Game.AI
             {
                 Vector2 fleetAvgPos = Owner.Fleet.AveragePosition();
                 float distFromFleet = fleetAvgPos.Distance(Owner.Position);
-                if (distFromFleet > 15_000f)
+                if (distFromFleet > 15_000f && (distance > FormationWarpExitDistance || isDetourLeg))
                 {
-                    // This ship is far away from the fleet
+                    // This ship is far away from the fleet, and its own destination is far away or a detour on the way
                     // Enter warp and continue next frame in UpdateWarpThrust()
                     Owner.EngageStarDrive();
                 }
