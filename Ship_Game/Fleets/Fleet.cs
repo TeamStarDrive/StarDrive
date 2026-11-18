@@ -1131,7 +1131,11 @@ namespace Ship_Game.Fleets
                     break;
                 case 6:
                     task.WentIn = true; // every fleet at this step has passed the hold
-                    RearShipsToCombat(MoveOrder.Aggressive);
+                    if (TroopsGoingIn(task))
+                        OrbitWhileTroopsLand(task);
+                    else
+                        RearShipsToCombat(MoveOrder.Aggressive);
+
                     switch (StatusOfPlanetAssault(task))
                     {
                         case Status.NotApplicable: TaskStep = 5; break;
@@ -1141,7 +1145,7 @@ namespace Ship_Game.Fleets
 
                     break;
                 case 7:
-                    TaskStep = ShipsOffMission(task) ? 5 : 6;
+                    TaskStep = !TroopsGoingIn(task) && ShipsOffMission(task) ? 5 : 6; // while troops land the warships stay in orbit
                     break;
                 case 8:
                     if (TryGetNewTargetPlanet(task, out Planet newTarget)
@@ -2715,6 +2719,30 @@ namespace Ship_Game.Fleets
             InvadeTactics(CenterShips, InvasionTactics.MainBattleGroup, FinalPosition, order);
             InvadeTactics(RightShips, InvasionTactics.FlankGuard, FinalPosition, order);
             InvadeTactics(LeftShips, InvasionTactics.FlankGuard, FinalPosition, order);
+        }
+
+        // troops have been sent to this target or have landed on it
+        static bool TroopsGoingIn(MilitaryTask task) => task.TroopsSent || task.TroopsLanded;
+
+        // the fleet's task is to take this planet
+        public bool Invades(Planet planet)
+            => FleetTask is { Type: MilitaryTask.TaskType.AssaultPlanet or MilitaryTask.TaskType.StrikeForce or MilitaryTask.TaskType.ReclaimPlanet } task
+               && task.TargetPlanet == planet;
+
+        // while troops land, the warships orbit the target and fight what comes into reach instead of holding formation spots around it
+        void OrbitWhileTroopsLand(MilitaryTask task)
+        {
+            Planet target = task.TargetPlanet;
+            for (int i = 0; i < Ships.Count; ++i)
+            {
+                Ship ship = Ships[i];
+                if (ship.IsSingleTroopShip || ship.IsBomber || !ship.CanTakeFleetOrders || ship.AI.OrbitedPlanet == target
+                    || ship.AI.State is AIState.AssaultPlanet && ship.CanLandTroops // a ship landing troops keeps landing them while it can
+                    || ship.AI.State is AIState.Bombard or AIState.ResupplyEscort or AIState.Flee)
+                    continue;
+
+                ship.OrderToOrbit(target, clearOrders: true, MoveOrder.Aggressive);
+            }
         }
 
         void RearShipsToCombat(MoveOrder order)

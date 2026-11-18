@@ -441,7 +441,7 @@ namespace Ship_Game.AI
         // the planet this ship is set to orbit, not counting resupply, flee or parking orbits
         public Planet OrbitedPlanet => FindGoal(Plan.Orbit, out ShipGoal orbit) && orbit.WantedState == AIState.Orbit ? orbit.TargetPlanet : null;
 
-        // an AI guard outside any fleet keeps to the system of the planet it orbits or the station it escorts, a ship of a kept fleet with no task to the system of the planet it orbits, an AI fleet ship keeps near its fleet while it travels on the fleet's move
+        // an AI guard outside any fleet keeps to the system of the planet it orbits or the station it escorts, a ship of a kept fleet with no task or of a fleet invading the planet it orbits to that planet's system, an AI fleet ship keeps near its fleet while it travels on the fleet's move
         void UpdateChaseLimits()
         {
             GuardedSystem = null;
@@ -452,7 +452,7 @@ namespace Ship_Game.AI
                 return;
 
             Fleet fleet = Owner.Fleet;
-            if ((fleet == null || fleet.IsIdle) && OrbitedPlanet is { } planet)
+            if (OrbitedPlanet is { } planet && (fleet == null || fleet.IsIdle || fleet.Invades(planet)))
             {
                 GuardedPlanet = planet;
                 GuardedSystem = planet.System;
