@@ -20,7 +20,7 @@ public class EspionageDebug : DebugPage
     int UpdateTimer;
 
 
-    public EspionageDebug(DebugInfoScreen parent) : base(parent, DebugModes.Agents)
+    public EspionageDebug(DebugInfoScreen parent) : base(parent, DebugModes.Espionage)
     {
         EmpireSelect = base.Add(new DebugEmpireSelectionSubmenu(parent, parent.ModesTab.ClientArea.CutTop(10)));
     }

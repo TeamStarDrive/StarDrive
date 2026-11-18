@@ -130,7 +130,7 @@ public sealed partial class DebugInfoScreen : GameScreen
             DebugModes.Input => new InputDebug(this),
             DebugModes.Pirates => new PiratesDebug(this),
             DebugModes.Remnants => new RemnantsDebug(this),
-            DebugModes.Agents => Universe.P.UseLegacyEspionage ? new AgentsDebug(this) : new EspionageDebug(this),
+            DebugModes.Espionage => Universe.P.UseLegacyEspionage ? new AgentsDebug(this) : new EspionageDebug(this),
             DebugModes.Relationship => new RelationshipDebug(this),
             DebugModes.FleetMulti => new FleetMultipliersDebug(this),
             DebugModes.Trade => new TradeDebug(this),
@@ -149,6 +149,7 @@ public sealed partial class DebugInfoScreen : GameScreen
             DebugModes.Goals => new EmpireGoalsDebug(this),
             DebugModes.MiningOps => new MiningOpsDebug(this),
             DebugModes.SalvageOps => new SalvageOpsDebug(this),
+            DebugModes.KeptFleets => new KeptFleetsDebug(this),
             _ => null
         };
     }

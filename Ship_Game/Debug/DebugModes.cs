@@ -18,7 +18,6 @@ public enum DebugModes
     War,
     Pirates,
     Remnants,
-    Agents,
     Relationship,
     FleetMulti,
     StoryAndEvents,
@@ -29,6 +28,7 @@ public enum DebugModes
     MiningOps,
     SalvageOps,
     Espionage,
+    KeptFleets,
 
 
     // this should always be the last valid page

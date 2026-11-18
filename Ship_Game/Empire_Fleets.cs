@@ -238,6 +238,9 @@ public sealed partial class Empire
 
     [StarData] int PeakFleetCap;
 
+    // the highest cap the empire has had
+    public int PeakKeptFleetCap => PeakFleetCap;
+
     // the most fleets the empire keeps: one per ten planet levels, one more at Normal and one more for each difficulty step above it, never below half the most it has had
     public int KeptFleetCap() => Math.Max(FleetCapByLevels(levelMargin: 0), PeakFleetCap / 2);
 
