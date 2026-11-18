@@ -103,7 +103,7 @@ The full Phase 4 plan is in `migration-plan-phase4.md`. Eleven sub-phases ordere
 1. **§4.1 Baseline + perf baseline capture** — re-baseline Phase 2 timings on current hardware so §4.4 has data to compare against.
 2. **§4.2 Combined Arms regression sweep** *(first per user direction)* — re-export Combined Arms hulls through legacy/mesh_exporter_xna31 (the §3.10.B.8 fixes apply uniformly across the corpus, but only Ralyeh ship17 a–f was visually verified) and confirm no regressions.
 3. **§4.3 Build hygiene: zero warnings on Release|x64** + warnings-as-errors gate so future regressions can't sneak in.
-4. **§4.4 Performance baseline + targeted optimization** (ARCHITECTURE.md §9 step 4c).
+4. **§4.4 Performance baseline + targeted optimization** (ARCHITECTURE_pre_64bit.md §9 step 4c).
 5. **§4.5 Backlog finishes**: YouLose desaturate visual (deferred 2026-05-03 with diagnostic checklist preserved), light rig data rebake (the catch-and-empty path in `GameScreen.AssignLightRig`).
 6. **§4.6 Visual polish pass** — 7 prepared items + an open-ended user-driven UI walkthrough.
 7. **§4.7 Mesh-export toolchain decision** — pick one of the three options in `project_phase4_legacy_mesh_export_sync.md`.
@@ -127,7 +127,7 @@ The full Phase 4 plan is in `migration-plan-phase4.md`. Eleven sub-phases ordere
 
 ## Anti-goals — confirmed still deferred
 
-Per Phase 3 plan + ARCHITECTURE.md §8 / §9: pixel-exact match to 2013 SunBurn deferred-renderer output (forward-renderer-equivalent is the bar); save-game compatibility with pre-migration XNA 3.1 saves; network/multiplayer (none planned); HDR tone mapping; god-class refactors of `Fleet.cs` / `Empire.cs` / `ResourceManager.cs` (gameplay debt, not migration debt); `Xna31ModelReader` runtime decoder (offline FBX pipeline supersedes it).
+Per Phase 3 plan + ARCHITECTURE_pre_64bit.md §8 / §9: pixel-exact match to 2013 SunBurn deferred-renderer output (forward-renderer-equivalent is the bar); save-game compatibility with pre-migration XNA 3.1 saves; network/multiplayer (none planned); HDR tone mapping; god-class refactors of `Fleet.cs` / `Empire.cs` / `ResourceManager.cs` (gameplay debt, not migration debt); `Xna31ModelReader` runtime decoder (offline FBX pipeline supersedes it).
 
 ## Migration retrospective (Phase 1 + 2 + 3)
 

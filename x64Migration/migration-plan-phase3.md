@@ -45,7 +45,7 @@ The user runs `game/StarDrive.exe`. The process:
 **Anti-goals for Phase 3** (deferred to a Phase 4 or treated as won't-fix):
 - Pixel-exact match to 2013 SunBurn deferred-renderer output. Forward-renderer-equivalent is the bar.
 - Save-game compatibility with pre-migration XNA 3.1 saves (separate workstream if needed).
-- Network / multiplayer (none planned per ARCHITECTURE.md §5.6).
+- Network / multiplayer (none planned per ARCHITECTURE_pre_64bit.md §5.6).
 - HDR tone mapping. Bloom is in §3.7.
 - Sound / music engine changes (already working in Phase 2).
 
@@ -624,7 +624,7 @@ Each sub-phase commits to `migration/phase3-x64-monogame`. Open one PR per sub-p
 
 ### Phase 4 placeholder
 
-After Phase 3 ships, ARCHITECTURE.md §9 "Suggested Migration Order" lists "Phase 4: Polish" — this is where HDR, advanced lighting models, AI improvements, and any remaining Phase 3 carryovers land. Out of scope for this plan document; mention only.
+After Phase 3 ships, ARCHITECTURE_pre_64bit.md §9 "Suggested Migration Order" lists "Phase 4: Polish" — this is where HDR, advanced lighting models, AI improvements, and any remaining Phase 3 carryovers land. Out of scope for this plan document; mention only.
 
 **Confirmed Phase 4 carryovers** (as of 2026-05-07; full plan in `migration-plan-phase4.md`):
 - **Combined Arms mod regression sweep** — re-export every Combined Arms hull through the legacy/mesh_exporter_xna31 pipeline (§3.10.B.8 fixes apply uniformly across the mesh corpus, but only the Ralyeh ship17 family was visually verified) and run Combined Arms in-game to confirm no regressions vs pre-migration. Likely first Phase 4 item.

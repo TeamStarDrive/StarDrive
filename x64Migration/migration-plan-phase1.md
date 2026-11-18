@@ -2,7 +2,7 @@
 
 ## Context
 
-The existing [ARCHITECTURE.md](ARCHITECTURE.md) outlines a 4-phase migration roadmap from XNA 3.1 + SunBurn (32-bit) to MonoGame (64-bit). Phase 1 ("Foundation") was sketched as four bullets:
+The existing [ARCHITECTURE_pre_64bit.md](../ARCHITECTURE_pre_64bit.md) outlines a 4-phase migration roadmap from XNA 3.1 + SunBurn (32-bit) to MonoGame (64-bit). Phase 1 ("Foundation") was sketched as four bullets:
 
 > 1a. Change platform target to x64 / AnyCPU
 > 1b. Rebuild SDNative.dll as x64

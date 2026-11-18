@@ -1,5 +1,7 @@
 # StarDrive BlackBoxPlus — Architecture Reference
 
+> **Pre-migration snapshot (2026-04-28); the current reference is [ARCHITECTURE.md](ARCHITECTURE.md).**
+
 > **Purpose**: Living architectural reference for the BlackBoxPlus revival project.  
 > **Scope**: Current state analysis + migration roadmap for XNA 3.1 + SunBurn → MonoGame (64-bit).  
 > **Last Updated**: 2026-04-28
