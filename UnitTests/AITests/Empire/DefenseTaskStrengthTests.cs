@@ -178,6 +178,22 @@ public class DefenseTaskStrengthTests : StarDriveTest
     }
 
     [TestMethod]
+    public void TheDefenseOfOurOwnSystemWaitsForAFleetInsteadOfEnding()
+    {
+        SolarSystem system = AddDummyPlanetToEmpire(new Vector2(200_000f), Enemy).System;
+        Enemy.ThreatDetector.SystemsWithThreat = new[] { new IncomingThreat(Enemy, system, new[] { PlayerFleetHeadingFor(system) }) };
+        new EmpireDefense(Enemy).Evaluate();
+        var defense = (DefendSystem)Enemy.AI.FindGoal(g => g is DefendSystem);
+        Assert.AreSame(Enemy, defense.TargetEmpire, "setup: the empire defends its own system");
+        Assert.IsNull(defense.Task.Fleet, "setup: no fleet has taken the task yet");
+
+        defense.Evaluate();
+
+        Assert.IsNotNull(defense.Task, "the defense of its own system keeps its task instead of ending it");
+        Assert.IsFalse(defense.Task.QueuedForRemoval, "the defense of its own system keeps waiting for a fleet, as one of an ally's does");
+    }
+
+    [TestMethod]
     public void ADefenseOfAnAllysSystemTargetsTheAttackerWeMayFightNotOneWeHaveAPactWith()
     {
         CreateThirdMajorEmpire();

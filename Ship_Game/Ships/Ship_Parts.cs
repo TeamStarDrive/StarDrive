@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
     public partial class Ship
     {
         // a hull part can go once more than this share of its slot area is dead: an update with a death under it rolls a chance growing from none there toward PartLossTopChance as the rest dies, and with all of it dead it goes with no roll
-        public const float PartLossDeadShare = 0.75f;
+        public const float PartLossDeadShare = 0.5f;
         // the chance a hull part's roll nears as the last of its modules dies
         public const float PartLossTopChance = 0.5f;
 

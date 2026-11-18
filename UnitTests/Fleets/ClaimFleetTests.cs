@@ -8,6 +8,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Empires.Components;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Fleets;
@@ -15,11 +16,18 @@ namespace UnitTests.Fleets;
 /// <summary>
 /// An AI fleet claiming a planet for colonization that forms inside the planet's system goes straight to the planet
 /// instead of gathering at the system's edge, and the colonization goal gives up on its claim fleet only when the fleet
-/// is neither moving in nor in the system. The fleet gives up its claim when it finds a stronger force in the system,
-/// and the lost fight counts against the empire whose ships it found; a fleet that would give up at once is not formed
-/// at all. When it goes in, its carriers and bombers go in with the warships and are sent at the enemy, a bombarding
-/// bomber keeps bombarding, and a stranded ship does not hold up the rest. Its troop ships hold back until the fight is
-/// won and a ship that went in is at the planet; troop ships left alone give up the claim unless they are landing.
+/// is neither moving in nor in the system. No claim fleet is formed against a force in the system that it cannot take on
+/// whole; a fleet already on its claim weighs only a share of the force it finds there, and gives up when even that
+/// share is more than it can take on. The lost fight counts against the empire whose ships it found. When it goes in,
+/// its carriers and bombers go in with the warships and are sent at the enemy, a bombarding bomber keeps bombarding,
+/// and a stranded ship does not hold up the rest; with no hostile left in the system and no troops to land, it orbits
+/// the planet at once. Its troop ships hold back until the fight is won and a ship that went in is at the planet;
+/// troop ships left alone give up the claim unless they are landing. On a planet with no owner, a building left there
+/// and troops of an empire it is at peace with are no enemy on the ground, so the fleet lands troops only when troops
+/// of an empire it is at war with are on it. A colonization goal that starts over while an enemy is still there calls
+/// off its old claim for the new one, and keeps it when none is left. With a claim under way, the goal gives up when the
+/// known force is more than the whole navy, weighing only the share a fleet on its task weighs once the claim's fleet
+/// has formed. A guard fleet that has formed weighs that share too.
 /// </summary>
 [TestClass]
 public class ClaimFleetTests : StarDriveTest
@@ -97,13 +105,13 @@ public class ClaimFleetTests : StarDriveTest
         Enemy.Threats.Update(new FixedSimTime(2f));
     }
 
-    // a player force in the system that the AI now sees, more than its claim fleet can take on
+    // a player force in the system that the AI now sees, more than its claim fleet can stay in a fight against
     void StrongerForceSeenInTheSystem(Fleet fleet)
     {
         SeenAtThePlanet(ships: 12);
-        AssertGreaterThan(Enemy.Threats.GetWeightedHostileStrengthAt(Target.System.Position, Target.System.Radius),
+        AssertGreaterThan(Enemy.Threats.GetWeightedHostileStrengthAt(Target.System.Position, Target.System.Radius) * Fleet.StayInFightEnemyShare,
                           fleet.GetStrength() * Enemy.PersonalityModifiers.CanWeTakeThisFightMultiplier,
-                          "setup: the force the AI now sees in the system is more than its fleet can take on");
+                          "setup: the force the AI now sees in the system is more than its fleet can stay against");
     }
 
     [TestMethod]
@@ -118,24 +126,53 @@ public class ClaimFleetTests : StarDriveTest
         Assert.IsNull(fleet.FleetTask, "a claim fleet that finds a stronger force in the system gives up its claim");
     }
 
-    // a claim made against no empire asks for the raw strength known there, while the AI weighs the player's ships at three times theirs
     [TestMethod]
-    public void AClaimWhoseFleetWouldGiveUpAtOnceFormsNoFleet()
+    public void AClaimFleetStaysAgainstAForceTooStrongToGoInAgainstThatItCanStillHold()
     {
-        for (int i = 0; i < 4; ++i)
-            SpawnShip(Warship, Enemy, OutsideSystem + new Vector2(0f, 1000f * i));
+        Fleet fleet = ClaimFleet(OutsideSystem, taskStep: 5, out MilitaryTask task);
+        Enemy.FleetStrEmpireMultiplier[Player.Id] = 1f;
+        float canTake = fleet.GetStrength() * Enemy.PersonalityModifiers.CanWeTakeThisFightMultiplier;
+        float playerShip = SpawnShip(Warship, Player, new Vector2(900_000f)).GetStrength();
+        SeenAtThePlanet(ships: (int)(canTake / playerShip) + 1);
+        float hostiles = Enemy.Threats.GetWeightedHostileStrengthAt(Target.System.Position, Target.System.Radius);
+        Assert.IsFalse(Fleet.CanTakeWeightedFight(Enemy, fleet.GetStrength(), hostiles), "setup: weighed whole, the force is too much to go in against");
+        Assert.IsTrue(Fleet.CanTakeWeightedFight(Enemy, fleet.GetStrength(), hostiles * Fleet.StayInFightEnemyShare),
+                      "setup: at the share a fleet on its task weighs, the fleet can hold against it");
+
+        ClaimDefense(fleet, task);
+
+        Assert.AreEqual(task, fleet.FleetTask, "a fleet already on its claim stays against a force it could not have gone in against");
+    }
+
+    // the claim asks for the raw strength known there; weighted, the force is more than the pool can go in against but less than it can stay against
+    [TestMethod]
+    public void AClaimFormsNoFleetAgainstAForceItCannotTakeOnWhole()
+    {
+        var ready = new Ship[4];
+        for (int i = 0; i < ready.Length; ++i)
+            ready[i] = SpawnShip(Warship, Enemy, OutsideSystem + new Vector2(0f, 1000f * i));
         UState.Objects.Update(new FixedSimTime(2f));
         SeenAtThePlanet(ships: 4);
-        Enemy.FleetStrEmpireMultiplier[Player.Id] = 3f;
         Enemy.ShipsReadyForFleet = new FleetShips(Enemy, Enemy.AllFleetReadyShips()); // as the empire's update does
-        AssertGreaterThan(Enemy.Threats.GetWeightedHostileStrengthAt(Target.System.Position, Target.System.Radius),
-                          Enemy.ShipsReadyForFleet.AccumulatedStrength * Enemy.PersonalityModifiers.CanWeTakeThisFightMultiplier,
-                          "setup: the force the AI knows in the system is more than all its ready ships can take on");
+        float pool = Enemy.ShipsReadyForFleet.AccumulatedStrength;
+        float canTake = pool * Enemy.PersonalityModifiers.CanWeTakeThisFightMultiplier;
+        float between = (1f + Fleet.StayInFightEnemyShare) / 2f;
+        float known = Enemy.KnownEnemyStrengthIn(Target.System);
+        float weakest = float.MaxValue;
+        foreach (Ship ship in ready)
+            weakest = ship.GetStrength() < weakest ? ship.GetStrength() : weakest;
+        AssertLessThan(pool - weakest, known, "setup: the claim needs every ready ship to match the known strength, so all of them go in");
+        Enemy.FleetStrEmpireMultiplier[Player.Id] = canTake / (between * known);
+        float hostiles = Enemy.Threats.GetWeightedHostileStrengthAt(Target.System.Position, Target.System.Radius);
+        Assert.IsFalse(Fleet.CanTakeWeightedFight(Enemy, pool, hostiles),
+                       "setup: whole, the force the AI knows in the system is more than all its ready ships can take on");
+        Assert.IsTrue(Fleet.CanTakeWeightedFight(Enemy, pool, hostiles * Fleet.StayInFightEnemyShare),
+                      "setup: at the share a fleet on its task weighs, they could stay against it");
         MilitaryTask task = MilitaryTask.CreateClaimTask(Enemy, Target, 100f, targetEmpire: null, fleetCount: 1);
 
         task.Evaluate(Enemy);
 
-        Assert.IsTrue(task.QueuedForRemoval, "the claim ends instead of forming a fleet that would give it up at once");
+        Assert.IsTrue(task.QueuedForRemoval, "the claim ends instead of forming a fleet against a force it cannot take on whole");
         Assert.IsNull(task.Fleet, "no fleet is formed");
     }
 
@@ -193,7 +230,7 @@ public class ClaimFleetTests : StarDriveTest
 
         ClaimDefense(fleet, task);
 
-        Assert.AreEqual(7, fleet.TaskStep, "setup: with no hostile left in the area the fleet moves on");
+        AssertGreaterThan(fleet.TaskStep, 6, "setup: with no hostile left in the area the fleet moves on");
         Assert.AreEqual(0f, task.PeakFleetStrength, "the fight won, a later one is counted on its own");
     }
 
@@ -346,6 +383,7 @@ public class ClaimFleetTests : StarDriveTest
     [TestMethod]
     public void AClaimFleetsShipsAtThePlanetHaveArrivedWithoutItsTroopShips()
     {
+        SeenAtThePlanet(ships: 1); // a hostile still in the system, so the fleet takes its steps going in
         Fleet fleet = ClaimFleet(OutsideSystem, taskStep: 4, out MilitaryTask task, troopShips: 3);
         ClaimDefense(fleet, task);
         AssertGreaterThan(Surface(TroopShips(fleet)) / Surface(fleet.Ships.ToArray()), 1f - ShipGroup.MajorityAssembledSurfaceRatio,
@@ -432,6 +470,7 @@ public class ClaimFleetTests : StarDriveTest
     [TestMethod]
     public void AClaimFleetWhoseShipsThatWentInAreAllStrandedMovesOn()
     {
+        SeenAtThePlanet(ships: 1); // a hostile still in the system, so the fleet takes its steps going in
         Fleet fleet = ClaimFleet(OutsideSystem, taskStep: 4, out MilitaryTask task);
         ClaimDefense(fleet, task);
         foreach (Ship ship in GoingIn(fleet))
@@ -534,6 +573,7 @@ public class ClaimFleetTests : StarDriveTest
     [TestMethod]
     public void AClaimFleetsStrandedShipDoesNotHoldUpTheRestArriving()
     {
+        SeenAtThePlanet(ships: 1); // a hostile still in the system, so the fleet takes its steps going in
         Fleet fleet = ClaimFleet(OutsideSystem, taskStep: 4, out MilitaryTask task);
         ClaimDefense(fleet, task);
         Ship[] warships = GoingIn(fleet);
@@ -546,6 +586,92 @@ public class ClaimFleetTests : StarDriveTest
         ClaimDefense(fleet, task);
 
         Assert.AreEqual(6, fleet.TaskStep, "the ships that can move have arrived, the stranded one does not hold them up");
+    }
+
+    // the planet's tiles, and an outpost left by a colony that died there, which still fights troops that land
+    Building LeftoverOutpost()
+    {
+        float well = Target.GravityWellRadius;
+        Target.GenerateNewFromPlanetType(new SeededRandom(1), ResourceManager.Planets.PlanetOrRandom(1), 1f);
+        typeof(SolarSystemBody).GetProperty(nameof(SolarSystemBody.GravityWellRadius))!.SetValue(Target, well);
+        Building outpost = ResourceManager.CreateBuilding(Target, Building.OutpostId);
+        outpost.CombatStrength = 18;
+        Target.TilesList.Find(t => t.NoBuildingOnTile).PlaceBuilding(outpost, Target);
+        Assert.IsNull(Target.Owner, "setup: the planet has no owner");
+        Assert.IsTrue(outpost.IsAttackable, "setup: the outpost fights troops that land");
+        return outpost;
+    }
+
+    [TestMethod]
+    public void ABuildingLeftOnAPlanetWithNoOwnerIsNoEnemyOnTheGround()
+    {
+        LeftoverOutpost();
+
+        Assert.AreEqual(0f, Target.GetGroundStrengthOther(Enemy), "a colony ship takes over the outpost, so it is no ground strength to beat");
+        Assert.IsFalse(MarkForColonization.PositiveEnemyPresence(Enemy, Target, out _), "and no reason to claim the planet with a fleet");
+
+        Target.SetOwner(Player);
+        AssertGreaterThan(Target.GetGroundStrengthOther(Enemy), 0f, "the same outpost on a planet with an owner defends it");
+    }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void OnAPlanetWithNoOwnerOnlyTroopsAtWarWithTheEmpireAreAnEnemyOnTheGround(bool atWar)
+    {
+        CreateThirdMajorEmpire();
+        LeftoverOutpost();
+        var troopOwner = atWar ? Player : ThirdMajor;
+        Assert.AreEqual(atWar, Enemy.IsAtWarWith(troopOwner), "setup: the claiming empire is at war with the troop's empire, or at peace");
+        Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", troopOwner).TryLandTroop(Target), "setup: the troop is on the planet");
+
+        Assert.AreEqual(atWar, Target.GetGroundStrengthOther(Enemy) > 0f,
+                        atWar ? "troops at war with the empire are ground strength to beat"
+                              : "troops at peace with it are not; a colony ship sends them off when it settles");
+        Assert.AreEqual(atWar, MarkForColonization.PositiveEnemyPresence(Enemy, Target, out _),
+                        "and only troops at war with it are a reason to claim the planet with a fleet");
+    }
+
+    [TestMethod]
+    public void AClaimFleetLandsNoTroopsOnAPlanetWithNoOwnerAndOnlyALeftoverBuilding()
+    {
+        LeftoverOutpost();
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 7, out MilitaryTask task, troopShips: 3);
+
+        ClaimDefense(fleet, task);
+
+        Assert.AreEqual(8, fleet.TaskStep, "setup: the fleet has taken its step at the planet");
+        Assert.IsFalse(TroopShips(fleet).Any(s => s.AI.State == AIState.AssaultPlanet),
+                       "no troop ship lands to fight a building the colony ship takes over");
+    }
+
+    [TestMethod]
+    public void AClaimFleetLandsTroopsOnAPlanetWithNoOwnerWhereTroopsItIsAtWarWithAre()
+    {
+        LeftoverOutpost();
+        Assert.IsTrue(Enemy.IsAtWarWith(Player), "setup: the claiming empire is at war with the player");
+        Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", Player).TryLandTroop(Target), "setup: a player troop is on the planet");
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 7, out MilitaryTask task, troopShips: 3);
+
+        ClaimDefense(fleet, task);
+
+        Assert.IsTrue(TroopShips(fleet).Any(s => s.AI.State == AIState.AssaultPlanet), "the troop ships land to fight the enemy troops");
+    }
+
+    [TestMethod]
+    public void AClaimFleetLandsNoTroopsOnAPlanetWithNoOwnerWhereOnlyTroopsAtPeaceWithItAre()
+    {
+        CreateThirdMajorEmpire();
+        LeftoverOutpost();
+        Assert.IsFalse(Enemy.IsAtWarWith(ThirdMajor), "setup: the claiming empire is at peace with the third empire");
+        Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", ThirdMajor).TryLandTroop(Target), "setup: a troop of the third empire is on the planet");
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 7, out MilitaryTask task, troopShips: 3);
+
+        ClaimDefense(fleet, task);
+
+        Assert.AreEqual(8, fleet.TaskStep, "setup: the fleet has taken its step at the planet");
+        Assert.IsFalse(TroopShips(fleet).Any(s => s.AI.State == AIState.AssaultPlanet),
+                       "troops it cannot fight give no reason to land; a colony ship sends them off when it settles");
     }
 
     [TestMethod]
@@ -569,6 +695,129 @@ public class ClaimFleetTests : StarDriveTest
         ClaimDefense(fleet, task);
 
         AssertLessThan(fleet.TaskStep, 4, "a fleet coming from outside still gathers before it goes in");
+    }
+
+    [TestMethod]
+    public void AClaimFleetGoingIntoASystemWithNoHostileLeftOrbitsThePlanetStraightAway()
+    {
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 5, out MilitaryTask task);
+        AssertEqual(0, Enemy.AI.ThreatMatrix.FindHostileClustersByDist(task.AO, task.AORadius).Length, "setup: no hostile known in the system");
+
+        ClaimDefense(fleet, task);
+
+        AssertEqual(8, fleet.TaskStep, "the fleet skips its fight steps");
+        Assert.IsTrue(AllAre(GoingIn(fleet), AIState.Orbit), "and orbits the planet now instead of holding position");
+    }
+
+    [TestMethod]
+    public void AClaimFleetWithTroopsToLandTakesItsStepsGoingInThoughNoHostileIsLeft()
+    {
+        LeftoverOutpost();
+        Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", Player).TryLandTroop(Target), "setup: a troop the claim must fight is on the planet");
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 5, out MilitaryTask task, troopShips: 2);
+        AssertEqual(0, Enemy.AI.ThreatMatrix.FindHostileClustersByDist(task.AO, task.AORadius).Length, "setup: no hostile known in the system");
+
+        ClaimDefense(fleet, task);
+
+        Assert.AreEqual(task, fleet.FleetTask, "the fleet keeps its claim");
+        AssertLessThan(fleet.TaskStep, 7, "and the troop ships wait until the warships are at the planet");
+    }
+
+    [TestMethod]
+    public void AGuardFleetWeighsTheShareOfTheForceInTheSystem()
+    {
+        SeenAtThePlanet(ships: 1);
+        float known = Enemy.KnownEnemyStrengthIn(Target.System);
+        MilitaryTask guard = MilitaryTask.CreateGuardTask(Enemy, Target);
+        guard.MinimumTaskForceStrength = known * 0.9f; // more than the share a fleet on its task weighs, less than the whole force
+        var fleet = new Fleet(UState, Enemy) { FleetTask = guard, TaskStep = 2 };
+        typeof(MilitaryTask).GetProperty(nameof(MilitaryTask.Fleet))!.SetValue(guard, fleet);
+        fleet.AddShip(SpawnShip(Warship, Enemy, InSystem));
+        AssertEqual(1f, Enemy.GetFleetStrEmpireMultiplier(guard.TargetEmpire), "setup: the guard weighs the force by no multiplier");
+
+        typeof(Fleet).GetMethod("DoPreColonizationGuard", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(fleet, new object[] { guard });
+
+        Assert.AreEqual(guard, fleet.FleetTask, "a formed guard fleet keeps its post against a force whose share it was formed for");
+    }
+
+    [TestMethod]
+    public void AColonizationGoalWhoseClaimHasNoFleetYetWeighsTheEnemyWhole()
+    {
+        for (int i = 0; i < 4; ++i)
+            SpawnShip(Warship, Enemy, OutsideSystem + new Vector2(0f, 1000f * i));
+        UState.Objects.Update(new FixedSimTime(2f));
+        Enemy.UpdateMilitaryStrengths();
+        float navy = Enemy.OffensiveStrength;
+        float playerShip = SpawnShip(Warship, Player, new Vector2(900_000f)).GetStrength();
+        SeenAtThePlanet(ships: (int)(navy / playerShip) + 1);
+        float known = Enemy.KnownEnemyStrengthIn(Target.System);
+        AssertGreaterThan(known, navy, "setup: the force known in the system is more than the whole navy");
+        AssertLessThan(known * Fleet.StayInFightEnemyShare, navy, "setup: but its share that a fleet on its task weighs is not");
+        MilitaryTask claim = MilitaryTask.CreateClaimTask(Enemy, Target, 100f, Player, fleetCount: 1);
+        var goal = new MarkForColonization(Enemy) { TargetPlanet = Target, Task = claim };
+        Enemy.AI.AddGoal(goal);
+        goal.AdvanceToNextStep();
+        Assert.AreEqual("CheckIfColonizationIsSafe", goal.StepName, "setup: the goal checks its claim under way");
+        Assert.IsNull(claim.Fleet, "setup: the claim's fleet has not formed yet");
+
+        GoalStep step = goal.Evaluate();
+
+        Assert.AreEqual(GoalStep.GoalFailed, step, "before a fleet forms, the goal weighs the force whole and gives up");
+    }
+
+    [TestMethod]
+    public void AColonizationGoalKeepsItsClaimAgainstAForceItsNavyCanStayAgainst()
+    {
+        ClaimFleet(InSystem, taskStep: 5, out MilitaryTask task);
+        UState.Objects.Update(new FixedSimTime(2f));
+        Enemy.UpdateMilitaryStrengths();
+        float navy = Enemy.OffensiveStrength;
+        float playerShip = SpawnShip(Warship, Player, new Vector2(900_000f)).GetStrength();
+        SeenAtThePlanet(ships: (int)(navy / playerShip) + 1);
+        float known = Enemy.KnownEnemyStrengthIn(Target.System);
+        AssertGreaterThan(known, navy, "setup: the force known in the system is more than the whole navy");
+        AssertLessThan(known * Fleet.StayInFightEnemyShare, navy, "setup: but its share that a fleet on its task weighs is not");
+        var goal = new MarkForColonization(Enemy) { TargetPlanet = Target, Task = task };
+        Enemy.AI.AddGoal(goal);
+        goal.AdvanceToNextStep();
+        Assert.AreEqual("CheckIfColonizationIsSafe", goal.StepName, "setup: the goal checks its claim under way");
+
+        GoalStep step = goal.Evaluate();
+
+        Assert.AreNotEqual(GoalStep.GoalFailed, step, "the goal keeps its colony target");
+        Assert.IsFalse(task.QueuedForRemoval, "and its claim goes on");
+    }
+
+    [TestMethod]
+    public void AColonizationGoalThatRestartsCallsOffItsOldClaimFirst()
+    {
+        SeenAtThePlanet(ships: 1);
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 9, out MilitaryTask old);
+        var goal = new MarkForColonization(Enemy) { TargetPlanet = Target, Task = old };
+        Enemy.AI.AddGoal(goal);
+        Assert.AreEqual("CreateClaimTask", goal.StepName, "setup: the goal starts over, as when its colony ship's queue item is lost");
+
+        goal.Evaluate();
+
+        Assert.IsTrue(old.QueuedForRemoval, "the old claim is called off");
+        Assert.AreNotEqual(old, fleet.FleetTask, "so its fleet no longer waits on it");
+        Assert.IsNotNull(goal.Task, "setup: a new claim is made against the enemy still there");
+        Assert.AreNotSame(old, goal.Task, "in its place");
+    }
+
+    [TestMethod]
+    public void AColonizationGoalThatRestartsWithNoEnemyLeftKeepsItsClaim()
+    {
+        Fleet fleet = ClaimFleet(InSystem, taskStep: 9, out MilitaryTask old);
+        var goal = new MarkForColonization(Enemy) { TargetPlanet = Target, Task = old };
+        Enemy.AI.AddGoal(goal);
+        Assert.IsFalse(MarkForColonization.PositiveEnemyPresence(Enemy, Target, out _), "setup: the claim's fight is won");
+
+        goal.Evaluate();
+
+        Assert.IsFalse(old.QueuedForRemoval, "the claim goes on");
+        Assert.AreEqual(old, fleet.FleetTask, "so its fleet still guards the planet for the colony ship");
+        Assert.AreSame(old, goal.Task, "and the goal keeps it");
     }
 
     [TestMethod]

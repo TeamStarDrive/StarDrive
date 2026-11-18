@@ -17,7 +17,9 @@ namespace UnitTests.Fleets;
 /// An AI war fleet keeps out of a fight between its enemy and a third empire hostile to it. The war's pick of
 /// targets passes over a system where it knows such an empire's armed ships are. A fleet about to go in waits
 /// outside while they are there, unless it is at war with them all and strong enough for everyone, and after two
-/// minutes it moves on to the enemy's planet in a nearby system without them. A fleet that went in stays.
+/// minutes it moves on to the enemy's planet in a nearby system without them. A fleet that went in stays. On its way,
+/// in its fight, holding for a third party or investigating, a fleet weighs only three quarters of the force there,
+/// so it keeps its task against a force it could not take on whole.
 /// </summary>
 [TestClass]
 public class ThirdPartyTargetTests : StarDriveTest
@@ -92,8 +94,9 @@ public class ThirdPartyTargetTests : StarDriveTest
         return fleet;
     }
 
+    // as a fleet on its task weighs the force there
     bool CanBeatEveryoneThere(Fleet fleet)
-        => Fleet.CanTakeWeightedFight(Enemy, fleet.GetStrength(), Enemy.Threats.GetWeightedHostileStrengthAt(Target.Position, 100_000f));
+        => Fleet.CanTakeWeightedFight(Enemy, fleet.GetStrength(), Enemy.Threats.GetWeightedHostileStrengthAt(Target.Position, 100_000f) * Fleet.StayInFightEnemyShare);
 
     static void Assault(Fleet fleet, MilitaryTask task) => Call(fleet, "DoAssaultPlanet", task);
 
@@ -741,6 +744,69 @@ public class ThirdPartyTargetTests : StarDriveTest
         Assert.IsTrue(Fleet.CanTakeWeightedFight(Enemy, fleet.GetStrength(), seen * Enemy.GetFleetStrEmpireMultiplier(Player)), "setup: weighed as the planet owner's, the fleet could take it");
 
         Assert.IsFalse((bool)Call(fleet, "StillCombatEffective", task, false), "weighed by the Remnants' own multiplier it cannot");
+    }
+
+    // ships of the empire seen beside the target, more than the fleet could take on whole but less than the share a fleet on its task weighs
+    void SeenBetweenStayAndGoIn(Fleet fleet, Ship_Game.Empire owner, float radius)
+    {
+        Enemy.FleetStrEmpireMultiplier[owner.Id] = 1f;
+        float canTake = fleet.GetStrength() * Enemy.PersonalityModifiers.CanWeTakeThisFightMultiplier;
+        float oneShip = SpawnShip(Warship, owner, new Vector2(-900_000f)).GetStrength();
+        SeenAt(Target.Position + new Vector2(2000f, 0f), Target.System, owner, count: (int)(canTake / oneShip) + 1);
+        float hostiles = Enemy.Threats.GetWeightedHostileStrengthAt(Target.Position, radius);
+        Assert.IsFalse(Fleet.CanTakeWeightedFight(Enemy, fleet.GetStrength(), hostiles), "setup: whole, the force is more than the fleet can take on");
+        Assert.IsTrue(Fleet.CanTakeWeightedFight(Enemy, fleet.GetStrength(), hostiles * Fleet.StayInFightEnemyShare),
+                      "setup: at the share a fleet on its task weighs, it can stay against it");
+    }
+
+    [TestMethod]
+    public void AnAssaultFleetOnItsWayWeighsTheShareOfTheForceAtItsTarget()
+    {
+        Fleet fleet = AttackFleet(6, Rally, out MilitaryTask task);
+        fleet.TaskStep = 3;
+        SeenBetweenStayAndGoIn(fleet, Player, Fleet.AssaultEnemyScanRadius);
+
+        Assault(fleet, task);
+
+        Assert.AreEqual(task, fleet.FleetTask, "a fleet on its way keeps its task against a force it can stay against");
+    }
+
+    [TestMethod]
+    public void AFleetInItsFightWeighsTheShareOfTheForceThere()
+    {
+        Fleet fleet = AttackFleet(6, Target.Position + new Vector2(20_000f, 0f), out MilitaryTask task);
+        task.TargetEmpire = Player;
+        SeenBetweenStayAndGoIn(fleet, Player, task.AORadius);
+
+        Assert.IsTrue((bool)Call(fleet, "StillCombatEffective", task, false), "a fleet in its fight stays combat effective against a force it can stay against");
+    }
+
+    [TestMethod]
+    public void AtWarWithTheThirdEmpireAFleetWeighsTheShareOfEveryoneThere()
+    {
+        AtWarWithThirdEmpire();
+        Fleet fleet = AttackFleet(6, Rally, out MilitaryTask task);
+        SeenBetweenStayAndGoIn(fleet, ThirdMajor, Fleet.AssaultEnemyScanRadius);
+
+        Assault(fleet, task);
+
+        AssertGoesIn(fleet, task, "at war with the third empire and able to stay against everyone there");
+    }
+
+    [TestMethod]
+    public void AnInvestigationFleetWeighsTheShareOfTheForceAtItsArea()
+    {
+        var fleet = new Fleet(UState, Enemy) { TaskStep = 1 };
+        MilitaryTask task = MilitaryTask.InhibitorInvestigateTask(Enemy, Target.Position, 50_000f, 100f, Player);
+        typeof(MilitaryTask).GetProperty(nameof(MilitaryTask.Fleet))!.SetValue(task, fleet);
+        fleet.FleetTask = task;
+        for (int i = 0; i < 6; ++i)
+            fleet.AddShip(SpawnShip(Warship, Enemy, Rally + new Vector2(0f, 1000f * i)));
+        SeenBetweenStayAndGoIn(fleet, Player, 100_000f);
+
+        Call(fleet, "DoDeepSpaceInvestigate", task);
+
+        Assert.AreEqual(task, fleet.FleetTask, "the fleet keeps its investigation against a force it can stay against");
     }
 
     [TestMethod]

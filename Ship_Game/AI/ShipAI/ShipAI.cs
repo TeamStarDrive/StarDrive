@@ -564,8 +564,8 @@ namespace Ship_Game.AI
                 ExitCombatState();
                 Owner.AI.SetPriorityOrder(false);
                 Owner.AI.IgnoreCombat = false;
-                if (Owner.Fleet != null)
-                    OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, State);
+                if (Owner.Fleet is { } fleet) // not in the state of a resupply trip still queued
+                    OrderMoveTo(fleet.GetFinalPos(Owner), fleet.FinalDirection, State is AIState.Resupply or AIState.ResupplyEscort ? AIState.MoveTo : State);
                 else if (ShouldNotReturnToLastPos())
                     ClearOrders();
 

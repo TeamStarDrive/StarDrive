@@ -117,6 +117,7 @@
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
     <Compile Include="Espionage\LegacyAgentTests.cs" />
     <Compile Include="Espionage\UpriseTests.cs" />
+    <Compile Include="ExoticSystems\ClearingFleetTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
     <Compile Include="Fleets\ClaimFleetTests.cs" />
@@ -125,6 +126,9 @@
     <Compile Include="Fleets\FleetFlankTests.cs" />
     <Compile Include="Fleets\FleetFocusFireTests.cs" />
     <Compile Include="Fleets\FleetTests.cs" />
+    <Compile Include="Fleets\KeptFleetTests.cs" />
+    <Compile Include="Fleets\KeptFleetForceTests.cs" />
+    <Compile Include="Fleets\KeptFleetUpkeepTests.cs" />
     <Compile Include="Fleets\ResetFleetTests.cs" />
     <Compile Include="Graphics\BloomFilterTests.cs" />
     <Compile Include="Graphics\DdsReaderTests.cs" />

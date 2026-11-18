@@ -41,10 +41,10 @@
 **Anti-goals for Phase 4** (out of scope; revisit only if explicitly raised):
 - Pixel-exact match to 2013 SunBurn deferred-renderer output. Forward-renderer-equivalent remains the bar.
 - Save-game compatibility with pre-migration XNA 3.1 saves (separate workstream if ever needed).
-- Network / multiplayer (none planned per ARCHITECTURE.md §5.6).
+- Network / multiplayer (none planned per ARCHITECTURE_pre_64bit.md §5.6).
 - HDR tone mapping.
-- God-class refactor of `Fleet.cs` / `Empire.cs` / `ResourceManager.cs` (ARCHITECTURE.md §8 — gameplay debt, not migration debt).
-- `Xna31ModelReader` runtime decoder (ARCHITECTURE.md §9 alternative path C). The offline FBX pipeline supersedes it; reach for this only if a mod ships an XNB Model that has neither an `.fbx` nor `.obj` sibling.
+- God-class refactor of `Fleet.cs` / `Empire.cs` / `ResourceManager.cs` (ARCHITECTURE_pre_64bit.md §8 — gameplay debt, not migration debt).
+- `Xna31ModelReader` runtime decoder (ARCHITECTURE_pre_64bit.md §9 alternative path C). The offline FBX pipeline supersedes it; reach for this only if a mod ships an XNB Model that has neither an `.fbx` nor `.obj` sibling.
 - Sound / music engine changes (already working).
 - Wiring Steamworks.NET in Phase 4 at all. The full integration (achievements, stats, cloud saves, web overlay) is parked for public alpha — see §4.9 rescope and reopen conditions. Pushing a build to the Steam store via SteamPipe (or modifying the StarDrive Steam app's achievement/stat/cloud-save schema) is doubly out of scope: maintainer has no partner-backend admin access on AppID 220660.
 
@@ -216,7 +216,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 **When to revisit**: post-1.60 release, paired with the first round of post-release polish work, or earlier if a user reports a real regression. The plan + recipe below remain valid for that future pass — only the timing changed.
 
-**Goal** (preserved for the future pass): Validate that Phase 3's renderer additions (skinning, shadow map, post-process chain, material maps) fit within the Phase 2 perf budget. If a scene exceeds the soft cap (<10% MainMenu, <20% peak combat regression), apply targeted optimization. Maps to ARCHITECTURE.md §9 step 4c ("Performance profiling and optimization").
+**Goal** (preserved for the future pass): Validate that Phase 3's renderer additions (skinning, shadow map, post-process chain, material maps) fit within the Phase 2 perf budget. If a scene exceeds the soft cap (<10% MainMenu, <20% peak combat regression), apply targeted optimization. Maps to ARCHITECTURE_pre_64bit.md §9 step 4c ("Performance profiling and optimization").
 
 **Steps**:
 1. Re-baseline Phase 2 timings on current hardware: check out `phase2-end` tag, run the §4.1 deterministic save through MainMenu / Universe / Combat scenes, capture p50/p95/p99 frame times. (Cheap to do because we want apples-to-apples.)
@@ -523,7 +523,7 @@ Each sub-phase commits to `migration/phase4-x64-monogame`. Open one PR per sub-p
 
 ### What's NOT in Phase 4
 The Phase 3 plan's "Phase 4 placeholder" section listed HDR, advanced lighting models, and AI improvements as out-of-scope-for-this-doc. Same applies here. Specifically:
-- ARCHITECTURE.md §8 god-class refactors (Fleet/Empire/ResourceManager) — gameplay debt, not migration debt.
+- ARCHITECTURE_pre_64bit.md §8 god-class refactors (Fleet/Empire/ResourceManager) — gameplay debt, not migration debt.
 - `Xna31ModelReader` runtime decoder — superseded by the offline FBX pipeline; reach for it only if a mod ships an XNB Model with no `.fbx`/`.obj` sibling.
 - Save-game compatibility with pre-migration XNA 3.1 saves.
 - HDR tone mapping.

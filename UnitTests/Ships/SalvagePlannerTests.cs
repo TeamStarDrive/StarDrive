@@ -19,8 +19,9 @@ namespace UnitTests.Ships;
 /// Every few turns the planner orders an AI empire's salvage, or the player's with Auto Salvage on, in the systems it
 /// has explored with derelicts it can order there, near its colonies, outside enemy borders unless its own reach there,
 /// with no colony of a rival it is at peace with and has no open borders or alliance with; where it knows of hostile
-/// strength the AI asks once for a fleet to clear the system instead, the player for none. A derelict with less than a
-/// fifth of its turns left is not ordered; the rest go the fewest turns left first and the closest system first, the
+/// strength the AI asks once for a fleet to clear the system instead, near home or against a faction, the
+/// player for none. A derelict with less than a fifth of its turns left is not ordered; the rest go the fewest turns
+/// left first and the closest system first, the
 /// ships the empire would recover recovered and the rest salvaged. A run orders as many as its salvage ships take, idle
 /// ones whatever their number, and builds one at most, a system with no free site spending none of it, none while the
 /// empire has as many salvage ships, built or queued, as one for every five planets, at least one and at most ten;
@@ -271,6 +272,7 @@ public class SalvagePlannerTests : SalvageOrderTest
     [TestMethod]
     public void WhereItKnowsOfHostileStrengthTheAIAsksOnceForAFleetInsteadAndThePlayerForNone()
     {
+        Enemy.WeightedCenter = WreckSystem.Position; // a system near home is worth a fleet to clear
         HostileThere(Enemy);
         Derelict d = Forms(Wreck, Enemy);
         Plans();
@@ -285,6 +287,32 @@ public class SalvagePlannerTests : SalvageOrderTest
         Plans(Player);
         Assert.IsFalse(IsOrdered(Player, theirs), "nor for the player");
         Assert.IsFalse(Player.AI.HasGoal(g => g is DefendSystem), "which asks for no fleet");
+    }
+
+    [TestMethod]
+    [DataRow(null, DisplayName = "an empire at war with it: no fleet")]
+    [DataRow("Remnant", DisplayName = "the Remnants: a fleet")]
+    [DataRow("Unknown", DisplayName = "event ships of the Unknown faction: a fleet")]
+    public void FarFromHomeTheAIAsksForAFleetOnlyAgainstAFaction(string faction)
+    {
+        Empire hostile = Player;
+        if (faction != null)
+        {
+            CreateAMinorFaction(faction);
+            hostile = Faction;
+            Assert.IsTrue(hostile.IsFaction, "setup: a faction");
+        }
+        bool fleetWanted = faction != null;
+        HostileThere(Enemy, hostile);
+        Derelict d = Forms(Wreck, Enemy);
+        Enemy.WeightedCenter = EnemyHome.Position;
+        Assert.IsFalse(WreckSystem.Position.SqDist(Enemy.WeightedCenter) < Enemy.AverageSystemsSqdistFromCenter * 1.5f, "setup: the system is far from home");
+
+        Plans();
+
+        Assert.IsFalse(IsOrdered(Enemy, d), "no order where the AI knows of hostile strength");
+        Assert.AreEqual(fleetWanted, Enemy.AI.HasGoal(g => g is DefendSystem s && s.TargetSystem == WreckSystem),
+                        fleetWanted ? "it asks for a fleet against a faction anywhere" : "it asks for no fleet so far from home");
     }
 
     [TestMethod]

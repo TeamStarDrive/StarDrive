@@ -145,6 +145,85 @@ public class InvasionPlanningTests : StarDriveTest
             "a fleet holding its troops back keeps fighting at the planet instead of going back to forming up for the attack");
     }
 
+    // an AI assault fleet at a planet of the player's: a troop ship with its troop, a warship in the planet's gravity well and one far out
+    Fleet AssaultAt(Planet target, out MilitaryTask task, out Ship near, out Ship far, out Ship troopShip)
+    {
+        LoadStarterShips(Enemy.data.DefaultTroopShip);
+        typeof(SolarSystemBody).GetProperty(nameof(SolarSystemBody.GravityWellRadius))!.SetValue(target, 10_000f);
+        var fleet = new Fleet(UState, Enemy);
+        task = new MilitaryTask(target, Enemy, fleet, MilitaryTaskImportance.Normal) { Type = MilitaryTask.TaskType.AssaultPlanet };
+        fleet.FleetTask = task;
+        troopShip = SpawnShip(Enemy.data.DefaultTroopShip, Enemy, target.Position + new Vector2(target.Radius + 6000f, 0f));
+        ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(troopShip);
+        near = SpawnShip(Warship, Enemy, target.Position + new Vector2(0f, target.Radius + 3000f));
+        far = SpawnShip(Warship, Enemy, target.Position + new Vector2(0f, task.AORadius * 2f + 10_000f));
+        fleet.AddShip(troopShip);
+        fleet.AddShip(near);
+        fleet.AddShip(far);
+        fleet.AutoArrange();
+        foreach (Ship ship in fleet.Ships)
+        {
+            ship.AI.ClearOrders(); // the move the fleet gave them on joining is over
+            ship.AI.SetPriorityOrder(false);
+        }
+        fleet.TaskStep = 6;
+        task.WentIn = true;
+        return fleet;
+    }
+
+    [TestMethod]
+    public void WhileTroopsLandAnAssaultFleetsWarshipsOrbitTheTargetInsteadOfFormingUpAgain()
+    {
+        Planet target = AddDummyPlanetToEmpire(new Vector2(400_000), Player);
+        Fleet fleet = AssaultAt(target, out MilitaryTask task, out Ship near, out Ship far, out Ship troopShip);
+        task.TroopsSent = true; // a wave is on its way down
+        OrbitalOf(target, Player); // and the planet's platform holds the next one back, so the assault goes on step by step
+        Assert.IsTrue((bool)CallFleet(fleet, "ShipsOffMission", task), "setup: a warship far from the planet would send the fleet back to form up");
+
+        bool formedUpAgain = false;
+        for (int i = 0; i < 3; ++i) // steps 6, 7 and 6 again
+        {
+            CallFleet(fleet, "DoAssaultPlanet", task);
+            formedUpAgain |= fleet.TaskStep == 5;
+        }
+
+        Assert.AreEqual(task, fleet.FleetTask, "setup: the fleet keeps its task");
+        Assert.IsFalse(formedUpAgain, "the fleet does not go back to form up for the attack while its troops land");
+        Assert.AreEqual(target, near.AI.OrbitedPlanet, "the warship at the planet orbits it while the troops land");
+        Assert.AreEqual(target, far.AI.OrbitedPlanet, "and the one far out is sent to orbit it too, instead of the fleet forming up again");
+        Assert.AreNotEqual(target, troopShip.AI.OrbitedPlanet, "the troop ship is left to its landing");
+    }
+
+    [TestMethod]
+    public void BeforeAnyTroopsGoInAnAssaultFleetsWarshipsDoNotOrbitTheTarget()
+    {
+        Planet target = AddDummyPlanetToEmpire(new Vector2(400_000), Player);
+        Fleet fleet = AssaultAt(target, out MilitaryTask task, out Ship near, out _, out _);
+        OrbitalOf(target, Player); // the troops hold back while it stands
+
+        for (int i = 0; i < 4; ++i)
+            CallFleet(fleet, "DoAssaultPlanet", task);
+
+        Assert.IsFalse(task.TroopsSent || task.TroopsLanded, "setup: no troops were sent");
+        Assert.AreNotEqual(target, near.AI.OrbitedPlanet, "the warships keep to their spots in the fight");
+    }
+
+    [TestMethod]
+    public void AWarshipOrbitingThePlanetItsFleetInvadesKeepsToThatSystemWhenItChases()
+    {
+        Planet target = AddDummyPlanetToEmpire(new Vector2(400_000), Player);
+        Fleet fleet = AssaultAt(target, out MilitaryTask task, out Ship near, out _, out _);
+        task.TroopsSent = true;
+        OrbitalOf(target, Player);
+        CallFleet(fleet, "DoAssaultPlanet", task);
+        Assert.IsTrue(near.AI.OrbitedPlanet == target && fleet.Invades(target), "setup: the warship orbits the planet its fleet invades");
+
+        typeof(ShipAI).GetMethod("UpdateChaseLimits", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(near.AI, null);
+
+        Assert.AreEqual(target.System, typeof(ShipAI).GetField("GuardedSystem", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(near.AI),
+                        "it chases only within the planet's system, as a guard does");
+    }
+
     [TestMethod]
     public void WithoutBombersTheCapitalIsLeftOffTheTargetList()
     {

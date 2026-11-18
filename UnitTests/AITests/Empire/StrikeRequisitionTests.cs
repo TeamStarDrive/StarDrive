@@ -7,7 +7,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire
 {
-    // a strike is not formed when the fleet it gathers would call itself off at once against the enemy around its target;
+    // a strike is not formed when the fleet it gathers cannot take on the enemy around its target whole;
     // the AI's scout watching the target is in a fight there, so it stays out of the strike
     [TestClass]
     public class StrikeRequisitionTests : StarDriveTest
@@ -78,7 +78,7 @@ namespace UnitTests.AITests.Empire
 
             MilitaryTask task = EvaluatedStrike();
 
-            Assert.IsTrue(task.QueuedForRemoval, $"the strike ends instead of forming a fleet that would call itself off ({Status(task)})");
+            Assert.IsTrue(task.QueuedForRemoval, $"the strike ends instead of forming a fleet against a force it cannot take on whole ({Status(task)})");
             Assert.IsNull(task.Fleet, "no fleet is formed");
         }
 

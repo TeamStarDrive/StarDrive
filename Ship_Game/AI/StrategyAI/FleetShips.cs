@@ -37,6 +37,14 @@ namespace Ship_Game.AI
         public int ShipSetsExtracted;
         public int TotalShips => Ships.Count;
 
+        // a ship that fights in a fleet: a warship, prototypes included, a carrier or a support ship
+        public static bool IsCombatShip(Ship ship) => ship.DesignRoleType == RoleType.Warship || ship.DesignRole is RoleName.carrier or RoleName.support;
+
+        // the ships one full fleet ratio holds, at least one
+        public float ShipsPerFullFleet => Ratios.TotalCount.LowerBound(1);
+
+        public float CombatStrength => Ships.Sum(s => IsCombatShip(s) ? s.GetStrength() : 0f);
+
         FleetShips(Empire ownerEmpire)
         {
             OwnerEmpire  = ownerEmpire;
@@ -292,7 +300,7 @@ namespace Ship_Game.AI
         /// <param name="minStrength">Combat strength of fleet ships</param>
         /// <param name="planetTroops">Troops still on planets</param>
         /// <param name="wantedFleetCount">Attempt to get this many fleets</param>
-        /// <param name="outmatched">The set would call off its task at once against the enemy near the target</param>
+        /// <param name="outmatched">The set cannot take on the enemy near the target whole, so no fleet is formed from it</param>
         /// <returns></returns>
         public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int wantedFleetCount,
             MilitaryTask task, out int fleetCount, out bool outmatched)
@@ -313,7 +321,7 @@ namespace Ship_Game.AI
             if (task.NeededTroopStrength > 0)
                 GetTroops(ships, task.NeededTroopStrength);
 
-            if (task.FleetWouldCallItselfOff(ships.Sum(s => s.GetStrength())))
+            if (task.ForceTooWeakToGoIn(ships.Sum(s => s.GetStrength())))
             {
                 fleetCount = 0;
                 outmatched = true;
@@ -326,6 +334,48 @@ namespace Ship_Game.AI
                 GetTroops(ships, task.NeededTroopStrength);
             }
 
+            return ExtractShips(ships);
+        }
+
+        // the nearest ships that fight in a fleet, until their strength reaches what is wanted; they stay in the pool until extracted
+        public HashSet<Ship> NearestCombatShips(Vector2 point, float strengthWanted)
+        {
+            var ships = new HashSet<Ship>();
+            if (strengthWanted <= 0f)
+                return ships;
+
+            SortShipsByDistanceToPoint(point);
+            float strength = 0f;
+            for (int i = 0; i < Ships.Count; ++i)
+            {
+                Ship ship = Ships[i];
+                if (!IsCombatShip(ship))
+                    continue;
+
+                ships.Add(ship);
+                strength += ship.GetStrength();
+                if (strength >= strengthWanted)
+                    break;
+            }
+            return ships;
+        }
+
+        // the bombers and troop ships a force lacks for its task, troops on planets launched when the pool has too few
+        public Array<Ship> ExtractBombersAndTroops(Vector2 point, int bombSecsWanted, int troopStrengthWanted,
+                                                   int fleetCount, Array<Troop> planetTroops)
+        {
+            var ships = new HashSet<Ship>();
+            SortShipsByDistanceToPoint(point);
+            GetBombers(ships, bombSecsWanted, fleetCount);
+            if (troopStrengthWanted > 0)
+            {
+                GetTroops(ships, troopStrengthWanted);
+                if (InvasionTroopStrength < troopStrengthWanted)
+                {
+                    LaunchTroopsAndAddToShipList(planetTroops);
+                    GetTroops(ships, troopStrengthWanted);
+                }
+            }
             return ExtractShips(ships);
         }
 

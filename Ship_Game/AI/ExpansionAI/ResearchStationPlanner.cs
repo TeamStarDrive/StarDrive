@@ -72,7 +72,7 @@ namespace Ship_Game.AI.ExpansionAI
                 || Owner.PersonalityModifiers.ClearNeutralExoticSystems && influense <= InfluenceStatus.Friendly
                 || enemy.IsFaction;
 
-            if (shouldClearArea && !Owner.HasWarTaskTargetingSystem(system))
+            if (shouldClearArea && !Owner.HasWarTaskTargetingSystem(system) && HelperFunctions.WorthAFleetToClear(Owner, system))
                 Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system), Tasks.MilitaryTaskImportance.Normal);
         }
 

@@ -12,6 +12,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game;
 
@@ -151,9 +152,16 @@ public sealed partial class Empire
         // replace existing?
         int index = Fleets.IndexOf(f => f.Key == fleetId);
         if (index != -1)
+        {
+            Fleet replaced = Fleets[index];
+            if (replaced != fleet && replaced.IsIdle) // a kept fleet with every ship away refitting: the refits go to the pool
+                AI?.RemoveFleetFromGoals(replaced);
             Fleets[index] = fleet;
+        }
         else
+        {
             Fleets.Add(fleet);
+        }
     }
 
     // Creates a fleet with specified ID and overwrites that fleet slot
@@ -185,8 +193,93 @@ public sealed partial class Empire
             RemoveResetFleets();
     }
 
-    // a reset fleet has key 0 and no ships
-    void RemoveResetFleets() => Fleets.RemoveAll(f => f.Key == 0 && f.Ships.IsEmpty);
+    // a reset fleet has key 0 and no ships; a kept fleet with no task goes once it has lost its ships, and its ships away refitting go to the pool
+    void RemoveResetFleets()
+    {
+        for (int i = Fleets.Count - 1; i >= 0; --i)
+        {
+            Fleet fleet = Fleets[i];
+            if (fleet.Ships.IsEmpty && (fleet.Key == 0 || fleet.IsIdle))
+            {
+                if (fleet.Key != 0)
+                    AI?.RemoveFleetFromGoals(fleet);
+                Fleets.RemoveAt(i);
+            }
+        }
+    }
+
+    // the AI's strength free for a new task: its warships in no fleet and its idle kept fleets
+    public float StrengthReadyForTasks()
+    {
+        float strength = ShipsReadyForFleet?.AccumulatedStrength ?? 0f;
+        foreach (Fleet fleet in ActiveFleets)
+        {
+            if (fleet.IsIdle)
+                strength += fleet.ReadyStrength;
+        }
+        return strength;
+    }
+
+    // a major AI empire keeps its war, defense and claim fleets after their tasks
+    public bool KeepsFleets => !isPlayer && !IsFaction;
+
+    [StarData] int RatioSeed;
+
+    // every random fleet ratio of the empire rolls from this seed, so the ratio holds from turn to turn
+    public int FleetRatioSeed
+    {
+        get
+        {
+            if (RatioSeed == 0)
+                RatioSeed = Random.Int(1, int.MaxValue - 1);
+            return RatioSeed;
+        }
+    }
+
+    [StarData] int PeakFleetCap;
+
+    // the highest cap the empire has had
+    public int PeakKeptFleetCap => PeakFleetCap;
+
+    // the most fleets the empire keeps: one per ten planet levels, one more at Normal and one more for each difficulty step above it, never below half the most it has had
+    public int KeptFleetCap() => Math.Max(FleetCapByLevels(levelMargin: 0), PeakFleetCap / 2);
+
+    // once per AI turn, so the floor of the cap follows the most it has been
+    public void UpdatePeakFleetCap() => PeakFleetCap = Math.Max(PeakFleetCap, FleetCapByLevels(levelMargin: 0));
+
+    // idle fleets merge only over this: the levels count half a step more, so a planet changing level at the line merges nothing
+    public int KeptFleetCapForJoins() => Math.Max(KeptFleetCap(), FleetCapByLevels(levelMargin: 5));
+
+    int FleetCapByLevels(int levelMargin)
+    {
+        int levels = 0;
+        for (int i = 0; i < OwnedPlanets.Count; ++i)
+            levels += OwnedPlanets[i].Level;
+        return (levels + levelMargin) / 10 + (int)Universe.P.Difficulty + 1;
+    }
+
+    public int KeptFleetCount()
+    {
+        int count = 0;
+        foreach (Fleet fleet in ActiveFleets)
+        {
+            if (fleet.CountsTowardFleetCap)
+                ++count;
+        }
+        return count;
+    }
+
+    // the empire's kept fleets with no task, nearest to the position first
+    public Fleet[] IdleFleetsNearest(Vector2 position)
+    {
+        var idle = new Array<Fleet>();
+        foreach (Fleet fleet in ActiveFleets)
+        {
+            if (fleet.IsIdle)
+                idle.Add(fleet);
+        }
+        return idle.Sorted(f => f.AveragePosition(force: true).SqDist(position));
+    }
 
     public void TrySendInitialFleets(Planet p)
     {

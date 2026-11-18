@@ -6,7 +6,7 @@ namespace Ship_Game.Debug.Page;
 
 public class AgentsDebug : DebugPage
 {
-    public AgentsDebug(DebugInfoScreen parent) : base(parent, DebugModes.Agents)
+    public AgentsDebug(DebugInfoScreen parent) : base(parent, DebugModes.Espionage)
     {
     }
 

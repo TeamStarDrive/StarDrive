@@ -22,11 +22,11 @@ The sub-phase narratives below are preserved unedited as the historical record. 
 
 [Phase 1](migration-plan-phase1.md) delivered the foundation: x64 process, MonoGame integrated, SDSunBurn / XNAnimation / XNA 3.1 fully purged, build matrix green across 5 configs × x64. The runtime smoke test (§1.10 step 7) confirmed the process boots, MonoGame `GraphicsDevice` initializes, and the game reaches `ScreenManager.LoadContent` — but stops there with three classes of failures, all explicitly anti-goal'd in Phase 1 ("3D rendering working, content loading working — Phase 2+"). See [PHASE1_RESULTS.md](PHASE1_RESULTS.md).
 
-[ARCHITECTURE.md §9](ARCHITECTURE.md) sketched the post-Phase-1 work as two phases:
+[ARCHITECTURE_pre_64bit.md §9](../ARCHITECTURE_pre_64bit.md) sketched the post-Phase-1 work as two phases:
 > **Phase 2: Rendering Core** — 2a SunBurn out of ScreenManager, 2b MonoGame SpriteBatch 2D, 2c MGFX shaders, 2d DeferredRenderer rewrite.
 > **Phase 3: Content Pipeline** — 3a XNB through MGCB, 3b RawContentLoader validation, 3c mod routing.
 
-Phase 1's runtime smoke inverted that ordering. **Content loading is upstream of rendering at boot**: the game can't open the main menu without loading SpriteFonts (XNB), and SpriteFont XNBs from XNA 3.1 fail `Texture2D.ValidateParams` with a 4× size mismatch. That's the actual binary-format rebake problem — not a stub-able edge case. So this Phase 2 plan reorders: **content pipeline first, then rendering core, then SunBurn replacement**. ARCHITECTURE.md's "Phase 4: Polish" is deferred unchanged.
+Phase 1's runtime smoke inverted that ordering. **Content loading is upstream of rendering at boot**: the game can't open the main menu without loading SpriteFonts (XNB), and SpriteFont XNBs from XNA 3.1 fail `Texture2D.ValidateParams` with a 4× size mismatch. That's the actual binary-format rebake problem — not a stub-able edge case. So this Phase 2 plan reorders: **content pipeline first, then rendering core, then SunBurn replacement**. ARCHITECTURE_pre_64bit.md's "Phase 4: Polish" is deferred unchanged.
 
 This document expands the work into 10 sequenced, individually-committable sub-phases with explicit treatment of the **Phase 1 leftovers** (tolerance patches and stubs left behind in §1.10 to push past the smoke-test crashes).
 
@@ -92,7 +92,7 @@ The user runs `game/StarDrive.exe`. The process:
 - Universe screen full functionality (planet shaders, atmospheric scattering, starfield depth)
 - Combat screen full functionality (beam effects, explosions)
 - Save/load round-trip with newly-baked content
-- Network / multiplayer (none planned per ARCHITECTURE.md §5.6)
+- Network / multiplayer (none planned per ARCHITECTURE_pre_64bit.md §5.6)
 
 ---
 
@@ -628,7 +628,7 @@ Items intentionally deferred to Phase 3 (Polish / Advanced Rendering):
 - **Performance profiling** — frame time, draw call count, GC pressure on the new pipeline.
 
 ### Cleanup carryovers
-- **God-class refactors** — `Fleet.cs` (2,882 LOC), `Empire.cs` (2,778), `ColonyScreen.cs` (2,017) are listed in ARCHITECTURE.md §8 as tech debt. Out of migration scope; track separately.
+- **God-class refactors** — `Fleet.cs` (2,882 LOC), `Empire.cs` (2,778), `ColonyScreen.cs` (2,017) are listed in ARCHITECTURE_pre_64bit.md §8 as tech debt. Out of migration scope; track separately.
 - **`.NET Framework 4.8 → modern .NET`** — explicit Phase 1 decision was to defer to "Phase 4+". Still deferred.
 
 ---

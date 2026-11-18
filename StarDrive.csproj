@@ -130,6 +130,7 @@
     <Compile Include="Ship_Game\Debug\Page\EspionageDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\MiningOpsDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\SalvageOpsDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\KeptFleetsDebug.cs" />
     <Compile Include="Ship_Game\Empire_Espionage.cs" />
     <Compile Include="Ship_Game\Empire_Find.cs" />
     <Compile Include="Ship_Game\Empire_Patrols.cs" />
@@ -304,6 +305,7 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunGroundPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\SpaceRoadsManager.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunMilitaryPlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.KeptFleets.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunResearchPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunWarPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireRiskAssessment.cs" />
@@ -319,6 +321,7 @@
     <Compile Include="Ship_Game\AI\ShipMovement\OrbitPlan.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\WarScore.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
+    <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_KeptFleets.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.DoAction.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Flank.cs" />
@@ -906,6 +909,7 @@
     <Compile Include="Ship_Game\Primitives2D.cs" />
     <Compile Include="Ship_Game\Fleets\Fleet.cs" />
     <Compile Include="Ship_Game\Fleets\Fleet.Flank.cs" />
+    <Compile Include="Ship_Game\Fleets\Fleet.Idle.cs" />
     <Compile Include="Ship_Game\FTLManager.cs" />
     <Compile Include="Ship_Game\Good.cs" />
     <Compile Include="Ship_Game\UI\Selector.cs" />

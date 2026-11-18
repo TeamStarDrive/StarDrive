@@ -3,6 +3,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
+using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -76,6 +77,32 @@ public class FleetCatchUpTests : StarDriveTest
         Assert.IsTrue(farFirst.CatchingUpToFleet, "the ship added first, far from the rest, catches up to them");
         foreach (Ship ship in body)
             Assert.IsFalse(ship.CatchingUpToFleet, "the main group is not catching up, though it joined after the far ship");
+    }
+
+    // a ship far from the rest of its fleet, on a fleet move to a point straight ahead of it at the given distance, after one thrust toward that point
+    Ship FarShipThrustingToItsSpot(float distanceToSpot)
+    {
+        Fleet fleet = FleetAt(BodyPos, out _);
+        Ship farShip = SpawnShip("Terran-Prototype", Player, FarPos);
+        JoinFleet(fleet, new[] { farShip });
+        farShip.AI.State = AIState.FormationMoveTo;
+        AssertGreaterThan(fleet.AveragePosition(force: true).Distance(farShip.Position), 15_000f, "setup: the ship is far from its fleet");
+        Assert.IsFalse(farShip.IsSpoolingOrInWarp, "setup: the ship is at sublight");
+
+        farShip.AI.ThrustOrWarpToPos(farShip.Position + farShip.Direction * distanceToSpot, TestSimStep);
+        return farShip;
+    }
+
+    [TestMethod]
+    public void AShipFarFromItsFleetJumpsToAFarSpot()
+    {
+        Assert.IsTrue(FarShipThrustingToItsSpot(50_000f).IsSpoolingOrInWarp, "a ship far from its fleet warps to a spot that far off");
+    }
+
+    [TestMethod]
+    public void AShipFarFromItsFleetGoesAtSublightToASpotCloseBy()
+    {
+        Assert.IsFalse(FarShipThrustingToItsSpot(2_000f).IsSpoolingOrInWarp, "a ship close to its own spot does not jump to it, however far its fleet is");
     }
 
     [TestMethod]

@@ -273,7 +273,18 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             if (!FleetNeededForNextTask)
-                DisbandTaskForce();
+            {
+                if (!KeepsItsFleet)
+                {
+                    DisbandTaskForce();
+                }
+                else
+                {
+                    if (StillHoldsItsFleet)
+                        Fleet.KeepAfterTask();
+                    TaskForce.Clear();
+                }
+            }
 
             if (Type == TaskType.Exploration && TargetPlanet != null && TargetPlanet.Owner != Owner)
                 RemoveTaskTroopsFromPlanet();

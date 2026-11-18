@@ -385,34 +385,43 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
 
+            foreach (Fleet fleet in OwnerEmpire.ActiveFleets)
+                fleet.RefitCheckOnNewTech();
+
             var offPool = OwnerEmpire.EmpireShips.OwnedShips;
             for (int i = offPool.Length - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];
-                if (ship.AI.BadGuysNear
-                    || ship.Fleet != null
-                    || ship.IsFreighter
-                    || ship.AI.HasPriorityOrder
-                    || ship.AI.HasPriorityTarget
-                    || !ship.CanBeRefitted
-                    || ship.IsResearchStation
-                    || ship.IsMiningStation
-                    || ship.IsSalvageShip
-                    || ship.IsMiningShip
-                    || ship.ShipData.IsColonyShip
-                    || ship.IsConstructor)
-                {
+                if (ship.Fleet != null || !MayRefit(ship))
                     continue;
-                }
 
                 IShipDesign newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
                 if (newShip != null)
-                {
-                    AddGoalAndEvaluate(new RefitShip(ship, newShip, OwnerEmpire));
-                    foreach (Planet p in OwnerEmpire.GetPlanets())
-                        p.Construction.RefitShipsBeingBuilt(ship, newShip);
-                }
+                    StartRefit(ship, newShip);
             }
+        }
+
+        // no enemies near, no priority order or target, and a ship the AI refits: no freighter, station, colony or work ship
+        static bool MayRefit(Ship ship)
+        {
+            return !ship.AI.BadGuysNear
+                && !ship.IsFreighter
+                && !ship.AI.HasPriorityOrder
+                && !ship.AI.HasPriorityTarget
+                && ship.CanBeRefitted
+                && !ship.IsResearchStation
+                && !ship.IsMiningStation
+                && !ship.IsSalvageShip
+                && !ship.IsMiningShip
+                && !ship.ShipData.IsColonyShip
+                && !ship.IsConstructor;
+        }
+
+        void StartRefit(Ship ship, IShipDesign newShip)
+        {
+            AddGoalAndEvaluate(new RefitShip(ship, newShip, OwnerEmpire));
+            foreach (Planet p in OwnerEmpire.GetPlanets())
+                p.Construction.RefitShipsBeingBuilt(ship, newShip);
         }
 
         public void AddScrapShipGoal(Ship ship, bool immediateScuttle, bool refund = true)

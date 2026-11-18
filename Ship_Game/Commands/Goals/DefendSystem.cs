@@ -12,7 +12,7 @@ namespace Ship_Game.Commands.Goals
     {
         [StarData] public SolarSystem TargetSystem;
 
-        // For defending allied empires. If it's null - we are defending ourselves
+        // the empire whose system is defended: an ally, or null or the owner itself for our own system
         [StarData] public sealed override Empire TargetEmpire { get; set; } 
 
         [StarDataConstructor]
@@ -75,7 +75,7 @@ namespace Ship_Game.Commands.Goals
             return Task != null ? GoalStep.TryAgain : GoalStep.GoalComplete;
         }
 
-        bool AlliedWithTargetEmpire => TargetEmpire == null  // If its null, that we need to return true here.
-                                       || TargetEmpire.IsAlliedWith(Owner) == true;
+        // our own system, or an ally's while we are still allied
+        bool AlliedWithTargetEmpire => TargetEmpire == null || TargetEmpire == Owner || TargetEmpire.IsAlliedWith(Owner);
     }
 }

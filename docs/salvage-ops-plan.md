@@ -69,9 +69,9 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   stops outside every system leaves one only as above (replacing the nothing of 125, 170 and 171).
 - **How many:**
   - The universe keeps the list of derelicts (129).
-  - Base chance 20%, times (1 - salvageable / the salvageable cap) with salvage ops on, or (1 - drifting / the
+  - Base chance 25%, times (1 - salvageable / the salvageable cap) with salvage ops on, or (1 - drifting / the
     drifting cap) with them off (129, 142; 35% and 40 until 231; 10%, and the salvageable share alone, until Gilad
-    2026-10-27). At the limit the chance is 0; a death that rolled salvageable just before it was reached drifts
+    2026-10-27; 20% until Gilad 2026-11-18). At the limit the chance is 0; a death that rolled salvageable just before it was reached drifts
     instead where the drifting cap has room, seen or not, and at the drifting cap only a seen one stays, in the
     place of the oldest drifting one without a model.
   - Each cap is the galaxy's star systems times its Globals multiplier, `SalvageableDerelictCapMultiplier` and
