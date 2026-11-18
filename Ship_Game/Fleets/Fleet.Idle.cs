@@ -226,10 +226,11 @@ namespace Ship_Game.Fleets
             return nearest;
         }
 
-        // the fleet heads for its rally planet, or orbits it at once when most of it is already there
+        // the fleet is named for its rally planet's system and heads there, or orbits it at once when most of it is already there
         void GoToIdleRally(Planet rally)
         {
             IdleRally = rally;
+            Name = string.Format(Localizer.Token(GameText.StandbyFleet), rally.System.Name);
             RefitCheckDue = true;
             if (InOrbitOfIdleRally() || ArrivedAtIdleRally())
             {

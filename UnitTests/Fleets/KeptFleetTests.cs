@@ -19,7 +19,8 @@ namespace UnitTests.Fleets;
 /// nearest rally planet in a system the fleet can hold, where it goes into orbit once most of it is there, or at once
 /// when it already is, headed for that planet either way; the rally planet it had before the task is forgotten. A guard
 /// or exploration force, a fleet of fewer ships than half a fleet ratio, and a fleet whose empire has no planet left,
-/// still break up. A kept fleet with no task is not disbanded; it leaves a rally planet the empire lost at
+/// still break up. A kept fleet with no task is not disbanded and is named a standby fleet of its rally planet's
+/// system, renamed when it moves to another; it leaves a rally planet the empire lost at
 /// once and one in a system whose enemies outmatch it, counting its ships away resupplying, stays to fight where it
 /// can win, holds a system with no enemies even with no strength, keeps its rally planet when it can hold no system,
 /// and its ships keep to a guard's or a moving fleet's chase limits. It leaves the empire's fleets once it has no
@@ -308,6 +309,26 @@ public class KeptFleetTests : StarDriveTest
 
         Assert.AreEqual(farther, fleet.IdleRally, "a lost rally planet is left at once, even while a ship of the fleet fights");
         Assert.IsTrue(fleet.FinalPosition.InRadius(farther.Position, 1f), "the fleet's move ends at the new rally planet");
+    }
+
+    static string StandbyName(Planet rally) => string.Format(Localizer.Token(GameText.StandbyFleet), rally.System.Name);
+
+    [TestMethod]
+    public void AKeptFleetIsNamedAStandbyFleetOfItsRallySystemAndRenamedWhenItMovesOn()
+    {
+        Planet farther = AddDummyPlanetToEmpire(new Vector2(-800_000f), Enemy);
+        Rally.System.Name = "Rally System";
+        farther.System.Name = "Farther System";
+        Fleet fleet = KeptFleet(Warships(2, Rally.Position + new Vector2(500f, 0f)));
+
+        AssertEqual(StandbyName(Rally), fleet.Name, "a kept fleet is named a standby fleet of its rally planet's system");
+        StringAssert.Contains(fleet.Name, Rally.System.Name, "the name carries the system's name");
+
+        Rally.SetOwner(Player);
+        fleet.UpdateAI(TestSimStep);
+
+        Assert.AreEqual(farther, fleet.IdleRally, "setup: the fleet moves on to another rally planet");
+        AssertEqual(StandbyName(farther), fleet.Name, "and is renamed for that planet's system");
     }
 
     [TestMethod]

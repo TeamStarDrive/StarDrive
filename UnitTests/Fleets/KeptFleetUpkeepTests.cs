@@ -448,6 +448,8 @@ public class KeptFleetUpkeepTests : StarDriveTest
         AssertEqual(0, split.Ships.Count(s => s.Name == Bomber), "as do damaged bombers, even when half of the role is due to leave");
         AssertEqual(0, split.Ships.Count(s => s.Name == TroopShip), "and ships in a fight");
         Assert.IsTrue(split.IsIdle && split.IdleRally == Rally, "the new fleet waits at the same rally planet");
+        AssertEqual(string.Format(Localizer.Token(GameText.StandbyFleet), Rally.System.Name), split.Name,
+                    "under the standby name of that planet's system");
         Assert.IsTrue(largest.Ships.Where(s => !s.InCombat).All(s => OrdersToOrbit(s, Rally)), "the staying ships keep their orbit");
     }
 
