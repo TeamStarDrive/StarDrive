@@ -189,6 +189,7 @@ public class DefenseTaskStrengthTests : StarDriveTest
 
         defense.Evaluate();
 
+        Assert.IsNotNull(defense.Task, "the defense of its own system keeps its task instead of ending it");
         Assert.IsFalse(defense.Task.QueuedForRemoval, "the defense of its own system keeps waiting for a fleet, as one of an ally's does");
     }
 

@@ -399,7 +399,7 @@ namespace Ship_Game
                    || influence == InfluenceStatus.Friendly;
         }
 
-        // a fleet goes to clear a system for research, mining or salvage only near home, or wherever pirates or Remnants are known
+        // a fleet goes to clear a system for research, mining or salvage only near home, or wherever a faction such as pirates or the Remnants is known
         static public bool WorthAFleetToClear(Empire owner, SolarSystem system)
         {
             if (system.HasPlanetsOwnedBy(owner) || system.Position.SqDist(owner.WeightedCenter) < owner.AverageSystemsSqdistFromCenter * 1.5f)
@@ -408,8 +408,7 @@ namespace Ship_Game
             ThreatCluster[] clusters = owner.AI.ThreatMatrix.FindHostileClusters(system.Position, system.Radius);
             for (int i = 0; i < clusters.Length; ++i)
             {
-                Empire them = clusters[i].Loyalty;
-                if (them.WeArePirates || them.WeAreRemnants)
+                if (clusters[i].Loyalty.IsFaction)
                     return true;
             }
             return false;

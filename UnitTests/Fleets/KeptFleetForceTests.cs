@@ -15,16 +15,17 @@ namespace UnitTests.Fleets;
 /// A major AI empire's war, defense or claim task finds its force in this order: the nearest idle fleet with the
 /// strength on its own, the nearest idle fleet that reaches it with the nearest pool ships, a new fleet from the pool
 /// while the empire has fewer fleets than its cap or defends its own system, two idle fleets joined into one with pool
-/// ships; else it waits, and a force outmatched at the target leaves the task to end. Two idle fleets joined after a
-/// failed try at a new fleet get the troops and bombing the task needed before that try. The cap is one fleet per ten
-/// planet levels and one more per difficulty step from Normal, never below half the most the empire has had, which is
-/// saved; a temporary force is no kept fleet. Idle fleets merge only half a step below the line: the weakest joins the
-/// nearest, the two weighing their fights together and their fighting ships left to fight, and fleets joining at the
-/// rally planet they orbit stay in orbit. A guard or exploration task takes an idle fleet only of at most twice its
-/// need, else it forms a temporary force. A fleet that takes a task does it under the task's name, drops the places
-/// held for ships away, and gets from the pool only the troops it lacks. A random fleet ratio rolls the same every
-/// time, after a load too. A fleet freed by a defense task that ended its task goes to that defense; an ended defense
-/// takes no fleet and ends no other task to free one.
+/// ships; else it waits. A force short only of the troops or bombing the task needs, or outmatched at the target, leaves
+/// the task to the next one, the task's needs as they were before each try; the task ends only when every force with the
+/// troops and bombing is outmatched, and waits when any force fell short only of them. The cap is one fleet per ten
+/// planet levels, one more at Normal and one more for each difficulty step above it, never below half the most the
+/// empire has had, which is saved; a temporary force is no kept fleet. Idle fleets merge only half a step below the
+/// line: the weakest joins the nearest, the two weighing their fights together and their fighting ships left to fight,
+/// and fleets joining at the rally planet they orbit stay in orbit. A guard or exploration task takes an idle fleet only
+/// of at most twice its need, else it forms a temporary force. A fleet that takes a task does it under the task's name,
+/// drops the places held for ships away, and gets from the pool only the troops it lacks. A random fleet ratio rolls
+/// the same every time, after a load too. A fleet freed by a defense task that ended its task goes to that defense; an
+/// ended defense takes no fleet and ends no other task to free one.
 /// </summary>
 [TestClass]
 public class KeptFleetForceTests : StarDriveTest
@@ -244,6 +245,52 @@ public class KeptFleetForceTests : StarDriveTest
         Assert.AreEqual(near, task.Fleet, "the two idle fleets take the task with the bombing they carry together");
         Assert.AreEqual(near, farBomber.Fleet, "the other fleet's bomber joins");
         Assert.AreEqual(near, troops.Fleet, "and the troop ship from the pool");
+    }
+
+    [TestMethod]
+    public void ANearerIdleFleetWithoutTheBombingTheTaskNeedsGivesWayToAFartherOneWithIt()
+    {
+        Fleet near = KeptFleet(Warships(2, NearTarget));
+        Ship[] farShips = Warships(2, FarFromTarget);
+        Ship farBomber = Ships(Bomber, 1, FarFromTarget + new Vector2(3000f, 0f))[0];
+        Fleet far = KeptFleet(farShips[0], farShips[1], farBomber);
+        UState.Objects.Update(TestSimStep);
+        AssertEqual(0, near.ReadyBombSecs, "setup: the nearer fleet carries no bombs");
+        AssertGreaterThan(far.ReadyBombSecs, 0, "setup: the farther fleet's bomber carries bombs");
+        AssertEqual(0, ReadyThePool(simulate: false).BombSecsAvailable, "setup: no bomber is free in the pool");
+        float one = One(farShips[0]);
+        MilitaryTask task = WarTask();
+        task.NeededTroopStrength = 0;
+        task.TaskBombTimeNeeded = far.ReadyBombSecs;
+
+        Requisition(task, 1.5f * one, simulate: false);
+
+        Assert.AreEqual(far, task.Fleet, "the farther idle fleet, which carries the bombing, takes the task");
+        Assert.IsTrue(near.IsIdle, "the nearer fleet stays idle");
+    }
+
+    [TestMethod]
+    public void TwoIdleFleetsStrongEnoughAloneJoinWhenOnlyTheirBombersTogetherCoverTheTask()
+    {
+        Ship[] nearShips = Warships(2, NearTarget);
+        Ship nearBomber = Ships(Bomber, 1, NearTarget + new Vector2(3000f, 0f))[0];
+        Fleet near = KeptFleet(nearShips[0], nearShips[1], nearBomber);
+        Ship[] farShips = Warships(2, FarFromTarget);
+        Ship farBomber = Ships(Bomber, 1, FarFromTarget + new Vector2(3000f, 0f))[0];
+        Fleet far = KeptFleet(farShips[0], farShips[1], farBomber);
+        UState.Objects.Update(TestSimStep);
+        float one = One(nearShips[0]);
+        AssertGreaterThan(near.ReadyStrength, 1.5f * one, "setup: each fleet has the strength alone");
+        AssertGreaterThan(far.ReadyStrength, 1.5f * one, "setup: each fleet has the strength alone");
+        MilitaryTask task = WarTask();
+        task.NeededTroopStrength = 0;
+        task.TaskBombTimeNeeded = near.ReadyBombSecs + 1;
+        AssertGreaterThan(near.ReadyBombSecs + far.ReadyBombSecs, task.TaskBombTimeNeeded, "setup: together their bombers cover the task");
+
+        Requisition(task, 1.5f * one, simulate: false);
+
+        Assert.AreEqual(near, task.Fleet, "the two idle fleets join and take the task");
+        Assert.AreEqual(near, farBomber.Fleet, "with the other fleet's bomber");
     }
 
     [TestMethod]
@@ -511,6 +558,63 @@ public class KeptFleetForceTests : StarDriveTest
 
         Assert.IsTrue(task.QueuedForRemoval, "a task whose force cannot take on the enemy at the target whole ends");
         Assert.IsTrue(idle.IsIdle, "and the idle fleet stays idle");
+    }
+
+    [TestMethod]
+    public void AWeakerFleetOutmatchedAtTheTargetLeavesTheTaskToTwoFleetsJoinedInsteadOfEndingIt()
+    {
+        Ship[] nearShips = Warships(4, NearTarget);
+        Fleet near = KeptFleet(nearShips[0], nearShips[1], nearShips[2], nearShips[3]);
+        Ship farWarship = Warships(1, FarFromTarget)[0];
+        Ship farTroops = Ships(AssaultTroopShip, 1, FarFromTarget + new Vector2(3000f, 0f))[0];
+        Fleet far = KeptFleet(farWarship, farTroops);
+        UState.Objects.Update(TestSimStep);
+        AssertGreaterThan(far.ReadyTroopStrength, 0f, "setup: the farther fleet keeps its assault troops");
+        AssertEqual(0f, near.ReadyTroopStrength, "setup: the nearer fleet carries none");
+        MilitaryTask task = WarTask();
+        task.NeededTroopStrength = (int)far.ReadyTroopStrength;
+        task.TaskBombTimeNeeded = 0;
+        float playerShip = SpawnShip(Warship, Player, new Vector2(900_000f)).GetStrength();
+        int count = (int)(far.ReadyStrength * Enemy.PersonalityModifiers.CanWeTakeThisFightMultiplier / playerShip) + 1;
+        PlayerShipsSeen(Target.Position, count, Target.System);
+        Assert.IsTrue(task.ForceTooWeakToGoIn(far.ReadyStrength), "setup: the farther fleet alone is outmatched at the target");
+        Assert.IsFalse(task.ForceTooWeakToGoIn(near.ReadyStrength + far.ReadyStrength), "setup: both fleets together are not");
+
+        Requisition(task, 0.5f * One(farWarship), simulate: false);
+
+        Assert.IsFalse(task.QueuedForRemoval, "the task does not end because the weaker fleet is outmatched");
+        Assert.AreEqual(near, task.Fleet, "the two fleets join and take it");
+        Assert.AreEqual(near, farTroops.Fleet, "with the other fleet's troops");
+    }
+
+    [TestMethod]
+    public void ATaskWhoseStrongerFleetLacksTroopsWaitsWhenOnlyAnOutmatchedFleetHasThem()
+    {
+        Ship nearWarship = Warships(1, NearTarget)[0];
+        Ship nearTroops = Ships(AssaultTroopShip, 1, NearTarget + new Vector2(3000f, 0f))[0];
+        Fleet near = KeptFleet(nearWarship, nearTroops);
+        Ship[] farShips = Warships(3, FarFromTarget);
+        Fleet far = KeptFleet(farShips[0], farShips[1], farShips[2]);
+        UState.Objects.Update(TestSimStep);
+        AssertEqual(0f, far.ReadyTroopStrength, "setup: the farther fleet carries no troops");
+        AssertGreaterThan(far.ReadyStrength, near.ReadyStrength, "setup: the farther fleet is the stronger one");
+        MilitaryTask task = WarTask();
+        task.NeededTroopStrength = (int)near.ReadyTroopStrength;
+        task.TaskBombTimeNeeded = 0;
+        float playerShip = SpawnShip(Warship, Player, new Vector2(900_000f)).GetStrength();
+        float both = near.ReadyStrength + far.ReadyStrength;
+        int count = (int)(both * Enemy.PersonalityModifiers.CanWeTakeThisFightMultiplier / playerShip) + 1;
+        PlayerShipsSeen(Target.Position, count, Target.System);
+        Assert.IsTrue(task.ForceTooWeakToGoIn(both), "setup: even both fleets together are outmatched at the target");
+        ReadyThePool(simulate: false);
+        task.MinimumTaskForceStrength = 0.5f * One(nearWarship);
+
+        var status = (MilitaryTask.RequisitionStatus)CreateTaskFleet.Invoke(task, new object[] { 1f, false })!;
+
+        AssertEqual(MilitaryTask.RequisitionStatus.NotEnoughTroopStrength, status, "the nearer fleet with the troops is outmatched first, and the stronger one lacks troops");
+        Assert.IsFalse(task.QueuedForRemoval, "a fleet short only of troops keeps the task waiting instead of ending it");
+        Assert.IsNull(task.Fleet, "with no fleet taken");
+        Assert.IsTrue(near.IsIdle && far.IsIdle, "both fleets stay idle");
     }
 
     [TestMethod]

@@ -483,7 +483,8 @@ namespace Ship_Game.AI.Tasks
         }
 
         // a new fleet of pool ships, the troops it lacks gathered from planets
-        RequisitionStatus FormFleetFromPool(Planet rallyPoint, float battleFleetSize, bool highTroopPriority, int wantedFleets)
+        RequisitionStatus FormFleetFromPool(Planet rallyPoint, float battleFleetSize, bool highTroopPriority, int wantedFleets,
+                                            bool endIfOutmatched = true)
         {
             FleetShips fleetShips = Owner.ShipsReadyForFleet;
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
@@ -496,7 +497,8 @@ namespace Ship_Game.AI.Tasks
                                                   out int fleetSetsGot, out bool outmatched);
             if (outmatched)
             {
-                EndTask();
+                if (endIfOutmatched)
+                    EndTask();
                 return RequisitionStatus.NotEnoughShipStrength;
             }
 

@@ -487,6 +487,26 @@ public class KeptFleetTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AFleetGivingUpARemnantDefenseItCannotWinStillFleesAndKeepsItsTactics()
+    {
+        CreateAMinorFaction("Remnant");
+        Ship[] ships = Warships(2, Away);
+        MilitaryTask task = MilitaryTask.CreateDefendVsRemnant(Rally, Enemy, str: 1f);
+        Fleet fleet = FleetFor(task, ships);
+        CombatState tactic = ships[1].ShipData.DefaultCombatState == CombatState.Artillery ? CombatState.ShortRange : CombatState.Artillery;
+        ships[1].AI.CombatState = tactic;
+        ships[0].InCombat = true;
+        PlayerShipsSeen(Away, 12);
+        task.EnemyStrength = 100f * fleet.GetStrength();
+
+        fleet.UpdateAI(TestSimStep);
+
+        Assert.IsTrue(fleet.IsIdle, "setup: the fleet gives up the defense it cannot win and is kept");
+        AssertEqual(AIState.Flee, ships[0].AI.State, "its outmatched ship in the fight still flees");
+        AssertEqual(tactic, ships[1].AI.CombatState, "and the others keep their tactic for the fleet's next fight");
+    }
+
+    [TestMethod]
     public void AFleetWithNoPlanetLeftToWaitAtBreaksUpWhenItsTaskEnds()
     {
         Ship[] ships = Warships(2, Away);

@@ -1764,10 +1764,7 @@ namespace Ship_Game.Fleets
             if (EndInvalidTask(task.TargetPlanet.Owner != null
                 || Owner.KnownEnemyStrengthIn(task.TargetPlanet.System) * StayInFightEnemyShare
                     > task.MinimumTaskForceStrength / Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire)))
-            {
-                ClearOrders();
                 return;
-            }
 
             switch (TaskStep)
             {
@@ -1790,10 +1787,7 @@ namespace Ship_Game.Fleets
         {
             // Should we abort the fight against remnants taskforce?
             if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task, inCombat: TaskStep >= 2)))
-            {
-                ClearOrders();
                 return;
-            }
             
             switch (TaskStep)
             {
@@ -1817,10 +1811,7 @@ namespace Ship_Game.Fleets
                 return;
 
             if (EndInvalidTask(task.TargetShip == null || !task.TargetShip.Active)) // Pirate base is dead
-            {
-                ClearOrders();
                 return;
-            }
 
             switch (TaskStep)
             {

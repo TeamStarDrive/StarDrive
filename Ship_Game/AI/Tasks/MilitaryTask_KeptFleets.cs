@@ -50,41 +50,119 @@ namespace Ship_Game.AI.Tasks
             for (int i = 0; i < idle.Length; ++i)
                 ready[i] = idle[i].ReadyStrength;
 
+            var search = new KeptForceSearch(NeededTroopStrength, TaskBombTimeNeeded);
             for (int i = 0; i < idle.Length; ++i)
             {
-                if (ready[i] >= wanted)
-                    return TakeKeptForce(idle[i], null, rallyPoint, highTroopPriority);
+                if (ready[i] >= wanted && TryKeptForce(idle[i], null, rallyPoint, highTroopPriority, search))
+                    return RequisitionStatus.Complete;
             }
 
             for (int i = 0; i < idle.Length; ++i)
             {
-                if (ready[i] + poolStrength >= wanted)
-                    return TakeKeptForce(idle[i], null, rallyPoint, highTroopPriority);
+                if (ready[i] < wanted && ready[i] + poolStrength >= wanted
+                    && TryKeptForce(idle[i], null, rallyPoint, highTroopPriority, search))
+                    return RequisitionStatus.Complete;
             }
 
-            int troopsNeeded = NeededTroopStrength;
-            int bombingNeeded = TaskBombTimeNeeded;
-            if (DefendsOwnSystem || Owner.KeptFleetCount() < Owner.KeptFleetCap())
+            // a new fleet has only the pool's troops and bombing, so it falls short wherever an idle fleet did
+            if ((DefendsOwnSystem || Owner.KeptFleetCount() < Owner.KeptFleetCap()) && !search.ShortOfSupport)
             {
-                RequisitionStatus status = FormFleetFromPool(rallyPoint, battleFleetSize, highTroopPriority, wantedFleets: 1);
-                if (status == RequisitionStatus.Complete || QueuedForRemoval)
+                search.RestoreNeeds(this);
+                RequisitionStatus status = FormFleetFromPool(rallyPoint, battleFleetSize, highTroopPriority, wantedFleets: 1,
+                                                             endIfOutmatched: false);
+                if (status == RequisitionStatus.Complete)
                     return status;
+                search.Note(status, bombs: 0, troops: 0f);
             }
 
             for (int i = 0; i < idle.Length; ++i)
             {
                 for (int j = i + 1; j < idle.Length; ++j)
                 {
-                    if (ready[i] + ready[j] + poolStrength >= wanted)
-                    {
-                        NeededTroopStrength = troopsNeeded; // a failed new fleet weighed them against the pool's bombers alone
-                        TaskBombTimeNeeded = bombingNeeded;
-                        return TakeKeptForce(idle[i], idle[j], rallyPoint, highTroopPriority);
-                    }
+                    if (ready[i] + ready[j] + poolStrength >= wanted
+                        && TryKeptForce(idle[i], idle[j], rallyPoint, highTroopPriority, search))
+                        return RequisitionStatus.Complete;
                 }
             }
 
-            return RequisitionStatus.FailedToCreateAFleet;
+            // every force with the troops and bombing was outmatched, so the task ends; one short of them waits instead
+            if (search.Outmatched && !search.ShortOfSupport)
+            {
+                EndTask();
+                return RequisitionStatus.NotEnoughShipStrength;
+            }
+            return search.Status;
+        }
+
+        // the task's troop and bombing needs before any try, which the support check may trade between, and what the tries fell short of
+        sealed class KeptForceSearch
+        {
+            readonly int TroopsNeeded;
+            readonly int BombingNeeded;
+            public RequisitionStatus Status = RequisitionStatus.FailedToCreateAFleet;
+            public bool Outmatched;
+            Array<(int Bombs, float Troops)> FellShort; // the bombing and troops of the forces short of them
+
+            public KeptForceSearch(int troopsNeeded, int bombingNeeded)
+            {
+                TroopsNeeded = troopsNeeded;
+                BombingNeeded = bombingNeeded;
+            }
+
+            public bool ShortOfSupport => FellShort != null;
+
+            public void RestoreNeeds(MilitaryTask task)
+            {
+                task.NeededTroopStrength = TroopsNeeded;
+                task.TaskBombTimeNeeded = BombingNeeded;
+            }
+
+            // a force with no more bombing and troops than one that fell short of them falls short too
+            public bool FallsShortLikeAnother(int bombs, float troops)
+            {
+                if (FellShort == null)
+                    return false;
+                for (int i = 0; i < FellShort.Count; ++i)
+                {
+                    if (bombs <= FellShort[i].Bombs && troops <= FellShort[i].Troops)
+                        return true;
+                }
+                return false;
+            }
+
+            public void Note(RequisitionStatus status, int bombs, float troops)
+            {
+                if (status is RequisitionStatus.NotEnoughTroopStrength or RequisitionStatus.NotEnoughBomberStrength)
+                {
+                    if (FellShort == null)
+                    {
+                        Status = status;
+                        FellShort = new();
+                    }
+                    FellShort.Add((bombs, troops));
+                }
+                else if (status == RequisitionStatus.NotEnoughShipStrength)
+                {
+                    Outmatched = true;
+                }
+            }
+        }
+
+        // a force short of troops or bombing, or outmatched, leaves the search to the next one
+        bool TryKeptForce(Fleet fleet, Fleet second, Planet rallyPoint, bool highTroopPriority, KeptForceSearch search)
+        {
+            int bombs = fleet.ReadyBombSecs + (second?.ReadyBombSecs ?? 0);
+            float troops = fleet.ReadyTroopStrength + (second?.ReadyTroopStrength ?? 0f);
+            if (search.FallsShortLikeAnother(bombs, troops))
+                return false;
+
+            search.RestoreNeeds(this);
+            RequisitionStatus status = TakeKeptForce(fleet, second, rallyPoint, highTroopPriority, endIfOutmatched: false);
+            if (status == RequisitionStatus.Complete)
+                return true;
+
+            search.Note(status, bombs, troops);
+            return false;
         }
 
         // a small task takes the nearest idle fleet that has the strength it needs, when it has no more than twice that
@@ -102,7 +180,7 @@ namespace Ship_Game.AI.Tasks
         }
 
         // the fleet takes the task with the second fleet's ships, and pool ships for the strength, bombing and troops it lacks
-        RequisitionStatus TakeKeptForce(Fleet fleet, Fleet second, Planet rallyPoint, bool highTroopPriority)
+        RequisitionStatus TakeKeptForce(Fleet fleet, Fleet second, Planet rallyPoint, bool highTroopPriority, bool endIfOutmatched = true)
         {
             FleetShips pool = Owner.ShipsReadyForFleet;
             float strength = fleet.ReadyStrength + (second?.ReadyStrength ?? 0f);
@@ -118,7 +196,8 @@ namespace Ship_Game.AI.Tasks
 
             if (ForceTooWeakToGoIn(strength))
             {
-                EndTask();
+                if (endIfOutmatched)
+                    EndTask();
                 return RequisitionStatus.NotEnoughShipStrength;
             }
 

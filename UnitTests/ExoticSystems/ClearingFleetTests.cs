@@ -15,9 +15,9 @@ namespace UnitTests.ExoticSystems;
 /// <summary>
 /// A computer empire sends a fleet to clear a system for research or mining only near home, where it has planets of
 /// its own or within one and a half times its systems' average squared distance from its weighted center, or wherever
-/// it knows of pirates or Remnants there. That holds when its planner wants a research station in the system, when its
-/// research station there calls for help against an enemy's, when its planner wants to mine a planet there, and when
-/// its mining station there is attacked.
+/// it knows of a faction there, such as pirates, the Remnants or event ships. That holds when its planner wants a
+/// research station in the system, when its research station there calls for help against an enemy's, when its
+/// planner wants to mine a planet there, and when its mining station there is attacked.
 /// </summary>
 [TestClass]
 public class ClearingFleetTests : StarDriveTest
@@ -53,7 +53,7 @@ public class ClearingFleetTests : StarDriveTest
         {
             CreateAMinorFaction(faction);
             hostile = Faction;
-            Assert.IsTrue(hostile.WeArePirates || hostile.WeAreRemnants, "setup: pirates or the Remnants");
+            Assert.IsTrue(hostile.IsFaction, "setup: a faction");
         }
         Ship ship = SpawnShip("Vulcan Scout", hostile, NewPlanet.Position + new Vector2(8000f, 0f));
         UState.Objects.Update(TestSimStep);
@@ -81,7 +81,8 @@ public class ClearingFleetTests : StarDriveTest
     [DataRow(true, null, true, DisplayName = "near home: a fleet")]
     [DataRow(false, "Remnant", true, DisplayName = "far from home, the Remnants: a fleet")]
     [DataRow(false, "Corsairs", true, DisplayName = "far from home, pirates: a fleet")]
-    public void AnAIClearsAResearchSystemOnlyNearHomeOrOfPiratesAndRemnants(bool nearHome, string faction, bool clears)
+    [DataRow(false, "Unknown", true, DisplayName = "far from home, event ships of the Unknown faction: a fleet")]
+    public void AnAIClearsAResearchSystemOnlyNearHomeOrOfAFaction(bool nearHome, string faction, bool clears)
     {
         Ship_Game.Empire hostile = HostileKnownInTheSystem(faction);
         CenterTheAI(nearHome);
@@ -99,7 +100,8 @@ public class ClearingFleetTests : StarDriveTest
     [DataRow(true, null, true, DisplayName = "near home: a fleet")]
     [DataRow(false, "Remnant", true, DisplayName = "far from home, the Remnants there too: a fleet")]
     [DataRow(false, "Corsairs", true, DisplayName = "far from home, pirates there too: a fleet")]
-    public void AnAIResearchStationCallsAFleetAgainstAnEnemyStationOnlyNearHomeOrAgainstPiratesAndRemnants(bool nearHome, string faction, bool calls)
+    [DataRow(false, "Unknown", true, DisplayName = "far from home, event ships of the Unknown faction there too: a fleet")]
+    public void AnAIResearchStationCallsAFleetAgainstAnEnemyStationOnlyNearHomeOrAgainstAFaction(bool nearHome, string faction, bool calls)
     {
         SolarSystem system = NewPlanet.System;
         Ship ours = SpawnShip("Basic Research Station", Enemy, NewPlanet.Position + new Vector2(3000f, 0f));
@@ -118,7 +120,8 @@ public class ClearingFleetTests : StarDriveTest
     [DataRow(false, null, false, DisplayName = "far from home: no fleet")]
     [DataRow(true, null, true, DisplayName = "near home: a fleet")]
     [DataRow(false, "Remnant", true, DisplayName = "far from home, the Remnants: a fleet")]
-    public void AnAIClearsAPlanetToMineOnlyNearHomeOrOfPiratesAndRemnants(bool nearHome, string faction, bool clears)
+    [DataRow(false, "Unknown", true, DisplayName = "far from home, event ships of the Unknown faction: a fleet")]
+    public void AnAIClearsAPlanetToMineOnlyNearHomeOrOfAFaction(bool nearHome, string faction, bool clears)
     {
         HostileKnownInTheSystem(faction);
         CenterTheAI(nearHome);
@@ -132,7 +135,8 @@ public class ClearingFleetTests : StarDriveTest
     [DataRow(false, null, false, DisplayName = "far from home: no fleet")]
     [DataRow(true, null, true, DisplayName = "near home: a fleet")]
     [DataRow(false, "Remnant", true, DisplayName = "far from home, the Remnants: a fleet")]
-    public void AnAIMiningStationUnderAttackCallsAFleetOnlyNearHomeOrAgainstPiratesAndRemnants(bool nearHome, string faction, bool calls)
+    [DataRow(false, "Unknown", true, DisplayName = "far from home, event ships of the Unknown faction: a fleet")]
+    public void AnAIMiningStationUnderAttackCallsAFleetOnlyNearHomeOrAgainstAFaction(bool nearHome, string faction, bool calls)
     {
         Ship station = SpawnShip("Basic Mining Station", Enemy, NewPlanet.Position + new Vector2(NewPlanet.OrbitalRingRadius(0), 0f));
         HostileKnownInTheSystem(faction);

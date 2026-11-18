@@ -563,10 +563,10 @@ Everything below runs on the sim thread; ship updates and ship AI fan out over `
 | Empire AI | `AI/EmpireAI/EmpireAI*.cs` (partial class `EmpireAI`) | Runs the planners: economic, expansion, research stations, mining, salvage, space roads, diplomacy, research, espionage, then military and war. Then evaluates every `Goal` |
 | Goals | `AI/Goal.cs`, `Commands/Goals/*.cs` | Saved state machines: an array of step functions returning a `GoalStep` |
 | Expansion and research | `AI/ExpansionAI/`, `AI/Research/` | `ExpansionPlanner`, `MiningOpsPlanner`, `ResearchStationPlanner`, `SalvageOpsPlanner`; `ChooseTech`, `ShipPicker` |
-| Military tasks | `AI/Tasks/MilitaryTask*.cs`; list in `AI/EmpireAI/EmpireAI.RunMilitaryPlanner.cs` | Tasks such as `AssaultPlanet`, `DefendClaim`, `ClearAreaOfEnemies`, `StrikeForce` that request and hold fleets, including kept fleets (`AI/EmpireAI/EmpireAI.KeptFleets.cs`). `TaskType` order is saved, so do not reorder it |
+| Military tasks | `AI/Tasks/MilitaryTask*.cs`; list in `AI/EmpireAI/EmpireAI.RunMilitaryPlanner.cs` | Tasks such as `AssaultPlanet`, `DefendClaim`, `ClearAreaOfEnemies`, `StrikeForce` that request and hold fleets. War, defense and claim tasks keep their fleet when they end: a task finds its force in `AI/Tasks/MilitaryTask_KeptFleets.cs`, and `AI/EmpireAI/EmpireAI.KeptFleets.cs` runs the per-turn upkeep (cap, refits, splits, break-ups). `TaskType` order is saved, so do not reorder it |
 | Wars | `AI/StrategyAI/` (`War`, `WarScore`, `WarState`, `FleetBuildRatios`) | War state and fleet composition |
 | Threat and defense | `AI/ThreatMatrix*.cs`, `AI/ThreatCluster.cs`, `AI/DefensiveCoordinator.cs`, `AI/SystemCommander.cs` | Known enemy strength by area; system defense |
-| Fleets | `Fleets/Fleet*.cs` (`Fleet : ShipGroup`) | Formation, movement, staging, combat orders, flanking |
+| Fleets | `Fleets/Fleet*.cs` (`Fleet : ShipGroup`) | Formation, movement, staging, combat orders, flanking; an idle kept fleet waits at a rally planet, and its refit and split steps are in `Fleets/Fleet.Idle.cs` |
 | Ship AI | `AI/ShipAI/` (`ShipAI`, `ShipGoal` order queue, `CombatAI`), `AI/CombatTactics/`, `AI/ShipMovement/` | Orders, combat stances (`Artillery`, `BroadSides`, `OrbitTarget`, `Evade`, `HoldPosition`, `AttackRun`) |
 | Routing | `AI/GravityWellRouter.cs` | Waypoints around gravity wells and hostile systems, computed when an order is given |
 | Factions and others | `Pirates.cs`, `Remnants.cs`, `AI/DroneAI.cs`, `AI/MissileAI.cs` | Faction AI; drones and missiles |
