@@ -44,7 +44,7 @@ What Jupiter 1.60 delivers, building on the Mars line:
 * **64-bit engine** — the 32-bit ~2 GB process ceiling is gone; late-game crashes with large empires or Combined Arms are fixed
 * **MonoGame 3.8 renderer** replaces the discontinued XNA + SunBurn stack; no more XNA 3.1 redistributable requirement
 * **.NET 8 runtime** bundled with the installer (was .NET Framework 4.8)
-* Restored visual effects, skinned/animated meshes, material maps, post-process passes, basic shadow maps
+* Restored visual effects, skinned/animated meshes, material maps, post-process passes
 * Save format partitioned (`SaveGameVersion = 21`) so Jupiter coexists side-by-side with a Mars 1.51 install
 
 # BlackBox - Mars (legacy)
@@ -68,7 +68,7 @@ What the Mars line delivered (1.50 / 1.51), now preserved on the [`mars-1.51`](h
     * Configure SourceTree: Tools->Options->Git: [v] Perform submodule actions recursively _(Important!!!)_
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
     * Advanced Options When cloning: [v] Recurse submodules _(Important!!!)_
-* The active development branch is `main` (post-migration Jupiter line). The Mars-line legacy branch is `mars-1.51`.
+* `main` is the post-migration Jupiter line. Work collects on the current `jupiter-1.60/fixes_NN` branch, which merges into `main` (see Development Cycle). The Mars-line legacy branch is `mars-1.51`.
 * Launch Visual Studio, any required DLL references should be in `BlackBox/game` directory.
 * Launch a full build (Build -> Build Solution) in `Release|x64` configuration to produce the BlackBox StarDrive executable.
     * If you get this build error: "Windows 10 SDK is not installed", then you need to go back to Visual Studio installer and enable Desktop development with C++
@@ -108,13 +108,13 @@ contact us in [Discord](https://discord.gg/dfvnfH4) for more information on modd
 
 # Development Cycle
 ## For new features, refactors, old bug fixes  (feature)
-* Create a new feature branch from `main`.
+* Create a new feature branch from the current `jupiter-1.60/fixes_NN` branch (the highest NN).
 * Always add NEW feature unit tests and playtest your changes.
-* Create a pull request and wait for review. Be ready to make a few tweaks! It is easy to create unintentional bugs in this legacy codebase.
+* Create a pull request against that `jupiter-1.60/fixes_NN` branch, not `main`, and wait for review. Be ready to make a few tweaks! It is easy to create unintentional bugs in this legacy codebase.
 ## If bugs are found in main branch (hotfix)
 * Create an issue or mark existing issue as a "Blocker" for current release.
 * Post the issue in the dev channel of discord.
-* If you can quickly fix it, help us by creating a hotfix pull request.
+* If you can quickly fix it, help us by creating a hotfix pull request against the current `jupiter-1.60/fixes_NN` branch.
 
 # Command Line Arguments
 BlackBox provides a CLI for running certain utilities from Command Prompt.
