@@ -37,7 +37,7 @@ namespace Ship_Game.Fleets
         public float ReadyTroopStrength => Ships.Sum(s => s is { Active: true, Resupplying: false, DesignRoleType: RoleType.Troop } ? s.Carrier.PlanetAssaultStrength : 0f);
 
         // a kept fleet, or one on a task that keeps its fleet; a temporary force does not count
-        public bool CountsTowardFleetCap => Kept || FleetTask != null && MilitaryTask.UsesKeptFleets(FleetTask.Type);
+        public bool CountsTowardFleetCap => Kept || FleetTask is { } task && MilitaryTask.UsesKeptFleets(task.Type);
 
         // pool ships join, the places held for ships away are dropped so those ships go to the pool when done, and the task starts from its first step
         internal void TakeTask(MilitaryTask task, string name, Array<Ship> joining)
