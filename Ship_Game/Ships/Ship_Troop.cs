@@ -287,6 +287,7 @@ namespace Ship_Game.Ships
         {
             if (OurTroops.Count == 0 && HostileTroops.Count == 0)
             {
+                TroopBoardingDefense = 0f;
                 TroopUpdateTimer = Universe.P.TurnTimer;
                 return;
             }
