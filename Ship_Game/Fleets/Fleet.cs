@@ -248,15 +248,20 @@ namespace Ship_Game.Fleets
             }
         }
 
-        public static bool CanBeRequisitioned(Ship ship)
+        // a ship the player can put in a fleet by hand
+        public static bool CanJoinFleet(Ship ship)
         {
             return ship.Fleet == null
+                && ship.IsAlive
+                && !ship.IsLanding
                 && ship.CanBeAddedToFleets()
                 && !ship.IsHangarShip
                 && !ship.IsHomeDefense
-                && !ship.Resupplying
                 && ship.AI.State is not (AIState.Refit or AIState.Scrap or AIState.Scuttle);
         }
+
+        // Requisition also passes over ships that are resupplying
+        public static bool CanBeRequisitioned(Ship ship) => CanJoinFleet(ship) && !ship.Resupplying;
 
         public int CountShipsThatFit(Ship[] ships) => FillEmptyNodes(ships, assign: false);
 

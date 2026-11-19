@@ -114,6 +114,14 @@ namespace Ship_Game
             // assign it to the fleet on Left click
             if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
             {
+                if (ActiveShips.ContainsRef(ActiveShipDesign) && EmptySlotUnderCursor(ActiveShipDesign) is { } emptySlot)
+                {
+                    if (CanJoinFleet(ActiveShipDesign))
+                        FillEmptySlot(emptySlot, ActiveShipDesign);
+                    else
+                        RefuseShip(ActiveShipDesign);
+                    return false;
+                }
                 if (!TryFindNearestFreeOffset(CursorWorldPosition2D, ActiveShipDesign.Radius, out Vector2 pickedPosition))
                     return false; // fleet is packed solid around the cursor, nowhere to put it
                 AddDesignToFleet(ActiveShipDesign, pickedPosition);
@@ -143,37 +151,70 @@ namespace Ship_Game
 
         void AddDesignToFleet(Ship shipOrTemplate, Vector2? fleetOffset)
         {
-            FleetDataNode node = new() { ShipName = shipOrTemplate.Name };
-
-            if (fleetOffset.HasValue)
-            {
-                node.RelativeFleetOffset = fleetOffset.Value;
-            }
-            else
-            {
-                // TODO
-            }
-
-            SelectedFleet.DataNodes.Add(node);
-
             // is this an actual alive ship?
             bool isActualActiveShip = ActiveShips.ContainsRef(shipOrTemplate);
-            if (isActualActiveShip)
+            if (isActualActiveShip && !CanJoinFleet(shipOrTemplate))
             {
-                if (SelectedFleet.Ships.Count == 0)
-                    SelectedFleet.FinalPosition = shipOrTemplate.Position;
-
-                // if so, immediately assigned the node
-                node.Ship = shipOrTemplate;
-                node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
-                ActiveShips.RemoveRef(shipOrTemplate);
-                SelectedFleet.AddShipsJoiningFleet(new[] { node.Ship });
-                ShipSL.RemoveFirstIf(item => item.Ship == shipOrTemplate);
-
-                // always clear active design for alive ships
-                ActiveShipDesign = null;
+                RefuseShip(shipOrTemplate);
+                return;
             }
+
+            FleetDataNode node = new() { ShipName = shipOrTemplate.Name };
+            if (fleetOffset.HasValue)
+                node.RelativeFleetOffset = fleetOffset.Value;
+            SelectedFleet.DataNodes.Add(node);
+
+            if (isActualActiveShip)
+                AssignShipToNode(node, shipOrTemplate);
             // else: otherwise we will just have a data node
+        }
+
+        void AssignShipToNode(FleetDataNode node, Ship ship)
+        {
+            if (SelectedFleet.Ships.Count == 0)
+                SelectedFleet.FinalPosition = ship.Position;
+
+            node.Ship = ship;
+            ship.RelativeFleetOffset = node.RelativeFleetOffset;
+            SelectedFleet.AddShipsJoiningFleet(new[] { ship });
+            TakeFromShipList(ship);
+        }
+
+        // the ship takes the slot's stance and squad and flies to its place, as when Requisition fills a slot; a resupplying ship goes there once it is done
+        void FillEmptySlot(FleetDataNode node, Ship ship)
+        {
+            if (SelectedFleet.Ships.Count == 0)
+                SelectedFleet.FinalPosition = ship.Position;
+
+            SelectedFleet.AddExistingShip(ship, node);
+            if (!ship.Resupplying)
+            {
+                ship.AI.ResetPriorityOrder(false);
+                ship.AI.OrderMoveTo(SelectedFleet.GetFinalPos(ship), SelectedFleet.FinalDirection);
+            }
+            TakeFromShipList(ship);
+        }
+
+        void TakeFromShipList(Ship ship)
+        {
+            ActiveShips.RemoveRef(ship);
+            ShipSL.RemoveFirstIf(item => item.Ship == ship);
+            ActiveShipDesign = null;
+        }
+
+        void RefuseShip(Ship ship)
+        {
+            GameAudio.NegativeClick();
+            TakeFromShipList(ship);
+        }
+
+        // an empty slot of this ship's design under the cursor, which no build is filling
+        FleetDataNode EmptySlotUnderCursor(Ship ship)
+        {
+            foreach (FleetDataNode node in HoveredNodeList)
+                if (node.Ship == null && node.Goal == null && node.ShipName == ship.Name)
+                    return node;
+            return null;
         }
 
         // delete all selected ships

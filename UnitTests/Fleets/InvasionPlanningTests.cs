@@ -617,6 +617,23 @@ public class InvasionPlanningTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ALandingShipJoinsNoFleetAndAResupplyingOneOnlyByHand()
+    {
+        (_, _, Planet target) = InvasionOfAnEnemyHomeworld();
+        Ship landing = TroopShipNear(target);
+        Ship resupplying = TroopShipNear(target);
+        Assert.IsTrue(landing.AI.OrderLandAllTroops(target, clearOrders: true), "setup: a troop ship is ordered to land");
+        RunSimWhile((simTimeout: 60, fatal: true), () => !landing.IsLanding);
+        Assert.IsTrue(Fleet.CanBeRequisitioned(resupplying), "setup: an idle troop ship can join a fleet");
+        resupplying.AI.State = AIState.Resupply;
+
+        Assert.IsFalse(Fleet.CanJoinFleet(landing), "a landing ship drops out of any fleet, so none takes it by hand");
+        Assert.IsFalse(Fleet.CanBeRequisitioned(landing), "nor by Requisition");
+        Assert.IsTrue(Fleet.CanJoinFleet(resupplying), "a resupplying ship stays in its fleet, so it can be put in one by hand");
+        Assert.IsFalse(Fleet.CanBeRequisitioned(resupplying), "Requisition leaves it to resupply");
+    }
+
+    [TestMethod]
     public void ATroopShipAlreadyLandingCountsOnce()
     {
         (Fleet fleet, MilitaryTask task, Planet target) = InvasionOfAnEnemyHomeworld();
