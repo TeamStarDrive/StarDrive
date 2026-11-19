@@ -651,8 +651,9 @@ namespace Ship_Game.AI
                 }
 
                 // force the ship out of warp if we get too close
-                // this is a balance feature
-                ThrustOrWarpToPos(goal.GetThrustTarget(landingSpot, Owner.Position), timeStep, warpExitDistance: Owner.WarpOutDistance);
+                // this is a balance feature, measured from the landing spot and not from a detour on the way
+                Vector2 thrustTarget = goal.GetThrustTarget(landingSpot, Owner.Position);
+                ThrustOrWarpToPos(thrustTarget, timeStep, warpExitDistance: thrustTarget == landingSpot ? Owner.WarpOutDistance : 0f);
                 LandTroopsViaSingleTransport(planet, landingSpot);
             }
             else

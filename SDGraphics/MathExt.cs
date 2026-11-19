@@ -294,6 +294,23 @@ public static class MathExt
         return (dx*dx + dy*dy) <= r2*r2;
     }
 
+    // the fraction of the segment a->b at which it enters the circle from outside, above 1 when it starts inside or does not enter
+    public static float SegmentCircleEntry(this Vector2 a, Vector2 b, Vector2 center, float radius)
+    {
+        float fx = a.X - center.X, fy = a.Y - center.Y;
+        float c = fx*fx + fy*fy - radius*radius;
+        float dx = b.X - a.X, dy = b.Y - a.Y;
+        float aa = dx*dx + dy*dy;
+        if (c <= 0f || aa <= 0f)
+            return 2f;
+        float bb = 2f * (fx*dx + fy*dy);
+        float det = bb*bb - 4f*aa*c;
+        if (det < 0f)
+            return 2f;
+        float t = (-bb - (float)Sqrt(det)) / (2f * aa);
+        return t >= 0f && t <= 1f ? t : 2f;
+    }
+
     // @return TRUE and out distance from rayStart to the point of intersection,
     //      OR FALSE if no intersect
     // IF [start->end] is inside the circle, returns abs distance from start to edge of the circle

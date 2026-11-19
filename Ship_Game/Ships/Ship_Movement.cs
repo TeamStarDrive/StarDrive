@@ -355,12 +355,6 @@ namespace Ship_Game.Ships
 
             SetMaxVelocity(maxSTLSpeed, maxFTLSpeed, atWarp);
 
-            if (!atWarp && Velocity.Length() > maxSTLSpeed)
-            {
-                // feature: exit from hyperspace at ridiculous speeds (STL max)
-                Velocity = Velocity.Normalized() * maxSTLSpeed.Clamped(0, MaxSubLightSpeed);
-            }
-
             if (isWarpCapable)
             {
                 bool warpingOrSpooling = atWarp || IsSpooling;
@@ -373,8 +367,18 @@ namespace Ship_Game.Ships
                 }
             }
 
+            // a ship that has just left warp moves this step at sublight speed
+            if (engineState != MoveState.Warp && Velocity.Length() > maxSTLSpeed)
+            {
+                // feature: exit from hyperspace at ridiculous speeds (STL max)
+                Velocity = Velocity.Normalized() * maxSTLSpeed.Clamped(0, MaxSubLightSpeed);
+            }
+
             UpdateShipRotation(timeStep);
+            Vector2 stepStart = Position;
             UpdateVelocityAndPosition(timeStep);
+            if (engineState == MoveState.Warp)
+                LeaveWarpWhereTheStepCrosses(stepStart);
 
             if (isWarpCapable && IsSpooling)
             {

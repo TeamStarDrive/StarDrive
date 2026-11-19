@@ -447,6 +447,10 @@ namespace Ship_Game.AI
         // thrust offset used by ThrustOrWarpTowardsPosition
         public Vector2 ThrustTarget { get; private set; }
 
+        // the circle this update's move leaves warp at, which the ship's next step stops at even when a warp step would carry it inside
+        public Vector2 WarpExitPos { get; private set; }
+        public float WarpExitRadius { get; private set; }
+
         internal Vector2 PredictThrustPosition(Vector2 targetPos)
         {
             // because or ship is actively moving, it needs to correct its thrusting direction
@@ -473,6 +477,12 @@ namespace Ship_Game.AI
         {
             if (Owner.EnginesKnockedOut)
                 return;
+
+            if (warpExitDistance > 0f)
+            {
+                WarpExitPos = pos;
+                WarpExitRadius = warpExitDistance;
+            }
 
             // Use predicted thrust position to enhance movement precision and cancel out lateral movement
             Vector2 predictedPos = PredictThrustPosition(pos);

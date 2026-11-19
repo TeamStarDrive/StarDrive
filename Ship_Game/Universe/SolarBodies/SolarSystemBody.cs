@@ -203,7 +203,7 @@ namespace Ship_Game
         public bool UniqueHab = false;
         public int UniqueHabPercent;
         protected Audio.AudioEmitter Emitter;
-        public float GravityWellRadius { get; protected set; }
+        public float GravityWellRadius { get; internal set; }
 
         // TODO: replace TilesList with a raw array
         [StarData] public Array<PlanetGridSquare> TilesList = new(35);
