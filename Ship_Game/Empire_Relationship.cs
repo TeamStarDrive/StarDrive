@@ -6,6 +6,7 @@ using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -39,6 +40,32 @@ namespace Ship_Game
                 usToThem.SetTreaty(this, type, value);
                 if (them.GetRelations(this, out Relationship themToUs))
                     themToUs.SetTreaty(them, type, value);
+                if (value && type is TreatyType.NonAggression or TreatyType.Peace)
+                    StopTargetingEachOther(them);
+            }
+        }
+
+        // the two empires' ships drop their targets on each other, so a fight going on when the treaty is signed ends
+        void StopTargetingEachOther(Empire them)
+        {
+            if (Universe?.Screen is { IsOnSimThread: false } screen)
+            {
+                screen.RunOnSimThread(() => StopTargetingEachOther(them));
+                return;
+            }
+            DropTargetsOn(them);
+            them.DropTargetsOn(this);
+        }
+
+        // a priority target stays
+        void DropTargetsOn(Empire them)
+        {
+            IReadOnlyList<Ship> ships = OwnedShips;
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                if (ship.AI.Target?.Loyalty == them && !ship.AI.HasPriorityTarget)
+                    ship.AI.Target = null;
             }
         }
 

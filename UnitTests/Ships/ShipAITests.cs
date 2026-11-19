@@ -219,6 +219,45 @@ namespace UnitTests.Ships
             Assert.IsTrue(aggressiveShip.IsAttackable(peaceful, peacefulRel), "Aggressive ship should now be attackable since it is targeting the peaceful ship");
         }
 
+        [TestMethod]
+        [DataRow(TreatyType.NonAggression)]
+        [DataRow(TreatyType.Peace)]
+        public void UnderATreatyAShipAimingAtOursIsAttackableOnlyOnceItsEmpireHitIt(TreatyType treaty)
+        {
+            CreateThirdMajorEmpire();
+            Ship theirs = SpawnShip("Heavy Carrier mk5-b", Enemy, Vector2.Zero);
+            Ship ours   = SpawnShip("Heavy Carrier mk5-b", ThirdMajor, Vector2.Zero);
+            Enemy.SignTreatyWith(ThirdMajor, treaty);
+            Relationship oursToTheirs = ThirdMajor.GetRelations(Enemy);
+            Assert.IsFalse(oursToTheirs.CanAttack, "setup: the treaty keeps us from attacking them");
+
+            theirs.AI.Target = ours;
+            Assert.IsFalse(theirs.IsAttackable(ThirdMajor, oursToTheirs), "a partner's ship that only aims at ours is left alone");
+
+            ours.SetLastDamagedBy(theirs);
+            Assert.IsTrue(theirs.IsAttackable(ThirdMajor, oursToTheirs), "once its empire has hit the ship it aims at, it is fair game");
+        }
+
+        [TestMethod]
+        [DataRow(TreatyType.NonAggression)]
+        [DataRow(TreatyType.Peace)]
+        public void SigningATreatyEndsTheTwoEmpiresTargetingEachOther(TreatyType treaty)
+        {
+            CreateThirdMajorEmpire();
+            Ship theirs = SpawnShip("Heavy Carrier mk5-b", Enemy, Vector2.Zero);
+            Ship ours   = SpawnShip("Heavy Carrier mk5-b", ThirdMajor, Vector2.Zero);
+            UState.Objects.Update(TestSimStep);
+            Assert.IsTrue(System.Linq.Enumerable.Contains(Enemy.OwnedShips, theirs) && System.Linq.Enumerable.Contains(ThirdMajor.OwnedShips, ours),
+                          "setup: each empire lists its ship");
+            theirs.AI.Target = ours;
+            ours.AI.Target = theirs;
+
+            Enemy.SignTreatyWith(ThirdMajor, treaty);
+
+            Assert.IsNull(theirs.AI.Target, "their ship drops its target on ours");
+            Assert.IsNull(ours.AI.Target, "our ship drops its target on theirs");
+        }
+
         void ResetAnger(Relationship rel)
         {
             rel.AddAngerMilitaryConflict(-rel.Anger_MilitaryConflict + 5);

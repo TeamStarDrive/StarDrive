@@ -677,7 +677,9 @@ namespace Ship_Game.Ships
                 if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
                     return true;
 
-                if (AI.Target?.GetLoyalty() == attacker)
+                // a ship targeting one of ours, under a non-aggression pact or peace only once its empire has hit that ship
+                if (AI.Target is { } victim && victim.Loyalty == attacker
+                    && (!attackerToUs.Treaty_NAPact && !attackerToUs.Treaty_Peace || victim.LastDamagedBy?.GetLoyalty() == Loyalty))
                     return true;
             }
 

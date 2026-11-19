@@ -751,9 +751,10 @@ namespace Ship_Game.AI
                     //       because choosing a new target is expensive, and it's not even used sometimes
                     UpdateChaseLimits();
                     Ship selectedTarget = SelectCombatTarget(sensorRadius);
-                    if (Owner.Fleet == null && selectedTarget == null && Owner.IsHangarShip)
+                    if (Owner.Fleet == null && selectedTarget == null && Owner.Mothership is { } carrier
+                        && carrier.AI.Target is { } carrierTarget && IsTargetValid(carrierTarget))
                     {
-                        selectedTarget = Owner.Mothership.AI.Target;
+                        selectedTarget = carrierTarget;
                     }
 
                     // automatically choose `Target` if ship does not have Priority
