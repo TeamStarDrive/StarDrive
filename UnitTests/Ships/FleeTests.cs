@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
@@ -67,5 +68,57 @@ public class FleeTests : StarDriveTest
         ShipAI.ShipGoal first = fleeing.AI.OrderQueue.PeekFirst;
         Assert.AreNotEqual(ShipAI.Plan.Orbit, first?.Plan, "setup: it first breaks away");
         Assert.IsTrue(first.MovePosition.X < -50_000f, $"away from the warship, though three freighters sit on the other side ({first.MovePosition})");
+    }
+
+    // the fleeing ship inside the gravity well of a planet at the given point, its safe planet past the enemy
+    Ship FleeingInAWell(Vector2 planetAt, Vector2 enemyAt)
+    {
+        UState.P.GravityWellRange = 8000f;
+        Ship fleeing = FacingAnEnemy(new Vector2(400_000f, 0f));
+        fleeing.AI.PotentialTargets[0].Position = enemyAt;
+        Planet well = AddDummyPlanet(new Vector2(0f, -20_000f), 1f, 1f, 1f, planetAt, explored: false);
+        well.GravityWellRadius = 9000f;
+        fleeing.SetSystem(well.System);
+        Assert.AreSame(well, well.System.IdentifyGravityWell(fleeing), "setup: the planet's well holds the ship");
+        Assert.IsFalse(fleeing.IsInFriendlyProjectorRange, "setup: nothing lets the ship warp out of the well");
+        return fleeing;
+    }
+
+    [TestMethod]
+    public void AShipFleeingInsideAGravityWellRunsStraightAwayWhenThatLeadsOutOfIt()
+    {
+        Ship fleeing = FleeingInAWell(planetAt: new Vector2(3000f, 0f), enemyAt: new Vector2(8000f, 0f));
+
+        fleeing.AI.OrderFlee();
+
+        ShipAI.ShipGoal first = fleeing.AI.OrderQueue.PeekFirst;
+        Assert.AreNotEqual(ShipAI.Plan.Orbit, first?.Plan, "setup: it first breaks away");
+        Assert.IsTrue(first.MovePosition.X < -50_000f && Math.Abs(first.MovePosition.Y) < 1000f,
+                      $"straight away from the enemy, out of the well ({first.MovePosition})");
+    }
+
+    [TestMethod]
+    public void AShipFleeingInsideAGravityWellPassesThePlanetOnTheSideNearerToAway()
+    {
+        Ship fleeing = FleeingInAWell(planetAt: new Vector2(-3000f, 0f), enemyAt: new Vector2(8000f, 2000f));
+
+        fleeing.AI.OrderFlee();
+
+        ShipAI.ShipGoal first = fleeing.AI.OrderQueue.PeekFirst;
+        Assert.AreNotEqual(ShipAI.Plan.Orbit, first?.Plan, "setup: it first breaks away");
+        Assert.IsTrue(first.MovePosition.Y < -50_000f && Math.Abs(first.MovePosition.X) < 1000f,
+                      $"along the planet's side away from the enemy, not over the planet ({first.MovePosition})");
+    }
+
+    [TestMethod]
+    public void AShipEscapingToResupplyInsideAGravityWellRunsFromItsClosestEnemy()
+    {
+        Ship escaping = FleeingInAWell(planetAt: new Vector2(-3000f, 0f), enemyAt: new Vector2(8000f, 2000f));
+        escaping.InCombat = true;
+
+        Assert.IsTrue(escaping.TryGetEscapeVector(out Vector2 escapePos), "setup: a ship in combat escapes");
+
+        Assert.IsTrue(escapePos.Y < -50_000f && Math.Abs(escapePos.X) < 1000f,
+                      $"past the planet's side away from the enemy, not along its facing toward the enemy ({escapePos})");
     }
 }
