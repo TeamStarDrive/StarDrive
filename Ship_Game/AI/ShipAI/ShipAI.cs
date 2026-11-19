@@ -967,6 +967,14 @@ namespace Ship_Game.AI
                 return;
             }
 
+            // a fighter idle by its carrier goes back to its hangar unless the Fighters button keeps it out
+            if (Owner.IsHangarShip && escortTarget == Owner.Mothership && !Owner.InCombat && !escortTarget.InCombat
+                && !escortTarget.AI.BadGuysNear && !escortTarget.Carrier.FightersLaunched && escortTarget.Carrier.IsOwnFighter(Owner))
+            {
+                OrderReturnToHangar();
+                return;
+            }
+
             if (Owner.GetStrength() <= 0
                 || !Owner.IsHangarShip && escortTarget.Position.InRadius(Owner.Position, Owner.SensorRange)
                 || !Owner.IsHangarShip

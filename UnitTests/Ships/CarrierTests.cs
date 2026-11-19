@@ -259,6 +259,95 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void FightersEngageAnEnemyTheirCarrierSeesBeyondTheirOwnSensors()
+        {
+            float distance = Carrier.SensorRange * 0.6f;
+            Hostile = SpawnShip("Ving Defender", Enemy, Carrier.Position + new Vector2(distance, 0));
+            Hostile.AI.OrderHoldPosition();
+            RunObjectsSim(ScanInterval * 2);
+            Carrier.Carrier.ScrambleFighters();
+            UState.Objects.Update(TestSimStep);
+            Array<Ship> fighters = Carrier.Carrier.GetActiveFighters();
+            Assert.IsTrue(fighters.Count > 0, "setup: the fighters are out");
+            Assert.IsTrue(fighters[0].SensorRange * 1.2f < distance,
+                          $"setup: the enemy at {distance} is beyond the fighters' own sensors {fighters[0].SensorRange}");
+
+            RunObjectsSim(ScanInterval * 3);
+
+            Assert.IsTrue(Carrier.Carrier.GetActiveFighters().Any(f => f.InCombat),
+                          "the fighters go for the enemy their carrier sees");
+        }
+
+        [TestMethod]
+        public void FightersOfAHoldingCarrierLeaveAloneWhatItDoesNotEngage()
+        {
+            Carrier.SetCombatStance(CombatState.HoldPosition);
+            Hostile = SpawnShip("Ving Defender", Enemy, Carrier.Position + new Vector2(Carrier.SensorRange * 0.9f, 0));
+            Hostile.AI.OrderHoldPosition();
+            RunObjectsSim(ScanInterval * 2);
+            Carrier.Carrier.ScrambleFighters();
+            UState.Objects.Update(TestSimStep);
+            Array<Ship> fighters = Carrier.Carrier.GetActiveFighters();
+            Assert.IsTrue(fighters.Count > 0, "setup: the fighters are out");
+            float distance = fighters[0].SensorRange * 0.6f;
+            Assert.IsTrue(Ship.HoldPositionRange * 2f < distance,
+                          "setup: the enemy comes within the fighters' own sensors and stays well beyond the carrier's hold range");
+            Hostile.Position = Carrier.Position + new Vector2(distance, 0);
+
+            RunObjectsSim(ScanInterval * 3);
+
+            fighters = Carrier.Carrier.GetActiveFighters();
+            Assert.IsTrue(fighters.Count > 0, "setup: the fighters are still out");
+            Assert.IsFalse(fighters.Any(f => f.InCombat),
+                           "a carrier holding position does not engage the enemy, so neither do its fighters");
+        }
+
+        [TestMethod]
+        public void IdleFightersGoBackToTheirHangars()
+        {
+            Carrier.Position = new Vector2(200_000); // out of the test camera's view, where landing draws no flash
+            UState.Objects.Update(TestSimStep);
+            Carrier.Carrier.ScrambleFighters();
+            UState.Objects.Update(TestSimStep);
+            Assert.IsTrue(Carrier.Carrier.GetActiveFighters().Count > 0, "setup: the fighters are out");
+
+            RunObjectsSim(ScanInterval * 2);
+
+            Assert.IsTrue(Carrier.Carrier.GetActiveFighters().All(f => f.AI.State == AIState.ReturnToHangar),
+                          "with nothing to fight and the Fighters button off, the fighters head home");
+        }
+
+        [TestMethod]
+        public void TheFightersButtonKeepsIdleFightersOut()
+        {
+            Carrier.Position = new Vector2(200_000);
+            UState.Objects.Update(TestSimStep);
+            Carrier.Carrier.FightersOut = true;
+            UState.Objects.Update(TestSimStep);
+            Assert.IsTrue(Carrier.Carrier.GetActiveFighters().Count > 0, "setup: the fighters are out");
+
+            RunObjectsSim(ScanInterval * 2);
+
+            AssertFighters(active: MaxFighters, recalling: 0, "the Fighters button keeps them out");
+        }
+
+        [TestMethod]
+        public void TheTroopsButtonKeepsIdleAssaultShipsOut()
+        {
+            Ship troopCarrier = SpawnShip("Alliance-Class Mk Ia Hvy Assault", Player, new Vector2(200_000));
+            UState.Objects.Update(TestSimStep);
+            troopCarrier.Carrier.TroopsOut = true;
+            RunObjectsSim(TestSimStep);
+            Ship[] assaultShips = Player.OwnedShips.Where(s => s.Mothership == troopCarrier).ToArray();
+            Assert.IsTrue(assaultShips.Length > 0, "setup: the assault ships are out");
+
+            RunObjectsSim(ScanInterval * 2);
+
+            Assert.IsTrue(assaultShips.All(s => s.Active && s.AI.State != AIState.ReturnToHangar),
+                          "the Troops button keeps idle assault ships out, the fighters' rule does not recall them");
+        }
+
+        [TestMethod]
         public void CarrierAndSupplyStateSurviveSaveAndLoad()
         {
             UState.StarDate = 1042.5f;

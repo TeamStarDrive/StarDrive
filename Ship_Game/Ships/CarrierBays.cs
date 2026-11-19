@@ -64,6 +64,14 @@ namespace Ship_Game.Ships
             return fighters;
         }
 
+        public bool IsOwnFighter(Ship ship)
+        {
+            foreach (ShipModule hangar in AllFighterHangars)
+                if (hangar.TryGetHangarShip(out Ship fighter) && fighter == ship)
+                    return true;
+            return false;
+        }
+
         CarrierBays()
         {
         }

@@ -818,7 +818,9 @@ namespace Ship_Game.AI
             // GuardMode and HoldPosition Stances are for avoiding combat, so significantly smaller
             if (cs == CombatState.GuardMode) return Ship.GuardModeRange;
             if (cs == CombatState.HoldPosition) return Ship.HoldPositionRange;
-            // for all other Combat stances, enter combat from Sensor Range
+            // for all other Combat stances, enter combat from Sensor Range, a fighter within its carrier's sensors from as far as the carrier would
+            if (Owner.Mothership is { } carrier && GetSensorRadius(out Ship sensorShip) > 0 && sensorShip != Owner)
+                return carrier.AI.GetEnterCombatRangeFromCombatState(carrier.AI.CombatState);
             return Owner.SensorRange;
         }
 
