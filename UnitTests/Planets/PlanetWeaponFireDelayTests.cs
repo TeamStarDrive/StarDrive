@@ -204,5 +204,59 @@ namespace UnitTests.Planets
                     $"At level {level} the offense of {Gun.Name} no longer matches how often it really fires");
             }
         }
+
+        [TestMethod]
+        public void APlanetsShotGetsItsOwnersWeaponTechnologiesAndShieldPiercing()
+        {
+            Weapon gun = ResourceManager.CreateWeapon(UState, Gun.Weapon, null, null);
+            gun.PlanetOrigin = P.Position;
+            Ship enemy = SpawnShip(EnemyShip, Enemy, P.Position + new Vector2(P.Radius + 2000f, 0f));
+            Assert.IsTrue(gun.ActiveWeaponTags.Length > 0, "setup: the gun has a weapon type a technology can raise");
+            WeaponTagModifier tech = Player.data.WeaponTags[gun.ActiveWeaponTags[0]];
+            float techDamage = tech.Damage, piercing = Player.data.ShieldPenBonusChance;
+            try
+            {
+                Projectile plain = Projectile.Create(gun, P, Player, new Vector2(1, 0), enemy);
+
+                tech.Damage = 0.5f;
+                Player.data.ShieldPenBonusChance = 2f;
+                Projectile shot = Projectile.Create(gun, P, Player, new Vector2(1, 0), enemy);
+
+                AssertEqual(0.01f, plain.DamageAmount * 1.5f, shot.DamageAmount, "a weapon technology raises a planet's shots as it does a ship's");
+                Assert.IsTrue(shot.IgnoresShields, "and shield piercing reaches them too");
+            }
+            finally
+            {
+                tech.Damage = techDamage;
+                Player.data.ShieldPenBonusChance = piercing;
+            }
+        }
+
+        [TestMethod]
+        public void APlanetsKineticShotGetsItsOwnersArmorPiercingAndOrdnanceBonus()
+        {
+            Weapon gun = ResourceManager.CreateWeapon(UState, "PlanetAC", null, null);
+            gun.PlanetOrigin = P.Position;
+            Ship enemy = SpawnShip(EnemyShip, Enemy, P.Position + new Vector2(P.Radius + 2000f, 0f));
+            Assert.IsTrue(gun.Tag_Kinetic && gun.OrdinanceRequiredToFire > 0, "setup: a kinetic gun that uses ordnance");
+            int armorPiercing = Player.data.ArmorPiercingBonus;
+            float ordnance = Player.data.OrdnanceEffectivenessBonus;
+            try
+            {
+                Projectile plain = Projectile.Create(gun, P, Player, new Vector2(1, 0), enemy);
+
+                Player.data.ArmorPiercingBonus = 2;
+                Player.data.OrdnanceEffectivenessBonus = 0.5f;
+                Projectile shot = Projectile.Create(gun, P, Player, new Vector2(1, 0), enemy);
+
+                AssertEqual(plain.ArmorPiercing + 2, shot.ArmorPiercing, "armor piercing technology reaches a planet's kinetic shots");
+                AssertEqual(0.01f, plain.DamageAmount * 1.5f, shot.DamageAmount, "and so does the race's ordnance bonus");
+            }
+            finally
+            {
+                Player.data.ArmorPiercingBonus = armorPiercing;
+                Player.data.OrdnanceEffectivenessBonus = ordnance;
+            }
+        }
     }
 }

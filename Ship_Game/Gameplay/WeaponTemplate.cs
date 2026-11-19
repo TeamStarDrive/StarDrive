@@ -398,6 +398,15 @@ namespace Ship_Game.Gameplay
             return damageAmount;
         }
 
+        // a planet's shot: its owner's ordnance bonus, with no crew to add levels
+        public static float DamageWithOrdnanceBonus(EmpireData empire, IWeaponTemplate t)
+        {
+            float damageAmount = t.DamageAmount;
+            if (t.OrdinanceRequiredToFire > 0)
+                damageAmount += damageAmount * empire.OrdnanceEffectivenessBonus;
+            return damageAmount;
+        }
+
         // what one projectile or beam tick deals with the empire's weapon technologies, before crew levels, as combat applies them
         public static float DamageWithTechs(IWeaponTemplate w, EmpireData empire)
         {

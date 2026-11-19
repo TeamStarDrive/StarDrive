@@ -322,7 +322,7 @@ namespace Ship_Game
                 InitRichness, Player.data.Traits.PreferredEnv, HoveredBuilding);
             ColonyScreen.DrawBuildingInfo(ref bCursor, batch, TextFont, HoveredBuilding.ActualShipRepair(PlanetLevel), 
                 "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
-            ColonyScreen.DrawBuildingWeaponStats(ref bCursor, batch, TextFont, HoveredBuilding, PlanetLevel);
+            ColonyScreen.DrawBuildingWeaponStats(ref bCursor, batch, TextFont, HoveredBuilding, PlanetLevel, Player);
         }
 
         void DrawPlanStatistics(SpriteBatch batch)

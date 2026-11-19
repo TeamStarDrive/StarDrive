@@ -650,23 +650,33 @@ namespace Ship_Game.Gameplay
         public void ApplyDamageModifiers(Projectile projectile)
         {
             if (Owner == null)
+            {
+                // a planet's gun takes its owner's weapon techs and shield piercing
+                if (projectile.Planet != null && projectile.Loyalty != null)
+                    ApplyEmpireModifiers(projectile, projectile.Loyalty);
                 return;
+            }
 
             projectile.DamageAmount *= CombinedShots;
             if (Owner.Loyalty.HavePackMentality)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
-            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
-            {
-                AddModifiers(ActiveWeaponTags[i], projectile);
-            }
-
-            projectile.IgnoresShields = Random.RollDice(WeaponTemplate.ActualShieldPenChance(this, Owner.Loyalty.data));
+            ApplyEmpireModifiers(projectile, Owner.Loyalty);
         }
 
-        void AddModifiers(WeaponTag tag, Projectile p)
+        void ApplyEmpireModifiers(Projectile projectile, Empire empire)
         {
-            WeaponTagModifier weaponTag = Owner.Loyalty.data.WeaponTags[tag];
+            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
+            {
+                AddModifiers(ActiveWeaponTags[i], projectile, empire);
+            }
+
+            projectile.IgnoresShields = empire.Random.RollDice(WeaponTemplate.ActualShieldPenChance(this, empire.data));
+        }
+
+        void AddModifiers(WeaponTag tag, Projectile p, Empire empire)
+        {
+            WeaponTagModifier weaponTag = empire.data.WeaponTags[tag];
 
             p.RotationRadsPerSecond += weaponTag.Turn * RotationRadsPerSecond;
             p.DamageAmount          += weaponTag.Damage * p.DamageAmount;
