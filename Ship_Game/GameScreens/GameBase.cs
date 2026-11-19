@@ -157,6 +157,9 @@ namespace Ship_Game
                                     DepthStencilState.None, RasterizerState.CullNone);
             ScreenTargetBatch.Draw(ScreenTarget, FitScreen(p.BackBufferWidth, p.BackBufferHeight, ScreenWidth, ScreenHeight), XnaColor.White);
             ScreenTargetBatch.End();
+            // the next frame starts with the blending and culling a default sprite batch leaves
+            device.BlendState = BlendState.AlphaBlend;
+            device.RasterizerState = RasterizerState.CullCounterClockwise;
         }
 
         void UpdateRendererPreferences(ref GraphicsSettings settings)
@@ -256,7 +259,7 @@ namespace Ship_Game
             }
             else if (settings.Mode == WindowMode.Fullscreen && !Graphics.IsFullScreen)
             {
-                // if DXGI refuses the switch, the window falls back to Borderless
+                // with no hardware mode switch DXGI is not asked for exclusive fullscreen, so this fallback is only a guard
                 if (!TryEnterFullScreen(maxAttempts: 2, retryDelayMs: 500))
                 {
                     settings.Mode = WindowMode.Borderless;
@@ -332,14 +335,7 @@ namespace Ship_Game
         // gets handled the same way.
         const int DXGI_ERROR_NOT_CURRENTLY_AVAILABLE = unchecked((int)0x887A0022);
 
-        // Try to enter fullscreen, retrying once on DXGI transient
-        // failures. Returns false after exhausting attempts so the caller can
-        // fall back to Borderless. After a failed ApplyChanges the
-        // GraphicsDeviceManager's IsFullScreen flag may be left flipped to true
-        // (the assignment happens before the underlying SetFullscreenState
-        // throws), so each retry resets it explicitly rather than calling
-        // ToggleFullScreen — which would invert the desired direction on the
-        // second pass.
+        // enters fullscreen, retrying if DXGI rejects it, and false after the last attempt with IsFullScreen reset
         bool TryEnterFullScreen(int maxAttempts, int retryDelayMs)
         {
             for (int attempt = 1; attempt <= maxAttempts; attempt++)
