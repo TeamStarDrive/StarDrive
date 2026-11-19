@@ -611,8 +611,9 @@ namespace Ship_Game
             HostShip.RemoveAnyTroop(this);
 
             // Remove the ship if it was the default single troop. They are designed to vanish once landing the troop.
-            // Assault Shuttles are designed to try to get back to their hangars 
-            if (HostShip.IsDefaultTroopShip || HostShip.IsDefaultAssaultShuttle && !HostShip.IsHangarShip)
+            // Assault Shuttles are designed to try to get back to their hangars
+            // but not when a boarder of another empire leaves it
+            if (HostShip.Loyalty == Loyalty && (HostShip.IsDefaultTroopShip || HostShip.IsDefaultAssaultShuttle && !HostShip.IsHangarShip))
             {
                 HostShip.QueueTotalRemoval();
                 HostShip = null;

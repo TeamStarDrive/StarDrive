@@ -399,6 +399,27 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void ATroopShipThePartnersBoardersLeaveStaysWithItsDefenders()
+        {
+            LoadStarterShips(Player.data.DefaultTroopShip, Enemy.data.DefaultAssaultShuttle);
+            Ship transport = SpawnShip(Player.data.DefaultTroopShip, Player, Vector2.Zero);
+            UState.Objects.Update(TestSimStep);
+            if (transport.TroopCount == 0)
+                ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(transport);
+            int defenders = transport.TroopCount;
+            Troop boarder = ResourceManager.CreateTroop("Wyvern", Enemy);
+            boarder.LandOnShip(transport);
+            Assert.IsTrue(transport.IsDefaultTroopShip && System.Linq.Enumerable.Contains(Player.OwnedShips, transport) && defenders > 0,
+                          "setup: our troop ship, listed by our empire, holds its defenders and a boarder of the partner's");
+
+            Player.SignTreatyWith(Enemy, TreatyType.Peace);
+
+            Assert.AreNotSame(transport, boarder.HostShip, "setup: the boarder leaves");
+            Assert.IsTrue(transport.Active, "the troop ship stays, though a troop ship vanishes when its own troop leaves");
+            AssertEqual(defenders, transport.TroopCount, "and keeps its defenders");
+        }
+
+        [TestMethod]
         public void ACaptureWonBeforeTheSigningStands()
         {
             (Ship ours, Troop partnersBoarder, _) = BoardedByThePartnerAndAnother();
