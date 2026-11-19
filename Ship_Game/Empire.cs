@@ -745,6 +745,50 @@ namespace Ship_Game
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
             AI.SpaceRoadsManager.RemoveRoadIfNeeded(planet.System);
+            if (planet.HasBuilding(b => b.BuildOnlyOnce))
+                UpdateBlueprintsCompletion();
+        }
+
+        // the BIDs of the one-per-empire buildings on our planets, null until looked up again after one is placed, removed or changes hands
+        HashSet<int> OnePerEmpireStanding;
+        int OnePerEmpireChanges;
+
+        public bool OnePerEmpireBuildingStands(int bid)
+        {
+            HashSet<int> standing = OnePerEmpireStanding;
+            if (standing == null)
+            {
+                int changes = OnePerEmpireChanges;
+                standing = new();
+                for (int i = 0; i < OwnedPlanets.Count; ++i)
+                {
+                    foreach (Building b in OwnedPlanets[i].Buildings)
+                        if (b.BuildOnlyOnce)
+                            standing.Add(b.BID);
+                }
+                if (changes == OnePerEmpireChanges) // kept only if nothing changed while it was gathered
+                    OnePerEmpireStanding = standing;
+            }
+            return standing.Contains(bid);
+        }
+
+        // a one-per-empire building counts toward the plans of all the empire's planets
+        public void UpdateBlueprintsCompletion()
+        {
+            ++OnePerEmpireChanges;
+            OnePerEmpireStanding = null;
+            RefreshBlueprints();
+        }
+
+        void RefreshBlueprints()
+        {
+            if (Universe?.Screen is { IsOnSimThread: false } screen)
+            {
+                screen.RunOnSimThread(RefreshBlueprints);
+                return;
+            }
+            foreach (Planet planet in OwnedPlanets)
+                planet.Blueprints?.UpdateCompletion();
         }
 
         public void ClearAllPlanets()
@@ -794,6 +838,8 @@ namespace Ship_Game
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
             planet.SetDysonSwarmWeapon(loadWeapon: planet.System.HasDysonSwarm && planet.Owner == planet.System.DysonSwarm.Owner);
+            if (planet.HasBuilding(b => b.BuildOnlyOnce))
+                UpdateBlueprintsCompletion();
         }
 
         void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
@@ -1627,8 +1673,59 @@ namespace Ship_Game
                 UpdateTerraformerBudget();
             }
 
-            foreach (Planet planet in OwnedPlanets)
-                planet.DoGoverning();
+            OnePerEmpireThisPass = GatherOnePerEmpireBuildings();
+            try
+            {
+                foreach (Planet planet in OwnedPlanets)
+                    planet.DoGoverning();
+            }
+            finally
+            {
+                OnePerEmpireThisPass = null;
+            }
+        }
+
+        // the one-per-empire buildings standing or queued on our planets, for the governors of one pass on the sim thread
+        HashSet<int> OnePerEmpireThisPass;
+
+        bool OnSimThread => Universe?.Screen?.IsOnSimThread != false;
+
+        // null outside a governing pass, where the planets are searched instead
+        public bool? OnePerEmpireBuiltOrQueued(int bid) => OnSimThread ? OnePerEmpireThisPass?.Contains(bid) : null;
+
+        public void OnePerEmpireQueued(int bid)
+        {
+            if (OnSimThread)
+                OnePerEmpireThisPass?.Add(bid);
+        }
+
+        // one search of the planets per pass, which also renews the standing ones the blueprints read
+        HashSet<int> GatherOnePerEmpireBuildings()
+        {
+            int changes = OnePerEmpireChanges;
+            var standing = new HashSet<int>();
+            var builtOrQueued = new HashSet<int>();
+            for (int i = 0; i < OwnedPlanets.Count; ++i)
+            {
+                Planet planet = OwnedPlanets[i];
+                foreach (Building b in planet.Buildings)
+                {
+                    if (b.BuildOnlyOnce)
+                    {
+                        standing.Add(b.BID);
+                        builtOrQueued.Add(b.BID);
+                    }
+                }
+                IReadOnlyList<QueueItem> queue = planet.ConstructionQueue;
+                for (int j = 0; j < queue.Count; ++j)
+                {
+                    if (queue[j] is { isBuilding: true, Building.BuildOnlyOnce: true } q)
+                        builtOrQueued.Add(q.Building.BID);
+                }
+            }
+            if (changes == OnePerEmpireChanges)
+                OnePerEmpireStanding = standing;
+            return builtOrQueued;
         }
 
         void UpdateTerraformerBudget()

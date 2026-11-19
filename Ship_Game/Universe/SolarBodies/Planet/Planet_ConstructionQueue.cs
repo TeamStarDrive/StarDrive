@@ -56,6 +56,9 @@ public partial class Planet
 
     public bool IsBuiltOrQueuedWithinEmpire(Building b)
     {
+        if (Owner.OnePerEmpireBuiltOrQueued(b.BID) is bool known)
+            return known;
+
         // Check for this unique building across the empire
         foreach (Planet planet in Owner.GetPlanets())
             if (planet.BuildingBuiltOrQueued(b))
@@ -453,7 +456,15 @@ public partial class Planet
             Owner.ForceUpdateSensorRadiuses = true;
 
         b.UpdateOffense(this);
-        Blueprints?.UpdateCompletion();
+        UpdateBlueprintsCompletion(b);
+    }
+
+    void UpdateBlueprintsCompletion(Building b)
+    {
+        if (b.BuildOnlyOnce && Owner != null)
+            Owner.UpdateBlueprintsCompletion();
+        else
+            Blueprints?.UpdateCompletion();
     }
 
     void UpdatePlanetStatsFromRemovedBuilding(Building b)
@@ -483,7 +494,7 @@ public partial class Planet
         // environment buildings can be scrapped and the planet will slowly recover
         BuildingsFertility -= b.MaxFertilityOnBuild;
         MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
-        Blueprints?.UpdateCompletion();
+        UpdateBlueprintsCompletion(b);
     }
 
     // path where full recalculation is done

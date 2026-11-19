@@ -91,7 +91,7 @@ namespace Ship_Game.Universe.SolarBodies
         bool CountCompletion()
         {
             Building[] built = P.Buildings.ToArray();
-            int totalRequiredBuilt = built.Count(IsRequired);
+            int totalRequiredBuilt = built.Count(IsRequired) + PlannedOnlyElsewhere(built);
             float completion = (float)totalRequiredBuilt / PlannedBuildings.Count;
             int percentCompleted = (int)(completion * 100);
             if (percentCompleted == 100 || !SkipUnresearched)
@@ -115,12 +115,36 @@ namespace Ship_Game.Universe.SolarBodies
                     continue;
 
                 researched++;
-                if (built.Any(b => b.Name == name))
+                if (Stands(built, name) || StandsElsewhere(name))
                     standing++;
             }
 
             return standing;
         }
+
+        static bool Stands(Building[] built, string name)
+        {
+            for (int i = 0; i < built.Length; ++i)
+                if (built[i].Name == name)
+                    return true;
+            return false;
+        }
+
+        // a planned one-per-empire building counts as done here once it stands on another planet of the empire
+        int PlannedOnlyElsewhere(Building[] built)
+        {
+            int count = 0;
+            foreach (string name in PlannedBuildings)
+            {
+                if (!Stands(built, name) && StandsElsewhere(name))
+                    count++;
+            }
+            return count;
+        }
+
+        // asked only for a building that does not stand here
+        bool StandsElsewhere(string name)
+            => ResourceManager.GetBuilding(name, out Building template) && template.BuildOnlyOnce && Owner.OnePerEmpireBuildingStands(template.BID);
 
         public void UpdatePercentAchievable()
         {

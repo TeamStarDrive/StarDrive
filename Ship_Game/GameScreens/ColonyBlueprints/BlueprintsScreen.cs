@@ -260,7 +260,7 @@ namespace Ship_Game
             AddOutpost();
             foreach (Building b in Player.GetUnlockedBuildings().Sorted(b => b.Name))
             {
-                if (b.IsSuitableForBlueprints && !TilesList.Any(t => t.BuildingNameHereIS(b.Name)))
+                if (b.CanBePlanned && !TilesList.Any(t => t.BuildingNameHereIS(b.Name)))
                 {
                     b.UpdateOffense(PlanetLevel, Player.Universe);
                     BuildableList.AddItem(new BlueprintsBuildableListItem(this, b));

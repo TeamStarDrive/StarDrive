@@ -406,6 +406,8 @@ namespace Ship_Game.Universe.SolarBodies
                 where.SetQueueItem(qi);
                 qi.pgs = where; // reset PGS if we got a new one
                 AddToQueueAndPrioritize(qi);
+                if (b.BuildOnlyOnce)
+                    P.Owner.OnePerEmpireQueued(b.BID);
                 P.RefreshBuildingsWeCanBuildHere();
                 return true;
             }
