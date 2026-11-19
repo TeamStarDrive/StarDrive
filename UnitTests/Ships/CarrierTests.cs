@@ -347,6 +347,54 @@ namespace UnitTests.Ships
                           "the Troops button keeps idle assault ships out, the fighters' rule does not recall them");
         }
 
+        void Spool(Ship carrier)
+        {
+            carrier.Carrier.SetRecallFightersBeforeFTL(false);
+            carrier.EngageStarDrive();
+            Assert.IsTrue(carrier.IsSpoolingOrInWarp, "setup: the carrier is spooling");
+        }
+
+        [TestMethod]
+        public void TheFightersButtonTurnsOffButNotOnWhileTheCarrierSpools()
+        {
+            Carrier.Position = new Vector2(200_000);
+            UState.Objects.Update(TestSimStep);
+            Carrier.Carrier.FightersOut = true;
+            UState.Objects.Update(TestSimStep);
+            Assert.IsTrue(Carrier.Carrier.GetActiveFighters().Count > 0, "setup: the fighters are out");
+            Spool(Carrier);
+
+            Carrier.Carrier.FightersOut = false;
+            UState.Objects.Update(TestSimStep);
+
+            Assert.IsFalse(Carrier.Carrier.FightersLaunched, "the button turns off while the carrier spools");
+            Assert.IsTrue(Carrier.Carrier.GetActiveFighters().All(f => f.AI.State == AIState.ReturnToHangar), "and the fighters head home");
+
+            Carrier.Carrier.FightersOut = true;
+            Assert.IsFalse(Carrier.Carrier.FightersLaunched, "but it does not turn back on");
+        }
+
+        [TestMethod]
+        public void TheTroopsButtonTurnsOffButNotOnWhileTheCarrierSpools()
+        {
+            Ship troopCarrier = SpawnShip("Alliance-Class Mk Ia Hvy Assault", Player, new Vector2(200_000));
+            UState.Objects.Update(TestSimStep);
+            troopCarrier.Carrier.TroopsOut = true;
+            RunObjectsSim(TestSimStep);
+            Ship[] assaultShips = Player.OwnedShips.Where(s => s.Mothership == troopCarrier).ToArray();
+            Assert.IsTrue(assaultShips.Length > 0, "setup: the assault ships are out");
+            Spool(troopCarrier);
+
+            troopCarrier.Carrier.TroopsOut = false;
+            UState.Objects.Update(TestSimStep);
+
+            Assert.IsFalse(troopCarrier.Carrier.TroopsLaunched, "the button turns off while the carrier spools");
+            Assert.IsTrue(assaultShips.All(s => s.AI.State == AIState.ReturnToHangar), "and the assault ships head home");
+
+            troopCarrier.Carrier.TroopsOut = true;
+            Assert.IsFalse(troopCarrier.Carrier.TroopsLaunched, "but it does not turn back on");
+        }
+
         [TestMethod]
         public void CarrierAndSupplyStateSurviveSaveAndLoad()
         {
