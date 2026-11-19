@@ -100,8 +100,9 @@ namespace Ship_Game.Gameplay
             }
             else if (FireDispersionArc != 0)
             {
+                // the fan is centered on the aim, its outer shots half a step inside the arc
                 float degreesBetweenShots = FireDispersionArc / (float)ProjectileCount;
-                float angleToTarget = direction.ToDegrees() - FireDispersionArc * 0.5f;
+                float angleToTarget = direction.ToDegrees() - (FireDispersionArc - degreesBetweenShots) * 0.5f;
                 for (int i = 0; i < ProjectileCount; ++i)
                 {
                     Vector2 dir = angleToTarget.AngleToDirection();

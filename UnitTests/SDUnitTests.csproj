@@ -234,6 +234,7 @@
     <Compile Include="Ships\FleeTests.cs" />
     <Compile Include="Ships\TroopLandingTests.cs" />
     <Compile Include="Ships\WarpExitTests.cs" />
+    <Compile Include="Ships\WeaponFanTests.cs" />
     <Compile Include="Ships\OrdnanceShuttleTests.cs" />
     <Compile Include="Ships\PirateBaseLandingTests.cs" />
     <Compile Include="Ships\PirateCaptureScuttleTests.cs" />
