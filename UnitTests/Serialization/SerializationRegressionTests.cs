@@ -215,6 +215,23 @@ public class SerializationRegressionTests : StarDriveTest
         Assert.IsFalse(restored.OpponentLooks.TryGetValue(flagGone, out _), "a look whose flag is gone is dropped");
     }
 
+    [TestMethod]
+    public void ASetupStartedAsCapitalEliminationDoesNotCarryItIntoTheNextGame()
+    {
+        SetupSave load = SavedAndLoaded(LastSetup.Create(new UniverseParams { EliminationMode = true }, "Last game"));
+        AssertTrue(load.Settings.EliminationMode, "setup: the flag was saved with the setup");
+
+        Assert.IsFalse(load.SettingsToStart().EliminationMode, "the game mode chosen for the new game sets it");
+    }
+
+    [TestMethod]
+    public void TheLastSetupFileNameLeavesOutWhatAFileNameCannotHold()
+    {
+        AssertEqual("Combined Arms", LastSetup.FileName("Combined Arms"), "an ordinary mod name stays as it is");
+        AssertEqual("A_B_C_D", LastSetup.FileName("A?B\"C|D"), "each character a file name cannot hold is replaced");
+        AssertEqual("Mod_ Part 2", LastSetup.FileName("Mod: Part 2"), "a colon would open a hidden stream of another file");
+    }
+
     // The save list draws the player's flag straight from the header, using FlagIndex == -1
     // to mean "written before the field existed, fall back to the race-name lookup".
     // Flag 0 is a real, pickable flag and must survive as 0, never as the sentinel.

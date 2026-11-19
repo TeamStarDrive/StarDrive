@@ -465,8 +465,7 @@ namespace Ship_Game
 
         public void Engage()
         {
-            if (P.Mode == GameMode.Elimination)
-                P.EliminationMode = true;
+            P.EliminationMode = P.Mode == GameMode.Elimination;
 
             RaceSummary.Color          = Picker.CurrentColor;
             RaceSummary.Singular       = Singular;

@@ -54,6 +54,8 @@ public sealed class SetupSave
             Settings.DisableHullPlates = !GlobalStats.Defaults.EnableHullPlates;
         if (Settings != null && !OpponentHullColorsChosen)
             Settings.OpponentHullColors = false;
+        if (Settings != null)
+            Settings.EliminationMode = false; // the game mode sets it as the game starts
         return Settings;
     }
 }
@@ -70,7 +72,15 @@ public sealed class OpponentPick
 // the setup of the last game started, one per mod, which the Game Setup screen's Use Last Setup box loads
 public static class LastSetup
 {
-    static string FilePath => $"{Dir.StarDriveAppData}/Last Setups/{(GlobalStats.ModName.NotEmpty() ? GlobalStats.ModName : "Vanilla")}.yaml";
+    static string FilePath => $"{Dir.StarDriveAppData}/Last Setups/{FileName(GlobalStats.ModName.NotEmpty() ? GlobalStats.ModName : "Vanilla")}.yaml";
+
+    // the mod's name with each character a file name cannot hold replaced
+    internal static string FileName(string modName)
+    {
+        foreach (char c in Path.GetInvalidFileNameChars())
+            modName = modName.Replace(c, '_');
+        return modName;
+    }
 
     public static SetupSave Create(UniverseParams settings, string setupName)
     {
