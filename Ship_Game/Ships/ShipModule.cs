@@ -1669,14 +1669,13 @@ namespace Ship_Game.Ships
             if (DisableRotation)
                 return false;
 
-            string defaultTex = IconTexturePath;
             SubTexture t;
             switch (orientation)
             {
                 default: return false;
                 case ModuleOrientation.Left:
-                case ModuleOrientation.Right: t = ResourceManager.TextureOrNull($"{defaultTex}_90");  break; // mirrored on the ship's right half
-                case ModuleOrientation.Rear:  t = ResourceManager.TextureOrNull($"{defaultTex}_180"); break;
+                case ModuleOrientation.Right: t = ResourceManager.OrientedModuleTexture(IconTexturePath, rear: false); break; // mirrored on the ship's right half
+                case ModuleOrientation.Rear:  t = ResourceManager.OrientedModuleTexture(IconTexturePath, rear: true);  break;
             }
 
             if (t != null)
@@ -1685,6 +1684,31 @@ namespace Ship_Game.Ships
                 return true;
             }
             return false;
+        }
+
+        // the art as the shipyard draws it: turned art if any, else the base art turned or flipped, mirrored on the right half
+        public SubTexture GetDrawnTexture(bool rightHalf, out float turn, out SpriteEffects effects)
+        {
+            SubTexture tex = ModuleTexture;
+            bool oriented = GetOrientedModuleTexture(ref tex, ModuleRot);
+            turn = 0f;
+            effects = SpriteEffects.None;
+            switch (ModuleRot)
+            {
+                case ModuleOrientation.Left when !oriented:  turn = -RadMath.HalfPI; break;
+                case ModuleOrientation.Right when !oriented: turn = RadMath.HalfPI; break;
+                case ModuleOrientation.Rear when !oriented:  effects = SpriteEffects.FlipVertically; break;
+                case ModuleOrientation.Normal:
+                    if (rightHalf && ModuleType != ShipModuleType.PowerConduit)
+                        effects = SpriteEffects.FlipHorizontally;
+                    break;
+                case ModuleOrientation.Left:
+                case ModuleOrientation.Right:
+                    if (rightHalf)
+                        effects = SpriteEffects.FlipHorizontally;
+                    break;
+            }
+            return tex;
         }
 
         public override Vector2 JammingError()

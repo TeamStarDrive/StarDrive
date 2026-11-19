@@ -55,6 +55,7 @@ namespace Ship_Game
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
         static readonly Map<string, SubTexture> Textures = new();
+        static readonly Map<string, SubTexture[]> OrientedModuleTextures = new();
 
         public static Map<string, Technology> TechTree = new();
         static readonly Map<string, ShipModule> ModuleTemplates = new();
@@ -357,6 +358,7 @@ namespace Ship_Game
 
             // Texture caches MUST be cleared before triggering content reload!
             Textures.Clear();
+            OrientedModuleTextures.Clear();
 
             // This is a destructive operation that invalidates ALL game resources!
             // @note It HAS to be done after clearing all ResourceManager texture caches!
@@ -844,6 +846,19 @@ namespace Ship_Game
             loaded = RootContent.LoadSubTexture("Textures/" + textureName);
             Textures[textureName] = loaded; // save even if null
             return loaded;
+        }
+
+        // a module icon's sideways (_90) or rear (_180) art, null where it has none; the names are built once per icon
+        public static SubTexture OrientedModuleTexture(string iconPath, bool rear)
+        {
+            if (iconPath == null)
+                return null;
+            if (!OrientedModuleTextures.TryGetValue(iconPath, out SubTexture[] oriented))
+            {
+                oriented = [TextureOrNull(iconPath + "_90"), TextureOrNull(iconPath + "_180")];
+                OrientedModuleTextures[iconPath] = oriented;
+            }
+            return oriented[rear ? 1 : 0];
         }
 
         public static SubTexture TextureOrDefault(string textureName, string defaultTex)
