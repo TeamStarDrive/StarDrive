@@ -447,25 +447,24 @@ namespace Ship_Game
                 empires.Add(Universe.GetEmpireById(threatLevel.Key));
 
             // search for a hidden place near an empire from 400K to 300K
+            bool tried = false;
             for (int i = 0; i <= 50; i++)
             {
                 int spaceReduction = i * 2000;
-                foreach (Empire victim in empires.Filter(e => !e.IsDefeated))
+                foreach (Empire victim in empires.Filter(e => !e.IsDefeated && e.GetOwnedSystems().Count > 0))
                 {
                     SolarSystem system = Random.Item(victim.GetOwnedSystems());
                     var pos = PickAPositionNearSystem(system, 400000 - spaceReduction);
-                    foreach (Empire empire in empires)
-                    {
-                        if (empire.SensorNodes.Any(n => n.Position.InRadius(pos, n.Radius)))
-                            break;
-                    }
+                    position = pos;
+                    tried = true;
+                    if (empires.Any(e => e.SensorNodes.Any(n => n.Position.InRadius(pos, n.Radius))))
+                        continue; // seen by an empire, try another place
 
-                    position = pos; // We found a position not in sensor range of any empire
-                    return true;
+                    return true; // We found a position not in sensor range of any empire
                 }
             }
 
-            return false; // We did not find a hidden position
+            return tried; // no hidden place, so the base goes to the last place tried
         }
 
         Vector2 PickAPositionNearSystem(SolarSystem system, float radius)

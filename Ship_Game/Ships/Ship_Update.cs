@@ -151,8 +151,12 @@ namespace Ship_Game.Ships
             if (ScuttleTimer > -1f || ScuttleTimer < -1f)
             {
                 ScuttleTimer -= timeStep.FixedTime;
-                if (ScuttleTimer <= 0f) 
+                if (ScuttleTimer <= 0f)
+                {
+                    if (Loyalty.HasEnded) // a ship disbanding may leave a derelict, as one destroyed does
+                        RollForDerelict(crashes: false);
                     Die(null, cleanupOnly:true);
+                }
             }
 
             ShieldRechargeTimer += timeStep.FixedTime;

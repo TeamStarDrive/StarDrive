@@ -356,13 +356,14 @@ namespace UnitTests.AITests.Empire
             AssertEqual(0, Player.OwnedShips.Count);
             string shipName = "Fang Strafer";
 
-            // test that ships are removed from empire on defeat
-            SpawnShip(shipName, Player, Vector2.Zero);
+            // a defeated empire's ships stay its own and self-destruct within a few minutes
+            Ship ship = SpawnShip(shipName, Player, Vector2.Zero);
             UState.Objects.UpdateLists();
             AssertEqual(1, Player.OwnedShips.Count);
             Player.SetAsDefeated();
             UState.Objects.UpdateLists();
-            AssertEqual(0, Player.OwnedShips.Count);
+            AssertEqual(1, Player.OwnedShips.Count, "the ship is not handed to the rebels");
+            Assert.IsTrue(ship.ScuttleTimer > 0f, "it counts down to its self-destruct");
         }
 
         [TestMethod]

@@ -256,7 +256,7 @@ public class SalvageTakeoverTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void ADefeatedEmpiresSalvageEndsItsPlatformGoesAndItsSalvageShipGoesToItsRebels()
+    public void ADefeatedEmpiresSalvageEndsItsPlatformGoesAndItsSalvageShipDisbands()
     {
         Derelict d = Forms(Wreck);
         SalvageDerelict theirs = AtWork(d, empire: Enemy);
@@ -268,9 +268,8 @@ public class SalvageTakeoverTests : SalvageOrderTest
         RunObjectsSim(TestSimStep);
         Assert.IsFalse(platform.Active, "its platform goes");
         Assert.IsNull(d.Claimant, "with its claim");
-        Empire rebels = ship.Loyalty;
-        Assert.IsTrue(ship.Active && rebels != Enemy && rebels.data.IsRebelFaction, "its salvage ship goes to its rebels");
-        Assert.IsFalse(HasSalvage(rebels) || HasSalvage(Enemy), "with no salvage to work");
+        Assert.IsTrue(ship.Active && ship.Loyalty == Enemy && ship.ScuttleTimer > 0f, "its salvage ship stays its own and counts down to its self-destruct");
+        Assert.IsFalse(HasSalvage(Enemy), "with no salvage to work");
         Assert.IsFalse(ship.WorksForSalvage, "a ship like any other");
     }
 

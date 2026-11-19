@@ -1892,4 +1892,128 @@ public class DerelictTests : StarDriveTest
         Assert.IsNull(Universe.SelectedDerelict, "one whose turns ran out before the click cannot be selected");
         Assert.AreSame(system, Universe.SelectedSystem, "so its system is shown");
     }
+
+    Ship SpawnPlainShip(string shipName, Empire owner, Vector2 position)
+    {
+        Ship ship = Ship.CreateShipAtPoint(UState, shipName, owner, position);
+        ship.UpdateShipStatus(new FixedSimTime(0.01f));
+        ship.UpdateModulePositions(new FixedSimTime(0.01f), forceUpdate: true);
+        return ship;
+    }
+
+    static bool Disbanding(Ship ship) => ship.ScuttleTimer is >= 30f and <= 180f;
+
+    [TestMethod]
+    public void ADefeatedEmpiresShipsStayItsOwnAndDisbandWithinMinutes()
+    {
+        Ship ship = SpawnPlainShip("Dreadnought mk1-a", Enemy, Site(0));
+        UState.Objects.Update(TestSimStep);
+
+        Enemy.SetAsDefeated();
+
+        AssertTrue(ship.Loyalty == Enemy, "its ships no longer go to the rebels");
+        AssertTrue(Disbanding(ship), $"each self-destructs within 30 s to 3 min, not {ship.ScuttleTimer}");
+        Assert.IsNull(UState.GetEmpireByName(Enemy.data.RebelName), "and no rebel faction is raised for nothing");
+    }
+
+    [TestMethod]
+    public void RebelsSharedByRacesEndOnlyOnceEveryOneOfThoseEmpiresIsDefeated()
+    {
+        CreateThirdMajorEmpire();
+        ThirdMajor.data.RebelName = Enemy.data.RebelName; // as several Star Trek races share one
+        AddHomeWorldToEmpire(Site(6), Enemy);
+        AddHomeWorldToEmpire(Site(7), ThirdMajor);
+        Empire rebels = UState.CreateRebelsFromEmpireData(Enemy.data, Enemy);
+        Ship ship = SpawnPlainShip("Dreadnought mk1-a", rebels, Site(0));
+        UState.Objects.Update(TestSimStep);
+
+        Enemy.SetAsDefeated();
+        UpdateEmpires();
+        AssertFalse(ThirdMajor.IsDefeated, "setup: the other empire sharing them still stands");
+        AssertTrue(ship.ScuttleTimer < 0f, "while one empire sharing these rebels stands, they may be rising against it, so they keep their ships");
+
+        ThirdMajor.SetAsDefeated();
+        UpdateEmpires();
+        AssertTrue(Disbanding(ship), $"once both are defeated, their ships self-destruct, not {ship.ScuttleTimer}");
+    }
+
+    [TestMethod]
+    public void ADefeatedPirateFactionsShipsDisband()
+    {
+        CreateAMinorFaction("Corsairs");
+        AssertTrue(Faction.WeArePirates, "setup: the Corsairs are pirates");
+        Ship ship = SpawnPlainShip("Corsair", Faction, Site(0));
+        UState.Objects.Update(TestSimStep);
+
+        Faction.SetAsDefeated();
+
+        AssertTrue(Disbanding(ship), $"a defeated faction's ship self-destructs within 30 s to 3 min, not {ship.ScuttleTimer}");
+    }
+
+    void UpdateEmpires() => typeof(UniverseScreen).GetMethod("UpdateEmpires", BindingFlags.NonPublic | BindingFlags.Instance)!
+                                                  .Invoke(Universe, new object[] { TestSimStep });
+
+    [TestMethod]
+    public void TheRebelsOfADefeatedEmpireHoldingNoPlanetsHaveTheirShipsDisbanded()
+    {
+        AddHomeWorldToEmpire(Site(6), Enemy); // an empire with no planet is defeated at its next update
+        Empire rebels = UState.CreateRebelsFromEmpireData(Enemy.data, Enemy);
+        Ship ship = SpawnPlainShip("Dreadnought mk1-a", rebels, Site(0));
+        UState.Objects.Update(TestSimStep);
+        UpdateEmpires();
+        AssertFalse(Enemy.IsDefeated, "setup: their empire still stands");
+        AssertTrue(ship.ScuttleTimer < 0f, "control: rebels rising against an empire still standing keep their ships, as orbitals that defect in an uprising");
+
+        Enemy.SetAsDefeated();
+        AddHomeWorldToEmpire(Site(5), rebels);
+        UpdateEmpires();
+        AssertTrue(ship.ScuttleTimer < 0f, "control: the rebels of a defeated empire holding a planet keep their ships");
+
+        foreach (Planet planet in rebels.GetPlanets().ToArray())
+            planet.SetOwner(Player);
+        UpdateEmpires();
+        AssertTrue(Disbanding(ship), $"holding no planets, they have their ships self-destruct, as a save from before the rule holds them, not {ship.ScuttleTimer}");
+    }
+
+    [TestMethod]
+    public void ADefeatedEmpiresSubspaceProjectorsGoAtOnce()
+    {
+        Ship projector = SpawnPlainShip("Subspace Projector", Enemy, Site(0));
+        UState.Objects.Update(TestSimStep);
+        AssertTrue(System.Linq.Enumerable.Contains(Enemy.OwnedProjectors, projector), "setup: the empire lists its projector");
+
+        Enemy.SetAsDefeated();
+        UState.Objects.Update(TestSimStep);
+
+        AssertFalse(projector.Active, "its projector self-destructs at once");
+    }
+
+    [TestMethod]
+    public void ADisbandingWarshipMayLeaveADerelictAsOneDestroyedDoes()
+    {
+        ViewEverything();
+        GlobalStats.Defaults.DerelictChance = 100;
+        AddSystem(); // a wreck of another empire's needs a system to lie in
+        Ship control = SpawnPlainShip("Dreadnought mk1-a", Player, SystemSite + new Vector2(30_000f, 0));
+        Ship disbanding = SpawnPlainShip("Dreadnought mk1-a", Enemy, SystemSite + new Vector2(-30_000f, 0));
+        UState.Objects.Update(TestSimStep);
+        foreach (Ship ship in new[] { control, disbanding })
+        {
+            GiveSceneObject(ship);
+            MakeVisible(ship);
+        }
+
+        control.ScuttleTimer = 0.01f;
+        UState.Objects.Update(TestSimStep);
+        UState.Objects.Update(TestSimStep);
+        AssertFalse(control.Active, "setup: the control ship self-destructed");
+        AssertEqual(0, UState.Derelicts.Count, "control: an ordinary self-destruct leaves no derelict");
+
+        Enemy.SetAsDefeated();
+        disbanding.ScuttleTimer = 0.01f;
+        UState.Objects.Update(TestSimStep);
+        UState.Objects.Update(TestSimStep);
+        AssertFalse(disbanding.Active, "the disbanding ship is gone");
+        AssertEqual(1, UState.Derelicts.Count, "and it rolled for a derelict as a destroyed warship does");
+    }
 }

@@ -537,7 +537,10 @@ namespace Ship_Game
                 solarSystem.OwnerList.Remove(this);
 
             if (IsFaction)
+            {
+                DisbandShips();
                 return;
+            }
 
             foreach (Relationship rel in ActiveRelations)
             {
@@ -545,9 +548,6 @@ namespace Ship_Game
                 GetRelations(rel.Them).AtWar = false;
                 rel.Them.GetRelations(this).AtWar = false;
             }
-
-            Empire rebels = Universe.CreateRebelsFromEmpireData(data, this);
-            Universe.Stats.UpdateEmpire(Universe.StarDate, rebels);
 
             foreach (Ship ship in OwnedShips)
             {
@@ -561,11 +561,50 @@ namespace Ship_Game
             {
                 if (s.IsResearchStation|| s.IsMiningStation)
                     s.QueueTotalRemoval();
-                else
-                    s.LoyaltyChangeFromBoarding(rebels, false);
             }
-            EmpireShips.Clear();
+            DisbandShips();
             data.AgentList.Clear();
+        }
+
+        // a defeated empire or faction, or the rebels of a defeated empire holding no planets, whose ships disband
+        public bool HasEnded => IsDefeated || data.IsRebelFaction && OwnedPlanets.Count == 0 && RisenFromADefeatedEmpire;
+
+        // every empire whose rebels these are has been defeated; races in a mod can share one rebel faction
+        bool RisenFromADefeatedEmpire
+        {
+            get
+            {
+                bool risen = false;
+                var empires = Universe.Empires;
+                for (int i = 0; i < empires.Count; ++i)
+                {
+                    if (empires[i].IsFaction || empires[i].data.RebelName != data.Traits.Name)
+                        continue;
+                    if (!empires[i].IsDefeated)
+                        return false;
+                    risen = true;
+                }
+                return risen;
+            }
+        }
+
+        // each ship of an empire that has ended self-destructs within a few minutes, a subspace projector at once
+        public void DisbandShips()
+        {
+            IReadOnlyList<Ship> ships = OwnedShips;
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                if (ship.Active && ship.ScuttleTimer < 0f)
+                    ship.ScuttleTimer = Random.Float(30f, 180f);
+            }
+            IReadOnlyList<Ship> projectors = OwnedProjectors;
+            for (int i = 0; i < projectors.Count; i++)
+            {
+                Ship projector = projectors[i];
+                if (projector.Active && projector.ScuttleTimer < 0f)
+                    projector.ScuttleTimer = 0.01f;
+            }
         }
 
         public void SetAsMerged()
