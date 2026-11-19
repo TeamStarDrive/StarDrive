@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
+using Ship_Game.Universe;
 using System.IO;
 
 namespace UnitTests.Serialization;
@@ -182,6 +183,36 @@ public class SerializationRegressionTests : StarDriveTest
         SetupSave load = SavedAndLoaded(new SetupSave(new() { OpponentHullColors = ticked }) { Name = "Saved with the mark" });
         AssertTrue(load.OpponentHullColorsChosen, "setup: the box was the player's");
         Assert.AreEqual(ticked, load.SettingsToStart().OpponentHullColors, "a new game from it starts with the box as the player left it");
+    }
+
+    [TestMethod]
+    public void TheLastSetupBringsBackItsOpponentsAndTheirLooks()
+    {
+        IEmpireData player = ResourceManager.MajorRaces[0];
+        IEmpireData looked = ResourceManager.MajorRaces[1];
+        IEmpireData flagGone = ResourceManager.MajorRaces[2];
+        var color = new Microsoft.Xna.Framework.Color(0, 200, 255);
+        const int numFlags = 10;
+        var p = new UniverseParams();
+        p.SelectedOpponents.Add(looked);
+        p.SelectedOpponents.Add(flagGone);
+        p.SelectedOpponents.Add(player); // a setup started with another race can hold the player's
+        p.PickOpponentLook(looked, color, 3);
+        p.PickOpponentLook(flagGone, color, numFlags); // as when a mod drops flags
+        SetupSave save = LastSetup.Create(p, "Named setup");
+        save.Opponents.Add(new OpponentPick { Race = "A race the mod no longer has" });
+        save.Opponents.Add(new OpponentPick { Race = looked.ArchetypeName });
+
+        SetupSave load = SavedAndLoaded(save);
+        var restored = new UniverseParams();
+        LastSetup.RestoreOpponents(restored, load, player, numFlags);
+
+        AssertEqual("Named setup", load.Name, "the setup keeps its name");
+        Assert.IsTrue(restored.SelectedOpponents.SequenceEqual(new[] { looked, flagGone }),
+                      "the opponents come back in order, without a missing race, the player's own or a repeat");
+        Assert.IsTrue(restored.OpponentLooks.TryGetValue(looked, out var look) && look.Color == color && look.Flag == 3,
+                      "a picked color and flag come back");
+        Assert.IsFalse(restored.OpponentLooks.TryGetValue(flagGone, out _), "a look whose flag is gone is dropped");
     }
 
     // The save list draws the player's flag straight from the header, using FlagIndex == -1

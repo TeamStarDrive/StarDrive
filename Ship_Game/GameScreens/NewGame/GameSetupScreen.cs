@@ -67,6 +67,11 @@ namespace Ship_Game.GameScreens.NewGame
             int bottom = ScreenHeight - 50;
             Slides.Clear();
 
+            SetupSave lastSetup = LastSetup.Load();
+            if (lastSetup != null && GlobalStats.UseLastSetup && !RaceScreen.LastSetupApplied)
+                RaceScreen.UseLastSetup(lastSetup);
+            int lastSetupSpace = lastSetup != null ? 26 : 0;
+
             int first = Elements.Count;
             Menu2 titleBar = Add(new Menu2(new Rectangle(leftX, titleY, leftWidth + gap + listWidth, 80), Color.Black));
             float titleWidth = Fonts.Laserian14.MeasureString(Localizer.Token(GameText.GameSetup)).X;
@@ -119,7 +124,8 @@ namespace Ship_Game.GameScreens.NewGame
                 };
                 if (GlobalStats.Defaults.EnableHullPlates) // shown only while its Globals flag is on
                     extensions.Add((() => Params.HullPlates, "HullPlates", GameText.HullPlatesExtension, GameText.HullPlatesExtensionTip, false));
-                const int pitch = 54, buttonSpace = 8 + 39;
+                const int pitch = 54;
+                int buttonSpace = 8 + 39 + lastSetupSpace;
                 bool oneColumn = 40 + (extensions.Count - 1) * pitch + ExtensionToggle.IconHeight + buttonSpace <= extensionsPanel.Height;
                 int columns = oneColumn ? 1 : 2, rows = (extensions.Count + columns - 1) / columns;
                 int columnWidth = (extensionsPanel.Width - 2 * pad) / columns;
@@ -131,8 +137,21 @@ namespace Ship_Game.GameScreens.NewGame
                     Add(new ExtensionToggle(pos, columnWidth, e.Binding, e.Icon, e.Title, e.Tooltip)).Locked = e.Locked;
                 }
             }
-            Button(ButtonStyle.Default, extensionsPanel.X + extensionsPanel.Width / 2 - 84, extensionsPanel.Bottom - 39,
+            Button(ButtonStyle.Default, extensionsPanel.X + extensionsPanel.Width / 2 - 84, extensionsPanel.Bottom - 39 - lastSetupSpace,
                    GameText.RuleOptions, click: OnRuleOptionsClicked);
+            if (lastSetup != null)
+            {
+                int boxX = extensionsPanel.X + extensionsPanel.Width / 2 - 84;
+                string title = LastSetupTitle(lastSetup.Name, extensionsPanel.Right - pad - boxX - 16);
+                UIList lastSetupBox = AddList(new Vector2(boxX, extensionsPanel.Bottom - 32));
+                lastSetupBox.AddCheckbox(() => GlobalStats.UseLastSetup, ticked =>
+                {
+                    GlobalStats.UseLastSetup = ticked;
+                    GlobalStats.SaveSettings();
+                    if (ticked && LastSetup.Load() is { } fresh)
+                        RaceScreen.UseLastSetup(fresh);
+                }, title, GameText.UseLastSetupTip);
+            }
             SlideFrom(first, new Vector2(-(leftX + leftWidth), 0));
 
             first = Elements.Count;
@@ -330,6 +349,19 @@ namespace Ship_Game.GameScreens.NewGame
         void OnExtraRemnantClicked(UIButton b)
         {
             Params.ExtraRemnant = Params.ExtraRemnant.IncrementWithWrap(OptionIncrement);
+        }
+
+        // the box's title with the setup's name, cut short where it would run past the panel
+        static string LastSetupTitle(string setupName, float width)
+        {
+            string label = Localizer.Token(GameText.UseLastSetup);
+            if (setupName.IsEmpty())
+                return label;
+            Graphics.Font font = Fonts.Arial12Bold;
+            string title = $"{label} ({setupName})";
+            for (int n = setupName.Length - 1; n > 0 && font.TextWidth(title) > width; --n)
+                title = $"{label} ({setupName.Substring(0, n)}...)";
+            return title;
         }
 
         void OnRuleOptionsClicked(UIButton b)

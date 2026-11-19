@@ -110,6 +110,26 @@ namespace Ship_Game
             return t;
         }
         
+        // the saved setup the settings were last loaded from, which names the last setup
+        public string LoadedSetupName;
+        // the Game Setup screen loads the last setup once per new game when its box is ticked
+        public bool LastSetupApplied;
+
+        // the last game's setup, with the opponents chosen for it and the looks picked for them
+        public void UseLastSetup(SetupSave last)
+        {
+            UniverseParams settings = last.SettingsToStart();
+            bool opponentHullColors = settings.OpponentHullColors;
+            settings.SelectedOpponents.Clear();
+            P = settings;
+            LastSetup.RestoreOpponents(P, last, SelectedData, ResourceManager.NumFlags);
+            P.OpponentHullColors = opponentHullColors;
+            PickPlayerColor(PlayerColor); // a color other than the race's own ticks the box again whatever the setup holds
+            VerifySelectedOpponents();
+            LoadedSetupName = last.Name;
+            LastSetupApplied = true;
+        }
+
         // a setup holds no chosen opponents, so a loaded one keeps those chosen before it, as far as its opponent count allows
         public void SetCustomSetup(UniverseParams settings)
         {
@@ -472,6 +492,7 @@ namespace Ship_Game
             P.PlayerData.DiplomaticPersonality = new DTrait();
 
             (P.NumSystems, P.StarsModifier) = GetNumStars(P.StarsCount, P.GalaxySize, P.NumOpponents);
+            LastSetup.Save(P, LoadedSetupName);
             var ng = new CreatingNewGameScreen(MainMenu, P);
 
             ScreenManager.GoToScreen(ng, clear3DObjects:true);

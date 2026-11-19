@@ -6416,6 +6416,10 @@ namespace Ship_Game
         UpdateBreaksSavesWarning = 7292,
         /// <summary>Standby Fleet - {0}</summary>
         StandbyFleet = 7293,
+        /// <summary>Use Last Setup</summary>
+        UseLastSetup = 7294,
+        /// <summary>Loads the galaxy, opponents, game extensions and rule options of the last game you started. While this is ticked, every new game starts from them.</summary>
+        UseLastSetupTip = 7295,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
