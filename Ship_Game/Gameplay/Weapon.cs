@@ -275,6 +275,18 @@ namespace Ship_Game.Gameplay
             SalvoTarget = null;
         }
 
+        // a treaty signed with them ends the aim on what is theirs, and a salvo fired at it
+        public void DropTargetOf(Empire them)
+        {
+            if (FireTarget?.GetLoyalty() == them)
+                FireTarget = null;
+            if (SalvoTarget?.GetLoyalty() == them)
+            {
+                SalvoTarget = null;
+                SalvosToFire = 0;
+            }
+        }
+
         // > 66% accurate or >= Level 5 crews can use advanced
         // targeting which even predicts acceleration
         public bool CanUseAdvancedTargeting

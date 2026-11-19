@@ -55,17 +55,29 @@ namespace Ship_Game
             }
             DropTargetsOn(them);
             them.DropTargetsOn(this);
+            EndBeamsOnEachOther(them);
         }
 
-        // a priority target stays
+        // our ships' aim on theirs ends, and their troops boarding our ships leave
         void DropTargetsOn(Empire them)
         {
             IReadOnlyList<Ship> ships = OwnedShips;
             for (int i = 0; i < ships.Count; i++)
             {
-                Ship ship = ships[i];
-                if (ship.AI.Target?.Loyalty == them && !ship.AI.HasPriorityTarget)
-                    ship.AI.Target = null;
+                ships[i].AI.DropTargetsOf(them);
+                ships[i].SendBoardersHome(them);
+            }
+        }
+
+        // a beam keeps its own target, so one already on the other's ships goes out
+        void EndBeamsOnEachOther(Empire them)
+        {
+            Projectile[] shots = Universe.Objects.GetAllProjectilesAndBeams();
+            for (int i = 0; i < shots.Length; i++)
+            {
+                if (shots[i] is Beam { Active: true } beam && beam.TargetShip is { } target
+                    && (beam.Loyalty == this && target.Loyalty == them || beam.Loyalty == them && target.Loyalty == this))
+                    beam.Die(null, false);
             }
         }
 
@@ -309,6 +321,12 @@ namespace Ship_Game
         public bool IsAlliedWith(Empire otherEmpire)
         {
             return GetRelationsOrNull(otherEmpire)?.Treaty_Alliance == true;
+        }
+
+        // a non-aggression pact, peace or an alliance, under which our troops board none of their ships
+        public bool MayNotBoard(Empire otherEmpire)
+        {
+            return GetRelationsOrNull(otherEmpire) is { } rel && (rel.Treaty_NAPact || rel.Treaty_Peace || rel.Treaty_Alliance);
         }
 
         public bool IsFriendlyWith(Empire otherEmpire)

@@ -254,24 +254,35 @@ namespace Ship_Game.Ships
             Troop[] toRemove = OurTroops.ToArray();
             for (int i = 0; i < troopsToRemove && i < toRemove.Length; ++i)
             {
-                Troop troop = toRemove[i];
-                Ship assaultShip = CreateTroopShipAtPoint(Universe, Loyalty.GetAssaultShuttleName(),
-                    Loyalty, Position, troop, LaunchPlan.Hangar);
-                if (assaultShip == null)
-                    continue;
-
-                assaultShip.Velocity = Velocity + Loyalty.Random.Direction2D() * assaultShip.MaxSTLSpeed;
-                Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
-                bool rebaseSucceeded = false;
-                if (friendlyTroopShipToRebase != null)
-                    rebaseSucceeded = friendlyTroopShipToRebase.Carrier.RebaseAssaultShip(assaultShip);
-
-                if (!rebaseSucceeded) // did not found a friendly troopship to rebase to
-                    assaultShip.AI.OrderRebaseToNearest();
-
-                if (assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
+                if (LaunchTroopToRebase(toRemove[i]) is { } assaultShip && assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
                     assaultShip.DoEscort(this);
             }
+        }
+
+        // a non-aggression pact or peace signed with them: their troops boarding this ship leave it
+        public void SendBoardersHome(Empire them)
+        {
+            if (HostileTroops is not { Count: > 0 } || LoyaltyTracker.ChangesTo(them))
+                return; // a capture won before the treaty stands
+            Troop[] boarders = HostileTroops.ToArray();
+            for (int i = 0; i < boarders.Length; ++i)
+                if (boarders[i].Loyalty == them)
+                    LaunchTroopToRebase(boarders[i]);
+        }
+
+        // the troop leaves in an assault shuttle of its empire, which rebases to a troop ship with room nearby, else to the nearest it can
+        Ship LaunchTroopToRebase(Troop troop)
+        {
+            Empire owner = troop.Loyalty;
+            Ship assaultShip = CreateTroopShipAtPoint(Universe, owner.GetAssaultShuttleName(), owner, Position, troop, LaunchPlan.Hangar);
+            if (assaultShip == null)
+                return null;
+
+            assaultShip.Velocity = Velocity + owner.Random.Direction2D() * assaultShip.MaxSTLSpeed;
+            Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
+            if (friendlyTroopShipToRebase?.Carrier.RebaseAssaultShip(assaultShip) != true)
+                assaultShip.AI.OrderRebaseToNearest();
+            return assaultShip;
         }
 
         Ship FindClosestAllyToRebase(Ship ship)

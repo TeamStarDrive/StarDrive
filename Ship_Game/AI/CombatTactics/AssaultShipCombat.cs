@@ -45,7 +45,8 @@ namespace Ship_Game.AI.CombatTactics
             if (Owner.SecondsAlive < 2)
                 return false; // Initial Delay in launching shuttles if spawned
 
-            if (Owner == null || targetShip == null || targetShip.Loyalty == Owner.Loyalty || !targetShip.CanBeBoardedBy(Owner.Loyalty))
+            if (Owner == null || targetShip == null || targetShip.Loyalty == Owner.Loyalty || !targetShip.CanBeBoardedBy(Owner.Loyalty)
+                || Owner.Loyalty.MayNotBoard(targetShip.Loyalty))
                 return false;
 
             if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Position.InRadius(Owner.Position, Owner.DesiredCombatRange * 2))

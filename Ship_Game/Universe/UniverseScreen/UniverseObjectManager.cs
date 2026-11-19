@@ -91,7 +91,7 @@ namespace Ship_Game
         public Ship FindShip(int id) => Ships.Find(id);
         public bool ContainsShip(int id) => Ships.Contains(id);
 
-        // NOTE: SLOW !! Should only be used for UNIT TESTS
+        // SLOW: a locked copy of every projectile and beam, pending ones included; for rare events and unit tests
         public Projectile[] GetAllProjectilesAndBeams()
         {
             return Projectiles.GetBackItemsSlow();

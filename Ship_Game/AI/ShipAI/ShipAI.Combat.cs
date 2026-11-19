@@ -399,6 +399,25 @@ namespace Ship_Game.AI
             return target != null && target.Active && !target.Dying;
         }
 
+        // a treaty signed with them: the ship's target, the targets the player gave it and each weapon's aim on their ships are dropped
+        public void DropTargetsOf(Empire them)
+        {
+            if (TargetQueue == null)
+                return; // disposed
+            if (Target?.Loyalty == them)
+                Target = null;
+            for (int i = TargetQueue.Count - 1; i >= 0; --i)
+                if (TargetQueue[i].Loyalty == them)
+                    TargetQueue.RemoveAt(i);
+            PotentialTargets = PotentialTargets.Filter(s => s.Loyalty != them);
+            TrackProjectiles = TrackProjectiles.Filter(p => p.Loyalty != them);
+
+            int count = Owner.Weapons.Count;
+            Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+                weapons[i].DropTargetOf(them);
+        }
+
         // the target given to the ship is gone: the next live one queued takes its place, else the ship picks its own
         bool HandOverPriorityTarget()
         {

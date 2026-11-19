@@ -47,7 +47,8 @@ namespace Ship_Game.AI
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
             if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLaunchingOrLanding
-                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoardedBy(Owner.Loyalty))
+                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoardedBy(Owner.Loyalty)
+                || Owner.Loyalty.MayNotBoard(escortTarget.Loyalty))
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -851,8 +852,11 @@ namespace Ship_Game.AI
 
             if (target.Loyalty != Owner.Loyalty)
             {
-                Owner.TryLandSingleTroopOnShip(target);
-                Owner.Loyalty.ResetTargetsForShipsTargetingAfterBoarding(target);
+                if (!Owner.Loyalty.MayNotBoard(target.Loyalty))
+                {
+                    Owner.TryLandSingleTroopOnShip(target);
+                    Owner.Loyalty.ResetTargetsForShipsTargetingAfterBoarding(target);
+                }
                 if (Owner.Active)
                     OrderReturnToHangar();
                 return;
