@@ -174,6 +174,8 @@ namespace Ship_Game.Universe.SolarBodies
         // the planet keeps as many queued terraformers as it has room for, the first in the queue
         void DropTerraformersPastTheLimit()
         {
+            if (!HasTerraformerQueued())
+                return;
             int room = P.Terraformable ? P.TerraformerLimit - P.TerraformersHere : 0;
             for (int i = 0; i < ConstructionQueue.Count;)
             {
@@ -183,6 +185,14 @@ namespace Ship_Game.Universe.SolarBodies
                 else
                     ++i;
             }
+        }
+
+        bool HasTerraformerQueued()
+        {
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+                if (ConstructionQueue[i] is { isBuilding: true, Building.IsTerraformer: true })
+                    return true;
+            return false;
         }
 
         // spends what is left on up to `count` items right behind a finished one, stopping at one about to be cancelled or at the first it does not finish
