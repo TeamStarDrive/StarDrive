@@ -112,7 +112,10 @@ namespace Ship_Game
 
             // we're dragging an active ship design,
             // assign it to the fleet on Left click
-            if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
+            var cursor = input.CursorPosition;
+            bool overPanels = ShipSL.HitTest(cursor) || LeftMenu.HitTest(cursor) || RightMenu.HitTest(cursor)
+                           || TitleBar.HitTest(cursor) || ShipDesigns.HitTest(cursor);
+            if (input.LeftMouseClick && !overPanels)
             {
                 if (ActiveShips.ContainsRef(ActiveShipDesign) && EmptySlotUnderCursor(ActiveShipDesign) is { } emptySlot)
                 {
