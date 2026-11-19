@@ -269,7 +269,7 @@ namespace Ship_Game.AI
             }
         }
 
-        const float FormationWarpExitDistance = 7500f;
+        public const float FormationWarpExitDistance = 7500f;
         const float WarpExitEnemyClearance = 5000f;
 
         // a ship stopping beyond an enemy keeps its warp past that enemy and leaves it with just room to brake
@@ -567,7 +567,7 @@ namespace Ship_Game.AI
                 if (predictionDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
-                    if (distance > 7500f)
+                    if (distance > FormationWarpExitDistance)
                     {
                         if (HasPriorityOrder || HasPriorityTarget || !Owner.InCombat)
                             Owner.EngageStarDrive();

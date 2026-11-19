@@ -424,12 +424,25 @@ namespace Ship_Game
             return new Vector2(right - font.MeasureString(title).X - offest, y);
         }
 
-        static public Vector2 GetCorrectedMovePosWithAudio(Array<Ship> ships, Ship[] enemyShips, Vector2 pos)
+        // a move whose ships taking it all reach their spots at sublight is followed as given, even next to an enemy
+        static public Vector2 GetCorrectedMovePosWithAudio(ShipGroup group, Ship[] enemyShips, Vector2 pos, Vector2 direction)
         {
-            float minimumDistance = (ships.Count * 100).LowerBound(5000);
-            float minimumDistanceInBattle = (minimumDistance * 2).LowerBound(5000);
+            bool anyWarps = group.Ships.Any(s => s.PlayerShipCanTakeFleetOrders() && WarpsTo(s, pos + group.GetPositionFromDirection(s, direction)));
+            return GetCorrectedMovePosWithAudio(group.Ships.Count, enemyShips, pos, anyWarps);
+        }
+
+        static public Vector2 GetCorrectedMovePosWithAudio(Ship ship, Ship[] enemyShips, Vector2 pos)
+        {
+            return GetCorrectedMovePosWithAudio(1, enemyShips, pos, WarpsTo(ship, pos));
+        }
+
+        static bool WarpsTo(Ship ship, Vector2 spot) => ship.IsSpoolingOrInWarp || !ship.Position.InRadius(spot, ShipAI.FormationWarpExitDistance);
+
+        static Vector2 GetCorrectedMovePosWithAudio(int shipCount, Ship[] enemyShips, Vector2 pos, bool anyWarps)
+        {
+            float minimumDistance = (shipCount * 100).LowerBound(5000);
             var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(pos) <= minimumDistance);
-            if (ships.All(s => s.InFrustum && !s.IsInWarp && s.Position.Distance(pos) < minimumDistanceInBattle) || enemyShipsTooClose.Length == 0)
+            if (!anyWarps || enemyShipsTooClose.Length == 0)
             {
                 GameAudio.AffirmativeClick();
                 return pos;

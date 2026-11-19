@@ -291,6 +291,7 @@
     <Compile Include="AITests\Empire\DefenseTaskStrengthTests.cs" />
     <Compile Include="AITests\Ships\OvertakeTests.cs" />
     <Compile Include="AITests\Ships\WarpPastEnemyTests.cs" />
+    <Compile Include="AITests\Ships\MoveFenceTests.cs" />
     <Compile Include="AITests\Ships\BigShipTargetTests.cs" />
     <Compile Include="AITests\Ships\TractorAimTests.cs" />
     <Compile Include="AITests\Ships\ColonyShipAttackTests.cs" />

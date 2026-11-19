@@ -327,7 +327,7 @@ namespace Ship_Game.Universe
             if (QueueFleetMovement(movePosition, facingDir, fleet))
                 return;
 
-            Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio(fleet.Ships, enemyShips, movePosition);
+            Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio(fleet, enemyShips, movePosition, facingDir);
             // ForceReassembly so AssembleFleet rotates every ship's FleetOffset to the
             // new facingDir even for ships already moving; without it, AssembleFleet
             // only touches AwaitingOrders ships and the fleet keeps its old formation
@@ -350,7 +350,7 @@ namespace Ship_Game.Universe
                 return;
             }
 
-            Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio([ship], enemyShips, pos);
+            Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio(ship, enemyShips, pos);
             ship.AI.OrderMoveTo(corrected, direction, GetMoveOrderType());
             if (!Input.QueueAction) // a queued waypoint is not a change of mind
                 CancelAbandonedColonizationGoal(ship);

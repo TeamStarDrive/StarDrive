@@ -262,7 +262,7 @@ namespace Ship_Game
                     return;
                 }
 
-                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
+                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup, enemyShips, CurrentGroup.ProjectedPos, CurrentGroup.ProjectedDirection);
                 Log.Info("MoveShipGroupToMouse (CurrentGroup)");
                 CurrentGroup.MoveTo(correctedPos, CurrentGroup.ProjectedDirection, moveType);
                 return;
@@ -283,7 +283,7 @@ namespace Ship_Game
                     return;
                 }
 
-                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
+                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup, enemyShips, CurrentGroup.ProjectedPos, direction);
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 CurrentGroup.MoveTo(correctedPos, direction, moveType);
             }
@@ -298,7 +298,7 @@ namespace Ship_Game
                 Log.Info("MoveShipGroupToMouse (existing)");
                 Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition(force: true));
                 Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
-                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, finalPos);
+                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup, enemyShips, finalPos, finalDir);
                 CurrentGroup.MoveTo(correctedPos, finalDir, moveType);
             }
         }
