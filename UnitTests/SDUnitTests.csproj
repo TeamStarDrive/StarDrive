@@ -146,6 +146,7 @@
     <Compile Include="Graphics\ParticleManagerTests.cs" />
     <Compile Include="Graphics\ParticleVertexBufferTests.cs" />
     <Compile Include="Graphics\PostProcessChainTests.cs" />
+    <Compile Include="Graphics\ScreenTargetTests.cs" />
     <Compile Include="Graphics\ShadowMapTests.cs" />
     <Compile Include="Graphics\ShipPartsTests.cs" />
     <Compile Include="Graphics\SkinnedLightingEffectTests.cs" />

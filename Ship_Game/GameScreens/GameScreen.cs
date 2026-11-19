@@ -82,7 +82,7 @@ namespace Ship_Game
 
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
-        // This is equivalent to PresentationParameters.BackBufferWidth
+        // the size the game draws at, see GameBase.ScreenWidth
         public int ScreenWidth      => GameBase.ScreenWidth;
         public int ScreenHeight     => GameBase.ScreenHeight;
         public Vector2 MousePos     => Input.CursorPosition;

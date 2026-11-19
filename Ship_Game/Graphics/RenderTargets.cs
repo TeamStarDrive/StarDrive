@@ -29,13 +29,12 @@ namespace Ship_Game.Graphics
         }
 
         /// <summary>
-        /// Creates a BackBuffer-Compatible RenderTarget which matches BackBuffer size
+        /// Creates a BackBuffer-Compatible RenderTarget the size of the game's screen
         /// </summary>
         public static RenderTarget2D Create(GraphicsDevice device,
                                             RenderTargetUsage usage = RenderTargetUsage.DiscardContents)
         {
-            PresentationParameters pp = device.PresentationParameters;
-            return Create(device, pp.BackBufferWidth, pp.BackBufferHeight, usage);
+            return Create(device, GameBase.ScreenWidth, GameBase.ScreenHeight, usage);
         }
 
         public static bool CheckTextureSize(int width, int height, out int newWidth, out int newHeight)

@@ -161,7 +161,7 @@ namespace Ship_Game
                 }
             }
 
-            graphics.SetRenderTarget(null);
+            GameBase.DrawToScreen(graphics);
 
             DrawBorders.Stop();
         }
@@ -214,16 +214,15 @@ namespace Ship_Game
             }
         }
 
-        // Re-create backbuffer-sized RTs when the backbuffer has been resized
+        // Re-create screen-sized RTs when the game's screen has been resized
         // (e.g., after the alt-tab restore path in GameBase.OnActivated). The
-        // RTs are allocated to backbuffer dimensions at LoadContent time and
+        // RTs are allocated to the screen's dimensions at LoadContent time and
         // MonoGame's DXGI ResizeBuffers path doesn't dispose them, so a stale
         // size or IsContentLost flag will silently render at the wrong scale.
-        void EnsureBackbufferSizedRTs(GraphicsDevice device)
+        void EnsureScreenSizedRTs(GraphicsDevice device)
         {
-            PresentationParameters pp = device.PresentationParameters;
-            int w = pp.BackBufferWidth;
-            int h = pp.BackBufferHeight;
+            int w = GameBase.ScreenWidth;
+            int h = GameBase.ScreenHeight;
 
             if (RtNeedsRebuild(MainTarget, w, h))
             {
@@ -301,7 +300,7 @@ namespace Ship_Game
                 }
             }
             batch.SafeEnd();
-            device.SetRenderTarget(null);
+            GameBase.DrawToScreen(device);
             FogMap = back;
         }
 
@@ -333,7 +332,7 @@ namespace Ship_Game
             DrawSensorNodesHighlights(batch);
 
             batch.SafeEnd();
-            device.SetRenderTarget(null);
+            GameBase.DrawToScreen(device);
 
             DrawFogInfluence.Stop();
         }
@@ -352,7 +351,7 @@ namespace Ship_Game
             SpriteRenderer sr = ScreenManager.SpriteRenderer;
 
             GraphicsDevice graphics = ScreenManager.GraphicsDevice;
-            EnsureBackbufferSizedRTs(graphics);
+            EnsureScreenSizedRTs(graphics);
             graphics.SetRenderTarget(MainTarget);
             // §4.6 #1.b regression follow-up: MainTarget is now PreserveContents
             // so the shadow pre-pass's RT swap in SunBurnStubs.RenderScene doesn't
@@ -365,7 +364,7 @@ namespace Ship_Game
             graphics.Clear(ClearOptions.Target | ClearOptions.DepthBuffer | ClearOptions.Stencil,
                            Color.Black, 1f, 0);
             Render(sr, batch, elapsed);
-            graphics.SetRenderTarget(null);
+            GameBase.DrawToScreen(graphics);
             
             OverlaysGroupTotalPerf.Start();
             {

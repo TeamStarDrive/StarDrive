@@ -16,10 +16,24 @@ namespace Ship_Game
 
     public class DefaultInputProvider : IInputProvider
     {
-        public XnaInput.MouseState GetMouse() => XnaInput.Mouse.GetState();
+        public XnaInput.MouseState GetMouse()
+        {
+            XnaInput.MouseState m = XnaInput.Mouse.GetState();
+            if (GameBase.ScreenTarget == null)
+                return m;
+            (int x, int y) = GameBase.WindowToScreen(m.X, m.Y);
+            return new XnaInput.MouseState(x, y, m.ScrollWheelValue,
+                m.LeftButton, m.MiddleButton, m.RightButton, m.XButton1, m.XButton2, m.HorizontalScrollWheelValue);
+        }
+
         public XnaInput.KeyboardState GetKeyboard() => XnaInput.Keyboard.GetState();
         public XnaInput.GamePadState GetGamePad() => XnaInput.GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One);
-        public void SetMouse(int x, int y) => XnaInput.Mouse.SetPosition(x, y);
+
+        public void SetMouse(int x, int y)
+        {
+            (int wx, int wy) = GameBase.ScreenToWindow(x, y);
+            XnaInput.Mouse.SetPosition(wx, wy);
+        }
     }
 
     public sealed partial class InputState

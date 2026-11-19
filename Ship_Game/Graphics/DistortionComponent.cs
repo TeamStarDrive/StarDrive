@@ -86,8 +86,8 @@ namespace Ship_Game
             ShieldDataParam?.SetValue(ShieldData);
             TimeParam?.SetValue(time);
 
-            int destW = destination?.Width  ?? Device.PresentationParameters.BackBufferWidth;
-            int destH = destination?.Height ?? Device.PresentationParameters.BackBufferHeight;
+            int destW = destination?.Width  ?? GameBase.ScreenWidth;
+            int destH = destination?.Height ?? GameBase.ScreenHeight;
 
             // SpriteBatch in MonoGame 3.8.1.303 does NOT auto-populate the
             // `MatrixTransform` parameter on a custom effect passed to
@@ -99,13 +99,13 @@ namespace Ship_Game
                 MatrixTransformParam.SetValue(projection);
             }
 
-            Device.SetRenderTarget(destination);
+            Device.SetRenderTarget(destination ?? GameBase.ScreenTarget);
             batch.Begin(SpriteSortMode.Immediate, BlendState.Opaque,
                         SamplerState.LinearClamp, DepthStencilState.None,
                         RasterizerState.CullNone, Distort);
             batch.Draw(source, new Rectangle(0, 0, destW, destH), Color.White);
             batch.End();
-            Device.SetRenderTarget(null);
+            GameBase.DrawToScreen(Device);
         }
 
         // Pack the source list into the fixed-size ShieldData uniform.

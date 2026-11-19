@@ -539,8 +539,8 @@ public static class GlobalStats
 
     public static void SaveSettings()
     {
-        XRES = StarDriveGame.Instance.Graphics.PreferredBackBufferWidth;
-        YRES = StarDriveGame.Instance.Graphics.PreferredBackBufferHeight;
+        XRES = GameBase.ScreenWidth;
+        YRES = GameBase.ScreenHeight;
 
         Configuration config = OpenUserConfiguration();
 
