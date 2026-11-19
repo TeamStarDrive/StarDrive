@@ -367,7 +367,8 @@ namespace Ship_Game.Gameplay
             ArmorPiercing         = Weapon.ArmorPen;
             IgnitionDelay         = Weapon.Tag_Guided ? Weapon.DelayedIgnition : 0f;
 
-            Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
+            if (!IsSwarmSat) // a swarm satellite's flight is set by its swarm
+                Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
             if (Weapon.RangeVariance)
                 Range *= Owner.Loyalty.Random.Float(0.9f, 1.1f);
 
