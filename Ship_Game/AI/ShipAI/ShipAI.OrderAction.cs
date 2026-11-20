@@ -903,7 +903,7 @@ namespace Ship_Game.AI
                 if (Owner.IsTroopShip)
                     ReverseThrustUntilStopped(timeStep);
                 else
-                    OrderMoveTo(fleet.GetFinalPos(Owner), fleet.FinalDirection, AIState.FormationMoveTo);
+                    OrderMoveTo(fleet.GetFinalPos(Owner), fleet.FinalDirection, AIState.FormationMoveTo, MoveOrder.Aggressive);
                 return;
             }
 

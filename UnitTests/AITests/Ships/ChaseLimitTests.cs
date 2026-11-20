@@ -683,6 +683,7 @@ public class ChaseLimitTests : StarDriveTest
 
         Assert.IsTrue(SentToItsSpot(ship, fleet), $"an idle ship rejoins its fleet's move, to its spot at the destination (state {ship.AI.State}, " +
                       $"orders {string.Join(",", global::System.Linq.Enumerable.Select(ship.AI.OrderQueue.ToArray(), g => g.Plan + ":" + g.WantedState))})");
+        Assert.IsFalse(ship.AI.HasPriorityOrder, "an aggressive move, like the fleet's own regroup, so it fights on the way");
     }
 
     [TestMethod]
