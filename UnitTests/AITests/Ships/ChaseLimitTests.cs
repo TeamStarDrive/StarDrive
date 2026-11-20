@@ -535,11 +535,15 @@ public class ChaseLimitTests : StarDriveTest
     }
 
     // a fleet ship that wins every overtake roll, and a dreadnought 10,000 off speeding away faster than it can follow
-    TestShip FleetShipAfterAFasterRival(bool onTask, out TestShip rival)
+    TestShip FleetShipAfterAFasterRival(bool onTask, out TestShip rival, bool nearItsSpot = false)
     {
         TestShip ship = FleetShip(FleetPos);
         ship.Level = 95;
-        if (onTask)
+        if (onTask && nearItsSpot)
+        {
+            MovingFleetTo(FleetPos + new Vector2(5_000f, 0f), ship);
+        }
+        else if (onTask)
         {
             MovingFleet(ship);
         }
@@ -564,6 +568,32 @@ public class ChaseLimitTests : StarDriveTest
         Assert.AreNotEqual(AIState.Pursue, ship.AI.State, "no overtake");
         Assert.IsTrue(ship.AI.FindGoal(ShipAI.Plan.MoveToWithin1000, out ShipAI.ShipGoal leg) && leg.WantedState == AIState.FormationMoveTo,
                       "the fleet's move, and so its limits, stay with the ship");
+    }
+
+    static bool FleetMoveQueued(TestShip ship)
+        => ship.AI.OrderQueue.Any(g => g is { WantedState: AIState.FormationMoveTo, Plan: ShipAI.Plan.MoveToWithin1000 or ShipAI.Plan.MakeFinalApproach });
+
+    [TestMethod]
+    public void AFleetShipNearItsSpotAtTheDestinationOvertakes()
+    {
+        TestShip ship = FleetShipAfterAFasterRival(onTask: true, out TestShip rival, nearItsSpot: true);
+        Assert.IsTrue(FleetMoveQueued(ship), "setup: the fleet's move is still queued");
+        ship.AI.MoveToEngageTarget(rival, TestSimStep);
+
+        AssertEqual(AIState.Pursue, ship.AI.State, "a ship that has arrived cuts off a faster rival, its fleet's move queued or not");
+    }
+
+    [TestMethod]
+    public void AFleetShipNearItsSpotAtTheDestinationTakesOnALoneWeakShip()
+    {
+        TestShip ship = FleetShip(FleetPos);
+        MovingFleetTo(FleetPos + new Vector2(5_000f, 0f), ship);
+        TestShip scout = WeakScout(ship);
+        JustOutOfReach(scout, ship);
+        RunObjectsSim(OneSecond);
+
+        Assert.IsTrue(FleetMoveQueued(ship), "setup: the fleet's move is still queued");
+        Assert.AreSame(scout, ship.AI.Target, "a ship that has arrived clears even a lone weak ship there");
     }
 
     [TestMethod]

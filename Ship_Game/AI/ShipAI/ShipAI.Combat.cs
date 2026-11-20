@@ -487,7 +487,9 @@ namespace Ship_Game.AI
             }
             else if (fleet.FleetTask != null || fleet.IsIdle)
             {
-                OnFleetMove = OrderQueue.Any(g => g is { WantedState: AIState.FormationMoveTo, Plan: Plan.MoveToWithin1000 or Plan.MakeFinalApproach });
+                // a ship near its spot at the fleet's destination has arrived, even with the move still queued behind its fight
+                OnFleetMove = OrderQueue.Any(g => g is { WantedState: AIState.FormationMoveTo, Plan: Plan.MoveToWithin1000 or Plan.MakeFinalApproach })
+                              && !Owner.Position.InRadius(fleet.GetFinalPos(Owner), fleet.LongestSensorRange);
             }
         }
 
@@ -545,14 +547,11 @@ namespace Ship_Game.AI
             if (!OnFleetMove || fleet == null || FightBackSpot != Vector2.Zero)
                 return false;
 
-            // a ship already near its spot at the fleet's destination has nothing to rejoin
-            float range = fleet.LongestSensorRange;
-            Vector2 spot = fleet.GetFinalPos(Owner);
-            if (Owner.Position.InRadius(fleet.GetFormationPos(Owner), range) || Owner.Position.InRadius(spot, range))
+            if (Owner.Position.InRadius(fleet.GetFormationPos(Owner), fleet.LongestSensorRange))
                 return false;
 
             ResetPriorityOrder(clearOrders: false);
-            OrderMoveTo(spot, fleet.FinalDirection, AIState.FormationMoveTo);
+            OrderMoveTo(fleet.GetFinalPos(Owner), fleet.FinalDirection, AIState.FormationMoveTo);
             return true;
         }
 

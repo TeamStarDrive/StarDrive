@@ -3,9 +3,11 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.AI;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using UnitTests.Ships;
 using Vector2 = SDGraphics.Vector2;
+using Round = Ship_Game.AI.ShipAI.FleetFlankRound;
 
 namespace UnitTests.AITests.Ships;
 
@@ -265,6 +267,67 @@ public class OvertakeTests : StarDriveTest
 
         AssertEqual(0, CutOffs(chaser, target, distance), "close in and under its guns");
         AssertGreaterThan(CutOffs(chaser, target, 3_100f), 0, "setup: farther out the same chaser cuts it off");
+    }
+
+    static void GunsReach(TestShip ship, float range)
+        => typeof(Ship).GetProperty(nameof(Ship.WeaponsMaxRange))!.SetValue(ship, range);
+
+    [TestMethod]
+    public void AFleetShipInReachCutsOffOnlyATargetPastItsGuns()
+    {
+        (TestShip chaser, TestShip target, float distance) = InReach(backingAway: true);
+        Enemy.CreateFleet(1, null).AddShip(chaser);
+        AssertGreaterThan(CutOffs(chaser, target, distance), 0, "a target past its guns is cut off");
+
+        GunsReach(chaser, distance + 100f);
+        AssertEqual(0, CutOffs(chaser, target, distance), "a target under its guns is fought where it is");
+
+        (TestShip loner, TestShip target2, float distance2) = InReach(backingAway: true, y: 125_000f);
+        GunsReach(loner, distance2 + 100f);
+        AssertGreaterThan(CutOffs(loner, target2, distance2), 0, "setup: a ship in no fleet cuts off a target under its guns that is getting away");
+    }
+
+    // the chaser's fleet and a round for it to fly round a group at the target, or the given way off from the target
+    static Round RoundFor(TestShip chaser, Ship target, int fleetKey, Vector2 groupOff = default)
+    {
+        Fleet fleet = chaser.Loyalty.CreateFleet(fleetKey, null);
+        fleet.AddShip(chaser);
+        var round = new Round(new Fleet.FlankPlan(fleet, target.Position + groupOff, new Vector2(0f, -1f), barredSide: Vector2.Zero), new Vector2(-1f, 0f));
+        chaser.AI.FleetRound = round;
+        return round;
+    }
+
+    [TestMethod]
+    public void AFleetShipWithItsFlankRoundAheadCutsNoTargetOff()
+    {
+        (TestShip chaser, TestShip target, _) = InReach(backingAway: true);
+        Round round = RoundFor(chaser, target, fleetKey: 1);
+        Assert.IsFalse(CutsOffInItsFight(chaser), "in reach, its round still to come");
+        AssertEqual(Round.Stage.Waiting, round.At, "setup: with no group known there, the round still waits");
+        round.At = Round.Stage.Done;
+        Assert.IsTrue(CutsOffInItsFight(chaser), "in reach, its round flown");
+
+        TestShip far = SpawnShip(Design, Enemy, new Vector2(300_000f, 100_000f));
+        TestShip fleeing = Fleeing(far);
+        Round farRound = RoundFor(far, fleeing, fleetKey: 2);
+        Assert.IsFalse(CutsOffFromFar(far, fleeing), "farther out, its round still to come");
+        farRound.At = Round.Stage.Done;
+        Assert.IsTrue(CutsOffFromFar(far, fleeing), "farther out, its round flown");
+    }
+
+    [TestMethod]
+    public void AFleetShipWaitingForItsRoundCutsOffATargetThatLeftTheGroup()
+    {
+        Vector2 groupOff = new(0f, -(ThreatMatrix.RivalClusterJoinRadius + 1_000f));
+        (TestShip chaser, TestShip target, _) = InReach(backingAway: true);
+        Round round = RoundFor(chaser, target, fleetKey: 1, groupOff);
+        Assert.IsTrue(CutsOffInItsFight(chaser), "in reach, a target too far from the group for the round to start");
+
+        TestShip far = SpawnShip(Design, Enemy, new Vector2(300_000f, 100_000f));
+        TestShip fleeing = Fleeing(far);
+        RoundFor(far, fleeing, fleetKey: 2, groupOff);
+        Assert.IsTrue(CutsOffFromFar(far, fleeing), "farther out, the same");
+        AssertEqual(Round.Stage.Waiting, round.At, "setup: the round still waits");
     }
 
     [TestMethod]
