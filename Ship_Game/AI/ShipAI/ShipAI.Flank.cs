@@ -76,8 +76,7 @@ namespace Ship_Game.AI
             round.AngleLeft = angleLeft;
             float lead = Math.Min(FlankRoundLead, angleLeft);
             Vector2 aim = center + Turned(at, round.Way * lead) * round.Radius;
-            if (Owner.engineState == Ship.MoveState.Warp)
-                Owner.HyperspaceReturn();
+            Owner.HyperspaceReturn();
             SubLightContinuousMoveInDirection(Owner.Position.DirectionToTarget(aim), timeStep, Owner.MaxSTLSpeed);
             return true;
         }

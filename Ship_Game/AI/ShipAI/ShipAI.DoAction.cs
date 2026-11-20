@@ -157,12 +157,12 @@ namespace Ship_Game.AI
                 if (movesToTarget && TryOvertakeTargetInReach(target, distanceToTarget))
                     return;
 
-                // Disengage from warp if we get close enough to the target
+                // Disengage from warp, or give up a jump still spooling, if we get close enough to the target
                 // For big ships this can be 110% of DesiredCombatRange,
                 // but also ensure we are far enough to prevent warping on top of enemy fleets
                 //   which can be a detriment and also an exploit by players
-                if (Owner.engineState == Ship.MoveState.Warp &&
-                    (distanceToTarget < 7500f || distanceToTarget < Owner.DesiredCombatRange * 1.1f))
+                bool closeEnough = distanceToTarget < 7500f || distanceToTarget < Owner.DesiredCombatRange * 1.1f;
+                if (closeEnough && Owner.IsSpoolingOrInWarp)
                 {
                     Owner.HyperspaceReturn();
                 }
@@ -174,6 +174,8 @@ namespace Ship_Game.AI
                     if (Owner.Position.OutsideRadius(target.Position, radius))
                     {
                         ThrustOrWarpToPos(target.Position, timeStep);
+                        if (closeEnough && Owner.IsSpooling) // a move this close to its target starts no jump
+                            Owner.HyperspaceReturn();
                         return;
                     }
                     if (distanceToTarget < Owner.DesiredCombatRange)
@@ -181,6 +183,8 @@ namespace Ship_Game.AI
                 }
 
                 CombatAI.ExecuteCombatTactic(timeStep);
+                if (closeEnough && Owner.IsSpooling) // a stance's move this close starts no jump
+                    Owner.HyperspaceReturn();
                 Owner.Carrier.TryAssaultShipCombat();
             }
         }

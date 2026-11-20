@@ -272,6 +272,9 @@ namespace Ship_Game.AI
         public const float FormationWarpExitDistance = 7500f;
         const float WarpExitEnemyClearance = 5000f;
 
+        // a ship in combat with no priority order or target jumps only to a point farther than this, so its target's reach does not cut the jump short at once
+        public const float CombatJumpDistance = 15_000f;
+
         // a ship stopping beyond an enemy keeps its warp past that enemy and leaves it with just room to brake
         bool WarpsOnPastEnemy(Vector2 destination, float distance, FixedSimTime timeStep)
         {
@@ -571,7 +574,8 @@ namespace Ship_Game.AI
                     {
                         if (HasPriorityOrder || HasPriorityTarget || !Owner.InCombat)
                             Owner.EngageStarDrive();
-                        else if (distance > Owner.WeaponsMaxRange && Owner.InCombat)
+                        else if ((distance > CombatJumpDistance || State == AIState.ResupplyEscort) // a jump to its supply ship ends beside that ship
+                                 && distance > Owner.WeaponsMaxRange && Owner.InCombat)
                             Owner.EngageStarDrive();
                     }
                 }
