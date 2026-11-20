@@ -13,13 +13,14 @@ public class ColonyShipAttackTests : StarDriveTest
 {
     const string Warship = "Vulcan Scout";
     const string ColonyShip = "Colony Ship";
+    const string TroopShip = "Human Troop";
     readonly SolarSystem System;
     readonly TestShip Settler;
     readonly TestShip Guard;
 
     public ColonyShipAttackTests()
     {
-        LoadStarterShips(Warship, ColonyShip);
+        LoadStarterShips(Warship, ColonyShip, TroopShip);
         CreateUniverseAndPlayerEmpire();
         CreateThirdMajorEmpire();
         System = AddDummyPlanetToEmpire(new Vector2(200_000f), Player).System;
@@ -174,6 +175,44 @@ public class ColonyShipAttackTests : StarDriveTest
         aiToUs.WarnedSystemsList.Add(claimed);
 
         Assert.IsFalse(ours.IsAttackable(ThirdMajor, aiToUs), "a claim made during a peace treaty is not fired upon either");
+    }
+
+    TestShip TroopShipInOurSystem()
+    {
+        TestShip trooper = SpawnShip(TroopShip, ThirdMajor, System.Position + new Vector2(8_000f, 0f));
+        UState.Objects.Update(new(time: 1f));
+        UState.Objects.Update(new(time: 1f));
+        Assert.AreSame(System, trooper.System, "setup: their troop ship is in the system we hold");
+        Assert.AreEqual(RoleName.troop, trooper.DesignRole, "setup: a troop ship");
+        return trooper;
+    }
+
+    [TestMethod]
+    public void ATroopShipOfAnEmpireWithNoTreatyInASystemWeHoldIsFiredOn()
+    {
+        TestShip trooper = TroopShipInOurSystem();
+
+        Assert.IsTrue(trooper.IsAttackable(Player, Player.GetRelations(ThirdMajor)), "with no treaty, troop ships in our systems are fair game");
+    }
+
+    [TestMethod]
+    public void ATroopShipOfAnEmpireWithANonAggressionPactInASystemWeHoldIsNotFiredOn()
+    {
+        TestShip trooper = TroopShipInOurSystem();
+
+        Player.SignTreatyWith(ThirdMajor, TreatyType.NonAggression);
+
+        Assert.IsFalse(trooper.IsAttackable(Player, Player.GetRelations(ThirdMajor)), "a pact holds for troop ships too");
+    }
+
+    [TestMethod]
+    public void ATroopShipOfAnEmpireAtPeaceWithUsInASystemWeHoldIsNotFiredOn()
+    {
+        TestShip trooper = TroopShipInOurSystem();
+
+        Player.SignTreatyWith(ThirdMajor, TreatyType.Peace);
+
+        Assert.IsFalse(trooper.IsAttackable(Player, Player.GetRelations(ThirdMajor)), "a peace treaty holds for troop ships too");
     }
 
     Planet AddPlanetTo(SolarSystem system, Ship_Game.Empire owner)

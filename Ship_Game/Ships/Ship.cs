@@ -669,8 +669,8 @@ namespace Ship_Game.Ships
                         && !attackerToUs.Treaty_NAPact && !attackerToUs.Treaty_Peace)
                         return true;
 
-                    if (DesignRole == RoleName.troop &&
-                        attacker.GetOwnedSystems().ContainsRef(system))
+                    if (DesignRole == RoleName.troop && !attackerToUs.Treaty_NAPact && !attackerToUs.Treaty_Peace
+                        && attacker.GetOwnedSystems().ContainsRef(system))
                         return true;
                 }
 
