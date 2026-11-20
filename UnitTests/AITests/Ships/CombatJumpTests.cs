@@ -112,13 +112,14 @@ public class CombatJumpTests : StarDriveTest
     }
 
     // a ship that keeps its targets 20,000 off, in a fight with a target the given distance straight ahead
-    TestShip LongRangeShipInAFightAt(float targetAt, bool spooling)
+    TestShip LongRangeShipInAFightAt(float targetAt, bool spooling, bool pickedTarget = false)
     {
-        TestShip chaser = SpawnShip(Armed, Enemy, new Vector2(100_000f, 100_000f + targetAt * 4f));
+        TestShip chaser = SpawnShip(Armed, Enemy, new Vector2(100_000f, 100_000f + targetAt * 4f + (pickedTarget ? 200_000f : 0f)));
         chaser.AI.CombatState = CombatState.ShortRange;
         typeof(Ship).GetProperty(nameof(Ship.DesiredCombatRange))!.SetValue(chaser, 20_000f);
         TestShip target = SpawnShip(Scout, Player, chaser.Position + chaser.Direction * targetAt);
         chaser.AI.Target = target;
+        chaser.AI.HasPriorityTarget = pickedTarget;
         chaser.InCombat = true;
         if (spooling)
             chaser.EngageStarDrive();
@@ -134,6 +135,12 @@ public class CombatJumpTests : StarDriveTest
         Assert.IsFalse(LongRangeShipInAFightAt(21_000f, spooling: true).IsSpoolingOrInWarp, "just past its chosen range");
         Assert.IsFalse(LongRangeShipInAFightAt(26_000f, spooling: false).IsSpoolingOrInWarp, "6,000 past it, a jump started and called off at once");
         Assert.IsTrue(LongRangeShipInAFightAt(28_000f, spooling: false).IsSpooling, "setup: more than 7,500 past it, it jumps");
+    }
+
+    [TestMethod]
+    public void ALongRangeShipKeepsAJumpAtATargetThePlayerPicked()
+    {
+        Assert.IsTrue(LongRangeShipInAFightAt(21_000f, spooling: true, pickedTarget: true).IsSpooling, "a target the player picked keeps its jump");
     }
 
     [TestMethod]
