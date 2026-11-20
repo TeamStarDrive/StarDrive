@@ -1293,8 +1293,10 @@ namespace Ship_Game.Ships
 
         float RechargeShields(float shieldPower, float shieldMax, FixedSimTime timeStep)
         {
-            if (!Active || !Powered || shieldPower >= ActualShieldPowerMax)
+            if (!Active || !Powered)
                 return shieldPower;
+            if (shieldPower >= ActualShieldPowerMax)
+                return ActualShieldPowerMax;
 
             float rechargeRate = timeStep.FixedTime * (Parent.ShieldRechargeTimer > ShieldRechargeDelay 
                                                         ? ShieldRechargeRate 
