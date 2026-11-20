@@ -91,6 +91,79 @@ public class HullColorTests : StarDriveTest
         }
     }
 
+    // a model measures the OKLab lightness of the paint its tint map marks as it loads, black unused texture space left out; a model with no tint map measures none
+    [TestMethod]
+    [DataRow("Model/Ships/Cordrazine/ship16e.fbx", 0.239f)]
+    [DataRow("Model/Ships/Pollops/Fern.fbx", 0.414f)]
+    [DataRow("Model/Ships/Vulfen/TypeXIII.fbx", 0.359f)]
+    [DataRow("Model/Ships/Draylok/ship18c.fbx", 0.288f)]
+    [DataRow("Model/Ships/Opteris/ship19d.fbx", 0.590f)]
+    [DataRow("Model/Ships/Speeder/ship07.fbx", 0f)]
+    public void AShipModelMeasuresTheLightnessOfItsPaint(string model, float paintLightness)
+    {
+        StaticMesh mesh = Content.LoadStaticMesh(model);
+        LightingEffect fx = mesh.GetFirstEffect<LightingEffect>();
+        Assert.IsNotNull(fx?.DiffuseMapTexture, $"setup: {model} loads with its diffuse map");
+        AssertEqual(0.003f, paintLightness, fx.PaintLightness, $"{model} paint under {fx.TintMapFile}");
+    }
+
+    // the paint is measured from the texture files the model loaded, not read back from the GPU
+    [TestMethod]
+    public void APaintIsMeasuredFromItsTextureFiles()
+    {
+        LightingEffect fx = Content.LoadStaticMesh("Model/Ships/Cordrazine/ship16e.fbx").GetFirstEffect<LightingEffect>();
+        using var diffuse = new Microsoft.Xna.Framework.Graphics.Texture2D(Game.GraphicsDevice, 4, 4) { Name = fx.DiffuseMapTexture.Name };
+        using var mask = new Microsoft.Xna.Framework.Graphics.Texture2D(Game.GraphicsDevice, 4, 4) { Name = fx.TintMapTexture.Name };
+        AssertEqual(0.003f, 0.239f, MeshInterface.PaintLightnessOf(diffuse, mask), "blank textures named for the Cordrazine's files measure its paint");
+    }
+
+    // a paint whose files cannot be read is not measured, so it keeps its own lightness
+    [TestMethod]
+    public void APaintWhoseFilesCannotBeReadIsNotMeasured()
+    {
+        using var diffuse = new Microsoft.Xna.Framework.Graphics.Texture2D(Game.GraphicsDevice, 4, 4) { Name = "Content/Model/Ships/NoSuchShip/hull_d.dds" };
+        using var mask = new Microsoft.Xna.Framework.Graphics.Texture2D(Game.GraphicsDevice, 4, 4) { Name = "Content/Model/Ships/NoSuchShip/hull_t.dds" };
+        Assert.AreEqual(0f, MeshInterface.PaintLightnessOf(diffuse, mask));
+    }
+
+    // OKLab lightness runs from black to white as the eye sees it, so pure blue is lighter than its share of light suggests
+    [TestMethod]
+    [DataRow(0f, 0f, 0f, 0f)]
+    [DataRow(1f, 1f, 1f, 1f)]
+    [DataRow(0.502f, 0.502f, 0.502f, 0.600f)]
+    [DataRow(0f, 0f, 1f, 0.452f)]
+    [DataRow(1f, 1f, 0f, 0.968f)]
+    [DataRow(1f, 0f, 0f, 0.628f)]
+    public void AColorsLightnessIsHowLightItLooks(float red, float green, float blue, float lightness)
+    {
+        AssertEqual(0.001f, lightness, LightingEffect.LightnessOf(red, green, blue));
+    }
+
+    // a DXT1 texel read alone decodes as the whole image's decoding gives it, a texel its block marks transparent as black
+    [TestMethod]
+    public void ADxt1TexelReadAloneDecodesAsTheWholeImageDoes()
+    {
+        LightingEffect fx = Content.LoadStaticMesh("Model/Ships/Cordrazine/ship16e.fbx").GetFirstEffect<LightingEffect>();
+        foreach (Microsoft.Xna.Framework.Graphics.Texture2D tex in new[] { fx.DiffuseMapTexture, fx.TintMapTexture })
+        {
+            Assert.AreEqual(Microsoft.Xna.Framework.Graphics.SurfaceFormat.Dxt1, tex.Format, $"setup: {tex.Name} is DXT1");
+            Color[] whole = Ship_Game.Data.Texture.ImageUtils.DecompressDxt1(tex);
+            var blocks = new byte[tex.Width * tex.Height / 2];
+            tex.GetData(blocks);
+            int differ = 0;
+            for (int y = 0; y < tex.Height; ++y)
+            {
+                for (int x = 0; x < tex.Width; ++x)
+                {
+                    Color expected = whole[y * tex.Width + x];
+                    if (Ship_Game.Data.Texture.ImageUtils.Dxt1Texel(blocks, tex.Width, x, y) != (expected.A == 0 ? Color.Transparent : expected))
+                        ++differ;
+                }
+            }
+            Assert.AreEqual(0, differ, $"{tex.Name}: texels decoded differently");
+        }
+    }
+
     static float MarkedShare(Microsoft.Xna.Framework.Graphics.Texture2D mask)
     {
         Color[] texels;

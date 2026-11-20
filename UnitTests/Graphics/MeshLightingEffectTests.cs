@@ -224,13 +224,13 @@ public class MeshLightingEffectTests : StarDriveTest
         Assert.IsTrue(darkGlow < litGlow / 20, $"the dark cube drew with the lit cube's glow: {darkGlow} vs {litGlow}");
     }
 
-    // The owner's color takes the paint the tint map marks, at the texture's own brightness.
+    // The owner's color takes the paint the tint map marks, at the paint's own lightness in the color's hue as the eye sees it.
     [TestMethod]
-    public void HullTint_GivesTheTintMappedPaintTheOwnersColorAtItsBrightness()
+    public void HullTint_GivesTheTintMappedPaintTheOwnersColorAtItsLightness()
     {
         Color px = CenterPixelOfGrayPaint(maskValue: 255, new Vector4(0f, 0f, 1f, 1f));
-        AssertEqual(3f, 112f, px.R, "blue at the gray paint's brightness keeps some red");
-        AssertEqual(3f, 112f, px.G, "and as much green");
+        AssertEqual(3f, 58f, px.R, "blue lighter than its own lightness takes some red");
+        AssertEqual(3f, 115f, px.G, "and more green, so it reads as a lighter blue, not lavender");
         AssertEqual(3f, 255f, px.B, "and is mostly blue");
     }
 
@@ -244,6 +244,40 @@ public class MeshLightingEffectTests : StarDriveTest
         AssertEqual(1f, 128f, px.R, "red");
         AssertEqual(1f, 128f, px.G, "green");
         AssertEqual(1f, 128f, px.B, "blue");
+    }
+
+    // Paint a mask marks at half strength loses its own hue, so half the owner's color lies over gray, not over the paint's purple.
+    [TestMethod]
+    public void HullTint_GraysHalfStrengthPaintUnderTheOwnersColor()
+    {
+        Color px = CenterPixelOfPaint(new Color(120, 60, 150, 255), maskValue: 128, new Vector4(1f, 0f, 0f, 1f), paintLightness: 0f);
+        AssertEqual(3f, 150f, px.R, "red at the purple paint's lightness, its chroma cut by the half strength");
+        AssertEqual(3f, 57f, px.G, "the rest of it gray");
+        AssertEqual(3f, 46f, px.B, "with no purple left in it");
+    }
+
+    // A dark paint is brightened under a lighter color until its average lightness is 0.55 of the color's; unpainted texels keep the texture's.
+    [TestMethod]
+    [DataRow(255, 1f, 1f, 0f, 113, 113, 0, "yellow lifts the dark paint to 0.55 of its lightness")]
+    [DataRow(255, 0f, 0f, 1f, 0, 16, 101, "blue lifts it only a little, a deep blue")]
+    [DataRow(0, 1f, 1f, 0f, 32, 32, 32, "paint the mask leaves out stays as it is")]
+    public void HullTint_BrightensADarkPaintTowardItsColor(int maskValue, float red, float green, float blue, int expRed, int expGreen, int expBlue, string what)
+    {
+        Color px = CenterPixelOfPaint(new Color(32, 32, 32, 255), maskValue, new Vector4(red, green, blue, 1f), paintLightness: 0.2435f);
+        AssertEqual(2f, expRed, px.R, $"{what}: red");
+        AssertEqual(2f, expGreen, px.G, $"{what}: green");
+        AssertEqual(2f, expBlue, px.B, $"{what}: blue");
+    }
+
+    // A paint lightness too small to be a measurement counts as none measured, so the paint is not drawn black.
+    [TestMethod]
+    public void HullTint_TakesAPaintLightnessNearZeroAsNoneMeasured()
+    {
+        var yellow = new Vector4(1f, 1f, 0f, 1f);
+        Color none = CenterPixelOfPaint(new Color(32, 32, 32, 255), 255, yellow, paintLightness: 0f);
+        Color tiny = CenterPixelOfPaint(new Color(32, 32, 32, 255), 255, yellow, paintLightness: 1e-9f);
+        Assert.IsTrue(none.R + none.G > 20, $"setup: paint with none measured takes the color at its own lightness: {none}");
+        Assert.AreEqual(none, tiny, "a paint lightness near zero draws as none measured");
     }
 
     // Every ship of a model shares the model's effect, so each SceneObject's own color must reach the draw.
@@ -501,8 +535,12 @@ public class MeshLightingEffectTests : StarDriveTest
 
     // an unlit cube painted mid gray under a solid tint map, read at its center
     static Color CenterPixelOfGrayPaint(int maskValue, Vector4 hullTint)
+        => CenterPixelOfPaint(new Color(128, 128, 128, 255), maskValue, hullTint, paintLightness: 0f);
+
+    // an unlit cube painted one color under a solid tint map, with the paint lightness its model measured, read at its center
+    static Color CenterPixelOfPaint(Color paintColor, int maskValue, Vector4 hullTint, float paintLightness)
     {
-        using var paint = MakeSolidColorTexture(Game.GraphicsDevice, new Color(128, 128, 128, 255));
+        using var paint = MakeSolidColorTexture(Game.GraphicsDevice, paintColor);
         using var mask = MakeSolidColorTexture(Game.GraphicsDevice, new Color(maskValue, maskValue, maskValue, 255));
         using var rt = RenderUnitCubeWith(fx =>
         {
@@ -511,6 +549,7 @@ public class MeshLightingEffectTests : StarDriveTest
             fx.Texture = paint;
             fx.TextureEnabled = true;
             fx.TintMapTexture = mask;
+            fx.PaintLightness = paintLightness;
             fx.HullTint = hullTint;
         });
         var pixels = new Color[rt.Width * rt.Height];
