@@ -312,6 +312,58 @@ public partial class Planet
         ProdHere += b.ActualCost(Owner) / 2f;
     }
 
+    // a planet that changes hands leaves its new owner one copy of each one-per-empire building, a standing copy before a queued one
+    public void DropOnePerEmpireDuplicates()
+    {
+        if (Universe?.Screen is { IsOnSimThread: false } screen)
+        {
+            screen.RunOnSimThread(DropOnePerEmpireDuplicates);
+            return;
+        }
+        if (Owner == null)
+            return;
+
+        for (int i = BuildingList.Count - 1; i >= 0; --i)
+        {
+            Building b = BuildingList[i];
+            if (!b.BuildOnlyOnce)
+                continue;
+
+            if (OnePerEmpireElsewhere(b.BID, orQueued: false))
+            {
+                if (b.Scrappable)
+                    ScrapBuilding(b);
+                continue;
+            }
+
+            foreach (Planet planet in Owner.GetPlanets())
+            {
+                if (planet == this)
+                    continue;
+                var queue = planet.ConstructionQueue;
+                for (int j = queue.Count - 1; j >= 0; --j)
+                    if (queue[j] is { isBuilding: true } q && q.Building.BID == b.BID)
+                        planet.Construction.Cancel(q);
+            }
+        }
+
+        var ownQueue = ConstructionQueue;
+        for (int j = ownQueue.Count - 1; j >= 0; --j)
+        {
+            if (ownQueue[j] is { isBuilding: true, Building.BuildOnlyOnce: true } q
+                && (BuildingBuilt(q.Building.BID) || OnePerEmpireElsewhere(q.Building.BID, orQueued: true)))
+                Construction.Cancel(q);
+        }
+    }
+
+    bool OnePerEmpireElsewhere(int bid, bool orQueued)
+    {
+        foreach (Planet planet in Owner.GetPlanets())
+            if (planet != this && (orQueued ? planet.BuildingBuiltOrQueued(bid) : planet.BuildingBuilt(bid)))
+                return true;
+        return false;
+    }
+
     public void DestroyBuildingOn(PlanetGridSquare tile) //  => RemoveBuildingFromPlanet(null, tile, refund:false);
     {
         Building b = tile.Building;

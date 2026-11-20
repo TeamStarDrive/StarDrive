@@ -2526,6 +2526,7 @@ namespace Ship_Game
             {
                 Planet planet = planets[i];
                 planet.SetOwner(this);
+                planet.DropOnePerEmpireDuplicates();
                 if (!planet.System.OwnerList.Contains(this))
                 {
                     planet.System.OwnerList.Add(this);

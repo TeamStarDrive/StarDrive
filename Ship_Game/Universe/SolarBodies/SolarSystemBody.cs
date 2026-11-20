@@ -551,6 +551,7 @@ namespace Ship_Game
             thisPlanet.TerraformPoints = 0;
             thisPlanet.SetHomeworld(false);
             thisPlanet.SetOwner(newOwner, newOwner);
+            thisPlanet.DropOnePerEmpireDuplicates();
 
             if (IsExploredBy(Universe.Player) && oldOwner != null)
             {

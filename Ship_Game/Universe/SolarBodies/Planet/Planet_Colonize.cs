@@ -117,6 +117,7 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             SetOwner(colonyShip.Loyalty);
+            DropOnePerEmpireDuplicates();
             Quarantine     = false;
             ManualOrbitals = false;
             System.OwnerList.Add(Owner);
