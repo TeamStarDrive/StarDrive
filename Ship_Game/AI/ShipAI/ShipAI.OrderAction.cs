@@ -897,6 +897,16 @@ namespace Ship_Game.AI
             if (State != AIState.Resupply)
                 SetPriorityOrder(false);
 
+            // an idle ship of a fleet on a task goes back to its spot at the fleet's destination, not to a rally planet; a troop ship waits where it is for its fleet to send it
+            if (State == AIState.AwaitingOrders && !Owner.EnginesKnockedOut && Owner.Fleet is { FleetTask: not null } fleet && fleet.FinalPosition != Vector2.Zero)
+            {
+                if (Owner.IsTroopShip)
+                    ReverseThrustUntilStopped(timeStep);
+                else
+                    OrderMoveTo(fleet.GetFinalPos(Owner), fleet.FinalDirection, AIState.FormationMoveTo);
+                return;
+            }
+
             if (AwaitClosest != null)
             {
                 if (Owner.Loyalty.isPlayer)
