@@ -99,6 +99,49 @@ namespace UnitTests.Fleets
             return fleet;
         }
 
+        Fleet ArrangedFleet(int key, params (string Name, int Count)[] parts)
+        {
+            var ships = new Array<Ship>();
+            foreach ((string name, int count) in parts)
+            {
+                for (int i = 0; i < count; ++i)
+                    ships.Add(SpawnShip(name, Player, new Vector2(200_000f * key, 200_000f)));
+            }
+
+            Fleet fleet = Player.CreateFleet(key, null);
+            fleet.AddShips(ships);
+            fleet.AutoArrange();
+            return fleet;
+        }
+
+        // prototypes go to the screen, carriers to the rear, corsairs to the center and scouts to the wings
+        Fleet ScreenedFleet(int key) => ArrangedFleet(key, ("Terran-Prototype", 40), ("Vulcan Scout", 60));
+        Fleet FleetWithACenterAndRear(int key) => ArrangedFleet(key, ("Heavy Carrier mk5-b", 21), ("Corsair", 30), ("Vulcan Scout", 41));
+
+        [TestMethod]
+        public void AFleetArrangedAgainKeepsTheSameFormation()
+        {
+            Fleet screened = ScreenedFleet(2);
+            Fleet centerAndRear = FleetWithACenterAndRear(3);
+            Assert.IsTrue(screened.ScreenFlank.Count > 9 && centerAndRear.CenterFlank.Count > 5 && centerAndRear.RearFlank.Count > 0,
+                          $"setup: a screen row of 9 squads and a center row of 5 are full, with rear squads"
+                          + $" (screen {screened.ScreenFlank.Count}, center {centerAndRear.CenterFlank.Count}, rear {centerAndRear.RearFlank.Count})");
+
+            foreach (Fleet fleet in new[] { screened, centerAndRear })
+            {
+                Ship[] ships = fleet.Ships.ToArray();
+                var first = new Vector2[ships.Length];
+                for (int i = 0; i < ships.Length; ++i)
+                    first[i] = ships[i].FleetOffset;
+
+                fleet.AutoArrange();
+
+                for (int i = 0; i < ships.Length; ++i)
+                    Assert.IsTrue(ships[i].FleetOffset.InRadius(first[i], 1f),
+                                  $"{ships[i]} moved in the formation from {first[i]} to {ships[i].FleetOffset}");
+            }
+        }
+
         Vector2 FleetMoveTo(Fleet fleet, Vector2 offset)
         {
             Vector2 target = fleet.FinalPosition + offset;

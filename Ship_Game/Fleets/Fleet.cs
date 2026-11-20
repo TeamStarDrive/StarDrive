@@ -704,6 +704,7 @@ namespace Ship_Game.Fleets
             for (int index = 0; index < squads.Count; ++index)
             {
                 var squad = squads[index];
+                squad.SetOffSets(Vector2.Zero); // measured at the center, before it is placed
                 Vector2 sz = squad.GetSquadSize();
                 float halfX = sz.X * 0.5f;
 
