@@ -111,6 +111,43 @@ public class CombatJumpTests : StarDriveTest
         Assert.IsFalse(chaser.IsSpoolingOrInWarp, "with its target in reach the chaser closes in at sublight, with no jump of a step");
     }
 
+    // a ship that keeps its targets 20,000 off, in a fight with a target the given distance straight ahead
+    TestShip LongRangeShipInAFightAt(float targetAt, bool spooling)
+    {
+        TestShip chaser = SpawnShip(Armed, Enemy, new Vector2(100_000f, 100_000f + targetAt * 4f));
+        chaser.AI.CombatState = CombatState.ShortRange;
+        typeof(Ship).GetProperty(nameof(Ship.DesiredCombatRange))!.SetValue(chaser, 20_000f);
+        TestShip target = SpawnShip(Scout, Player, chaser.Position + chaser.Direction * targetAt);
+        chaser.AI.Target = target;
+        chaser.InCombat = true;
+        if (spooling)
+            chaser.EngageStarDrive();
+        Assert.IsTrue(chaser.IsSpooling == spooling && chaser.AI.IsTargetValid(target),
+                      $"setup: a valid target {targetAt:0} off (sensors {chaser.SensorRange:0}), spooling {spooling}");
+        DoCombat.Invoke(chaser.AI, new object[] { TestSimStep });
+        return chaser;
+    }
+
+    [TestMethod]
+    public void ALongRangeShipCallsOffAJumpThatWouldDropOutWithin7500AtItsChosenRange()
+    {
+        Assert.IsFalse(LongRangeShipInAFightAt(21_000f, spooling: true).IsSpoolingOrInWarp, "just past its chosen range");
+        Assert.IsFalse(LongRangeShipInAFightAt(26_000f, spooling: false).IsSpoolingOrInWarp, "6,000 past it, a jump started and called off at once");
+        Assert.IsTrue(LongRangeShipInAFightAt(28_000f, spooling: false).IsSpooling, "setup: more than 7,500 past it, it jumps");
+    }
+
+    [TestMethod]
+    public void AMoveInAFightThatIsNotAtTheTargetStillJumpsWithTheTargetNear()
+    {
+        TestShip bomber = SpawnShip(Scout, Enemy, new Vector2(100_000f, 100_000f));
+        bomber.AI.Target = SpawnShip(Scout, Player, bomber.Position + new Vector2(5_000f, 0f));
+        bomber.InCombat = true; // as a bombing run puts it
+
+        bomber.AI.ThrustOrWarpToPos(bomber.Position + bomber.Direction * 40_000f, TestSimStep);
+
+        Assert.IsTrue(bomber.IsSpooling, "a move to a planet 40,000 off jumps, whatever its target nearby");
+    }
+
     [TestMethod]
     public void AStanceMoveWithItsTargetInReachStartsNoJump()
     {

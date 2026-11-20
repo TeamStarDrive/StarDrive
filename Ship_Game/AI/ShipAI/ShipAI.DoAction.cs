@@ -151,6 +151,10 @@ namespace Ship_Game.AI
             else if (movesToTarget && !inReach)
             {
                 MoveToEngageTarget(target, timeStep);
+                // a jump covering less than 7500 before its chosen range drops it out is called off
+                if (!HasPriorityOrder && !HasPriorityTarget && Owner.IsSpooling
+                    && distanceToTarget < Owner.DesiredCombatRange + FormationWarpExitDistance)
+                    Owner.HyperspaceReturn();
             }
             else // we are in range:
             {
