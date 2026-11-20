@@ -117,13 +117,13 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             SetOwner(colonyShip.Loyalty);
-            DropOnePerEmpireDuplicates();
             Quarantine     = false;
             ManualOrbitals = false;
             System.OwnerList.Add(Owner);
             SetupColonyType();
             SetExploredBy(Owner);
             CreateStartingEquipment(colonyShip);
+            DropOnePerEmpireDuplicates();
             UnloadTroops(colonyShip);
             UnloadCargoColonists(colonyShip);
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
