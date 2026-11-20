@@ -43,6 +43,10 @@ namespace Ship_Game.Gameplay
         [StarData] public Ship Owner { get; protected set; }
         [StarData] public Planet Planet { get; protected set; }
         [StarData] public Empire Loyalty;
+
+        // whose technologies and traits boost the shot: the firing ship's empire, or a planet's owner for a planet's gun
+        Empire TechOwner => Owner?.Loyalty ?? (Planet != null ? Loyalty : null);
+
         [StarData] public float Duration;
         [StarData] protected string WeaponUID;
         [StarData] public bool DieNextFrame { get; private set; }
@@ -349,7 +353,9 @@ namespace Ship_Game.Gameplay
             Radius                = Weapon.ProjectileRadius;
             Explodes              = Weapon.Explodes;
             FakeExplode           = Weapon.FakeExplode;
-            DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
+            DamageAmount          = Owner == null && Planet != null && Loyalty != null
+                                  ? WeaponTemplate.DamageWithOrdnanceBonus(Loyalty.data, Weapon)
+                                  : Weapon.GetDamageWithBonuses(Owner);
             DamageRadius          = Weapon.ExplosionRadius;
             ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
             RechargeEmpAndPowerDamage();
@@ -361,7 +367,8 @@ namespace Ship_Game.Gameplay
             ArmorPiercing         = Weapon.ArmorPen;
             IgnitionDelay         = Weapon.Tag_Guided ? Weapon.DelayedIgnition : 0f;
 
-            Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
+            if (!IsSwarmSat) // a swarm satellite's flight is set by its swarm
+                Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
             if (Weapon.RangeVariance)
                 Range *= Owner.Loyalty.Random.Float(0.9f, 1.1f);
 
@@ -376,8 +383,8 @@ namespace Ship_Game.Gameplay
             InitialDuration = Duration = (Range/Speed + Weapon.DelayedIgnition) * durationMod;
             ParticleDelay  += Weapon.ParticleDelay;
 
-            if (Owner?.Loyalty.data.ArmorPiercingBonus > 0 && Weapon.Tag_Kinetic)
-                ArmorPiercing += Owner.Loyalty.data.ArmorPiercingBonus;
+            if (TechOwner?.data.ArmorPiercingBonus > 0 && Weapon.Tag_Kinetic)
+                ArmorPiercing += TechOwner.data.ArmorPiercingBonus;
 
             if (Weapon.IsRepairDrone)
             {
@@ -954,9 +961,9 @@ namespace Ship_Game.Gameplay
 
                 if (explodes)
                 {
-                    if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
+                    if (Weapon.OrdinanceRequiredToFire > 0f && TechOwner != null)
                     {
-                        DamageRadius += Owner.Loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
+                        DamageRadius += TechOwner.data.OrdnanceEffectivenessBonus * DamageRadius;
                     }
 
                     if (showFx)

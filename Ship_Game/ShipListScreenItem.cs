@@ -260,7 +260,9 @@ namespace Ship_Game
                             case ShipAI.Plan.PickupGoods:  status = Localizer.Token(GameText.PickingUp); break;
                             case ShipAI.Plan.DropOffGoods: status = Localizer.Token(GameText.Delivering); break;
                         }
-                        return $"{status} {goodsType} from {last2.Trade?.ExportFrom.Name} to {last2.Trade?.ImportTo?.Name ?? last2.Trade?.TargetStation.Name} {blockade}";
+                        // a fast-track trip names its importer as its export planet too
+                        string from = last2.Trade?.ExportFrom == last2.Trade?.ImportTo ? "" : $"from {last2.Trade?.ExportFrom.Name} ";
+                        return $"{status} {goodsType} {from}to {last2.Trade?.ImportTo?.Name ?? last2.Trade?.TargetStation.Name} {blockade}";
                     }
                     return $"{Localizer.Token(GameText.TradingGoods)} \n {Localizer.Token(GameText.SeekingRoute)}";
                 case AIState.Research:

@@ -187,9 +187,11 @@ namespace Ship_Game
                 FrameTimeLogger.BeginDraw();
                 try
                 {
+                    DrawToScreen(GraphicsDevice);
                     ScreenManager.ClearScreen(Color.Black);
                     ScreenManager.Draw();
                     base.Draw(gameTime);
+                    StretchScreenTarget();
                 }
                 finally
                 {

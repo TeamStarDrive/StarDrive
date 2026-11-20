@@ -127,6 +127,8 @@ public static class GlobalStats
     // USER_EXPERIENCE
     // automatic error reporting via Sentry.io
     public static bool AutoErrorReport = true;
+    // a new game starts from the setup of the last game started, see LastSetup
+    public static bool UseLastSetup;
         
     // USER_EXPERIENCE
     // global option, if enabled, scrolling will always zoom into selected objects
@@ -366,6 +368,7 @@ public static class GlobalStats
         GetSetting(config, "ShadowDetail", ref ShadowDetail);
         GetSetting(config, "EffectDetail", ref EffectDetail);
         GetSetting(config, "AutoErrorReport", ref AutoErrorReport);
+        GetSetting(config, "UseLastSetup", ref UseLastSetup);
         GetSetting(config, "ActiveMod", ref ModPath);
 
         GetSetting(config, "NotifyEmptyPlanetQueue", ref NotifyEmptyPlanetQueue);
@@ -539,8 +542,8 @@ public static class GlobalStats
 
     public static void SaveSettings()
     {
-        XRES = StarDriveGame.Instance.Graphics.PreferredBackBufferWidth;
-        YRES = StarDriveGame.Instance.Graphics.PreferredBackBufferHeight;
+        XRES = GameBase.ScreenWidth;
+        YRES = GameBase.ScreenHeight;
 
         Configuration config = OpenUserConfiguration();
 
@@ -562,6 +565,7 @@ public static class GlobalStats
         WriteSetting(config, "ShadowDetail", ShadowDetail);
         WriteSetting(config, "EffectDetail", EffectDetail);
         WriteSetting(config, "AutoErrorReport", AutoErrorReport);
+        WriteSetting(config, "UseLastSetup", UseLastSetup);
         WriteSetting(config, "ActiveMod", ModPath);
 
         WriteSetting(config, "NotifyEmptyPlanetQueue", NotifyEmptyPlanetQueue);

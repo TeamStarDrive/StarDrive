@@ -453,7 +453,7 @@ namespace Ship_Game
 
             if (troopShipsHere)
             {
-                OrdersButton launchTroops = new(ShipList, OrderType.TroopToggle, GameText.TogglesWhetherThisShipsAssault)
+                OrdersButton launchTroops = new(ShipList, OrderType.TroopToggle, GameText.GroupAssaultShuttlesTip)
                 {
                     SimpleToggle = true,
                     Active = true

@@ -151,10 +151,12 @@ namespace Ship_Game.Ships
             // this size calculation is quite delicate because of float coordinate imprecision issues
             double moduleSize = sc.ProjectToScreenSize(16.5f);
             double oneUnit = moduleSize/16.5;
+            float gridCenterX = Grid.GridLocalCenter.X;
 
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            ShipModule[] slots = ModuleSlotList;
+            for (int i = 0; i < slots.Length; ++i)
             {
-                ShipModule slot = ModuleSlotList[i];
+                ShipModule slot = slots[i];
 
                 bool square = slot.XSize == slot.YSize;
                 double w = (slot.XSize * moduleSize);
@@ -193,23 +195,18 @@ namespace Ship_Game.Ships
                         sc.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, healthColor);
                     }
 
-                    if (square)
+                    SubTexture tex = slot.GetDrawnTexture(slot.Pos.X * 16f >= gridCenterX, out float turn, out SpriteEffects effects);
+                    if (turn != 0f) // turned base art: the slot's size is already turned
                     {
-                        sc.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        if (showDebugSelect)
-                            sc.DrawCircle(posOnScreen, slot.Radius*oneUnit, Color.Orange, 2f);
+                        double oldW = w; w = h; h = oldW; // swap(w, h)
                     }
-                    else
-                    {
-                        // @TODO HACK the dimensions are already rotated so that rotating again puts it in the wrong orientation. 
-                        // so to fix that i am switching the height and width if the module is facing left or right. 
-                        if (slotFacing == 270 || slotFacing == 90)
-                        {
-                            double oldW = w; w = h; h = oldW; // swap(w, h)
-                        }
 
-                        sc.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        if (showDebugSelect)
+                    sc.DrawTextureSized(tex, posOnScreen, shipRotation + turn, w, h, healthColor, effects);
+                    if (showDebugSelect)
+                    {
+                        if (square)
+                            sc.DrawCircle(posOnScreen, slot.Radius*oneUnit, Color.Orange, 2f);
+                        else
                             sc.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
                     }
 
@@ -409,36 +406,35 @@ namespace Ship_Game.Ships
                 }
             }
 
-            for (int i = 0; i < ModuleSlotList.Length; i++)
+            float gridCenterX = Grid.GridLocalCenter.X;
+            ShipModule[] slots = ModuleSlotList;
+            for (int i = 0; i < slots.Length; i++)
             {
-                ShipModule m = ModuleSlotList[i];
+                ShipModule m = slots[i];
                 Vector2 modulePos = new Vector2(m.Pos.X, m.Pos.Y) * moduleSize;
                 var rect = new RectF(shipDrawRect.X + modulePos.X,
                                      shipDrawRect.Y + modulePos.Y,
                                      moduleSize * m.XSize,
                                      moduleSize * m.YSize);
 
-                SubTexture tex = m.ModuleTexture;
-                SpriteEffects effects = SpriteEffects.None;
-                if (m.GetOrientedModuleTexture(ref tex, m.ModuleRot)
-                    && m.ModuleRot is ModuleOrientation.Left or ModuleOrientation.Right
-                    && m.Pos.X >= ShipData.GridInfo.Center.X) // sideways art is mirrored on the right half, as in the shipyard
-                {
-                    effects = SpriteEffects.FlipHorizontally;
-                }
+                SubTexture tex = m.GetDrawnTexture(m.Pos.X * 16f >= gridCenterX, out float turn, out SpriteEffects effects);
+                // turned base art is drawn into the turned slot from the corner the turn swings it from
+                RectF texRect = turn < 0f ? new RectF(rect.X, rect.Y + rect.H, rect.H, rect.W)
+                              : turn > 0f ? new RectF(rect.X + rect.W, rect.Y, rect.H, rect.W)
+                              : rect;
 
                 if (moduleHealthColor)
                 {
                     Color healthColor = m.GetHealthStatusColor();
                     if (!drawHullBackground)
                         batch.FillRectangle(rect, healthColor);
-                    batch.Draw(tex, rect, healthColor.AddRgb(0.66f), 0f, Vector2.Zero, effects, 1f);
+                    batch.Draw(tex, texRect, healthColor.AddRgb(0.66f), turn, Vector2.Zero, effects, 1f);
                 }
                 else
                 {
                     if (!drawHullBackground)
                         batch.FillRectangle(rect, new Color(40, 40, 40));
-                    batch.Draw(tex, rect, Color.White, 0f, Vector2.Zero, effects, 1f);
+                    batch.Draw(tex, texRect, Color.White, turn, Vector2.Zero, effects, 1f);
                 }
 
                 if (markLockedModules && !Loyalty.IsModuleUnlocked(m.UID))

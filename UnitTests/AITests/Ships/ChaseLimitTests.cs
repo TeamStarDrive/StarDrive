@@ -20,6 +20,7 @@ public class ChaseLimitTests : StarDriveTest
     const string DreadnoughtName = "Dreadnought mk1-a";
     const string PlatformName = "Platform Base mk1-a";
     const string ShuttleName = "Assault Shuttle";
+    const string TroopShipName = "Human Troop";
     static readonly FixedSimTime OneSecond = new(1f);
     static readonly FixedSimTime ToTheNextTargetPick = new(1.5f);
     static readonly Vector2 FleetPos = new(300_000f, 300_000f);
@@ -29,7 +30,7 @@ public class ChaseLimitTests : StarDriveTest
 
     public ChaseLimitTests()
     {
-        LoadStarterShips(FrigateName, ScoutName, CarrierName, DreadnoughtName, PlatformName, ShuttleName);
+        LoadStarterShips(FrigateName, ScoutName, CarrierName, DreadnoughtName, PlatformName, ShuttleName, TroopShipName);
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
     }
@@ -535,11 +536,15 @@ public class ChaseLimitTests : StarDriveTest
     }
 
     // a fleet ship that wins every overtake roll, and a dreadnought 10,000 off speeding away faster than it can follow
-    TestShip FleetShipAfterAFasterRival(bool onTask, out TestShip rival)
+    TestShip FleetShipAfterAFasterRival(bool onTask, out TestShip rival, bool nearItsSpot = false)
     {
         TestShip ship = FleetShip(FleetPos);
         ship.Level = 95;
-        if (onTask)
+        if (onTask && nearItsSpot)
+        {
+            MovingFleetTo(FleetPos + new Vector2(5_000f, 0f), ship);
+        }
+        else if (onTask)
         {
             MovingFleet(ship);
         }
@@ -564,6 +569,32 @@ public class ChaseLimitTests : StarDriveTest
         Assert.AreNotEqual(AIState.Pursue, ship.AI.State, "no overtake");
         Assert.IsTrue(ship.AI.FindGoal(ShipAI.Plan.MoveToWithin1000, out ShipAI.ShipGoal leg) && leg.WantedState == AIState.FormationMoveTo,
                       "the fleet's move, and so its limits, stay with the ship");
+    }
+
+    static bool FleetMoveQueued(TestShip ship)
+        => ship.AI.OrderQueue.Any(g => g is { WantedState: AIState.FormationMoveTo, Plan: ShipAI.Plan.MoveToWithin1000 or ShipAI.Plan.MakeFinalApproach });
+
+    [TestMethod]
+    public void AFleetShipNearItsSpotAtTheDestinationOvertakes()
+    {
+        TestShip ship = FleetShipAfterAFasterRival(onTask: true, out TestShip rival, nearItsSpot: true);
+        Assert.IsTrue(FleetMoveQueued(ship), "setup: the fleet's move is still queued");
+        ship.AI.MoveToEngageTarget(rival, TestSimStep);
+
+        AssertEqual(AIState.Pursue, ship.AI.State, "a ship that has arrived cuts off a faster rival, its fleet's move queued or not");
+    }
+
+    [TestMethod]
+    public void AFleetShipNearItsSpotAtTheDestinationTakesOnALoneWeakShip()
+    {
+        TestShip ship = FleetShip(FleetPos);
+        MovingFleetTo(FleetPos + new Vector2(5_000f, 0f), ship);
+        TestShip scout = WeakScout(ship);
+        JustOutOfReach(scout, ship);
+        RunObjectsSim(OneSecond);
+
+        Assert.IsTrue(FleetMoveQueued(ship), "setup: the fleet's move is still queued");
+        Assert.AreSame(scout, ship.AI.Target, "a ship that has arrived clears even a lone weak ship there");
     }
 
     [TestMethod]
@@ -631,6 +662,118 @@ public class ChaseLimitTests : StarDriveTest
 
         Assert.IsTrue(away.InCombat, "a ship the fleet sent at a cluster of its own may fight there");
         Assert.IsFalse(away.AI.HasPriorityOrder);
+    }
+
+    static readonly MethodInfo AwaitOrdersAI = typeof(ShipAI).GetMethod("AwaitOrdersAIControlled", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+    static bool SentToItsSpot(TestShip ship, Fleet fleet)
+        => ship.AI.FindGoal(ShipAI.Plan.MoveToWithin1000, out ShipAI.ShipGoal leg) && leg.WantedState == AIState.FormationMoveTo
+           && leg.MovePosition.InRadius(fleet.GetFinalPos(ship), 10f);
+
+    [TestMethod]
+    public void AnIdleShipOfAFleetOnATaskGoesBackToItsSpotAtTheDestination()
+    {
+        TestShip ship = FleetShip(FleetPos);
+        Fleet fleet = MovingFleetTo(FleetPos + new Vector2(40_000f, 0f), ship);
+        ship.AI.ClearOrders();
+        Assert.IsTrue(ship.AI.State == AIState.AwaitingOrders && ship.AI.OrderQueue.Count == 0, "setup: the ship is idle, its fleet's move gone");
+
+        RunObjectsSim(TestSimStep); // in formation, the ship is told to await orders
+        RunObjectsSim(TestSimStep);
+
+        Assert.IsTrue(SentToItsSpot(ship, fleet), $"an idle ship rejoins its fleet's move, to its spot at the destination (state {ship.AI.State}, " +
+                      $"orders {string.Join(",", global::System.Linq.Enumerable.Select(ship.AI.OrderQueue.ToArray(), g => g.Plan + ":" + g.WantedState))})");
+        Assert.IsFalse(ship.AI.HasPriorityOrder, "an aggressive move, like the fleet's own regroup, so it fights on the way");
+    }
+
+    [TestMethod]
+    public void AnIdleShipOfAFleetWithoutATaskOrAResupplyingShipIsNotSentToItsSpot()
+    {
+        TestShip noTask = FleetShip(FleetPos);
+        Fleet idleFleet = Enemy.CreateFleet(1, null);
+        idleFleet.AddShip(noTask);
+        idleFleet.MoveTo(FleetPos + new Vector2(40_000f, 0f), Vectors.Up, MoveOrder.Aggressive);
+        noTask.AI.ClearOrders();
+        AwaitOrdersAI.Invoke(noTask.AI, new object[] { TestSimStep });
+        Assert.IsFalse(SentToItsSpot(noTask, idleFleet), "a fleet with no task is left to its own idle rules");
+
+        TestShip resupplying = FleetShip(FleetPos + new Vector2(0f, 20_000f));
+        Fleet fleet = MovingFleetTo(FleetPos + new Vector2(40_000f, 20_000f), resupplying);
+        resupplying.AI.ClearOrders(AIState.Resupply);
+        AwaitOrdersAI.Invoke(resupplying.AI, new object[] { TestSimStep });
+        Assert.IsFalse(SentToItsSpot(resupplying, fleet), "a ship on its way to resupply keeps to that");
+
+        TestShip control = FleetShip(FleetPos + new Vector2(0f, 40_000f));
+        Fleet controlFleet = MovingFleetTo(FleetPos + new Vector2(40_000f, 40_000f), control);
+        control.AI.ClearOrders();
+        AwaitOrdersAI.Invoke(control.AI, new object[] { TestSimStep });
+        Assert.IsTrue(SentToItsSpot(control, controlFleet), "setup: an idle ship of a fleet on a task is sent");
+    }
+
+    [TestMethod]
+    public void AnIdleFleetShipWithItsEnginesOutIsNotSentToItsSpot()
+    {
+        TestShip ship = FleetShip(FleetPos);
+        Fleet fleet = MovingFleetTo(FleetPos + new Vector2(40_000f, 0f), ship);
+        ship.AI.ClearOrders();
+        ship.EnginesKnockedOut = true;
+
+        AwaitOrdersAI.Invoke(ship.AI, new object[] { TestSimStep });
+
+        Assert.IsFalse(SentToItsSpot(ship, fleet), "a ship that cannot move takes no move it could never finish");
+        AssertEqual(AIState.AwaitingOrders, ship.AI.State);
+    }
+
+    [TestMethod]
+    public void AnIdleTroopShipOfAFleetOnATaskStopsWhereItIsForItsFleetToSendIt()
+    {
+        TestShip warship = FleetShip(FleetPos);
+        TestShip trooper = Quiet(SpawnShip(TroopShipName, Enemy, FleetPos + new Vector2(0f, -3000f)));
+        Fleet fleet = MovingFleetTo(FleetPos + new Vector2(40_000f, 0f), warship, trooper);
+        trooper.AI.ClearOrders();
+        trooper.AI.OrderAwaitOrders(); // as a fight's end or the fleet's idle check leaves it
+        trooper.Velocity = new Vector2(trooper.MaxSTLSpeed * 0.5f, 0f);
+
+        for (int i = 0; i < 5; ++i)
+            RunObjectsSim(OneSecond);
+
+        Assert.IsFalse(HeadsToItsSpot(trooper, fleet), "a troop ship is not sent ahead to the destination");
+        AssertEqual(AIState.AwaitingOrders, trooper.AI.State, "it stays idle");
+        AssertLessThan(trooper.CurrentVelocity, 5f, "and stops where it is");
+    }
+
+    [TestMethod]
+    public void AnIdleCarrierOfAFleetOnATaskGoesBackToItsSpotAtTheDestination()
+    {
+        TestShip warship = FleetShip(FleetPos);
+        TestShip carrier = Quiet(SpawnShip(CarrierName, Enemy, FleetPos + new Vector2(0f, -3000f)));
+        Fleet fleet = MovingFleetTo(FleetPos + new Vector2(40_000f, 0f), warship, carrier);
+        carrier.AI.ClearOrders();
+
+        AwaitOrdersAI.Invoke(carrier.AI, new object[] { TestSimStep });
+
+        Assert.IsTrue(SentToItsSpot(carrier, fleet), "a carrier, though the fleet keeps it in its rear, rejoins like a warship");
+    }
+
+    // the move a ship is on goes to its spot at the fleet's destination, as an idle ship's rejoin or a lost ship's return
+    static bool HeadsToItsSpot(TestShip ship, Fleet fleet)
+        => ship.AI.FindGoal(ShipAI.Plan.MoveToWithin1000, out ShipAI.ShipGoal leg) && leg.MovePosition.InRadius(fleet.GetFinalPos(ship), 10f);
+
+    [TestMethod]
+    public void AShipOfAFleetOnATaskLeftIdleByAFightAwayFromItsPlaceHeadsToItsSpotAtTheDestination()
+    {
+        TestShip stay = FleetShip(FleetPos);
+        TestShip away = FleetShip(FleetPos + new Vector2(0f, 30_000f));
+        Fleet fleet = MovingFleetTo(FleetPos + new Vector2(40_000f, 0f), stay, away);
+        away.AI.ClearOrders();
+        TestShip scout = WeakScout(away);
+        RunObjectsSim(OneSecond);
+        Assert.AreSame(scout, away.AI.Target, "setup: the ship fights a rival");
+
+        scout.Die(null, cleanupOnly: false);
+        RunSimWhile((10, fatal: false), () => !HeadsToItsSpot(away, fleet));
+
+        Assert.IsTrue(HeadsToItsSpot(away, fleet), $"with the fight over, the ship heads to its spot at the fleet's destination (state {away.AI.State})");
     }
 
     [TestMethod]

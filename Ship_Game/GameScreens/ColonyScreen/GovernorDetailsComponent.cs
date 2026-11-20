@@ -676,7 +676,7 @@ namespace Ship_Game
         void OnCreateBlueprintsClicked(UIButton b)
         {
             HashSet<string> potentialBuildings = Planet.TilesList.FilterSelect(t => t.BuildingOnTile 
-                && t.Building.IsSuitableForBlueprints 
+                && t.Building.CanBePlanned
                 && Player.IsBuildingUnlocked(t.Building.Name), t => t.Building.Name).ToHashSet();
 
             if (potentialBuildings.Count > 0)

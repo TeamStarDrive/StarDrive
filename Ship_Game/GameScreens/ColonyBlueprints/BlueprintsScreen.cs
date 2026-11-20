@@ -260,7 +260,7 @@ namespace Ship_Game
             AddOutpost();
             foreach (Building b in Player.GetUnlockedBuildings().Sorted(b => b.Name))
             {
-                if (b.IsSuitableForBlueprints && !TilesList.Any(t => t.BuildingNameHereIS(b.Name)))
+                if (b.CanBePlanned && !TilesList.Any(t => t.BuildingNameHereIS(b.Name)))
                 {
                     b.UpdateOffense(PlanetLevel, Player.Universe);
                     BuildableList.AddItem(new BlueprintsBuildableListItem(this, b));
@@ -322,7 +322,7 @@ namespace Ship_Game
                 InitRichness, Player.data.Traits.PreferredEnv, HoveredBuilding);
             ColonyScreen.DrawBuildingInfo(ref bCursor, batch, TextFont, HoveredBuilding.ActualShipRepair(PlanetLevel), 
                 "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
-            ColonyScreen.DrawBuildingWeaponStats(ref bCursor, batch, TextFont, HoveredBuilding, PlanetLevel);
+            ColonyScreen.DrawBuildingWeaponStats(ref bCursor, batch, TextFont, HoveredBuilding, PlanetLevel, Player);
         }
 
         void DrawPlanStatistics(SpriteBatch batch)

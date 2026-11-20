@@ -6,6 +6,7 @@ using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -39,6 +40,44 @@ namespace Ship_Game
                 usToThem.SetTreaty(this, type, value);
                 if (them.GetRelations(this, out Relationship themToUs))
                     themToUs.SetTreaty(them, type, value);
+                if (value && type is TreatyType.NonAggression or TreatyType.Peace)
+                    StopTargetingEachOther(them);
+            }
+        }
+
+        // the two empires' ships drop their targets on each other, so a fight going on when the treaty is signed ends
+        void StopTargetingEachOther(Empire them)
+        {
+            if (Universe?.Screen is { IsOnSimThread: false } screen)
+            {
+                screen.RunOnSimThread(() => StopTargetingEachOther(them));
+                return;
+            }
+            DropTargetsOn(them);
+            them.DropTargetsOn(this);
+            EndBeamsOnEachOther(them);
+        }
+
+        // our ships' aim on theirs ends, and their troops boarding our ships leave
+        void DropTargetsOn(Empire them)
+        {
+            IReadOnlyList<Ship> ships = OwnedShips;
+            for (int i = 0; i < ships.Count; i++)
+            {
+                ships[i].AI.DropTargetsOf(them);
+                ships[i].SendBoardersHome(them);
+            }
+        }
+
+        // a beam keeps its own target, so one already on the other's ships goes out
+        void EndBeamsOnEachOther(Empire them)
+        {
+            Projectile[] shots = Universe.Objects.GetAllProjectilesAndBeams();
+            for (int i = 0; i < shots.Length; i++)
+            {
+                if (shots[i] is Beam { Active: true } beam && beam.TargetShip is { } target
+                    && (beam.Loyalty == this && target.Loyalty == them || beam.Loyalty == them && target.Loyalty == this))
+                    beam.Die(null, false);
             }
         }
 
@@ -282,6 +321,12 @@ namespace Ship_Game
         public bool IsAlliedWith(Empire otherEmpire)
         {
             return GetRelationsOrNull(otherEmpire)?.Treaty_Alliance == true;
+        }
+
+        // a non-aggression pact, peace or an alliance, under which our troops board none of their ships
+        public bool MayNotBoard(Empire otherEmpire)
+        {
+            return GetRelationsOrNull(otherEmpire) is { } rel && (rel.Treaty_NAPact || rel.Treaty_Peace || rel.Treaty_Alliance);
         }
 
         public bool IsFriendlyWith(Empire otherEmpire)

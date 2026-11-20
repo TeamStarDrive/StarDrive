@@ -399,6 +399,25 @@ namespace Ship_Game.AI
             return target != null && target.Active && !target.Dying;
         }
 
+        // a treaty signed with them: the ship's target, the targets the player gave it and each weapon's aim on their ships are dropped
+        public void DropTargetsOf(Empire them)
+        {
+            if (TargetQueue == null)
+                return; // disposed
+            if (Target?.Loyalty == them)
+                Target = null;
+            for (int i = TargetQueue.Count - 1; i >= 0; --i)
+                if (TargetQueue[i].Loyalty == them)
+                    TargetQueue.RemoveAt(i);
+            PotentialTargets = PotentialTargets.Filter(s => s.Loyalty != them);
+            TrackProjectiles = TrackProjectiles.Filter(p => p.Loyalty != them);
+
+            int count = Owner.Weapons.Count;
+            Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+                weapons[i].DropTargetOf(them);
+        }
+
         // the target given to the ship is gone: the next live one queued takes its place, else the ship picks its own
         bool HandOverPriorityTarget()
         {
@@ -468,7 +487,9 @@ namespace Ship_Game.AI
             }
             else if (fleet.FleetTask != null || fleet.IsIdle)
             {
-                OnFleetMove = OrderQueue.Any(g => g is { WantedState: AIState.FormationMoveTo, Plan: Plan.MoveToWithin1000 or Plan.MakeFinalApproach });
+                // a ship near its spot at the fleet's destination has arrived, even with the move still queued behind its fight
+                OnFleetMove = OrderQueue.Any(g => g is { WantedState: AIState.FormationMoveTo, Plan: Plan.MoveToWithin1000 or Plan.MakeFinalApproach })
+                              && !Owner.Position.InRadius(fleet.GetFinalPos(Owner), fleet.LongestSensorRange);
             }
         }
 
@@ -526,14 +547,11 @@ namespace Ship_Game.AI
             if (!OnFleetMove || fleet == null || FightBackSpot != Vector2.Zero)
                 return false;
 
-            // a ship already near its spot at the fleet's destination has nothing to rejoin
-            float range = fleet.LongestSensorRange;
-            Vector2 spot = fleet.GetFinalPos(Owner);
-            if (Owner.Position.InRadius(fleet.GetFormationPos(Owner), range) || Owner.Position.InRadius(spot, range))
+            if (Owner.Position.InRadius(fleet.GetFormationPos(Owner), fleet.LongestSensorRange))
                 return false;
 
             ResetPriorityOrder(clearOrders: false);
-            OrderMoveTo(spot, fleet.FinalDirection, AIState.FormationMoveTo);
+            OrderMoveTo(fleet.GetFinalPos(Owner), fleet.FinalDirection, AIState.FormationMoveTo);
             return true;
         }
 
@@ -751,9 +769,10 @@ namespace Ship_Game.AI
                     //       because choosing a new target is expensive, and it's not even used sometimes
                     UpdateChaseLimits();
                     Ship selectedTarget = SelectCombatTarget(sensorRadius);
-                    if (Owner.Fleet == null && selectedTarget == null && Owner.IsHangarShip)
+                    if (Owner.Fleet == null && selectedTarget == null && Owner.Mothership is { } carrier
+                        && carrier.AI.Target is { } carrierTarget && IsTargetValid(carrierTarget))
                     {
-                        selectedTarget = Owner.Mothership.AI.Target;
+                        selectedTarget = carrierTarget;
                     }
 
                     // automatically choose `Target` if ship does not have Priority
@@ -818,7 +837,9 @@ namespace Ship_Game.AI
             // GuardMode and HoldPosition Stances are for avoiding combat, so significantly smaller
             if (cs == CombatState.GuardMode) return Ship.GuardModeRange;
             if (cs == CombatState.HoldPosition) return Ship.HoldPositionRange;
-            // for all other Combat stances, enter combat from Sensor Range
+            // for all other Combat stances, enter combat from Sensor Range, a fighter within its carrier's sensors from as far as the carrier would
+            if (Owner.Mothership is { } carrier && GetSensorRadius(out Ship sensorShip) > 0 && sensorShip != Owner)
+                return carrier.AI.GetEnterCombatRangeFromCombatState(carrier.AI.CombatState);
             return Owner.SensorRange;
         }
 

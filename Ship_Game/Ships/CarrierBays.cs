@@ -64,6 +64,14 @@ namespace Ship_Game.Ships
             return fighters;
         }
 
+        public bool IsOwnFighter(Ship ship)
+        {
+            foreach (ShipModule hangar in AllFighterHangars)
+                if (hangar.TryGetHangarShip(out Ship fighter) && fighter == ship)
+                    return true;
+            return false;
+        }
+
         CarrierBays()
         {
         }
@@ -792,9 +800,9 @@ namespace Ship_Game.Ships
                 if (Owner == null)
                     return;
 
-                if (Owner.IsSpoolingOrInWarp)
+                if (value && Owner.IsSpoolingOrInWarp)
                 {
-                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
+                    GameAudio.NegativeClick(); // nothing launches while the ship is spooling or at warp, but a recall is taken
                     return;
                 }
 
@@ -814,9 +822,9 @@ namespace Ship_Game.Ships
                 if (Owner == null)
                     return;
 
-                if (Owner.IsSpoolingOrInWarp)
+                if (value && Owner.IsSpoolingOrInWarp)
                 {
-                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
+                    GameAudio.NegativeClick(); // nothing launches while the ship is spooling or at warp, but a recall is taken
                     return;
                 }
 

@@ -47,7 +47,8 @@ namespace Ship_Game.AI
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
             if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLaunchingOrLanding
-                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoardedBy(Owner.Loyalty))
+                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoardedBy(Owner.Loyalty)
+                || Owner.Loyalty.MayNotBoard(escortTarget.Loyalty))
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -150,18 +151,22 @@ namespace Ship_Game.AI
             else if (movesToTarget && !inReach)
             {
                 MoveToEngageTarget(target, timeStep);
+                // a jump covering less than 7500 before its chosen range drops it out is called off
+                if (!HasPriorityOrder && !HasPriorityTarget && Owner.IsSpooling
+                    && distanceToTarget < Owner.DesiredCombatRange + FormationWarpExitDistance)
+                    Owner.HyperspaceReturn();
             }
             else // we are in range:
             {
                 if (movesToTarget && TryOvertakeTargetInReach(target, distanceToTarget))
                     return;
 
-                // Disengage from warp if we get close enough to the target
+                // Disengage from warp, or give up a jump still spooling, if we get close enough to the target
                 // For big ships this can be 110% of DesiredCombatRange,
                 // but also ensure we are far enough to prevent warping on top of enemy fleets
                 //   which can be a detriment and also an exploit by players
-                if (Owner.engineState == Ship.MoveState.Warp &&
-                    (distanceToTarget < 7500f || distanceToTarget < Owner.DesiredCombatRange * 1.1f))
+                bool closeEnough = distanceToTarget < 7500f || distanceToTarget < Owner.DesiredCombatRange * 1.1f;
+                if (closeEnough && Owner.IsSpoolingOrInWarp)
                 {
                     Owner.HyperspaceReturn();
                 }
@@ -173,6 +178,8 @@ namespace Ship_Game.AI
                     if (Owner.Position.OutsideRadius(target.Position, radius))
                     {
                         ThrustOrWarpToPos(target.Position, timeStep);
+                        if (closeEnough && Owner.IsSpooling) // a move this close to its target starts no jump
+                            Owner.HyperspaceReturn();
                         return;
                     }
                     if (distanceToTarget < Owner.DesiredCombatRange)
@@ -180,6 +187,8 @@ namespace Ship_Game.AI
                 }
 
                 CombatAI.ExecuteCombatTactic(timeStep);
+                if (closeEnough && Owner.IsSpooling) // a stance's move this close starts no jump
+                    Owner.HyperspaceReturn();
                 Owner.Carrier.TryAssaultShipCombat();
             }
         }
@@ -220,9 +229,9 @@ namespace Ship_Game.AI
                 // priority-order move only drops it out of combat (it never reaches the prediction
                 // point). This is what left Remnant portals oscillating Combat<->Pursue instead of
                 // fighting in place.
-                // a ship on its fleet's move keeps that move, which an overtake would clear
+                // a ship on its fleet's move keeps that move, which an overtake would clear, and a flanker its round
                 if (Owner.IsInWarp || target.IsInWarp || Owner.Stats.IsStationary || Owner.EnginesKnockedOut || Owner.TractorDamage > 0f
-                    || !CanWarpNow || OnFleetMove || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
+                    || !CanWarpNow || OnFleetMove || RoundAheadAt(target) || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
                     return false;
 
                 float distance = Owner.Position.Distance(target.Position);
@@ -259,12 +268,13 @@ namespace Ship_Game.AI
             ChangeAIState(AIState.Pursue);
         }
 
-        // an AI ship in reach of a target backing away from it fast enough to be cut off goes for a point ahead of it now and then, a close-range attacker more often
+        // an AI ship in reach of a target backing away from it fast enough to be cut off goes for a point ahead of it now and then, a close-range attacker more often, a fleet ship only once the target is past its guns
         internal bool TryOvertakeTargetInReach(Ship target, float distance)
         {
             if (Owner.Loyalty.isPlayer || Owner.IsHangarShip || CombatState == CombatState.Evade || Owner.IsInWarp || target.IsInWarp
-                || Owner.Stats.IsStationary || Owner.EnginesKnockedOut || Owner.TractorDamage > 0f || !CanWarpNow || OnFleetMove
+                || Owner.Stats.IsStationary || Owner.EnginesKnockedOut || Owner.TractorDamage > 0f || !CanWarpNow || OnFleetMove || RoundAheadAt(target)
                 || distance >= 7500f || distance <= Owner.DesiredCombatRange || distance <= Owner.WeaponsMaxRange * 0.7f
+                || Owner.Fleet != null && distance <= Owner.WeaponsMaxRange
                 || (distance < 3000f && distance <= Owner.WeaponsMaxRange) // close in and under its guns, the target is fought where it is
                 || OutpacedAt >= target.CurrentVelocity || target.Velocity.Dot(target.Position - Owner.Position) <= 0f
                 || Owner.IsInhibitedByUnfriendlyGravityWell)
@@ -651,8 +661,9 @@ namespace Ship_Game.AI
                 }
 
                 // force the ship out of warp if we get too close
-                // this is a balance feature
-                ThrustOrWarpToPos(goal.GetThrustTarget(landingSpot, Owner.Position), timeStep, warpExitDistance: Owner.WarpOutDistance);
+                // this is a balance feature, measured from the landing spot and not from a detour on the way
+                Vector2 thrustTarget = goal.GetThrustTarget(landingSpot, Owner.Position);
+                ThrustOrWarpToPos(thrustTarget, timeStep, warpExitDistance: thrustTarget == landingSpot ? Owner.WarpOutDistance : 0f);
                 LandTroopsViaSingleTransport(planet, landingSpot);
             }
             else
@@ -850,8 +861,11 @@ namespace Ship_Game.AI
 
             if (target.Loyalty != Owner.Loyalty)
             {
-                Owner.TryLandSingleTroopOnShip(target);
-                Owner.Loyalty.ResetTargetsForShipsTargetingAfterBoarding(target);
+                if (!Owner.Loyalty.MayNotBoard(target.Loyalty))
+                {
+                    Owner.TryLandSingleTroopOnShip(target);
+                    Owner.Loyalty.ResetTargetsForShipsTargetingAfterBoarding(target);
+                }
                 if (Owner.Active)
                     OrderReturnToHangar();
                 return;

@@ -134,14 +134,15 @@ namespace Ship_Game
         float SalvoShotTimer;
         Ship SalvoTarget;
 
-        [XmlIgnore] public bool IsSuitableForBlueprints => !IsCapitalOrOutpost
+        // a one-per-empire building can be planned, but a blueprint never scraps one
+        [XmlIgnore] public bool CanBePlanned => !IsCapitalOrOutpost
             && !IsBiospheres
-            && !IsDynamicUpdate 
+            && !IsDynamicUpdate
             && !IsTerraformer
             && !IsCommodity
-            && !BuildOnlyOnce
             && Scrappable;
 
+        [XmlIgnore] public bool IsSuitableForBlueprints => CanBePlanned && !BuildOnlyOnce;
 
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;

@@ -355,12 +355,6 @@ namespace Ship_Game.Ships
 
             SetMaxVelocity(maxSTLSpeed, maxFTLSpeed, atWarp);
 
-            if (!atWarp && Velocity.Length() > maxSTLSpeed)
-            {
-                // feature: exit from hyperspace at ridiculous speeds (STL max)
-                Velocity = Velocity.Normalized() * maxSTLSpeed.Clamped(0, MaxSubLightSpeed);
-            }
-
             if (isWarpCapable)
             {
                 bool warpingOrSpooling = atWarp || IsSpooling;
@@ -373,8 +367,18 @@ namespace Ship_Game.Ships
                 }
             }
 
+            // a ship that has just left warp moves this step at sublight speed
+            if (engineState != MoveState.Warp && Velocity.Length() > maxSTLSpeed)
+            {
+                // feature: exit from hyperspace at ridiculous speeds (STL max)
+                Velocity = Velocity.Normalized() * maxSTLSpeed.Clamped(0, MaxSubLightSpeed);
+            }
+
             UpdateShipRotation(timeStep);
+            Vector2 stepStart = Position;
             UpdateVelocityAndPosition(timeStep);
+            if (engineState == MoveState.Warp)
+                LeaveWarpWhereTheStepCrosses(stepStart);
 
             if (isWarpCapable && IsSpooling)
             {
@@ -386,22 +390,33 @@ namespace Ship_Game.Ships
         {
             TryAddResearchableStarNotification();
             System?.SetExploredBy(Loyalty);
-            return GetEscapeJumpPosition(out escapePos, 100_000, ignoreNonCombat: true, reverseIfInWell: true);
+            return GetEscapeJumpPosition(out escapePos, 100_000, ignoreNonCombat: true, reverseIfInWell: true, Direction);
         }
+
+        // a jump away along `away`; inside a gravity well, along it or past the side of the planet nearer to it
+        public bool TryGetFleeVector(Vector2 away, out Vector2 escapePos)
+        {
+            TryAddResearchableStarNotification();
+            System?.SetExploredBy(Loyalty);
+            return GetEscapeJumpPosition(out escapePos, 100_000, ignoreNonCombat: true, reverseIfInWell: false, away);
+        }
+
         public bool TryGetEscapeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 100_000,
-            ignoreNonCombat: false, reverseIfInWell: false);
+            ignoreNonCombat: false, reverseIfInWell: false, Direction, awayFromClosestInWell: true);
 
         /// <summary>
         /// Calculates an escape jump position to disengage from combat
         /// </summary>
-        /// <param name="escapePos">Default is straight forward</param>
+        /// <param name="escapePos">Default is straight along `direction`</param>
         /// <param name="desiredDistance"></param>
         /// <param name="ignoreNonCombat"></param>
+        /// <param name="direction">the way to jump, the ship's facing or away from enemies</param>
+        /// <param name="awayFromClosestInWell">inside a gravity well, run from the closest enemy instead of along `direction`</param>
         /// <returns>TRUE if an escape vector was found, FALSE if ship should go straight to resupply target</returns>
         public bool GetEscapeJumpPosition(out Vector2 escapePos, float desiredDistance,
-            bool ignoreNonCombat, bool reverseIfInWell)
+            bool ignoreNonCombat, bool reverseIfInWell, Vector2 direction, bool awayFromClosestInWell = false)
         {
-            escapePos = Position + Direction*desiredDistance; // default position - straight through
+            escapePos = Position + direction*desiredDistance; // default position - straight through
             if (!InCombat && !ignoreNonCombat) // No need for escape position if not in combat - turn around
                 return false;
 
@@ -418,8 +433,8 @@ namespace Ship_Game.Ships
             Planet gravityWell = System.IdentifyGravityWell(this);
             if (gravityWell != null)
             {
-                escapePos = reverseIfInWell ? Position - Direction*desiredDistance
-                                            : GetEscapePosInGravityWell(gravityWell, desiredDistance);
+                escapePos = reverseIfInWell ? Position - direction*desiredDistance
+                                            : Position + OutOfWell(gravityWell, awayFromClosestInWell ? AwayFromClosestEnemy() : direction) * desiredDistance;
                 return true;
             }
 
@@ -439,9 +454,10 @@ namespace Ship_Game.Ships
             int leftOrRight = Loyalty.Random.RollDie(2) == 1 ? 1 : -1;
             Vector2 bestDir = default;
 
+            float baseRotation = direction.ToRadians();
             for (int i = 0; i < 12; ++i)
             {
-                float rotation = Rotation + i * RadMath.Deg30AsRads*leftOrRight;
+                float rotation = baseRotation + i * RadMath.Deg30AsRads*leftOrRight;
                 Vector2 dirToCheck = rotation.RadiansToDirection();
                 int wellHits = HitTestGravityWells(potentialWells, dirToCheck, desiredDistance);
                 if (wellHits == 0)
@@ -470,40 +486,32 @@ namespace Ship_Game.Ships
             return wellHits;
         }
 
-        Vector2 GetEscapePosInGravityWell(Planet gravityWell, float desiredDistance)
+        // `away` when it leads out of the well, else whichever side of the planet lies nearer to it, so the ship does not cross the planet
+        Vector2 OutOfWell(Planet gravityWell, Vector2 away)
         {
-            Vector2 currentDir = Direction;
-            Vector2 fromWellToShip = gravityWell.Position.DirectionToTarget(Position);
-            Vector2 left = fromWellToShip.LeftVector();
-            Vector2 right = fromWellToShip.RightVector();
+            Vector2 outward = gravityWell.Position.DirectionToTarget(Position);
+            if (away.Dot(outward) >= 0f)
+                return away;
+            Vector2 left = outward.LeftVector();
+            return left.Dot(away) >= 0f ? left : outward.RightVector();
+        }
 
-            // escape left or right, whichever is closer
-            float toLeft = Vectors.AngleDifference(left, currentDir);
-            float toRight = Vectors.AngleDifference(right, currentDir);
-            if (AI.PotentialTargets.Length > 0)
+        // away from the closest enemy, or the ship's facing when it knows of none
+        Vector2 AwayFromClosestEnemy()
+        {
+            Ship[] enemies = AI.PotentialTargets;
+            Ship closest = null;
+            float closestSqDist = float.MaxValue;
+            for (int i = 0; i < enemies.Length; ++i)
             {
-                Ship closestEnemy = AI.PotentialTargets.FindMin(t => t.Position.SqDist(Position));
-                Vector2 DirToEnemy = -Position.DirectionToTarget(closestEnemy.Position);
-                float leftToEnemy = Vectors.AngleDifference(left, DirToEnemy);
-                float rightToEnemy = Vectors.AngleDifference(right, DirToEnemy);
-
-                if (leftToEnemy < 1.8f)
+                float sqDist = enemies[i].Position.SqDist(Position);
+                if (sqDist < closestSqDist)
                 {
-                    if (rightToEnemy < 1.8f)
-                    {
-                        float awayFromEnemyAngle = Vectors.AngleDifference(DirToEnemy, currentDir);
-                        return -DirToEnemy * desiredDistance;
-                    }
-                    else
-                    {
-                        return Position + toRight * desiredDistance;
-                    }
+                    closest = enemies[i];
+                    closestSqDist = sqDist;
                 }
             }
-
-            // fallback incase there are suddenly no enemies
-            Vector2 offsetLeftOrRight = (toLeft < toRight) ? left : right;
-            return Position + offsetLeftOrRight * desiredDistance;
+            return closest != null ? closest.Position.DirectionToTarget(Position) : Direction;
         }
     }
 }

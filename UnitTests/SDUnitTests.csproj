@@ -72,6 +72,7 @@
     <Compile Include="AITests\Ships\BoardingShuttleTargetTests.cs" />
     <Compile Include="AITests\Ships\MeteorTargetTests.cs" />
     <Compile Include="AITests\Ships\ChaseLimitTests.cs" />
+    <Compile Include="AITests\Ships\CombatJumpTests.cs" />
     <Compile Include="AITests\Ships\InhibitedFleetMoveTests.cs" />
     <Compile Include="AITests\Ships\SafeRebaseTests.cs" />
     <Compile Include="AITests\Ships\TestShipExploration.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="Empires\HostilePresenceAlertTests.cs" />
     <Compile Include="Empires\ThreatenedColonyOfferTests.cs" />
     <Compile Include="Empires\RefitPortSelectionTests.cs" />
+    <Compile Include="Empires\TraitAssimilationTests.cs" />
     <Compile Include="Empires\CrippledPortTests.cs" />
     <Compile Include="Empires\SpacePortScaleTests.cs" />
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
@@ -145,6 +147,7 @@
     <Compile Include="Graphics\ParticleManagerTests.cs" />
     <Compile Include="Graphics\ParticleVertexBufferTests.cs" />
     <Compile Include="Graphics\PostProcessChainTests.cs" />
+    <Compile Include="Graphics\ScreenTargetTests.cs" />
     <Compile Include="Graphics\ShadowMapTests.cs" />
     <Compile Include="Graphics\ShipPartsTests.cs" />
     <Compile Include="Graphics\SkinnedLightingEffectTests.cs" />
@@ -171,6 +174,7 @@
     <Compile Include="Planets\GovernorScrapRulesTests.cs" />
     <Compile Include="Planets\PlanetTroopLoadingTests.cs" />
     <Compile Include="Planets\TerraformCompletionTests.cs" />
+    <Compile Include="Planets\TerraformerQueueTests.cs" />
     <Compile Include="Planets\PlanetWeaponFireDelayTests.cs" />
     <Compile Include="Planets\PlanetCallForHelpTests.cs" />
     <Compile Include="Planets\YoungColonyTradeStateTests.cs" />
@@ -207,6 +211,7 @@
     <Compile Include="Ships\ColonyShipLandingTests.cs" />
     <Compile Include="Ships\CapturedColonyShipTests.cs" />
     <Compile Include="Ships\CapturedShipGoalTests.cs" />
+    <Compile Include="Ships\RefitOrbitalLostPortTests.cs" />
     <Compile Include="Ships\ScrapLandingTests.cs" />
     <Compile Include="Ships\RefitLandingTests.cs" />
     <Compile Include="Ships\RepairDroneCooldownTests.cs" />
@@ -227,7 +232,10 @@
     <Compile Include="Ships\HangarLandingTests.cs" />
     <Compile Include="Ships\HitBankTests.cs" />
     <Compile Include="Ships\BoardingLandingTests.cs" />
+    <Compile Include="Ships\FleeTests.cs" />
     <Compile Include="Ships\TroopLandingTests.cs" />
+    <Compile Include="Ships\WarpExitTests.cs" />
+    <Compile Include="Ships\WeaponFanTests.cs" />
     <Compile Include="Ships\OrdnanceShuttleTests.cs" />
     <Compile Include="Ships\PirateBaseLandingTests.cs" />
     <Compile Include="Ships\PirateCaptureScuttleTests.cs" />
@@ -281,10 +289,12 @@
     <Compile Include="Ships\TractorBeamTests.cs" />
     <Compile Include="Ships\ArtilleryTacticTests.cs" />
     <Compile Include="Planets\BlueprintLinkTests.cs" />
+    <Compile Include="Planets\OnePerEmpireBlueprintTests.cs" />
     <Compile Include="Data\GameTextDataTests.cs" />
     <Compile Include="AITests\Empire\DefenseTaskStrengthTests.cs" />
     <Compile Include="AITests\Ships\OvertakeTests.cs" />
     <Compile Include="AITests\Ships\WarpPastEnemyTests.cs" />
+    <Compile Include="AITests\Ships\MoveFenceTests.cs" />
     <Compile Include="AITests\Ships\BigShipTargetTests.cs" />
     <Compile Include="AITests\Ships\TractorAimTests.cs" />
     <Compile Include="AITests\Ships\ColonyShipAttackTests.cs" />
@@ -307,6 +317,7 @@
     <Compile Include="Ships\ShipLoyaltyTests.cs" />
     <Compile Include="Ships\ShipModuleGridTests.cs" />
     <Compile Include="Ships\ShipModuleTests.cs" />
+    <Compile Include="Ships\ShieldMaxTests.cs" />
     <Compile Include="Ships\ShipHealthTests.cs" />
     <Compile Include="Ships\TestShields.cs" />
     <Compile Include="Ships\TestSupplyShuttles.cs" />

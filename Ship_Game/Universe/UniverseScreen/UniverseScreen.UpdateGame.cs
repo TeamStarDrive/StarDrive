@@ -386,6 +386,8 @@ namespace Ship_Game
             for (int i = 0; i < UState.NumEmpires; i++)
             {
                 Empire empire = UState.Empires[i];
+                if (empire.HasEnded)
+                    empire.DisbandShips();
                 if (!empire.IsDefeated && empire.Update(UState, timeStep))
                     updated.Add(empire);
             }

@@ -106,6 +106,24 @@ namespace Ship_Game.Ships
             }
         }
 
+        // a step at warp ends where it entered a gravity well that holds the ship or the circle its AI leaves warp at, whatever the step's length
+        void LeaveWarpWhereTheStepCrosses(Vector2 stepStart)
+        {
+            Vector2 stepEnd = Position;
+            float well = System != null && !Loyalty.WeAreRemnants ? System.GravityWellEntry(this, stepStart, stepEnd) : 2f;
+            float exitCircle = AI.WarpExitRadius > 0f ? stepStart.SegmentCircleEntry(stepEnd, AI.WarpExitPos, AI.WarpExitRadius) : 2f;
+            float t = well < exitCircle ? well : exitCircle;
+            if (t > 1f)
+                return;
+
+            Position = stepStart + (stepEnd - stepStart) * t;
+            HyperspaceReturn();
+            if (well <= exitCircle) // held as one caught inside the well is, though it stops on the edge
+                SetWarpInhibited(InhibitionType.GravityWell, secondsToInhibit: 1f);
+            if (Velocity.Length() > MaxSTLSpeed)
+                Velocity = Velocity.Normalized() * MaxSTLSpeed.Clamped(0, MaxSubLightSpeed);
+        }
+
         // Used for Remnant portal exit
         public void EmergeFromPortal()
         {

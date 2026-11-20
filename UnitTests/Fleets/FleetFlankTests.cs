@@ -853,6 +853,19 @@ public class FleetFlankTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AJumpStillSpoolingIsCalledOffOnARound()
+    {
+        TestShip ship = FlankerOnItsWay();
+        ship.EngageStarDrive();
+        Assert.IsTrue(ship.IsSpooling, "setup: a jump spools as the ship goes round the group");
+
+        RunObjectsSim(TestSimStep);
+
+        Assert.AreEqual(Round.Stage.Flying, RoundOf(ship).At, "setup: still on its round");
+        Assert.IsFalse(ship.IsSpoolingOrInWarp, "the round is flown at sublight, with no jump of a step");
+    }
+
+    [TestMethod]
     public void ARoundStopsWhenItsPlanIsDropped()
     {
         TestShip ship = FlankerOnItsWay();

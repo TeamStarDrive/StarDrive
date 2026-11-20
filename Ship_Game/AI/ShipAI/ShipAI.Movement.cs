@@ -269,8 +269,11 @@ namespace Ship_Game.AI
             }
         }
 
-        const float FormationWarpExitDistance = 7500f;
+        public const float FormationWarpExitDistance = 7500f;
         const float WarpExitEnemyClearance = 5000f;
+
+        // a ship in combat with no priority order or target jumps only to a point farther than this, so its target's reach does not cut the jump short at once
+        public const float CombatJumpDistance = 15_000f;
 
         // a ship stopping beyond an enemy keeps its warp past that enemy and leaves it with just room to brake
         bool WarpsOnPastEnemy(Vector2 destination, float distance, FixedSimTime timeStep)
@@ -447,6 +450,10 @@ namespace Ship_Game.AI
         // thrust offset used by ThrustOrWarpTowardsPosition
         public Vector2 ThrustTarget { get; private set; }
 
+        // the circle this update's move leaves warp at, which the ship's next step stops at even when a warp step would carry it inside
+        public Vector2 WarpExitPos { get; private set; }
+        public float WarpExitRadius { get; private set; }
+
         internal Vector2 PredictThrustPosition(Vector2 targetPos)
         {
             // because or ship is actively moving, it needs to correct its thrusting direction
@@ -473,6 +480,12 @@ namespace Ship_Game.AI
         {
             if (Owner.EnginesKnockedOut)
                 return;
+
+            if (warpExitDistance > 0f)
+            {
+                WarpExitPos = pos;
+                WarpExitRadius = warpExitDistance;
+            }
 
             // Use predicted thrust position to enhance movement precision and cancel out lateral movement
             Vector2 predictedPos = PredictThrustPosition(pos);
@@ -557,11 +570,12 @@ namespace Ship_Game.AI
                 if (predictionDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
-                    if (distance > 7500f)
+                    if (distance > FormationWarpExitDistance)
                     {
                         if (HasPriorityOrder || HasPriorityTarget || !Owner.InCombat)
                             Owner.EngageStarDrive();
-                        else if (distance > Owner.WeaponsMaxRange && Owner.InCombat)
+                        else if ((distance > CombatJumpDistance || State == AIState.ResupplyEscort) // a jump to its supply ship ends beside that ship
+                                 && distance > Owner.WeaponsMaxRange && Owner.InCombat)
                             Owner.EngageStarDrive();
                     }
                 }

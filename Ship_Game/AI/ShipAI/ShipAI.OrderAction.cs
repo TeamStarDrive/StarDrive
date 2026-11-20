@@ -451,11 +451,8 @@ namespace Ship_Game.AI
                             // fallback to any safe planet - this is a very rare case where no alternatives were found
                             ?? Owner.Universe.Planets.FindClosestTo(Owner, IsSafePlanet);
 
-            if (BadGuysNear)
-            {
-                if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
-                    OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), AIState.Flee);
-            }
+            if (BadGuysNear && TryGetFleeLeg(out Vector2 pos)) // just get out of here
+                OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), AIState.Flee);
 
             if (ResupplyTarget != null)
                 AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee, priority: true);
@@ -464,6 +461,43 @@ namespace Ship_Game.AI
 
             // Local method
             bool IsSafePlanet(Planet p) => !p.System.DangerousForcesPresent(Owner.Loyalty);
+        }
+
+        // the first leg of a flight runs away from the enemies near the ship, and is left out when its safe planet already lies away from them
+        bool TryGetFleeLeg(out Vector2 pos)
+        {
+            Ship[] enemies = PotentialTargets;
+            if (enemies.Length == 0)
+                return Owner.TryGetScoutFleeVector(out pos);
+
+            Vector2 toThem = ThreatCenterOffset(enemies);
+            Vector2 away = toThem.Length() > 1f ? -toThem.Normalized() : Owner.Direction;
+
+            if (ResupplyTarget != null && away.Dot(Owner.Position.DirectionToTarget(ResupplyTarget.Position)) > 0f)
+            {
+                pos = default;
+                return false;
+            }
+            return Owner.TryGetFleeVector(away, out pos);
+        }
+
+        // from the ship to the enemies' center weighted by strength, fighters and ships that cannot fight left out unless nothing else is near
+        Vector2 ThreatCenterOffset(Ship[] enemies)
+        {
+            Vector2 weighted = Vector2.Zero, plain = Vector2.Zero;
+            float weight = 0f;
+            for (int i = 0; i < enemies.Length; ++i)
+            {
+                Vector2 offset = enemies[i].Position - Owner.Position;
+                plain += offset;
+                float strength = enemies[i].IsHangarShip ? 0f : enemies[i].GetStrength();
+                if (strength > 0f)
+                {
+                    weighted += offset * strength;
+                    weight += strength;
+                }
+            }
+            return weight > 0f ? weighted / weight : plain / enemies.Length;
         }
 
         public void OrderOrbitPlanet(Planet p, bool clearOrders)
@@ -862,6 +896,16 @@ namespace Ship_Game.AI
 
             if (State != AIState.Resupply)
                 SetPriorityOrder(false);
+
+            // an idle ship of a fleet on a task goes back to its spot at the fleet's destination, not to a rally planet; a troop ship waits where it is for its fleet to send it
+            if (State == AIState.AwaitingOrders && !Owner.EnginesKnockedOut && Owner.Fleet is { FleetTask: not null } fleet && fleet.FinalPosition != Vector2.Zero)
+            {
+                if (Owner.IsTroopShip)
+                    ReverseThrustUntilStopped(timeStep);
+                else
+                    OrderMoveTo(fleet.GetFinalPos(Owner), fleet.FinalDirection, AIState.FormationMoveTo, MoveOrder.Aggressive);
+                return;
+            }
 
             if (AwaitClosest != null)
             {

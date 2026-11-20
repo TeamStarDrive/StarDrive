@@ -122,8 +122,15 @@ namespace Ship_Game.Universe.SolarBodies
             if (maxAmount <= 0.0f || ConstructionQueue.IsEmpty)
                 return false;
 
+            // terraformers past the planet's limit go before any production is spent on them; the item asked for keeps its place
+            QueueItem asked = ConstructionQueue.Count > itemIndex ? ConstructionQueue[itemIndex] : null;
+            DropTerraformersPastTheLimit();
+            itemIndex = asked != null ? ConstructionQueue.IndexOfRef(asked) : -1;
+            if (asked != null && itemIndex < 0)
+                return false; // the item asked for was one of them
+
             // apply production to specified item
-            if (ConstructionQueue.Count > itemIndex)
+            if (itemIndex >= 0)
             {
                 QueueItem item = ConstructionQueue[itemIndex];
                 if (rushFees && (!P.OwnerIsPlayer || !P.Universe.Debug))
@@ -162,6 +169,30 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             return true;
+        }
+
+        // the planet keeps as many queued terraformers as it has room for, the first in the queue
+        void DropTerraformersPastTheLimit()
+        {
+            if (!HasTerraformerQueued())
+                return;
+            int room = P.Terraformable ? P.TerraformerLimit - P.TerraformersHere : 0;
+            for (int i = 0; i < ConstructionQueue.Count;)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isBuilding && q.Building.IsTerraformer && room-- <= 0)
+                    Cancel(q);
+                else
+                    ++i;
+            }
+        }
+
+        bool HasTerraformerQueued()
+        {
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+                if (ConstructionQueue[i] is { isBuilding: true, Building.IsTerraformer: true })
+                    return true;
+            return false;
         }
 
         // spends what is left on up to `count` items right behind a finished one, stopping at one about to be cancelled or at the first it does not finish
@@ -331,6 +362,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             // surplus will be reset every turn and consumed at first opportunity
             SurplusThisTurn = surplusFromPlanet;
+            DropTerraformersPastTheLimit(); // so the head of the queue that gets the turn's production is an item that stays
             if (ConstructionQueue.IsEmpty || P.IsSabotaged)
                 return; // Massive sabotage to planetary facilities or no items
 
@@ -384,6 +416,8 @@ namespace Ship_Game.Universe.SolarBodies
                 where.SetQueueItem(qi);
                 qi.pgs = where; // reset PGS if we got a new one
                 AddToQueueAndPrioritize(qi);
+                if (b.BuildOnlyOnce)
+                    P.Owner.OnePerEmpireQueued(b.BID);
                 P.RefreshBuildingsWeCanBuildHere();
                 return true;
             }
@@ -687,7 +721,10 @@ namespace Ship_Game.Universe.SolarBodies
                 }
 
                 if (q.Goal is RefitOrbital)
+                {
                     q.Goal.OldShip?.AI.ClearOrders();
+                    Owner.AI.RemoveGoal(q.Goal);
+                }
             }
 
             lock (ConstructionQueue)

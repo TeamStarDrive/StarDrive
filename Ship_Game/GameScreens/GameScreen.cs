@@ -82,7 +82,7 @@ namespace Ship_Game
 
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
-        // This is equivalent to PresentationParameters.BackBufferWidth
+        // the size the game draws at, see GameBase.ScreenWidth
         public int ScreenWidth      => GameBase.ScreenWidth;
         public int ScreenHeight     => GameBase.ScreenHeight;
         public Vector2 MousePos     => Input.CursorPosition;
@@ -487,10 +487,11 @@ namespace Ship_Game
 
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawTextureSized(SubTexture texture, Vector2d posOnScreen, float rotation, double width, double height, Color color)
+        public void DrawTextureSized(SubTexture texture, Vector2d posOnScreen, float rotation, double width, double height, Color color,
+                                     SpriteEffects effects = SpriteEffects.None)
         {
             var rect = new RectF(posOnScreen.X, posOnScreen.Y, width, height);
-            ScreenManager.SpriteBatch.Draw(texture, rect, color, rotation, texture.CenterF, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.Draw(texture, rect, color, rotation, texture.CenterF, effects, 1f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

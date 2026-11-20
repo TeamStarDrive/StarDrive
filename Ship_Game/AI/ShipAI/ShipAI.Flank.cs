@@ -31,6 +31,11 @@ namespace Ship_Game.AI
 
         internal FleetFlankRound FleetRound;
 
+        // a fleet ship flying its round, or with its round ready to start at a target still by the group it goes round, keeps to it rather than cutting the target off
+        bool RoundAheadAt(Ship target) => FleetRound is { Plan: { Over: false } plan } round && plan.Fleet == Owner.Fleet
+            && (round.At == FleetFlankRound.Stage.Flying
+                || round.At == FleetFlankRound.Stage.Waiting && target.Position.InRadius(plan.Center, ThreatMatrix.RivalClusterJoinRadius));
+
         // how far ahead on its circle a ship going round a group steers
         const float FlankRoundLead = RadMath.PI / 12f;
 
@@ -76,8 +81,7 @@ namespace Ship_Game.AI
             round.AngleLeft = angleLeft;
             float lead = Math.Min(FlankRoundLead, angleLeft);
             Vector2 aim = center + Turned(at, round.Way * lead) * round.Radius;
-            if (Owner.engineState == Ship.MoveState.Warp)
-                Owner.HyperspaceReturn();
+            Owner.HyperspaceReturn();
             SubLightContinuousMoveInDirection(Owner.Position.DirectionToTarget(aim), timeStep, Owner.MaxSTLSpeed);
             return true;
         }

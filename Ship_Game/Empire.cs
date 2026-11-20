@@ -537,7 +537,10 @@ namespace Ship_Game
                 solarSystem.OwnerList.Remove(this);
 
             if (IsFaction)
+            {
+                DisbandShips();
                 return;
+            }
 
             foreach (Relationship rel in ActiveRelations)
             {
@@ -545,9 +548,6 @@ namespace Ship_Game
                 GetRelations(rel.Them).AtWar = false;
                 rel.Them.GetRelations(this).AtWar = false;
             }
-
-            Empire rebels = Universe.CreateRebelsFromEmpireData(data, this);
-            Universe.Stats.UpdateEmpire(Universe.StarDate, rebels);
 
             foreach (Ship ship in OwnedShips)
             {
@@ -561,11 +561,50 @@ namespace Ship_Game
             {
                 if (s.IsResearchStation|| s.IsMiningStation)
                     s.QueueTotalRemoval();
-                else
-                    s.LoyaltyChangeFromBoarding(rebels, false);
             }
-            EmpireShips.Clear();
+            DisbandShips();
             data.AgentList.Clear();
+        }
+
+        // a defeated empire or faction, or the rebels of a defeated empire holding no planets, whose ships disband
+        public bool HasEnded => IsDefeated || data.IsRebelFaction && OwnedPlanets.Count == 0 && RisenFromADefeatedEmpire;
+
+        // every empire whose rebels these are has been defeated; races in a mod can share one rebel faction
+        bool RisenFromADefeatedEmpire
+        {
+            get
+            {
+                bool risen = false;
+                var empires = Universe.Empires;
+                for (int i = 0; i < empires.Count; ++i)
+                {
+                    if (empires[i].IsFaction || empires[i].data.RebelName != data.Traits.Name)
+                        continue;
+                    if (!empires[i].IsDefeated)
+                        return false;
+                    risen = true;
+                }
+                return risen;
+            }
+        }
+
+        // each ship of an empire that has ended self-destructs within a few minutes, a subspace projector at once
+        public void DisbandShips()
+        {
+            IReadOnlyList<Ship> ships = OwnedShips;
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                if (ship.Active && ship.ScuttleTimer < 0f)
+                    ship.ScuttleTimer = Random.Float(30f, 180f);
+            }
+            IReadOnlyList<Ship> projectors = OwnedProjectors;
+            for (int i = 0; i < projectors.Count; i++)
+            {
+                Ship projector = projectors[i];
+                if (projector.Active && projector.ScuttleTimer < 0f)
+                    projector.ScuttleTimer = 0.01f;
+            }
         }
 
         public void SetAsMerged()
@@ -706,6 +745,50 @@ namespace Ship_Game
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
             AI.SpaceRoadsManager.RemoveRoadIfNeeded(planet.System);
+            if (planet.HasBuilding(b => b.BuildOnlyOnce))
+                UpdateBlueprintsCompletion();
+        }
+
+        // the BIDs of the one-per-empire buildings on our planets, null until looked up again after one is placed, removed or changes hands
+        HashSet<int> OnePerEmpireStanding;
+        int OnePerEmpireChanges;
+
+        public bool OnePerEmpireBuildingStands(int bid)
+        {
+            HashSet<int> standing = OnePerEmpireStanding;
+            if (standing == null)
+            {
+                int changes = OnePerEmpireChanges;
+                standing = new();
+                for (int i = 0; i < OwnedPlanets.Count; ++i)
+                {
+                    foreach (Building b in OwnedPlanets[i].Buildings)
+                        if (b.BuildOnlyOnce)
+                            standing.Add(b.BID);
+                }
+                if (changes == OnePerEmpireChanges) // kept only if nothing changed while it was gathered
+                    OnePerEmpireStanding = standing;
+            }
+            return standing.Contains(bid);
+        }
+
+        // a one-per-empire building counts toward the plans of all the empire's planets
+        public void UpdateBlueprintsCompletion()
+        {
+            ++OnePerEmpireChanges;
+            OnePerEmpireStanding = null;
+            RefreshBlueprints();
+        }
+
+        void RefreshBlueprints()
+        {
+            if (Universe?.Screen is { IsOnSimThread: false } screen)
+            {
+                screen.RunOnSimThread(RefreshBlueprints);
+                return;
+            }
+            foreach (Planet planet in OwnedPlanets)
+                planet.Blueprints?.UpdateCompletion();
         }
 
         public void ClearAllPlanets()
@@ -755,6 +838,8 @@ namespace Ship_Game
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
             planet.SetDysonSwarmWeapon(loadWeapon: planet.System.HasDysonSwarm && planet.Owner == planet.System.DysonSwarm.Owner);
+            if (planet.HasBuilding(b => b.BuildOnlyOnce))
+                UpdateBlueprintsCompletion();
         }
 
         void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
@@ -1588,8 +1673,59 @@ namespace Ship_Game
                 UpdateTerraformerBudget();
             }
 
-            foreach (Planet planet in OwnedPlanets)
-                planet.DoGoverning();
+            OnePerEmpireThisPass = GatherOnePerEmpireBuildings();
+            try
+            {
+                foreach (Planet planet in OwnedPlanets)
+                    planet.DoGoverning();
+            }
+            finally
+            {
+                OnePerEmpireThisPass = null;
+            }
+        }
+
+        // the one-per-empire buildings standing or queued on our planets, for the governors of one pass on the sim thread
+        HashSet<int> OnePerEmpireThisPass;
+
+        bool OnSimThread => Universe?.Screen?.IsOnSimThread != false;
+
+        // null outside a governing pass, where the planets are searched instead
+        public bool? OnePerEmpireBuiltOrQueued(int bid) => OnSimThread ? OnePerEmpireThisPass?.Contains(bid) : null;
+
+        public void OnePerEmpireQueued(int bid)
+        {
+            if (OnSimThread)
+                OnePerEmpireThisPass?.Add(bid);
+        }
+
+        // one search of the planets per pass, which also renews the standing ones the blueprints read
+        HashSet<int> GatherOnePerEmpireBuildings()
+        {
+            int changes = OnePerEmpireChanges;
+            var standing = new HashSet<int>();
+            var builtOrQueued = new HashSet<int>();
+            for (int i = 0; i < OwnedPlanets.Count; ++i)
+            {
+                Planet planet = OwnedPlanets[i];
+                foreach (Building b in planet.Buildings)
+                {
+                    if (b.BuildOnlyOnce)
+                    {
+                        standing.Add(b.BID);
+                        builtOrQueued.Add(b.BID);
+                    }
+                }
+                IReadOnlyList<QueueItem> queue = planet.ConstructionQueue;
+                for (int j = 0; j < queue.Count; ++j)
+                {
+                    if (queue[j] is { isBuilding: true, Building.BuildOnlyOnce: true } q)
+                        builtOrQueued.Add(q.Building.BID);
+                }
+            }
+            if (changes == OnePerEmpireChanges)
+                OnePerEmpireStanding = standing;
+            return builtOrQueued;
         }
 
         void UpdateTerraformerBudget()
@@ -2390,6 +2526,7 @@ namespace Ship_Game
             {
                 Planet planet = planets[i];
                 planet.SetOwner(this);
+                planet.DropOnePerEmpireDuplicates();
                 if (!planet.System.OwnerList.Contains(this))
                 {
                     planet.System.OwnerList.Add(this);
@@ -2653,34 +2790,61 @@ namespace Ship_Game
         public void AddArtifact(Artifact art)
         {
             data.OwnedArtifacts.Add(art);
-            ApplyFertilityChange(art.GetFertilityBonus(data));
-            data.Traits.DiplomacyMod         += art.GetDiplomacyBonus(data);
-            data.Traits.GroundCombatModifier += art.GetGroundCombatBonus(data);
-            data.Traits.ModHpModifier        += art.GetModuleHpMod(data);
-            data.FlatMoneyBonus              += art.GetFlatMoneyBonus(data);
-            data.Traits.ProductionMod        += art.GetProductionBonus(data);
-            data.Traits.ReproductionMod      += art.GetReproductionMod(data);
-            data.Traits.ResearchMod          += art.GetResearchMod(data);
-            data.SensorModifier              += art.GetSensorMod(data);
-            data.ShieldPenBonusChance        += art.GetShieldPenMod(data);
-            EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
-            ForceUpdateSensorRadiuses = true;
+            ApplyArtifactEffects(art, 1f);
+            RefreshArtifactBonuses();
         }
 
         public void RemoveArtifact(Artifact art)
         {
             data.OwnedArtifacts.Remove(art);
+            ApplyArtifactEffects(art, -1f);
+            RefreshArtifactBonuses();
+        }
 
-            ApplyFertilityChange(-art.GetFertilityBonus(data));
-            data.Traits.DiplomacyMod         -= art.GetDiplomacyBonus(data);
-            data.Traits.GroundCombatModifier -= art.GetGroundCombatBonus(data);
-            data.Traits.ModHpModifier        -= art.GetModuleHpMod(data);
-            data.FlatMoneyBonus              -= art.GetFlatMoneyBonus(data);
-            data.Traits.ProductionMod        -= art.GetProductionBonus(data);
-            data.Traits.ReproductionMod      -= art.GetReproductionMod(data);
-            data.Traits.ResearchMod          -= art.GetResearchMod(data);
-            data.SensorModifier              -= art.GetSensorMod(data);
-            data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
+        // the owned artifacts' effects come off at the old Spiritual value and go back at the new
+        public void SetSpiritual(float spiritual)
+        {
+            if (spiritual.AlmostEqual(data.Traits.Spiritual))
+                return;
+
+            Artifact[] owned = data.OwnedArtifacts.ToArray();
+            float before = ArtifactFertility(owned);
+            foreach (Artifact art in owned)
+                ApplyArtifactEffects(art, -1f, fertility: false);
+            data.Traits.Spiritual = spiritual;
+            foreach (Artifact art in owned)
+                ApplyArtifactEffects(art, 1f, fertility: false);
+            ApplyFertilityChange(ArtifactFertility(owned) - before);
+
+            if (owned.Length > 0)
+                RefreshArtifactBonuses();
+        }
+
+        float ArtifactFertility(Artifact[] artifacts)
+        {
+            float fertility = 0f;
+            foreach (Artifact art in artifacts)
+                fertility += art.GetFertilityBonus(data);
+            return fertility;
+        }
+
+        void ApplyArtifactEffects(Artifact art, float sign, bool fertility = true)
+        {
+            if (fertility)
+                ApplyFertilityChange(sign * art.GetFertilityBonus(data));
+            data.Traits.DiplomacyMod         += sign * art.GetDiplomacyBonus(data);
+            data.Traits.GroundCombatModifier += sign * art.GetGroundCombatBonus(data);
+            data.Traits.ModHpModifier        += sign * art.GetModuleHpMod(data);
+            data.FlatMoneyBonus              += sign * art.GetFlatMoneyBonus(data);
+            data.Traits.ProductionMod        += sign * art.GetProductionBonus(data);
+            data.Traits.ReproductionMod      += sign * art.GetReproductionMod(data);
+            data.Traits.ResearchMod          += sign * art.GetResearchMod(data);
+            data.SensorModifier              += sign * art.GetSensorMod(data);
+            data.ShieldPenBonusChance        += sign * art.GetShieldPenMod(data);
+        }
+
+        void RefreshArtifactBonuses()
+        {
             EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
             ForceUpdateSensorRadiuses = true;
         }

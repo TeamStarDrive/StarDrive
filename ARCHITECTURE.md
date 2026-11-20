@@ -162,8 +162,12 @@ StarDriveGame   [Ship_Game/GameScreens/StarDriveGame.cs]
 
 1. `ResourceManager.InitContentDir()`, `ScreenManager = new(this, Graphics)`, `InitializeAudio()`
    (reads `game/Content/Audio/AudioConfig.yaml`).
-2. `ApplyGraphics(GraphicsSettings.FromGlobalStats())`: windowed, borderless or exclusive fullscreen, with
-   a borderless fallback when DXGI refuses fullscreen.
+2. `ApplyGraphics(GraphicsSettings.FromGlobalStats())`: windowed, borderless or fullscreen, with a
+   borderless fallback when DXGI refuses fullscreen. Fullscreen is a borderless window covering the
+   display, with a backbuffer of the display's size. A lower resolution is drawn into
+   `GameBase.ScreenTarget`, and each frame that picture is stretched over the display, keeping its shape.
+   `GameBase.ScreenWidth`/`ScreenHeight` are the size the game draws at. The mouse is mapped with
+   `WindowToScreen` and `ScreenToWindow`.
 3. `ProbeVideoBackend()` sets `GlobalStats.VideoDisabled` if Media Foundation is missing.
 4. `OnInitialize()` runs CLI tasks and can exit before the window is used.
 5. `LoadContent()` adds `GameLoadingScreen`. It plays the splash video while `ResourceManager.LoadItAll`
@@ -195,7 +199,9 @@ StarDriveGame.Update()
       Update: screens back to front
   exit when no screens remain
 StarDriveGame.Draw()
+  DrawToScreen()                   # binds GameBase.ScreenTarget, or the backbuffer when there is none
   ScreenManager.Draw()             # visible screens back to front, then tooltips and cursor
+  StretchScreenTarget()            # draws ScreenTarget over the display, if there is one
   SetRenderTarget(null)            # always, so Present never runs with a render target bound
 ```
 

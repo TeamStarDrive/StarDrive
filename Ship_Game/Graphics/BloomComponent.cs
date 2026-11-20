@@ -47,9 +47,8 @@ namespace Ship_Game
             BloomCombine = Content.Load<Effect>("Effects/BloomCombine");
             GaussianBlur = Content.Load<Effect>("Effects/GaussianBlur");
 
-            PresentationParameters pp = Device.PresentationParameters;
-            int width  = Math.Max(1, pp.BackBufferWidth  / 2);
-            int height = Math.Max(1, pp.BackBufferHeight / 2);
+            int width  = Math.Max(1, GameBase.ScreenWidth  / 2);
+            int height = Math.Max(1, GameBase.ScreenHeight / 2);
 
             RenderTarget1 = new RenderTarget2D(Device, width, height, mipMap: false,
                                                SurfaceFormat.Color, DepthFormat.None);
@@ -58,7 +57,7 @@ namespace Ship_Game
         }
 
         // Run the 4-pass bloom pipeline. `source` is the scene RT; output
-        // is written to `destination` (or back buffer if null). Both must
+        // is written to `destination` (or the game's screen if null). Both must
         // share the same dimensions; `destination` MUST NOT alias `source`
         // (the combine pass samples `source` as a parameter).
         public void Draw(SpriteBatch batch, RenderTarget2D source, RenderTarget2D destination)
@@ -84,23 +83,20 @@ namespace Ship_Game
             DrawFullscreenQuad(batch, RenderTarget2, RenderTarget1, GaussianBlur);
 
             // Pass 4: combine rt1 (bloom) + source (base) -> destination
-            Device.SetRenderTarget(destination);
+            Device.SetRenderTarget(destination ?? GameBase.ScreenTarget);
             BloomCombine.Parameters["BloomIntensity"]?.SetValue(Settings.BloomIntensity);
             BloomCombine.Parameters["BaseIntensity"] ?.SetValue(Settings.BaseIntensity);
             BloomCombine.Parameters["BloomSaturation"]?.SetValue(Settings.BloomSaturation);
             BloomCombine.Parameters["BaseSaturation"] ?.SetValue(Settings.BaseSaturation);
             BloomCombine.Parameters["BaseTexture"]?.SetValue((Texture2D)source);
 
-            int destW = destination?.Width  ?? Device.PresentationParameters.BackBufferWidth;
-            int destH = destination?.Height ?? Device.PresentationParameters.BackBufferHeight;
+            int destW = destination?.Width  ?? GameBase.ScreenWidth;
+            int destH = destination?.Height ?? GameBase.ScreenHeight;
             SetMatrixTransform(BloomCombine, destW, destH);
             DrawFullscreenQuad(batch, RenderTarget1, destW, destH, BloomCombine);
 
-            // Unbind the destination RT before returning. The downstream
-            // draw flow (fog-of-war composite, borders, UI) targets the back
-            // buffer; without this, MonoGame crashes at Present time with
-            // "Cannot call Present when a render target is active."
-            Device.SetRenderTarget(null);
+            // the fog-of-war composite, borders and UI that follow draw to the game's screen
+            GameBase.DrawToScreen(Device);
         }
 
         // SpriteBatch in MonoGame 3.8.1.303 does NOT auto-populate the

@@ -5,6 +5,7 @@ using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
@@ -202,7 +203,7 @@ namespace Ship_Game
         public bool UniqueHab = false;
         public int UniqueHabPercent;
         protected Audio.AudioEmitter Emitter;
-        public float GravityWellRadius { get; protected set; }
+        public float GravityWellRadius { get; internal set; }
 
         // TODO: replace TilesList with a raw array
         [StarData] public Array<PlanetGridSquare> TilesList = new(35);
@@ -541,9 +542,6 @@ namespace Ship_Game
             }
         }
 
-        static float GetTraitMax(float invader, float owner) => invader.LowerBound(owner);
-        static float GetTraitMin(float invader, float owner) => invader.UpperBound(owner);
-
         public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel) // TODO: FB - this code needs refactor
         {
             Empire oldOwner = Owner;
@@ -553,57 +551,15 @@ namespace Ship_Game
             thisPlanet.TerraformPoints = 0;
             thisPlanet.SetHomeworld(false);
             thisPlanet.SetOwner(newOwner, newOwner);
+            thisPlanet.DropOnePerEmpireDuplicates();
 
             if (IsExploredBy(Universe.Player) && oldOwner != null)
             {
                 Universe.Notifications.AddConqueredNotification(thisPlanet, newOwner, oldOwner);
             }
 
-            if (newOwner.data.Traits.Assimilators && planetLevel >= 3)
-            {
-                RacialTrait ownerTraits = oldOwner.data.Traits;
-                newOwner.data.Traits.ConsumptionModifier  = GetTraitMin(newOwner.data.Traits.ConsumptionModifier, ownerTraits.ConsumptionModifier);
-                newOwner.data.Traits.PopGrowthMax         = GetTraitMin(newOwner.data.Traits.PopGrowthMax, ownerTraits.PopGrowthMax);
-                newOwner.data.Traits.MaintMod             = GetTraitMin(newOwner.data.Traits.MaintMod, ownerTraits.MaintMod);
-                newOwner.data.Traits.ShipMaintMultiplier  = GetTraitMin(newOwner.data.Traits.ShipMaintMultiplier, ownerTraits.ShipMaintMultiplier);
-                newOwner.data.Traits.DiplomacyMod         = GetTraitMax(newOwner.data.Traits.DiplomacyMod, ownerTraits.DiplomacyMod);
-                newOwner.data.Traits.DodgeMod             = GetTraitMax(newOwner.data.Traits.DodgeMod, ownerTraits.DodgeMod);
-                newOwner.data.Traits.TargetingModifier    = GetTraitMax(newOwner.data.Traits.TargetingModifier, ownerTraits.TargetingModifier);
-                newOwner.data.Traits.GroundCombatModifier = GetTraitMax(newOwner.data.Traits.GroundCombatModifier, ownerTraits.GroundCombatModifier);
-                newOwner.data.Traits.Mercantile           = GetTraitMax(newOwner.data.Traits.Mercantile, ownerTraits.Mercantile);
-                newOwner.data.Traits.PassengerModifier    = GetTraitMax(newOwner.data.Traits.PassengerModifier, ownerTraits.PassengerModifier);
-                newOwner.data.Traits.RepairMod            = GetTraitMax(newOwner.data.Traits.RepairMod, ownerTraits.RepairMod);
-                newOwner.data.Traits.PopGrowthMin         = GetTraitMax(newOwner.data.Traits.PopGrowthMin, ownerTraits.PopGrowthMin);
-                newOwner.data.Traits.SpyModifier          = GetTraitMax(newOwner.data.Traits.SpyModifier, ownerTraits.SpyModifier);
-                newOwner.data.Traits.Spiritual            = GetTraitMax(newOwner.data.Traits.Spiritual, ownerTraits.Spiritual);
-                newOwner.data.Traits.TerraformingLevel    = (int)GetTraitMax(newOwner.data.Traits.TerraformingLevel, ownerTraits.TerraformingLevel);
-
-                newOwner.data.Traits.EnemyPlanetInhibitionPercentCounter =
-                    GetTraitMax(newOwner.data.Traits.EnemyPlanetInhibitionPercentCounter, ownerTraits.EnemyPlanetInhibitionPercentCounter);
-
-                // Do not add AI difficulty modifiers for the below
-                float realProductionMod = Owner.isPlayer && oldOwner.DifficultyModifiers.ProductionMod.NotZero()
-                    ? ownerTraits.ProductionMod/oldOwner.DifficultyModifiers.ProductionMod - 1
-                    : ownerTraits.ProductionMod;
-
-                float realResearchMod = newOwner.isPlayer && oldOwner.DifficultyModifiers.ResearchMod.NotZero()
-                    ? ownerTraits.ResearchMod/oldOwner.DifficultyModifiers.ResearchMod - 1
-                    : ownerTraits.ResearchMod;
-
-                float realTaxMod = newOwner.isPlayer && oldOwner.DifficultyModifiers.TaxMod.NotZero()
-                    ? ownerTraits.TaxMod/oldOwner.DifficultyModifiers.TaxMod - 1 
-                    : ownerTraits.TaxMod;
-
-                float realShipCostMod   = newOwner.isPlayer ? ownerTraits.ShipCostMod - oldOwner.DifficultyModifiers.ShipCostMod : ownerTraits.ShipCostMod;
-                float realModHpModifer  = newOwner.isPlayer ? ownerTraits.ModHpModifier - oldOwner.DifficultyModifiers.ModHpModifier : ownerTraits.ModHpModifier;
-
-
-                newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod); // min
-                newOwner.data.Traits.ProductionMod = GetTraitMax(newOwner.data.Traits.ProductionMod, realProductionMod);
-                newOwner.data.Traits.ResearchMod   = GetTraitMax(newOwner.data.Traits.ResearchMod, realResearchMod);
-                newOwner.data.Traits.ModHpModifier = GetTraitMax(newOwner.data.Traits.ModHpModifier, realModHpModifer);
-                newOwner.data.Traits.TaxMod        = GetTraitMax(newOwner.data.Traits.TaxMod, realTaxMod);
-            }
+            if (newOwner.data.Traits.Assimilators && planetLevel >= 3 && oldOwner != null)
+                TraitAssimilation.Assimilate(newOwner, oldOwner);
 
             foreach (Ship station in OrbitalStations)
             {

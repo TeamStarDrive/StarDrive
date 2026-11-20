@@ -100,8 +100,9 @@ namespace Ship_Game.Gameplay
             }
             else if (FireDispersionArc != 0)
             {
+                // the fan is centered on the aim, its outer shots half a step inside the arc
                 float degreesBetweenShots = FireDispersionArc / (float)ProjectileCount;
-                float angleToTarget = direction.ToDegrees() - FireDispersionArc * 0.5f;
+                float angleToTarget = direction.ToDegrees() - (FireDispersionArc - degreesBetweenShots) * 0.5f;
                 for (int i = 0; i < ProjectileCount; ++i)
                 {
                     Vector2 dir = angleToTarget.AngleToDirection();
@@ -272,6 +273,18 @@ namespace Ship_Game.Gameplay
         {
             FireTarget  = null;
             SalvoTarget = null;
+        }
+
+        // a treaty signed with them ends the aim on what is theirs, and a salvo fired at it
+        public void DropTargetOf(Empire them)
+        {
+            if (FireTarget?.GetLoyalty() == them)
+                FireTarget = null;
+            if (SalvoTarget?.GetLoyalty() == them)
+            {
+                SalvoTarget = null;
+                SalvosToFire = 0;
+            }
         }
 
         // > 66% accurate or >= Level 5 crews can use advanced
@@ -649,23 +662,33 @@ namespace Ship_Game.Gameplay
         public void ApplyDamageModifiers(Projectile projectile)
         {
             if (Owner == null)
+            {
+                // a planet's gun takes its owner's weapon techs and shield piercing
+                if (projectile.Planet != null && projectile.Loyalty != null)
+                    ApplyEmpireModifiers(projectile, projectile.Loyalty);
                 return;
+            }
 
             projectile.DamageAmount *= CombinedShots;
             if (Owner.Loyalty.HavePackMentality)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
-            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
-            {
-                AddModifiers(ActiveWeaponTags[i], projectile);
-            }
-
-            projectile.IgnoresShields = Random.RollDice(WeaponTemplate.ActualShieldPenChance(this, Owner.Loyalty.data));
+            ApplyEmpireModifiers(projectile, Owner.Loyalty);
         }
 
-        void AddModifiers(WeaponTag tag, Projectile p)
+        void ApplyEmpireModifiers(Projectile projectile, Empire empire)
         {
-            WeaponTagModifier weaponTag = Owner.Loyalty.data.WeaponTags[tag];
+            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
+            {
+                AddModifiers(ActiveWeaponTags[i], projectile, empire);
+            }
+
+            projectile.IgnoresShields = empire.Random.RollDice(WeaponTemplate.ActualShieldPenChance(this, empire.data));
+        }
+
+        void AddModifiers(WeaponTag tag, Projectile p, Empire empire)
+        {
+            WeaponTagModifier weaponTag = empire.data.WeaponTags[tag];
 
             p.RotationRadsPerSecond += weaponTag.Turn * RotationRadsPerSecond;
             p.DamageAmount          += weaponTag.Damage * p.DamageAmount;

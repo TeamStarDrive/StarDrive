@@ -77,7 +77,7 @@ namespace Ship_Game.AI.CombatTactics
 
             if (WeAreChasingAndCantCatchThem)
             {
-                // we can't catch these bastards! use warp
+                // we can't catch them: fly flat out for where our fastest weapon's shots would meet them
                 Vector2 pip = Owner.FastestWeapon?.ProjectedImpactPointNoError(AI.Target)?? AI.Target.Position;
                 DrawDebugTarget(pip, Owner.Radius);
                 AI.ThrustOrWarpToPos(pip, timeStep);

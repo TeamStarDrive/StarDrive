@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Gameplay;
@@ -48,6 +50,35 @@ namespace UnitTests.Ships
             AssertEqual(0.001f, expected.Health, actual.Health);
             AssertEqual(0.001f, expected.ShieldPower, actual.ShieldPower);
             AssertEqual(expected.HangarShip, actual.HangarShip);
+        }
+
+        [TestMethod]
+        public void AModuleWithoutTurnedArtIsDrawnAsTheShipyardDrawsIt()
+        {
+            Ship ship = SpawnShip("Vulcan Scout", Player, new Vector2(1000, 1000));
+            ShipModule Turned(ModuleOrientation rot, Point size)
+                => ShipModule.Create(null, new DesignSlot(new Point(1, 2), "LaserBeam2x3", size, 0, rot, null), ship, false);
+            ShipModule left = Turned(ModuleOrientation.Left, new Point(3, 2));
+            Assert.IsNull(ResourceManager.OrientedModuleTexture(left.IconTexturePath, rear: false), "setup: vanilla has no sideways art for it");
+            Assert.IsNull(ResourceManager.OrientedModuleTexture(left.IconTexturePath, rear: true), "setup: nor rear art");
+
+            left.GetDrawnTexture(rightHalf: false, out float turn, out SpriteEffects effects);
+            AssertEqual(-RadMath.HalfPI, turn, "turned left, the base art is turned left");
+            AssertEqual(SpriteEffects.None, effects);
+
+            Turned(ModuleOrientation.Right, new Point(3, 2)).GetDrawnTexture(rightHalf: true, out turn, out effects);
+            AssertEqual(RadMath.HalfPI, turn, "turned right, it is turned right");
+            AssertEqual(SpriteEffects.None, effects, "turned base art is not mirrored");
+
+            Turned(ModuleOrientation.Rear, new Point(2, 3)).GetDrawnTexture(rightHalf: false, out turn, out effects);
+            AssertEqual(0f, turn);
+            AssertEqual(SpriteEffects.FlipVertically, effects, "facing rear, it is flipped top to bottom");
+
+            ShipModule normal = Turned(ModuleOrientation.Normal, new Point(2, 3));
+            normal.GetDrawnTexture(rightHalf: true, out turn, out effects);
+            AssertEqual(SpriteEffects.FlipHorizontally, effects, "unturned art is mirrored on the ship's right half");
+            normal.GetDrawnTexture(rightHalf: false, out turn, out effects);
+            AssertEqual(SpriteEffects.None, effects, "and drawn as it is on the left half");
         }
 
         [TestMethod]

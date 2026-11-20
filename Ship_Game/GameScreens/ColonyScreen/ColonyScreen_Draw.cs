@@ -845,7 +845,7 @@ namespace Ship_Game
         {
             DrawBuildingStaticInfo(ref bCursor, batch, font, owner, fertility, richness, category, b);
             DrawBuildingInfo(ref bCursor, batch, font, b.ActualShipRepair(P), "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
-            DrawBuildingWeaponStats(ref bCursor, batch, font, b, planetLevel);
+            DrawBuildingWeaponStats(ref bCursor, batch, font, b, planetLevel, owner);
 
             DrawFertilityOnBuildWarning(ref bCursor, batch, b);
 
@@ -920,7 +920,8 @@ namespace Ship_Game
             }
         }
 
-        public static void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Font font, Building b, int planetLevel)
+        // a planet's shots get the owner's weapon technologies, so the damage shown includes them
+        public static void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Font font, Building b, int planetLevel, Empire owner)
         {
             if (b.TheWeapon == null)
                 return;
@@ -931,7 +932,8 @@ namespace Ship_Game
                 : "Damage";
             IWeaponTemplate warhead = b.TheWeapon.IsMirv ? ResourceManager.GetWeaponTemplateOrNull(b.TheWeapon.MirvWeapon) : null;
             IWeaponTemplate hits = warhead ?? b.TheWeapon;
-            DrawBuildingInfo(ref cursor, batch, font, hits.DamageAmount, "UI/icon_offense", damage, signs: false);
+            float hitDamage = owner != null ? WeaponTemplate.DamageWithTechs(hits, owner.data) : hits.DamageAmount;
+            DrawBuildingInfo(ref cursor, batch, font, hitDamage, "UI/icon_offense", damage, signs: false);
             if (b.TheWeapon.ProjectileCount > 1)
                 DrawBuildingInfo(ref cursor, batch, font, b.TheWeapon.ProjectileCount, "UI/icon_offense", Localizer.Token(GameText.Projectiles), signs: false);
             if (warhead?.ProjectileCount > 1)

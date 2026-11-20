@@ -99,6 +99,119 @@ namespace UnitTests.Fleets
             return fleet;
         }
 
+        Fleet ArrangedFleet(int key, params (string Name, int Count)[] parts)
+        {
+            var ships = new Array<Ship>();
+            foreach ((string name, int count) in parts)
+            {
+                for (int i = 0; i < count; ++i)
+                    ships.Add(SpawnShip(name, Player, new Vector2(200_000f * key, 200_000f)));
+            }
+
+            Fleet fleet = Player.CreateFleet(key, null);
+            fleet.AddShips(ships);
+            fleet.AutoArrange();
+            return fleet;
+        }
+
+        // prototypes go to the screen, carriers to the rear, corsairs to the center and scouts to the wings
+        Fleet ScreenedFleet(int key) => ArrangedFleet(key, ("Terran-Prototype", 40), ("Vulcan Scout", 60));
+        Fleet FleetWithACenterAndRear(int key) => ArrangedFleet(key, ("Heavy Carrier mk5-b", 21), ("Corsair", 30), ("Vulcan Scout", 41));
+
+        [TestMethod]
+        public void AFleetArrangedAgainKeepsTheSameFormation()
+        {
+            Fleet screened = ScreenedFleet(2);
+            Fleet centerAndRear = FleetWithACenterAndRear(3);
+            Assert.IsTrue(screened.ScreenFlank.Count > 9 && centerAndRear.CenterFlank.Count > 5 && centerAndRear.RearFlank.Count > 0,
+                          $"setup: a screen row of 9 squads and a center row of 5 are full, with rear squads"
+                          + $" (screen {screened.ScreenFlank.Count}, center {centerAndRear.CenterFlank.Count}, rear {centerAndRear.RearFlank.Count})");
+
+            foreach (Fleet fleet in new[] { screened, centerAndRear })
+            {
+                Ship[] ships = fleet.Ships.ToArray();
+                var first = new Vector2[ships.Length];
+                for (int i = 0; i < ships.Length; ++i)
+                    first[i] = ships[i].FleetOffset;
+
+                fleet.AutoArrange();
+
+                for (int i = 0; i < ships.Length; ++i)
+                    Assert.IsTrue(ships[i].FleetOffset.InRadius(first[i], 1f),
+                                  $"{ships[i]} moved in the formation from {first[i]} to {ships[i].FleetOffset}");
+            }
+        }
+
+        // a few corsairs in the center, so the long wings reach back beside the wide rear of carriers
+        Fleet FleetWithAShallowCenter(int key) => ArrangedFleet(key, ("Heavy Carrier mk5-b", 20), ("Corsair", 5), ("Vulcan Scout", 121));
+
+        // the hulls of two ships, each around its place in the formation, overlap
+        static bool ShipsOverlap(Ship a, Ship b)
+        {
+            Vector2 apart = a.RelativeFleetOffset - b.RelativeFleetOffset;
+            return Math.Abs(apart.X) < (a.GridWidth + b.GridWidth) * 8f - 1f
+                && Math.Abs(apart.Y) < (a.GridHeight + b.GridHeight) * 8f - 1f;
+        }
+
+        static Map<Ship, Fleet.Squad> SquadOfEachShip(Fleet fleet)
+        {
+            var squads = new Map<Ship, Fleet.Squad>();
+            foreach (Array<Fleet.Squad> flank in fleet.AllFlanks)
+                foreach (Fleet.Squad squad in flank)
+                    foreach (Ship ship in squad.Ships)
+                        squads[ship] = squad;
+            return squads;
+        }
+
+        static void AssertNoOverlap(Fleet fleet, Array<Fleet.Squad> flank, string what)
+        {
+            Map<Ship, Fleet.Squad> squads = SquadOfEachShip(fleet);
+            foreach (Fleet.Squad squad in flank)
+                foreach (Ship ship in squad.Ships)
+                    foreach (Ship other in fleet.Ships)
+                        Assert.IsTrue(squads[other] == squad || !ShipsOverlap(ship, other),
+                                      $"{what} {ship.Name} at {ship.RelativeFleetOffset} overlaps {other.Name} at {other.RelativeFleetOffset}");
+        }
+
+        [TestMethod]
+        public void EveryWingShipHasAPlaceOfItsOwn()
+        {
+            Fleet shallow = FleetWithAShallowCenter(4);
+            bool reachesTheRear = false;
+            foreach (Fleet.Squad wing in shallow.LeftFlank)
+                foreach (Fleet.Squad rear in shallow.RearFlank)
+                    reachesTheRear |= Math.Abs(wing.Offset.Y - rear.Offset.Y) < (wing.GetSquadSize().Y + rear.GetSquadSize().Y) * 0.5f;
+            Assert.IsTrue(reachesTheRear, "setup: a row of the left wing is level with rear squads");
+
+            foreach (Fleet fleet in new[] { ScreenedFleet(2), FleetWithACenterAndRear(3), shallow })
+            {
+                Assert.IsTrue(fleet.LeftFlank.Count > 4 && fleet.RightFlank.Count > 4,
+                              $"setup: wings of more than one row (left {fleet.LeftFlank.Count}, right {fleet.RightFlank.Count})");
+                foreach (Fleet.Squad squad in fleet.LeftFlank)
+                    Assert.IsTrue(squad.Offset.X < 0f, $"a left wing squad at {squad.Offset} is on the right");
+                foreach (Fleet.Squad squad in fleet.RightFlank)
+                    Assert.IsTrue(squad.Offset.X > 0f, $"a right wing squad at {squad.Offset} is on the left");
+
+                AssertNoOverlap(fleet, fleet.LeftFlank, "the left wing ship");
+                AssertNoOverlap(fleet, fleet.RightFlank, "the right wing ship");
+            }
+        }
+
+        [TestMethod]
+        public void TheRearStandsBehindTheCenter()
+        {
+            Fleet fleet = FleetWithACenterAndRear(5);
+            Assert.IsTrue(fleet.CenterFlank.Count > 5 && fleet.RearFlank.Count > 1,
+                          $"setup: center rows and rear squads (center {fleet.CenterFlank.Count}, rear {fleet.RearFlank.Count})");
+
+            foreach (Fleet.Squad rear in fleet.RearFlank)
+                foreach (Fleet.Squad center in fleet.CenterFlank)
+                    Assert.IsTrue(rear.Offset.Y - rear.GetSquadSize().Y * 0.5f >= center.Offset.Y + center.GetSquadSize().Y * 0.5f - 1f,
+                                  $"the rear squad at {rear.Offset} does not start behind the center squad at {center.Offset}");
+
+            AssertNoOverlap(fleet, fleet.RearFlank, "the rear ship");
+        }
+
         Vector2 FleetMoveTo(Fleet fleet, Vector2 offset)
         {
             Vector2 target = fleet.FinalPosition + offset;

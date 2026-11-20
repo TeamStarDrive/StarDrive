@@ -60,6 +60,19 @@ public class BoardingLandingTests : StarDriveTest
         return troopShip;
     }
 
+    [TestMethod]
+    public void AShipWhoseLastTroopHasLeftShowsNoTroopBoardingDefense()
+    {
+        Ship troopShip = TroopShip(Player, new Vector2(200_000, 300_000));
+        RunObjectsSim(1.5f);
+        AssertGreaterThan(troopShip.TroopBoardingDefense, 0f, "setup: the troop aboard adds its strength");
+
+        troopShip.KillAllTroops();
+        RunObjectsSim(1.5f);
+
+        AssertEqual(0f, troopShip.TroopBoardingDefense, "with no troops left aboard, they add nothing to its boarding defense");
+    }
+
     void RunUntilLanding(Ship ship) => RunSimWhile((simTimeout: 30, fatal: true), () => !ship.IsLanding);
 
     void RunUntilTouchdown(Ship ship) => RunSimWhile((simTimeout: 10, fatal: true), () => ship.IsLanding);

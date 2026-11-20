@@ -370,20 +370,42 @@ namespace Ship_Game
                 // @todo check UniverseState.PlanetsTree if it makes sense to filter planets through that
                 for (int i = 0; i < PlanetList.Count; i++)
                 {
-                    Planet planet= PlanetList[i];
-                    float wellReduction = 1 - ship.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter;
-                    bool inFriendlyProjectorRange = ship.IsInFriendlyProjectorRange;
-                    bool planetInhibitsAtWar = planet.Owner?.WillInhibit(ship.Loyalty) == true;
-                    bool checkGravityWell = !inFriendlyProjectorRange || planetInhibitsAtWar;
-                    float wellRadius = inFriendlyProjectorRange && planetInhibitsAtWar 
-                                     ? planet.GravityWellRadius * wellReduction
-                                     : planet.GravityWellRadius;
-
-                    if (checkGravityWell && ship.Position.InRadius(planet.Position, wellRadius))
+                    Planet planet = PlanetList[i];
+                    float wellRadius = HoldingWellRadius(planet, ship);
+                    if (wellRadius > 0f && ship.Position.InRadius(planet.Position, wellRadius))
                         return planet;
                 }
             }
             return null;
+        }
+
+        // the fraction of a step from a to b at which the ship first enters a gravity well that holds it, above 1 when it enters none
+        public float GravityWellEntry(Ship ship, Vector2 a, Vector2 b)
+        {
+            float first = 2f;
+            if (Universe.P.GravityWellRange > 0f)
+            {
+                for (int i = 0; i < PlanetList.Count; i++)
+                {
+                    Planet planet = PlanetList[i];
+                    float wellRadius = HoldingWellRadius(planet, ship);
+                    if (wellRadius > 0f)
+                        first = Math.Min(first, a.SegmentCircleEntry(b, planet.Position, wellRadius));
+                }
+            }
+            return first;
+        }
+
+        // the radius of the planet's gravity well that holds this ship, 0 when it does not hold it
+        static float HoldingWellRadius(Planet planet, Ship ship)
+        {
+            bool inFriendlyProjectorRange = ship.IsInFriendlyProjectorRange;
+            bool planetInhibitsAtWar = planet.Owner?.WillInhibit(ship.Loyalty) == true;
+            if (inFriendlyProjectorRange && !planetInhibitsAtWar)
+                return 0f;
+            return inFriendlyProjectorRange
+                ? planet.GravityWellRadius * (1 - ship.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter)
+                : planet.GravityWellRadius;
         }
 
         /// <summary>

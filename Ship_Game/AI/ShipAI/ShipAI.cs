@@ -359,7 +359,7 @@ namespace Ship_Game.AI
         public bool InTradeLandingRange(Planet planet)
             => Owner.Position.InRadius(planet.Position, LandingRange(LandPlan.Trade, planet, shipyard: null));
 
-        // a trade stop, made on every trip, leaves warp within a step of warp travel before its glide in, outside its landing range unless the 7000 cap cuts that short; other landings leave room to slow down
+        // a trade stop, made on every trip, leaves warp where its glide in begins, outside its landing range unless the 7000 cap cuts that short; other landings leave room to slow down
         void ApproachToLand(FixedSimTime timeStep, Vector2 thrustTarget, Vector2 landAt, float range, float glideSpeed, bool tradeStop = false)
         {
             if (thrustTarget != landAt)
@@ -373,8 +373,7 @@ namespace Ship_Game.AI
             if (glideSpeed > 0f && !Owner.IsInWarp && Owner.Position.InRadius(landAt, glideZone))
                 speedLimit = glideSpeed;
 
-            float warpStep = Math.Max(Owner.MaxFTLSpeed, Owner.CurrentVelocity) * timeStep.FixedTime;
-            float warpExit = tradeStop ? glideZone + warpStep : range + Owner.WarpOutDistance;
+            float warpExit = tradeStop ? glideZone : range + Owner.WarpOutDistance;
             ThrustOrWarpToPos(landAt, timeStep, speedLimit, warpExitDistance: Math.Min(warpExit, 7000f));
         }
 
@@ -416,6 +415,7 @@ namespace Ship_Game.AI
 
             UpdateUtilityModuleAI(timeStep);
             ThrustTarget = Vector2.Zero;
+            WarpExitRadius = 0f;
 
             // deferred return to hangar
             if (ReturnToHangarSoon)
@@ -964,6 +964,14 @@ namespace Ship_Game.AI
                 if (Owner.Loyalty.WeArePirates)
                     OrderPirateFleeHome();
 
+                return;
+            }
+
+            // a fighter idle by its carrier goes back to its hangar unless the Fighters button keeps it out
+            if (Owner.IsHangarShip && escortTarget == Owner.Mothership && !Owner.InCombat && !escortTarget.InCombat
+                && !escortTarget.AI.BadGuysNear && !escortTarget.Carrier.FightersLaunched && escortTarget.Carrier.IsOwnFighter(Owner))
+            {
+                OrderReturnToHangar();
                 return;
             }
 

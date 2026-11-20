@@ -377,7 +377,7 @@ namespace Ship_Game
                                               && Ship.CanBeAddedToFleets(s, Player);
 
             // allow player to add ships which already exist in the universe and don't have a fleet
-            bool CanShowShip(Ship s) => s.Fleet == null && s.IsAlive && CanShowDesign(s.ShipData);
+            bool CanShowShip(Ship s) => Fleet.CanJoinFleet(s) && CanShowDesign(s.ShipData);
 
             if (SubShips.SelectedIndex == 0) // ShipsWeCanBuild
             {

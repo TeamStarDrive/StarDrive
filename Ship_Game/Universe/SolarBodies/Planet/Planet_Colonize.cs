@@ -123,6 +123,7 @@ namespace Ship_Game
             SetupColonyType();
             SetExploredBy(Owner);
             CreateStartingEquipment(colonyShip);
+            DropOnePerEmpireDuplicates();
             UnloadTroops(colonyShip);
             UnloadCargoColonists(colonyShip);
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);

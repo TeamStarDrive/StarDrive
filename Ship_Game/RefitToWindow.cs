@@ -162,7 +162,7 @@ namespace Ship_Game
 
         void OnRefitOneClicked(UIButton b)
         {
-            if (ShipToRefit.WorksForSalvage) // a salvage ship that started work while the window was open
+            if (ShipToRefit.WorksForSalvage || IsRefittingOrbital(ShipToRefit)) // a salvage ship at work, or an orbital already refitting
             {
                 GameAudio.NegativeClick();
                 ExitScreen();
@@ -188,13 +188,16 @@ namespace Ship_Game
             var ships = Player.OwnedShips;
             foreach (Ship ship in ships)
             {
-                if (ship.Name == ShipToRefit.Name && (specificFleet == null || ship.Fleet == specificFleet) && !ship.Dismantling && !ship.DeliversRefund && !ship.WorksForSalvage)
+                if (ship.Name == ShipToRefit.Name && (specificFleet == null || ship.Fleet == specificFleet) && !ship.Dismantling && !ship.DeliversRefund && !ship.WorksForSalvage
+                    && !IsRefittingOrbital(ship))
                     Player.AI.AddGoalAndEvaluate(GetRefitGoal(ship));
             }
 
             foreach (Planet planet in Player.GetPlanets())
                 planet.Construction.RefitShipsBeingBuilt(ShipToRefit, RefitTo);
         }
+
+        bool IsRefittingOrbital(Ship ship) => ship.IsPlatformOrStation && Player.AI.HasGoal(GoalType.RefitOrbital, ship);
 
         void OnRefitFleetClicked(UIButton b)
         {

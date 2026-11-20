@@ -669,15 +669,17 @@ namespace Ship_Game.Ships
                         && !attackerToUs.Treaty_NAPact && !attackerToUs.Treaty_Peace)
                         return true;
 
-                    if (DesignRole == RoleName.troop &&
-                        attacker.GetOwnedSystems().ContainsRef(system))
+                    if (DesignRole == RoleName.troop && !attackerToUs.Treaty_NAPact && !attackerToUs.Treaty_Peace
+                        && attacker.GetOwnedSystems().ContainsRef(system))
                         return true;
                 }
 
                 if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
                     return true;
 
-                if (AI.Target?.GetLoyalty() == attacker)
+                // a ship targeting one of ours, under a non-aggression pact or peace only once its empire has hit that ship
+                if (AI.Target is { } victim && victim.Loyalty == attacker
+                    && (!attackerToUs.Treaty_NAPact && !attackerToUs.Treaty_Peace || victim.LastDamagedBy?.GetLoyalty() == Loyalty))
                     return true;
             }
 
@@ -1835,6 +1837,18 @@ namespace Ship_Game.Ships
             }
         }
 
+        // a ship that crashes on a planet does not roll for a derelict; the hull's roll is made only with salvage ops on, as with them off every derelict drifts
+        bool RollForDerelict(bool crashes)
+        {
+            if (CanBecomeDerelict && (DebugDerelict != DebugDerelictKind.None || !crashes && Loyalty.Random.RollDice(Universe.Derelicts.Chance(Universe))))
+            {
+                RolledDrifting = DebugDerelict == DebugDerelictKind.Drifting
+                    || DebugDerelict == DebugDerelictKind.None && (!Universe.P.SalvageOps || Universe.Derelicts.RollsDrifting(ShipData.HullRole, Loyalty.Random));
+                RolledDerelict = true;
+            }
+            return RolledDerelict;
+        }
+
         bool WillShipDieNow(Projectile proj)
         {
             if (Dying) // already dying, no need to calc explosion chances again
@@ -1847,14 +1861,8 @@ namespace Ship_Game.Ships
             Planet crashPlanet = null;
             bool crashes = tumbles && PlanetCrash.GetPlanetToCrashOn(this, out crashPlanet);
 
-            // a ship that crashes on a planet does not roll for a derelict; the hull's roll is made only with salvage ops on, as with them off every derelict drifts
-            if (CanBecomeDerelict && (DebugDerelict != DebugDerelictKind.None || !crashes && Loyalty.Random.RollDice(Universe.Derelicts.Chance(Universe))))
-            {
-                RolledDrifting = DebugDerelict == DebugDerelictKind.Drifting
-                    || DebugDerelict == DebugDerelictKind.None && (!Universe.P.SalvageOps || Universe.Derelicts.RollsDrifting(ShipData.HullRole, Loyalty.Random));
-                RolledDerelict = true;
+            if (RollForDerelict(crashes))
                 return true;
-            }
 
             if (instantKill)
                 return true;
