@@ -349,6 +349,7 @@
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
+    <Compile Include="Collections\SortByDistanceTests.cs" />
     <Compile Include="Universe\BoxSelectionTests.cs" />
     <Compile Include="Universe\ShipSelectionTests.cs" />
     <Compile Include="Universe\CameraProjectionTests.cs" />

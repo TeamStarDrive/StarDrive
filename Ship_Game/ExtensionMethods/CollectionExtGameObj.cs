@@ -13,12 +13,17 @@ public static class CollectionExtGameObj
         SortByDistance(items, items.Length, fromPos);
     }
 
+    // each thread's sort keys, kept between sorts
+    [ThreadStatic] static float[] SortKeys;
+
     public static void SortByDistance<T>(this T[] items, int count, Vector2 fromPos) where T : SpatialObjectBase
     {
         if (count <= 1)
             return;
 
-        var keys = new float[count];
+        float[] keys = SortKeys;
+        if (keys == null || keys.Length < count)
+            SortKeys = keys = new float[Math.Max(count, 128)];
         for (int i = 0; i < count; ++i)
             keys[i] = items[i].Position.SqDist(fromPos);
 

@@ -90,11 +90,11 @@ namespace Ship_Game.Ships
         {
         }
 
-        public bool WaitsForGoal => !OwnerChanged && LandPlan switch
+        public bool WaitsForGoal(FixedSimTime timeStep) => !OwnerChanged && LandPlan switch
         {
-            LandPlan.Scrap => Owner.Loyalty.AI.HasGoal(GoalType.ScrapShip, Owner),
-            LandPlan.Refit => Owner.Loyalty.AI.HasGoal(GoalType.Refit, Owner),
-            LandPlan.Refund => Owner.Loyalty.AI.HasGoal(GoalType.DeliverRefund, Owner),
+            LandPlan.Scrap => Owner.AI.EmpireHoldsGoal(GoalType.ScrapShip, timeStep),
+            LandPlan.Refit => Owner.AI.EmpireHoldsGoal(GoalType.Refit, timeStep),
+            LandPlan.Refund => Owner.AI.EmpireHoldsGoal(GoalType.DeliverRefund, timeStep),
             _ => false
         };
 

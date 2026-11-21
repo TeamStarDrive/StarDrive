@@ -752,7 +752,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (!Owner.Loyalty.AI.HasGoal(GoalType.Refit, Owner))
+            if (!EmpireHoldsGoal(GoalType.Refit, timeStep))
             {
                 ClearOrders(); // Could not find empire refit goal
                 return;

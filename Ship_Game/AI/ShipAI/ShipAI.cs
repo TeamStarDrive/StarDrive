@@ -288,7 +288,7 @@ namespace Ship_Game.AI
 
         void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (!Owner.Loyalty.AI.HasGoal(GoalType.ScrapShip, Owner))
+            if (!EmpireHoldsGoal(GoalType.ScrapShip, timeStep))
             {
                 ClearOrders(); // Could not find empire scrap goal
                 return;

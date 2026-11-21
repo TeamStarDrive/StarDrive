@@ -232,6 +232,8 @@ namespace SynapseGaming.LightingSystem.Core
             SharedFx.View = LastFrameState.View;
             SharedFx.Projection = LastFrameState.Projection;
 
+            float halfHeight = GraphicsDevice.Viewport.Height * 0.5f;
+            WithInsides.Clear();
             foreach (Rendering.ISceneObject iso in om.ActiveObjects)
             {
                 if (iso is not Rendering.SceneObject so || !so.HasMeshes) continue;
@@ -240,17 +242,62 @@ namespace SynapseGaming.LightingSystem.Core
                 float[] shown = so.PartShown; // read once, as the sim thread swaps it
                 Matrix world = so.World; // and moves it
                 DrawRenderables(so, world, shown, insides: false);
-                if (shown != null)
+                if (shown != null && BigEnoughForInsides(so, world, LastFrameState.View, LastFrameState.Projection, halfHeight))
                 {
-                    // a model with a part off shows its insides only where they are nearer than its outside: through the gap, burnt but for a part coming back's
-                    Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullClockwiseFace);
-                    GraphicsDevice.DepthStencilState = NearerOnly;
-                    DrawRenderables(so, world, shown, insides: true);
-                    Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullCounterClockwiseFace);
-                    Ship_Game.Graphics.RenderStates.EnableDepthWrite(GraphicsDevice);
+                    // an animated model's insides go right after its outside, in the same pose
+                    if (so.AnimationPlayer is { HasBones: true })
+                        DrawInsides(so, world, shown);
+                    else
+                        WithInsides.Add((so, world, shown));
                 }
                 DrawModelMeshes(so, world);
             }
+
+            if (WithInsides.Count > 0)
+            {
+                BeginInsides();
+                foreach ((Rendering.SceneObject so, Matrix world, float[] shown) in WithInsides)
+                    DrawRenderables(so, world, shown, insides: true);
+                EndInsides();
+                WithInsides.Clear();
+            }
+        }
+
+        // a model with a part off shows its insides only where they are nearer than what is drawn there: through the gap, burnt but for a part coming back's
+        void BeginInsides()
+        {
+            Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullClockwiseFace);
+            GraphicsDevice.DepthStencilState = NearerOnly;
+        }
+
+        void EndInsides()
+        {
+            Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullCounterClockwiseFace);
+            Ship_Game.Graphics.RenderStates.EnableDepthWrite(GraphicsDevice);
+        }
+
+        void DrawInsides(Rendering.SceneObject so, in Matrix world, float[] shown)
+        {
+            BeginInsides();
+            DrawRenderables(so, world, shown, insides: true);
+            EndInsides();
+        }
+
+        // the models with a part off whose insides show this frame, with the place and parts their outsides were drawn with
+        readonly List<(Rendering.SceneObject So, Matrix World, float[] Shown)> WithInsides = new();
+
+        // a gap in a model drawn smaller than this radius on screen is too small to see into
+        internal const float InsidesMinPixels = 8f;
+
+        // whether a model shows on screen big enough to see its insides through a gap, in a perspective or an orthographic view; one whose bounds are unknown, or at or behind the eye, always is
+        internal static bool BigEnoughForInsides(Rendering.SceneObject so, in Matrix world, in Matrix view, in Matrix projection, float halfHeight)
+        {
+            BoundingSphere bounds = so.ObjectBoundingSphere;
+            if (bounds.Radius <= 0f)
+                return true;
+            Vector3 center = Vector3.Transform(world.Translation + bounds.Center, view);
+            float w = center.Z * projection.M34 + projection.M44;
+            return w <= 0f || bounds.Radius * projection.M22 * halfHeight >= InsidesMinPixels * w;
         }
 
         // Phase 3.8.B: depth-only pass into ShadowMap.ShadowMap from the
