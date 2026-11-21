@@ -213,7 +213,7 @@ namespace Ship_Game.Ships
             else if (IsLanding)
             {
                 LandShip.Update(visibleToPlayer, timeStep);
-                if (LandShip.Done && !LandShip.WaitsForGoal)
+                if (LandShip.Done && !LandShip.WaitsForGoal(timeStep))
                 {
                     if (LandShip.Trades)
                     {

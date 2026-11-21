@@ -448,32 +448,64 @@ namespace Ship_Game.Ships
         }
 
         /// <summary>
-        /// Enumerates all modules at Grid position (MUST BE IN BOUNDS!) using a generator
-        /// 
+        /// Enumerates all modules at Grid position (MUST BE IN BOUNDS!) without allocating
+        ///
         /// If checkShields, then this will enumerate all ACTIVE shields overlapping gridPos
         /// If there is an ACTIVE module under the slot, it will be returned last
         /// If there is no ACTIVE shields or modules overlapping gridPos, then no elements are yielded.
         /// </summary>
-        public IEnumerable<ShipModule> GetModulesAt(ShipModule[] modules, Point gridPos, bool checkShields)
+        public ModulesAt GetModulesAt(ShipModule[] modules, Point gridPos, bool checkShields)
         {
-            // hit test any shields at current slot
-            if (checkShields)
+            return new(this, modules, gridPos, checkShields ? GetShieldIndicesAt(gridPos.X, gridPos.Y) : null);
+        }
+
+        // the active shields whose bubble covers a grid cell, then the active module on it, each checked as it is reached
+        public struct ModulesAt
+        {
+            readonly ModuleGridFlyweight Grid;
+            readonly ShipModule[] Modules;
+            readonly Point Pos;
+            readonly short[] Shields;
+            int Next;
+
+            public ModulesAt(ModuleGridFlyweight grid, ShipModule[] modules, Point pos, short[] shields)
             {
-                short[] shields = GetShieldIndicesAt(gridPos.X, gridPos.Y);
-                if (shields != null)
-                {
-                    for (int i = 0; i < shields.Length; ++i)
-                    {
-                        ShipModule shield = GetActiveShield(modules, shields[i]);
-                        if (shield != null && shield.HitTestShield(gridPos, 8f))
-                            yield return shield;
-                    }
-                }
+                Grid = grid;
+                Modules = modules;
+                Pos = pos;
+                Shields = shields;
+                Next = 0;
+                Current = null;
             }
 
-            ShipModule m = Get(modules, gridPos);
-            if (m != null && m.Active)
-                yield return m;
+            public ShipModule Current { get; private set; }
+
+            public ModulesAt GetEnumerator() => this;
+
+            public bool MoveNext()
+            {
+                int numShields = Shields?.Length ?? 0;
+                while (Next < numShields)
+                {
+                    ShipModule shield = Grid.GetActiveShield(Modules, Shields[Next++]);
+                    if (shield != null && shield.HitTestShield(Pos, 8f))
+                    {
+                        Current = shield;
+                        return true;
+                    }
+                }
+                if (Next == numShields)
+                {
+                    ++Next;
+                    ShipModule m = Grid.Get(Modules, Pos);
+                    if (m != null && m.Active)
+                    {
+                        Current = m;
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
 
         /// <returns>How many shields are potentially covering slot at grid pos</returns>

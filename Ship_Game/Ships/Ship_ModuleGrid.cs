@@ -210,7 +210,7 @@ namespace Ship_Game.Ships
                 && (point.Y > 0 || point.X < Grid.Width - 1);
         }
 
-        IEnumerable<ShipModule> GetModulesAt(Point gridPos, bool checkShields)
+        ModuleGridFlyweight.ModulesAt GetModulesAt(Point gridPos, bool checkShields)
         {
             return Grid.GetModulesAt(ModuleSlotList, gridPos, checkShields);
         }
@@ -505,56 +505,91 @@ namespace Ship_Game.Ships
                         moduleExplosion: true);
         }
 
+        // each thread's blast buffers free for reuse: a blast that kills a module sets off that module's blast inside it, and death blasts run on parallel threads, so each blast takes its own and gives it back
+        [ThreadStatic] static Array<ModuleQuadrant[]> FreeBlastBuffers;
+
+        static ModuleQuadrant[] TakeBlastBuffer(int size)
+        {
+            Array<ModuleQuadrant[]> free = FreeBlastBuffers ??= new();
+            if (free.Count > 0 && free[free.Count - 1].Length >= size)
+                return free.PopLast();
+            return new ModuleQuadrant[Math.Max((int)global::System.Numerics.BitOperations.RoundUpToPowerOf2((uint)size), 64)];
+        }
+
+        static void GiveBackBlastBuffer(ModuleQuadrant[] buffer, int used)
+        {
+            Array.Clear(buffer, 0, used); // let go of the modules
+            FreeBlastBuffers.Add(buffer);
+        }
+
         // the module the blast centers on takes what it can, then each corner gets a quarter of the rest
         static void DamageBlast(GameObject damageSource, float damage, IEnumerable<ModuleQuadrant> blast, bool moduleExplosion)
         {
-            var corner = new Array<ModuleQuadrant>();
-            int quadrant = 0;
-            foreach (ModuleQuadrant mq in blast)
+            ModuleQuadrant[] corner = TakeBlastBuffer(64);
+            int count = 0, used = 0;
+            try
             {
-                if (mq.Root)
+                int quadrant = 0;
+                foreach (ModuleQuadrant mq in blast)
                 {
-                    if (mq.Module.DamageExplosive(damageSource, ref damage, moduleExplosion))
-                        return;
-                    continue;
+                    if (mq.Root)
+                    {
+                        if (mq.Module.DamageExplosive(damageSource, ref damage, moduleExplosion))
+                            return;
+                        continue;
+                    }
+                    if (mq.Quadrant != quadrant)
+                    {
+                        SpendBlastQuarter(damageSource, corner, count, damage * 0.25f, moduleExplosion);
+                        count = 0;
+                        quadrant = mq.Quadrant;
+                    }
+                    if (count == corner.Length)
+                        Array.Resize(ref corner, count * 2);
+                    corner[count++] = mq;
+                    used = Math.Max(used, count);
                 }
-                if (mq.Quadrant != quadrant)
-                {
-                    SpendBlastQuarter(damageSource, corner, damage * 0.25f, moduleExplosion);
-                    quadrant = mq.Quadrant;
-                }
-                corner.Add(mq);
+                SpendBlastQuarter(damageSource, corner, count, damage * 0.25f, moduleExplosion);
             }
-            SpendBlastQuarter(damageSource, corner, damage * 0.25f, moduleExplosion);
+            finally
+            {
+                GiveBackBlastBuffer(corner, used);
+            }
         }
 
         // a corner's quarter goes to its nearest modules first, each taking what it can of what is left
-        static void SpendBlastQuarter(GameObject damageSource, Array<ModuleQuadrant> corner, float quarter, bool moduleExplosion)
+        static void SpendBlastQuarter(GameObject damageSource, ModuleQuadrant[] corner, int count, float quarter, bool moduleExplosion)
         {
-            if (corner.Count == 0)
+            if (count == 0)
                 return;
 
             int maxDistance = 0;
-            for (int i = 0; i < corner.Count; ++i)
+            for (int i = 0; i < count; ++i)
                 maxDistance = Math.Max(maxDistance, corner[i].Distance);
 
-            var firstAtDistance = new int[maxDistance + 2];
-            for (int i = 0; i < corner.Count; ++i)
+            Span<int> firstAtDistance = maxDistance < 254 ? stackalloc int[maxDistance + 2] : new int[maxDistance + 2];
+            for (int i = 0; i < count; ++i)
                 ++firstAtDistance[corner[i].Distance + 1];
             for (int d = 1; d < firstAtDistance.Length; ++d)
                 firstAtDistance[d] += firstAtDistance[d - 1];
 
-            var nearestFirst = new ModuleQuadrant[corner.Count];
-            for (int i = 0; i < corner.Count; ++i)
-                nearestFirst[firstAtDistance[corner[i].Distance]++] = corner[i];
-            corner.Clear();
-
-            for (int i = 0; i < nearestFirst.Length && quarter > 0f; ++i)
+            ModuleQuadrant[] nearestFirst = TakeBlastBuffer(count);
+            try
             {
-                ShipModule m = nearestFirst[i].Module;
-                // a shield's bubble takes no more of the blast once its shield is down
-                if (m.Active && (!nearestFirst[i].Bubble || m.ShieldsAreActive))
-                    m.DamageExplosive(damageSource, ref quarter, moduleExplosion);
+                for (int i = 0; i < count; ++i)
+                    nearestFirst[firstAtDistance[corner[i].Distance]++] = corner[i];
+
+                for (int i = 0; i < count && quarter > 0f; ++i)
+                {
+                    ShipModule m = nearestFirst[i].Module;
+                    // a shield's bubble takes no more of the blast once its shield is down
+                    if (m.Active && (!nearestFirst[i].Bubble || m.ShieldsAreActive))
+                        m.DamageExplosive(damageSource, ref quarter, moduleExplosion);
+                }
+            }
+            finally
+            {
+                GiveBackBlastBuffer(nearestFirst, count);
             }
         }
 
@@ -740,8 +775,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // Active hull module at a single grid cell, or null. Allocation-free single lookup (avoids
-        // the yield-based GetModulesAt enumerator). Used by the conservative diagonal traversal to
+        // Active hull module at a single grid cell, or null. Used by the conservative diagonal traversal to
         // detect a corner-sealing module. Shields are intentionally not tested here: shield bubbles
         // span many cells and are already caught at every sampled cell by the main walk, so the
         // corner-seal check only needs the hull module that the half-cell sampling skipped.

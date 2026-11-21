@@ -240,10 +240,37 @@ public class RefitLandingTests : StarDriveTest
         RunObjectsSim(1f);
         Player.AI.RemoveGoal(Refit);
 
-        RunObjectsSim(1f);
-        Assert.AreNotEqual(AIState.Refit, Refitted.AI.State, "a ship whose refit goal is gone stops refitting");
+        RunObjectsSim(1.5f);
+        Assert.AreNotEqual(AIState.Refit, Refitted.AI.State, "a ship whose refit goal is gone stops refitting within a second");
         RunObjectsSim(10f);
         Assert.IsFalse(Refitted.IsLanding, "a ship whose refit goal is gone must not land");
+    }
+
+    [TestMethod]
+    public void AShipOnItsWayToRefitLooksForItsGoalOnlyOnceASecond()
+    {
+        OrderRefit(Homeworld.Position + new Vector2(8000, 0));
+        RunObjectsSim(1.5f); // half a second after its second look
+        Player.AI.RemoveGoal(Refit);
+
+        RunObjectsSim(TestSimStep.FixedTime);
+        AssertEqual(AIState.Refit, Refitted.AI.State, "the goal's going is seen at the next look, not at the next step");
+        RunObjectsSim(1f);
+        Assert.AreNotEqual(AIState.Refit, Refitted.AI.State, "but seen within the second");
+    }
+
+    [TestMethod]
+    public void ARefitOrderedAgainRightAfterOneWasCalledOffIsKept()
+    {
+        OrderRefit(Homeworld.Position + new Vector2(8000, 0));
+        RunObjectsSim(1f);
+        Player.AI.RemoveGoal(Refit);
+        RunObjectsSim(1.5f);
+        Assert.AreNotEqual(AIState.Refit, Refitted.AI.State, "setup: the called-off refit must be seen");
+
+        OrderRefit(Refitted);
+        RunObjectsSim(TestSimStep.FixedTime);
+        AssertEqual(AIState.Refit, Refitted.AI.State, "a ship that found no goal looks again at once, so the new one stands");
     }
 
     [TestMethod]

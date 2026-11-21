@@ -12,6 +12,25 @@ namespace UnitTests.Collections
     public class TestSafeQueueT : StarDriveTest
     {
         [TestMethod]
+        public void WalkingAQueueTakesNothingOffTheHeap()
+        {
+            var queue = new SafeQueue<string>();
+            queue.Enqueue("Jim");
+            queue.Enqueue("Tim");
+            queue.Enqueue("Bob");
+            var seen = new List<string>(4);
+            foreach (string s in queue)
+                seen.Add(s);
+            seen.Clear();
+
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            foreach (string s in queue)
+                seen.Add(s);
+            Assert.AreEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "a foreach over the queue boxes no enumerator");
+            Assert.IsTrue(seen.SequenceEqual(new[] { "Jim", "Tim", "Bob" }), "in queue order");
+        }
+
+        [TestMethod]
         public void SafeQueueEnqueueDequeue()
         {
             var queue = new SafeQueue<string>();

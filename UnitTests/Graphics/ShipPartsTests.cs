@@ -195,6 +195,32 @@ public class ShipPartsTests : StarDriveTest
         return drawn;
     }
 
+    // a model of radius 100 at the given distance in front of the eye, on a screen 1024 pixels tall
+    static bool InsidesShownAt(float distance, Microsoft.Xna.Framework.Matrix projection, float radius = 100f)
+    {
+        var so = new SceneObject { ObjectBoundingSphere = new(Microsoft.Xna.Framework.Vector3.Zero, radius) };
+        var view = Microsoft.Xna.Framework.Matrix.CreateLookAt(new(0, 0, distance), Microsoft.Xna.Framework.Vector3.Zero, Microsoft.Xna.Framework.Vector3.Up);
+        return SynapseGaming.LightingSystem.Core.SceneInterface.BigEnoughForInsides(so, Microsoft.Xna.Framework.Matrix.Identity, view, projection, halfHeight: 512f);
+    }
+
+    [TestMethod]
+    public void AModelDrawnTooSmallToSeeIntoShowsNoInsides()
+    {
+        var perspective = Microsoft.Xna.Framework.Matrix.CreatePerspectiveFieldOfView(Microsoft.Xna.Framework.MathHelper.PiOver4, 1f, 1f, 1_000_000f);
+        // radius 100 * cot(22.5 degrees) 2.414 * 512 pixels / distance is 8 pixels at a distance of about 15,450
+        Assert.IsTrue(InsidesShownAt(1000f, perspective), "close up, its insides show through a gap");
+        Assert.IsTrue(InsidesShownAt(15_000f, perspective), "and still at a radius of just over 8 pixels");
+        Assert.IsFalse(InsidesShownAt(16_000f, perspective), "but not under 8 pixels");
+
+        var orthographic = Microsoft.Xna.Framework.Matrix.CreateOrthographic(400, 400, 1, 100_000);
+        Assert.IsTrue(InsidesShownAt(500f, orthographic), "an orthographic view goes by the view's size: 256 pixels");
+        Assert.IsTrue(InsidesShownAt(50_000f, orthographic), "at any distance");
+        var wideOrthographic = Microsoft.Xna.Framework.Matrix.CreateOrthographic(20_000, 20_000, 1, 100_000);
+        Assert.IsFalse(InsidesShownAt(500f, wideOrthographic), "and a view 20,000 across makes it 5 pixels");
+
+        Assert.IsTrue(InsidesShownAt(1_000_000f, perspective, radius: 0f), "a model whose bounds are unknown shows its insides");
+    }
+
     [TestMethod]
     public void AShipModelLeavesOutThePartsItNoLongerShows()
     {

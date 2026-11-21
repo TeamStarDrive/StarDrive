@@ -52,6 +52,51 @@ public class ModuleBlastTests : StarDriveTest
         }
     }
 
+    // the modules at a grid cell as a hit sees them, walked as a foreach walks them
+    static ShipModule[] ModulesAt(Ship ship, Point cell, bool checkShields)
+    {
+        var found = new System.Collections.Generic.List<ShipModule>(8);
+        foreach (ShipModule m in ship.Grid.GetModulesAt(ship.Modules, cell, checkShields))
+            found.Add(m);
+        return found.ToArray();
+    }
+
+    [TestMethod]
+    public void AGridCellGivesItsActiveShieldsFirstThenItsModule()
+    {
+        Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+        var cell = new Point(0, 2);
+        ShipModule onCell = ship.GetModuleAt(0, 2);
+
+        ShipModule[] withShields = ModulesAt(ship, cell, checkShields: true);
+        Assert.IsTrue(withShields.Length >= 2, $"setup: the shield's bubble covers its own cell, then the shield itself is the module there: {withShields.Length}");
+        for (int i = 0; i < withShields.Length - 1; ++i)
+            Assert.IsTrue(withShields[i].ShieldsAreActive, $"the bubbles come first: {withShields[i].UID}");
+        Assert.AreEqual(onCell, withShields[withShields.Length - 1], "and the module on the cell last");
+        CollectionAssert.AreEqual(new[] { onCell }, ModulesAt(ship, cell, checkShields: false), "without shields, only the module");
+
+        DrainShields(ship);
+        CollectionAssert.AreEqual(new[] { onCell }, ModulesAt(ship, cell, checkShields: true), "a bubble that is down is no hit");
+        onCell.Die(null, cleanupOnly: true);
+        Assert.AreEqual(0, ModulesAt(ship, cell, checkShields: false).Length, "nor is a dead module");
+    }
+
+    [TestMethod]
+    public void WalkingAGridCellTakesNothingOffTheHeap()
+    {
+        Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+        var cell = new Point(0, 2);
+        int count = 0;
+        foreach (ShipModule _ in ship.Grid.GetModulesAt(ship.Modules, cell, checkShields: true))
+            ++count;
+
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        foreach (ShipModule _ in ship.Grid.GetModulesAt(ship.Modules, cell, checkShields: true))
+            --count;
+        Assert.AreEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "a hit test walks the grid without an enumerator on the heap");
+        Assert.AreEqual(0, count, "and finds the same modules each time");
+    }
+
     static void DrainShields(Ship ship)
     {
         foreach (ShipModule m in ship.GetShields())
