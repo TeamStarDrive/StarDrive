@@ -97,6 +97,27 @@ public class ModuleBlastTests : StarDriveTest
         Assert.AreEqual(0, count, "and finds the same modules each time");
     }
 
+    [TestMethod]
+    public void TheClosestModuleIsTheNearestActiveOneAndItsSearchAllocatesNothing()
+    {
+        Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+        var points = new[] { new Vector2(-300, 0), new Vector2(0, 250), new Vector2(17, -9), new Vector2(5000, 4000), Vector2.Zero };
+        foreach (Vector2 p in points)
+        {
+            float nearest = ship.Modules.Where(m => m.Active).Min(m => m.Position.Distance(p));
+            AssertEqual(0.001f, nearest, ship.FindClosestModule(p).Position.Distance(p), $"the nearest module to {p}");
+        }
+
+        ShipModule closest = ship.FindClosestModule(points[0]);
+        closest.Die(null, cleanupOnly: true);
+        Assert.AreNotEqual(closest, ship.FindClosestModule(points[0]), "a dead module is never the closest");
+
+        ship.FindClosestModule(points[1]);
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        ship.FindClosestModule(points[1]);
+        Assert.AreEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "the search walks the modules, not an enumerator over the grid");
+    }
+
     static void DrainShields(Ship ship)
     {
         foreach (ShipModule m in ship.GetShields())

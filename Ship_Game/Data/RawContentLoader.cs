@@ -141,6 +141,11 @@ namespace Ship_Game.Data
             return MeshImport.ImportStaticMesh(meshPath, meshName, extractVertexPositions);
         }
 
+        public StaticMesh LoadMeshParts(string meshName)
+        {
+            return MeshImport.ImportParts(GetContentPath(meshName), meshName);
+        }
+
         public Model LoadModel(string meshName)
         {
             string meshPath = GetContentPath(meshName);

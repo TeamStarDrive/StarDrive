@@ -244,6 +244,7 @@ public class AiGameProbe : StarDriveTest
             {
                 u.Paused = false;
                 us.SingleSimulationStep(step);
+                us.LoadAskedHullParts(); // the hull parts a drawn frame reads
                 int turn = (int)Math.Round((u.StarDate - start) * 10f);
                 if (turn != lastTurn)
                 {

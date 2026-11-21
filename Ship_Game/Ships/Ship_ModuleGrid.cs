@@ -421,29 +421,24 @@ namespace Ship_Game.Ships
             }
         }
         
-        // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
-        //       updated every time a module dies. The code for that is in ShipModule.cs
-        // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
-        // @note Ignores shields !
+        // the active module whose center is nearest to a point, shields aside; null for a ship with none
         public ShipModule FindClosestModule(Vector2 worldPos)
         {
             if (!Active) return null;
 
-            // The search rect in EnumModulesQuadrants is worldPos +/- searchRadius;
-            // it must reach the ship's grid (centered at Position, extent Radius)
-            // even when worldPos is far outside the hull, otherwise the overlap
-            // check short-circuits and we get null.
-            float searchRadius = worldPos.Distance(Position) + Radius;
-
             ShipModule closest = null;
             float bestDistSq = float.MaxValue;
-            foreach (ModuleQuadrant mq in EnumModulesQuadrants(worldPos, searchRadius, checkShields: false))
+            ShipModule[] modules = ModuleSlotList;
+            for (int i = 0; i < modules.Length; ++i)
             {
-                float distSq = mq.Module.Position.SqDist(worldPos);
+                ShipModule m = modules[i];
+                if (!m.Active)
+                    continue;
+                float distSq = m.Position.SqDist(worldPos);
                 if (distSq < bestDistSq)
                 {
                     bestDistSq = distSq;
-                    closest = mq.Module;
+                    closest = m;
                 }
             }
             return closest;

@@ -38,12 +38,14 @@ namespace Ship_Game.Ships
         // a game with the Hull Plates extension switched off plays every ship as if its model were in one piece
         bool HullPlatesOff => Universe?.P.HullPlates == false;
 
-        // a module died: its part may be lost at the next count, and any part while the hull's model has not loaded; nothing on a hull in one piece
+        // a module died: its part may be lost at the next count, and any part while the hull's parts are unknown, which the death asks for; nothing on a hull in one piece
         void MarkPartHit(ShipModule m)
         {
             ShipHull hull = BaseHull;
             if (hull.ModelInOnePiece || HullPlatesOff)
                 return;
+            if (hull.NumParts == 0)
+                Universe?.Screen?.AskForHullParts(hull);
             int part = Grid.PartOf(m.Pos);
             if (part < 0 && hull.NumParts > 0 && Grid.GetParts(out _))
                 part = Grid.PartOf(m.Pos);
@@ -250,7 +252,7 @@ namespace Ship_Game.Ships
             return PartShown;
         }
 
-        // each hull part shown, 1, or lost, 0, as counted now or, before the hull's model has loaded, as saved; null while no part is lost; lostNow, the parts this count lost
+        // each hull part shown, 1, or lost, 0, as counted now or, before the hull's parts are known, as saved; null while no part is lost; lostNow, the parts this count lost
         internal float[] WholePartsNow(out uint lostNow)
         {
             lostNow = PartsOutdated ? UpdateLostParts() : 0u;

@@ -61,7 +61,7 @@ namespace Ship_Game.Ships
         // the hull and this grid's center on it, for the hull's part map
         readonly ShipHull Hull;
         readonly Point Center;
-        // for each module index, the hull part it sits under, and each part's slot area; built once the hull's model has made its part map
+        // for each module index, the hull part it sits under, and each part's slot area; built once the hull's model or parts have made its part map
         sealed record PartTable(byte[] PartOfModule, int[] PartArea);
         PartTable Parts;
 
@@ -221,7 +221,7 @@ namespace Ship_Game.Ships
             return moduleIndex >= 0 ? InternalSlotsOfModule[moduleIndex] : 0;
         }
 
-        // each hull part's slot area; false until the hull's model has made its part map
+        // each hull part's slot area; false until the hull's model or parts have made its part map
         public bool GetParts(out int[] partArea)
         {
             PartTable parts = Parts ?? BuildParts();

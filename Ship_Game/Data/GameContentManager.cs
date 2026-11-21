@@ -785,29 +785,7 @@ namespace Ship_Game.Data
             if (TryGetAsset(asset.RelPathWithExt, out StaticMesh mesh))
                 return mesh;
 
-            // Phase 3.2: prefer .fbx/.obj sibling over stubbed .xnb. The XNB Model
-            // ContentTypeReader chain is still stubbed (§3.4 work); routing to the
-            // raw asset unblocks the visual restore for content shipping both
-            // source (.fbx/.obj) and baked (.xnb) forms — currently the 9 asteroids.
-            string loadPath = asset.RelPathWithExt;
-            if (loadPath.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase))
-            {
-                string baseName = loadPath.Substring(0, loadPath.Length - 4);
-                // Prefer .fbx over .obj — FBX preserves per-group transforms and
-                // material parameters (alpha, specular, normal/specular paths) that
-                // the OBJ MTL format can't carry. OBJ stays as a fallback for content
-                // that ships without an FBX sibling.
-                foreach (string ext in new[] { ".fbx", ".obj" })
-                {
-                    string candidate = baseName + ext;
-                    if (File.Exists(RawContentLoader.GetContentPath(candidate)))
-                    {
-                        loadPath = candidate;
-                        break;
-                    }
-                }
-            }
-
+            string loadPath = MeshLoadPath(asset);
             if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadStaticMesh {loadPath}");
 
             if (RawContentLoader.IsSupportedMesh(loadPath))
@@ -850,6 +828,36 @@ namespace Ship_Game.Data
 
             lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref mesh);
             return mesh;
+        }
+
+        // the file a mesh loads from: a .xnb name loads its .fbx sibling, else its .obj, else stays the .xnb, as the .xnb model reader is a stub
+        static string MeshLoadPath(AssetName asset)
+        {
+            string loadPath = asset.RelPathWithExt;
+            if (loadPath.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase))
+            {
+                string baseName = loadPath.Substring(0, loadPath.Length - 4);
+                foreach (string ext in new[] { ".fbx", ".obj" })
+                {
+                    string candidate = baseName + ext;
+                    if (File.Exists(RawContentLoader.GetContentPath(candidate)))
+                    {
+                        loadPath = candidate;
+                        break;
+                    }
+                }
+            }
+            return loadPath;
+        }
+
+        // a mesh's parts alone: the loaded mesh's if it is in memory, else read from its file with no buffers or textures, and not kept; null if it does not load
+        public StaticMesh LoadMeshParts(string meshName)
+        {
+            AssetName asset = new(meshName);
+            if (TryGetAsset(asset.RelPathWithExt, out StaticMesh mesh))
+                return mesh;
+            string loadPath = MeshLoadPath(asset);
+            return RawContentLoader.IsSupportedMesh(loadPath) ? RawContent.LoadMeshParts(loadPath) : null;
         }
 
         public Model LoadModel(string modelName)

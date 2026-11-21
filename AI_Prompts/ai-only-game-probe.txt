@@ -62,6 +62,9 @@ Ground rules
   UnitTests/SDUnitTests.csproj (that project lists every file by hand), and the optional mod argument of
   StarDriveTest.LoadAllGameData. Every side must run the identical probe. It needs a commit from mid-November 2026 or
   later; on an older one it may not build, so adapt it there without changing what it measures.
+- Copy the probe from my checkout over an older copy too. On a commit without UniverseScreen.LoadAskedHullParts, drop
+  the probe's one call to it: such a build never reads hull section data for ships nobody sees, so in the probe its
+  ships lose no hull sections at all. Say so in the report when the sides differ in this.
 - Copy the native files the game folder needs that git does not track (at least game/SDNative.dll) from my
   checkout into each worktree's game folder.
 - If the mod is its own git repo, copy or check it out into each worktree's game/Mods folder. A worktree of the
