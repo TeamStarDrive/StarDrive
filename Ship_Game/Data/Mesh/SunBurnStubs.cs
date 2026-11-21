@@ -953,6 +953,8 @@ namespace SynapseGaming.LightingSystem.Effects
         public Texture2D TintMapTexture { get; set; }
         // the average OKLab lightness of the paint the tint map marks, measured as the model loads; 0 with none, and under 0.01 counts as none
         public float PaintLightness { get; set; }
+        // the share of the owner's color's lightness a texel at the paint's average lightness is lifted to, set per tint map from HullPaintLift.yaml
+        public float PaintLiftShare { get; set; } = Ship_Game.Data.Mesh.HullPaintLift.DefaultShare;
 
         public bool Skinned { get; set; }
         public bool DoubleSided { get; set; }
@@ -1037,7 +1039,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // ── EffectParameter handles (cached at ctor) ────────────────────────
         readonly EffectParameter pWorld, pView, pProjection;
         readonly EffectParameter pDiffuseColor, pEmissiveColor, pSpecularColor;
-        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pPaintLightness, pHullTint, pPartLook, pPartReach, pReachShape, pAlpha, pEyePosition;
+        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pPaintLightness, pPaintLiftShare, pHullTint, pPartLook, pPartReach, pReachShape, pAlpha, pEyePosition;
         readonly EffectParameter pLightingEnabled, pTextureEnabled, pFogEnabled;
         readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled, pTintMapEnabled;
         readonly EffectParameter pAmbientLightColor;
@@ -1228,6 +1230,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pSpecularAmount     = Parameters["SpecularAmount"];
             pEmissiveScale      = Parameters["EmissiveScale"];
             pPaintLightness     = Parameters["PaintLightness"];
+            pPaintLiftShare     = Parameters["PaintLiftShare"];
             pHullTint           = Parameters["HullTint"];
             pPartLook           = Parameters["PartLook"];
             pPartReach          = Parameters["PartReach"];
@@ -1474,6 +1477,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pTintMapEnabled?.SetValue(tintMapBound);
             pHullTint?.SetValue(HullTint);
             pPaintLightness?.SetValue(PaintLightness >= 0.01f ? PaintLightness : 1f);
+            pPaintLiftShare?.SetValue(PaintLiftShare);
             if (tintMapBound)
                 pTintMap?.SetValue(TintMapTexture);
 

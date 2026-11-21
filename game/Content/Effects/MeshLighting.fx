@@ -99,6 +99,8 @@ float  SpecularAmount  = 1.0;
 float  EmissiveScale   = 1.0;
 // Per-material average OKLab lightness of the paint the tint map marks, measured as its model loads; 1 leaves the paint's lightness as it is.
 float  PaintLightness  = 1.0;
+// Per-material share of the owner's color's lightness the paint is lifted to, from HullPaintLift.yaml by tint map; 0 leaves the paint's lightness as it is.
+float  PaintLiftShare  = 0.85;
 // Per-draw owner's color for the hull paint the tint map (`_t`) marks; .w = 0 leaves the paint as it is.
 float4 HullTint        = float4(1, 1, 1, 0);
 // Per-draw look of a model cut into parts: .x share of a part coming back drawn; .y = 1 shades back faces as the insides, burnt but for a part coming back's; .z how hot their embers still glow.
@@ -456,10 +458,10 @@ float3 LinearOfOklab(float3 lab)
                   dot(lms, float3(-0.0041960863, -0.7034186147, 1.7076147010)));
 }
 
-// the exponent k of the curve 1 - (1 - L)^k that brings a texel at the paint's average lightness up to 0.55 of the owner's color's, 1 when it is there already
+// the exponent k of the curve 1 - (1 - L)^k that brings a texel at the paint's average lightness up to PaintLiftShare of the owner's color's, 1 when it is there already
 float PaintLift(float colorLightness)
 {
-    float target = 0.55 * colorLightness;
+    float target = PaintLiftShare * colorLightness;
     return target > PaintLightness ? log(1.0 - target) / log(1.0 - PaintLightness) : 1.0;
 }
 

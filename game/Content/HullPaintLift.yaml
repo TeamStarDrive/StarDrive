@@ -1,0 +1,17 @@
+# How far a dark hull paint is lifted toward its owner's color.
+#
+# A texel as light as the paint's average lightness is brought up to this share of
+# the owner's color's own lightness; darker and lighter texels follow on a soft curve.
+# 0 leaves the paint at its own lightness. A lift runs from 0 to 0.95.
+#
+# Default covers every tint map not listed under TintMaps, which are keyed by the
+# tint map's file name. A mod's HullPaintLift.yaml is merged over this one, so it
+# lists only its own tint maps and the ones it lifts differently.
+Default: 0.85
+TintMaps:
+  platform_base_t.dds: 0.70
+  ship08_altglow_t.dds: 0.70
+  ship09_t.dds: 0.70
+  ship11_t.dds: 0.70
+  ship16_t_0.dds: 0.70
+  ship18_t_0.dds: 0.70

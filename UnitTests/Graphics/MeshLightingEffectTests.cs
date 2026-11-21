@@ -256,14 +256,16 @@ public class MeshLightingEffectTests : StarDriveTest
         AssertEqual(3f, 46f, px.B, "with no purple left in it");
     }
 
-    // A dark paint is brightened under a lighter color until its average lightness is 0.55 of the color's; unpainted texels keep the texture's.
+    // A dark paint is brightened under a lighter color until a texel at its average lightness reaches its tint map's lift of the color's lightness; unpainted texels keep the texture's.
     [TestMethod]
-    [DataRow(255, 1f, 1f, 0f, 113, 113, 0, "yellow lifts the dark paint to 0.55 of its lightness")]
-    [DataRow(255, 0f, 0f, 1f, 0, 16, 101, "blue lifts it only a little, a deep blue")]
-    [DataRow(0, 1f, 1f, 0f, 32, 32, 32, "paint the mask leaves out stays as it is")]
-    public void HullTint_BrightensADarkPaintTowardItsColor(int maskValue, float red, float green, float blue, int expRed, int expGreen, int expBlue, string what)
+    [DataRow(255, 1f, 1f, 0f, 0.55f, 113, 113, 0, "a lift of 0.55 brings the dark paint to 0.55 of yellow's lightness")]
+    [DataRow(255, 1f, 1f, 0f, 0.85f, 205, 206, 10, "a lift of 0.85 brings it further")]
+    [DataRow(255, 1f, 1f, 0f, 0f, 34, 34, 0, "a lift of 0 leaves it at its own lightness")]
+    [DataRow(255, 0f, 0f, 1f, 0.55f, 0, 16, 101, "blue lifts it only a little, a deep blue")]
+    [DataRow(0, 1f, 1f, 0f, 0.85f, 32, 32, 32, "paint the mask leaves out stays as it is")]
+    public void HullTint_BrightensADarkPaintTowardItsColor(int maskValue, float red, float green, float blue, float lift, int expRed, int expGreen, int expBlue, string what)
     {
-        Color px = CenterPixelOfPaint(new Color(32, 32, 32, 255), maskValue, new Vector4(red, green, blue, 1f), paintLightness: 0.2435f);
+        Color px = CenterPixelOfPaint(new Color(32, 32, 32, 255), maskValue, new Vector4(red, green, blue, 1f), paintLightness: 0.2435f, paintLiftShare: lift);
         AssertEqual(2f, expRed, px.R, $"{what}: red");
         AssertEqual(2f, expGreen, px.G, $"{what}: green");
         AssertEqual(2f, expBlue, px.B, $"{what}: blue");
@@ -537,8 +539,8 @@ public class MeshLightingEffectTests : StarDriveTest
     static Color CenterPixelOfGrayPaint(int maskValue, Vector4 hullTint)
         => CenterPixelOfPaint(new Color(128, 128, 128, 255), maskValue, hullTint, paintLightness: 0f);
 
-    // an unlit cube painted one color under a solid tint map, with the paint lightness its model measured, read at its center
-    static Color CenterPixelOfPaint(Color paintColor, int maskValue, Vector4 hullTint, float paintLightness)
+    // an unlit cube painted one color under a solid tint map, with the paint lightness its model measured and its tint map's lift, read at its center
+    static Color CenterPixelOfPaint(Color paintColor, int maskValue, Vector4 hullTint, float paintLightness, float paintLiftShare = HullPaintLift.DefaultShare)
     {
         using var paint = MakeSolidColorTexture(Game.GraphicsDevice, paintColor);
         using var mask = MakeSolidColorTexture(Game.GraphicsDevice, new Color(maskValue, maskValue, maskValue, 255));
@@ -550,6 +552,7 @@ public class MeshLightingEffectTests : StarDriveTest
             fx.TextureEnabled = true;
             fx.TintMapTexture = mask;
             fx.PaintLightness = paintLightness;
+            fx.PaintLiftShare = paintLiftShare;
             fx.HullTint = hullTint;
         });
         var pixels = new Color[rt.Width * rt.Height];

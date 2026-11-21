@@ -118,12 +118,13 @@ public class SkinnedLightingEffectTests : StarDriveTest
         AssertEqual(3f, blue, px.B, "blue");
     }
 
-    // Animated hulls gray half-strength paint and brighten a dark paint under a lighter color like static hulls do.
+    // Animated hulls gray half-strength paint and brighten a dark paint under a lighter color by its tint map's lift like static hulls do.
     [TestMethod]
-    [DataRow(120, 60, 150, 128, 1f, 0f, 0f, 0f, 150, 57, 46)]
-    [DataRow(32, 32, 32, 255, 1f, 1f, 0f, 0.2435f, 113, 113, 0)]
+    [DataRow(120, 60, 150, 128, 1f, 0f, 0f, 0f, 0.85f, 150, 57, 46)]
+    [DataRow(32, 32, 32, 255, 1f, 1f, 0f, 0.2435f, 0.55f, 113, 113, 0)]
+    [DataRow(32, 32, 32, 255, 1f, 1f, 0f, 0.2435f, 0.85f, 205, 206, 10)]
     public void SkinnedLightingEffect_GraysAndBrightensThePaintLikeStaticHulls(int paintRed, int paintGreen, int paintBlue, int maskValue,
-        float red, float green, float blue, float paintLightness, int expRed, int expGreen, int expBlue)
+        float red, float green, float blue, float paintLightness, float lift, int expRed, int expGreen, int expBlue)
     {
         GraphicsDevice device = Game.GraphicsDevice;
         using var paint = new Texture2D(device, 1, 1);
@@ -136,6 +137,7 @@ public class SkinnedLightingEffectTests : StarDriveTest
             fx.TextureEnabled = true;
             fx.TintMapTexture = mask;
             fx.PaintLightness = paintLightness;
+            fx.PaintLiftShare = lift;
             fx.HullTint = new Vector4(red, green, blue, 1f);
         });
         Color px = pixels[32 * 64 + 32];

@@ -597,6 +597,7 @@ namespace Ship_Game.Data.Mesh
             if (fx.TintMapFile != null && TintMapExists(fx.TintMapFile))
                 fx.TintMapTexture = TryLoadTexture(content, fx.TintMapFile);
             fx.PaintLightness = PaintLightnessOf(fx.DiffuseMapTexture, fx.TintMapTexture);
+            fx.PaintLiftShare = HullPaintLift.ShareOf(fx.TintMapFile);
             //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
             fx.Skinned         = isSkinned;

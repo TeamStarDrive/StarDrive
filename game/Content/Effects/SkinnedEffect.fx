@@ -76,6 +76,8 @@ float  EmissiveScale   = 1.0;
 // see MeshLighting.fx
 float  PaintLightness  = 1.0;
 // see MeshLighting.fx
+float  PaintLiftShare  = 0.85;
+// see MeshLighting.fx
 float4 HullTint        = float4(1, 1, 1, 0);
 // see MeshLighting.fx
 float4 PartLook        = float4(1, 0, 1, 0);
@@ -389,7 +391,7 @@ float3 LinearOfOklab(float3 lab)
 // see MeshLighting.fx
 float PaintLift(float colorLightness)
 {
-    float target = 0.55 * colorLightness;
+    float target = PaintLiftShare * colorLightness;
     return target > PaintLightness ? log(1.0 - target) / log(1.0 - PaintLightness) : 1.0;
 }
 

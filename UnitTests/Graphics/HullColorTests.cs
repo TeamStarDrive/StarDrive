@@ -126,6 +126,66 @@ public class HullColorTests : StarDriveTest
         Assert.AreEqual(0f, MeshInterface.PaintLightnessOf(diffuse, mask));
     }
 
+    // a tint map takes its lift from HullPaintLift.yaml by its file name, and one not listed takes the default
+    [TestMethod]
+    [DataRow("Model/Ships/Kulrathi/ship11_t.dds", 0.70f)]
+    [DataRow("Content/Model/Ships/Platforms/platform_base_t.dds", 0.70f)]
+    [DataRow("Model/Ships/Ralyeh/ship17_t_0.dds", 0.85f)]
+    [DataRow("Model/Ships/Kulrathi/ship11_t_0.dds", 0.85f)]
+    [DataRow(null, 0.85f)]
+    public void ATintMapTakesItsLiftFromTheLiftTable(string tintMap, float lift)
+    {
+        AssertEqual(0.0001f, lift, HullPaintLift.ShareOf(tintMap), $"{tintMap}");
+    }
+
+    // a mod's lift table is merged over the base game's: its own tint maps take its lifts, the base game's it lists take its lifts, the rest keep the base game's
+    [TestMethod]
+    public void AModsLiftTableIsMergedOverTheBaseGames()
+    {
+        string modDir = $"Mods/__HullPaintLiftTest{System.Environment.ProcessId}";
+        try
+        {
+            foreach (string leftover in System.IO.Directory.GetDirectories("Mods", "__HullPaintLiftTest*"))
+                if (System.IO.Directory.GetCreationTimeUtc(leftover) < System.DateTime.UtcNow.AddMinutes(-10)) // from a run that was stopped
+                    System.IO.Directory.Delete(leftover, recursive: true);
+            System.IO.Directory.CreateDirectory(modDir);
+            System.IO.File.Copy("Mods/ExampleMod/Globals.yaml", modDir + "/Globals.yaml");
+            System.IO.File.WriteAllText(modDir + "/HullPaintLift.yaml",
+                "TintMaps:\n  hull_t.dds: 0.40\n  ship11_t.dds: 0.55\n  bright_t.dds: 2\n  2nd_t.dds: 0.40\n  \"3rd_t.dds\": 0.40\n");
+
+            GlobalStats.SetActiveModNoSave(new ModEntry(GamePlayGlobals.Deserialize(new System.IO.FileInfo(modDir + "/Globals.yaml"))));
+            ResourceManager.InitContentDir();
+            Assert.IsTrue(GlobalStats.HasMod, "setup: the mod is running");
+            long logStart = LogLength();
+            AssertEqual(0.0001f, 0.40f, HullPaintLift.ShareOf("mod models/Hull/hull_t.dds"), "the mod's own tint map takes the mod's lift");
+            AssertEqual(0.0001f, 0.55f, HullPaintLift.ShareOf("Model/Ships/Kulrathi/ship11_t.dds"), "a base game tint map the mod lists takes the mod's lift");
+            AssertEqual(0.0001f, 0.70f, HullPaintLift.ShareOf("Model/Ships/Draylok/ship18_t_0.dds"), "one the mod does not list keeps the base game's lift");
+            AssertEqual(0.0001f, 0.85f, HullPaintLift.ShareOf("mod models/Hull/bright_t.dds"), "a lift above the highest is ignored for the default");
+            AssertEqual(0.0001f, 0.40f, HullPaintLift.ShareOf("mod models/Hull/3rd_t.dds"), "a quoted name that starts with a digit is read");
+            AssertEqual(0.0001f, 0.85f, HullPaintLift.ShareOf("mod models/Hull/2nd_t.dds"), "an unquoted one reads as a number and is ignored");
+            StringAssert.Contains(LoggedSince(logStart), "is not a tint map file name", "and the ignored name is logged");
+        }
+        finally
+        {
+            GlobalStats.SetActiveModNoSave(null);
+            ResourceManager.InitContentDir();
+            if (System.IO.Directory.Exists(modDir))
+                System.IO.Directory.Delete(modDir, recursive: true);
+        }
+        AssertEqual(0.0001f, 0.70f, HullPaintLift.ShareOf("Model/Ships/Kulrathi/ship11_t.dds"), "with the mod gone the base game's table applies again");
+    }
+
+    // a model's material takes its tint map's lift as it loads
+    [TestMethod]
+    [DataRow("Model/Ships/Kulrathi/ship11f.fbx", 0.70f)]
+    [DataRow("Model/Ships/Ralyeh/ship17c.fbx", 0.85f)]
+    public void AShipModelTakesItsTintMapsLift(string model, float lift)
+    {
+        LightingEffect fx = Content.LoadStaticMesh(model).GetFirstEffect<LightingEffect>();
+        Assert.IsNotNull(fx?.TintMapTexture, $"setup: {model} loads with its tint map");
+        AssertEqual(0.0001f, lift, fx.PaintLiftShare, $"{model} under {fx.TintMapFile}");
+    }
+
     // OKLab lightness runs from black to white as the eye sees it, so pure blue is lighter than its share of light suggests
     [TestMethod]
     [DataRow(0f, 0f, 0f, 0f)]
