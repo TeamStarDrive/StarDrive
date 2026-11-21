@@ -300,15 +300,15 @@ public class AiGameProbe : StarDriveTest
     {
         public Empire E;
         public int DefeatedTurn = -1, TurnsAlive;
-        public int Lost, Captured, Won, LostTo, Colonized, LostOther, Wars, TurnsAtWar;
+        public int Lost, Captured, Won, LostTo, Colonized, LostOther, Wars, TurnsAtWar, SectionsLost;
         public double LostStr, StrTask, StrIdle, StrPool, TasksWaiting, Fleets, Kept, Cap, IdleKept;
 
-        public int Warships, NowFleets, NowFleetsOnTask, NowKept, NowCap, NowIdleKept, NowTasks, NowWaiting, NowWars;
+        public int Warships, NowFleets, NowFleetsOnTask, NowKept, NowCap, NowIdleKept, NowTasks, NowWaiting, NowWars, NowMissingSections;
         public float Str, NowStrTask, NowStrIdle, NowStrPool;
 
         public void ClearNow()
         {
-            Warships = NowFleets = NowFleetsOnTask = NowKept = NowCap = NowIdleKept = NowTasks = NowWaiting = NowWars = 0;
+            Warships = NowFleets = NowFleetsOnTask = NowKept = NowCap = NowIdleKept = NowTasks = NowWaiting = NowWars = NowMissingSections = 0;
             Str = NowStrTask = NowStrIdle = NowStrPool = 0f;
         }
     }
@@ -330,6 +330,7 @@ public class AiGameProbe : StarDriveTest
         readonly UniverseState U;
         readonly EmpireStats[] Stats;
         readonly Dictionary<Ship, (EmpireStats Owner, float Strength)> Ships = new();
+        readonly Dictionary<Ship, uint> MissingSections = new(); // each warship's hull sections off at the last turn, a bit each
         readonly Dictionary<Planet, Empire> PlanetOwners = new();
         readonly HashSet<(int, int)> AtWar = new();
         bool Started;
@@ -420,7 +421,22 @@ public class AiGameProbe : StarDriveTest
                 }
             }
             foreach (Ship ship in gone)
+            {
                 Ships.Remove(ship);
+                MissingSections.Remove(ship);
+            }
+        }
+
+        // the hull sections a ship shows less than whole, lost or coming back, a bit each; the core never goes
+        static uint SectionsOff(Ship ship)
+        {
+            float[] shown = ship.PartShown;
+            uint off = 0u;
+            if (shown != null)
+                for (int part = 1; part < shown.Length && part < 32; ++part)
+                    if (shown[part] < 1f)
+                        off |= 1u << part;
+            return off;
         }
 
         void CountPlanetChanges()
@@ -489,9 +505,23 @@ public class AiGameProbe : StarDriveTest
                 if (ship == null || !ship.Active || !IsWarship(ship))
                     continue;
                 float str = ship.GetStrength();
+                bool known = Ships.ContainsKey(ship);
                 Ships[ship] = (s, str);
                 ++s.Warships;
                 s.Str += str;
+                uint off = SectionsOff(ship);
+                // a ship new to the empire, captured or recovered, brings the sections it lacks: none of them lost by this empire
+                uint offBefore = !known ? off : MissingSections.TryGetValue(ship, out uint had) ? had : 0u;
+                s.SectionsLost += System.Numerics.BitOperations.PopCount(off & ~offBefore);
+                if (off != 0u)
+                {
+                    MissingSections[ship] = off;
+                    ++s.NowMissingSections;
+                }
+                else
+                {
+                    MissingSections.Remove(ship);
+                }
                 Fleet f = ship.Fleet;
                 if (f == null) s.NowStrPool += str;
                 else if (f.FleetTask != null) s.NowStrTask += str;
@@ -531,7 +561,7 @@ public class AiGameProbe : StarDriveTest
         public const string SampleHeader =
             "arm\tgalaxy\tturn\tstardate\twall_s\tempire\talive\tplanets\tpop\tmoney\tincome\tscore\twarships\tstr" +
             "\tstr_task\tstr_idle\tstr_pool\tfleets\tfleets_task\tkept\tcap\tidle_kept\ttasks\ttasks_waiting\twars_now" +
-            "\tlost\tlost_str\tcaptured\twon\tlost_to\tcolonized\tlost_other\twars\tturns_at_war";
+            "\tlost\tlost_str\tsections_lost\tships_missing_sections\tcaptured\twon\tlost_to\tcolonized\tlost_other\twars\tturns_at_war";
 
         public void WriteSamples(RunSettings run, string galaxy, int turn, float starDate, double wallSeconds)
         {
@@ -544,14 +574,15 @@ public class AiGameProbe : StarDriveTest
                     $"\t{e.NumPlanets}\t{F(e.TotalPopBillion)}\t{F(e.Money)}\t{F(e.NetIncome)}\t{e.TotalScore}" +
                     $"\t{s.Warships}\t{F(s.Str)}\t{F(s.NowStrTask)}\t{F(s.NowStrIdle)}\t{F(s.NowStrPool)}" +
                     $"\t{s.NowFleets}\t{s.NowFleetsOnTask}\t{s.NowKept}\t{s.NowCap}\t{s.NowIdleKept}\t{s.NowTasks}\t{s.NowWaiting}" +
-                    $"\t{s.NowWars}\t{s.Lost}\t{F(s.LostStr)}\t{s.Captured}\t{s.Won}\t{s.LostTo}\t{s.Colonized}\t{s.LostOther}" +
+                    $"\t{s.NowWars}\t{s.Lost}\t{F(s.LostStr)}\t{s.SectionsLost}\t{s.NowMissingSections}" +
+                    $"\t{s.Captured}\t{s.Won}\t{s.LostTo}\t{s.Colonized}\t{s.LostOther}" +
                     $"\t{s.Wars}\t{s.TurnsAtWar}");
             }
         }
 
         public const string SummaryHeader =
             "arm\tgalaxy\tstop\tturns\twall_s\terrors\twarnings\tfirst_war\tempire\tdefeated_turn\tplanets\tpop\tmoney\tscore\tstr" +
-            "\tlost\tlost_str\tcaptured\twon\tlost_to\tcolonized\tlost_other\twars\tturns_at_war" +
+            "\tlost\tlost_str\tsections_lost\tcaptured\twon\tlost_to\tcolonized\tlost_other\twars\tturns_at_war" +
             "\tshare_task\tshare_idle\tshare_pool\tavg_waiting\tavg_fleets\tavg_kept\tavg_cap\tidle_kept_share";
 
         public void WriteSummary(RunSettings run, string galaxy, string stop, int turns, double wallSeconds, int errors, int warnings)
@@ -564,7 +595,7 @@ public class AiGameProbe : StarDriveTest
                 Append(run.PathOf("summary.tsv"), SummaryHeader,
                     $"{run.Arm}\t{galaxy}\t{stop}\t{turns}\t{F(wallSeconds)}\t{errors}\t{warnings}\t{FirstWarTurn}\t{e.Name}\t{s.DefeatedTurn}" +
                     $"\t{e.NumPlanets}\t{F(e.TotalPopBillion)}\t{F(e.Money)}\t{e.TotalScore}\t{F(s.Str)}" +
-                    $"\t{s.Lost}\t{F(s.LostStr)}\t{s.Captured}\t{s.Won}\t{s.LostTo}\t{s.Colonized}\t{s.LostOther}\t{s.Wars}\t{s.TurnsAtWar}" +
+                    $"\t{s.Lost}\t{F(s.LostStr)}\t{s.SectionsLost}\t{s.Captured}\t{s.Won}\t{s.LostTo}\t{s.Colonized}\t{s.LostOther}\t{s.Wars}\t{s.TurnsAtWar}" +
                     $"\t{F(strTurns > 0 ? s.StrTask / strTurns : 0)}\t{F(strTurns > 0 ? s.StrIdle / strTurns : 0)}\t{F(strTurns > 0 ? s.StrPool / strTurns : 0)}" +
                     $"\t{F(s.TasksWaiting / alive)}\t{F(s.Fleets / alive)}\t{F(s.Kept / alive)}\t{F(s.Cap / alive)}" +
                     $"\t{F(s.Kept > 0 ? s.IdleKept / s.Kept : 0)}");

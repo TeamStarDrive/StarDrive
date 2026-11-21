@@ -15,6 +15,8 @@ GAME = ["turns", "wall_s", "errors", "warnings", "first_war"]
 SUMS = ["planets", "pop", "money", "score", "str", "lost", "lost_str", "captured", "won", "lost_to", "colonized",
         "lost_other", "wars", "turns_at_war"]
 MEANS = ["share_task", "share_idle", "share_pool", "avg_waiting", "avg_fleets", "avg_kept", "avg_cap", "idle_kept_share"]
+# columns an older probe did not write: summed where every empire of the galaxy has them, else left out
+NEWER_SUMS = ["sections_lost"]
 NONE_IF_NEGATIVE = {"first_war"}
 
 
@@ -40,6 +42,7 @@ def read(out_dir, arm):
         g = {k: float(rows[0][k]) for k in GAME}
         g.update({k: sum(float(r[k]) for r in rows) for k in SUMS})
         g.update({k: sum(float(r[k]) for r in rows) / len(rows) for k in MEANS})
+        g.update({k: sum(float(r[k]) for r in rows) if all(r.get(k) for r in rows) else None for k in NEWER_SUMS})
         g["defeated"] = sum(1 for r in rows if int(r["defeated_turn"]) >= 0)
         g["stop"] = rows[0]["stop"]
         for k in NONE_IF_NEGATIVE:
@@ -67,7 +70,7 @@ def main():
         sys.exit(__doc__)
     out_dir, first = sys.argv[1], sys.argv[2]
     second = sys.argv[3] if len(sys.argv) > 3 else None
-    keys = GAME + ["defeated"] + SUMS + MEANS
+    keys = GAME + ["defeated"] + SUMS + NEWER_SUMS + MEANS
     a = read(out_dir, first)
     if second is None:
         stopped = sorted(g for g in a if a[g]["stop"] != "turns")
@@ -89,6 +92,9 @@ def main():
     print(f"metric\t{first}_mean\t{second}_mean\tdiff_mean\tdiff_se\tlower\thigher\tpaired")
     for k in keys:
         pairs = [(a[g][k], b[g][k]) for g in paired if a[g][k] is not None and b[g][k] is not None]
+        if not pairs:
+            print(f"{k}\tnot in both arms")
+            continue
         d = [y - x for x, y in pairs]
         dm, se = mean_se(d)
         lower = sum(1 for x in d if x < 0)

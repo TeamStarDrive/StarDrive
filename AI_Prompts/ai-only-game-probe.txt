@@ -97,6 +97,8 @@ What the probe already measures, per AI empire
   wars started, empire-turns at war, and the first AI-AI war's turn.
 - Warships lost in combat and their strength. The game's own lost-ship counter is never written, so the probe
   counts a ship that leaves play destroyed, tumbling or as a derelict.
+- Hull sections lost by its warships, counted at each turn, and how many warships are missing one (samples only).
+  A build from before hull sections were read for unseen ships counts none.
 - Where the warship strength sits on average: on a task, in an idle fleet, or in the unassigned pool; fleets per
   empire; war and defense tasks waiting for a force.
 
