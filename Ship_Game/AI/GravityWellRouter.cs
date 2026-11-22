@@ -11,14 +11,16 @@ namespace Ship_Game.AI;
 //
 // Two-tier obstacle model:
 //   - FAR systems (both origin AND destination >= 1.1 system diameters from system
-//     center) that aren't covered by friendly projector influence are treated as a
-//     SINGLE blob — the whole system disc becomes the obstacle. Skips:
+//     center) that aren't covered by friendly projector influence, or that we explored and
+//     hold a planet of an empire at war with us, are treated as a SINGLE blob — the whole system disc
+//     becomes the obstacle. Skips:
 //       · system is KNOWN to be empty (no planets → no wells, safe transit)
 //   - NEAR systems (origin OR destination within 1.1 diameters of the system center)
 //     fall back to per-planet gravity-well detection — too close to swing around the
 //     whole disc, and near the destination the disc contains the endpoint so it would
 //     otherwise be skipped entirely (and its wells clipped on approach). So do far
-//     systems whose center is in friendly influence, where only some wells hold. Skips:
+//     systems whose center is in friendly influence and that are unexplored or hold no
+//     planet of an empire at war with us, where only some wells hold. Skips:
 //       · system is NOT known to our empire (can't see wells; reactive warp-drop
 //         logic handles whatever the ship hits — we can't strategically route
 //         around obstacles we don't know exist).
@@ -87,20 +89,21 @@ public static class GravityWellRouter
         return detourIndex < detours.Length ? detours[detourIndex] : finalTarget;
     }
 
+    // whether this ship's moves are routed at all
+    public static bool RoutesFor(Ship ship)
+    {
+        UniverseState u = ship?.Universe;
+        return u != null && GlobalStats.RouteAroundGravityWells && u.P.GravityWellRange != 0f && !ship.Loyalty.WeAreRemnants;
+    }
+
     // Returns intermediate detour waypoints, in travel order (does NOT include the
     // final destination). Empty when straight-line is clear or routing is disabled.
     public static Vector2[] BuildDetours(Ship ship, Vector2 from, Vector2 to, MoveOrder order)
     {
-        UniverseState u = ship?.Universe;
-        if (u == null || !GlobalStats.RouteAroundGravityWells || u.P.GravityWellRange == 0f)
+        if (!RoutesFor(ship))
         {
             if (LogVerbose && ship != null)
-                Log.Info($"[GWRouter] SKIP ({ship.Name}): routing disabled (flag={GlobalStats.RouteAroundGravityWells} wellRange={u?.P.GravityWellRange})");
-            return Empty;
-        }
-        if (ship.Loyalty.WeAreRemnants)
-        {
-            if (LogVerbose) Log.Info($"[GWRouter] SKIP ({ship.Name}): remnant");
+                Log.Info($"[GWRouter] SKIP ({ship.Name}): routing disabled or remnant (flag={GlobalStats.RouteAroundGravityWells} wellRange={ship.Universe?.P.GravityWellRange})");
             return Empty;
         }
 
@@ -283,7 +286,7 @@ public static class GravityWellRouter
     // Returns the earliest blocker (smallest t along the segment a→b).
     // Each candidate system chooses between system-level and planet-level routing
     // based on its distance from `origin`:
-    //   - far system, no friendly influence → system disc is the obstacle
+    //   - far system with no friendly influence, or explored and holding an at-war planet → system disc is the obstacle
     //   - near system → per-planet check inside it (existing gravity-well logic)
     // Per-segment candidate before merging.
     readonly struct Candidate
@@ -331,7 +334,8 @@ public static class GravityWellRouter
             bool isNear = sys.Position.SqDist(origin) < nt2 || sys.Position.SqDist(finalDest) < nt2;
             bool isKnown = sys.IsExploredBy(ship.Loyalty);
 
-            bool friendlyFar = !isNear && IsFriendly(ship, sys.Position) && !(isKnown && ship.Universe.HasRemnantPortal(sys));
+            bool friendlyFar = !isNear && IsFriendly(ship, sys.Position) && !(isKnown && ship.Universe.HasRemnantPortal(sys))
+                               && !(isKnown && HoldsAnAtWarPlanet(sys, ship));
             if (friendlyFar)
                 skipFriendly++;
 
@@ -498,6 +502,18 @@ public static class GravityWellRouter
         if (!IsFriendly(ship, p.ParentSystem.Position))
             return true;
         return !IsFriendly(ship, p.Position);
+    }
+
+    // an explored system holding a planet of an empire at war with us is passed around whole, even inside our influence
+    static bool HoldsAnAtWarPlanet(SolarSystem sys, Ship ship)
+    {
+        var planets = sys.PlanetList;
+        for (int i = 0; i < planets.Count; i++)
+        {
+            if (planets[i].Owner?.WillInhibit(ship.Loyalty) == true)
+                return true;
+        }
+        return false;
     }
 
     static bool IsFriendly(Ship ship, Vector2 pos)

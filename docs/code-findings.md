@@ -1326,6 +1326,19 @@ Items 27-28 come from the branch review of `fixes_48`, 2026-10-15.
     before disposing its scene since fixes_48; the base class wants the same, for every screen. It is
     reached only when a screen is dropped without `RemoveScreen` disposing it.
 
+Item 29 comes from issue #558 (troops sent to a ship), 2026-11-22.
+
+29. **The route planner and the game size an enemy well differently under the counter-inhibition
+    trait.** `GravityWellRouter.WellScale` shrinks an at-war planet's well by
+    `EnemyPlanetInhibitionPercentCounter` when our influence covers the whole well, but
+    `SolarSystem.HoldingWellRadius` shrinks it only while the ship's own `IsInFriendlyProjectorRange`
+    is set, and that status is refreshed with the ship's sensors (`Ship.UpdateSensors`). A ship
+    arriving at warp from outside our influence can still carry the old status, so the game holds it
+    by the full well. In Roland's #558 save (Kulrathi, trait 0.2) a troop ship routed 6,960 from
+    Earth, outside the planner's 6,720, dropped out of warp inside Earth's 8,000 well. Since #558 a
+    system holding an at-war planet is passed around whole in the middle of a route, so this is left
+    near the start and end of a trip. Logged by decision 2546.
+
 ## Larger items with their own notes
 
 **~~`GetBestPorts` lets a crippled Colony-type port through~~** — resolved 2026-09-28. The filter

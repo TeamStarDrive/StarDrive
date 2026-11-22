@@ -1003,13 +1003,59 @@ namespace Ship_Game.AI
                 ApproachToLand(timeStep, pirateBase.Position, pirateBase.Position, range, LaunchShip.ShipyardSpeed(Owner));
         }
 
-        void DoRebaseToShip(FixedSimTime timeStep)
+        // the route to a ship more than twice the router's reach away is planned once for the trip (again after a load),
+        // and again where its last leg ends if that ship is still that far; the trip ends within reach of the ship
+        ShipGoal ShipRouteGoal;
+        Vector2[] ShipRouteDetours;
+        int ShipRouteDetourIndex;
+        Vector2 ShipRouteLegEnd;
+        internal int ShipRoutesPlanned;
+
+        // where to thrust on the way to a ship: a point of the route while it is far, the ship itself when nearer; false within reach of it
+        bool ThrustTargetOnWayToShip(ShipGoal goal, Vector2 shipPos, out Vector2 thrustTarget)
+        {
+            thrustTarget = shipPos;
+            float reach = GravityWellRouter.DetourReachDistance;
+            if (Owner.Position.InRadius(shipPos, reach))
+            {
+                ShipRouteGoal = null;
+                return false;
+            }
+
+            bool onTrip = ReferenceEquals(ShipRouteGoal, goal);
+            bool legEnded = onTrip && ShipRouteDetourIndex >= ShipRouteDetours.Length && Owner.Position.InRadius(ShipRouteLegEnd, reach);
+            if (!onTrip || legEnded)
+            {
+                if (!GravityWellRouter.RoutesFor(Owner) || Owner.Position.InRadius(shipPos, 2f * reach))
+                {
+                    ShipRouteGoal = null;
+                    return true;
+                }
+
+                ShipRouteGoal = goal;
+                ShipRouteLegEnd = shipPos;
+                ShipRouteDetours = GravityWellRouter.BuildDetours(Owner, Owner.Position, shipPos, MoveOrder.Regular);
+                ShipRouteDetourIndex = 0;
+                ++ShipRoutesPlanned;
+            }
+
+            thrustTarget = GravityWellRouter.GetThrustTarget(ShipRouteDetours, ref ShipRouteDetourIndex, ShipRouteLegEnd, Owner.Position);
+            return true;
+        }
+
+        void DoRebaseToShip(FixedSimTime timeStep, ShipGoal goal)
         {
             if (EscortTarget == null || !EscortTarget.Active || EscortTarget.IsLanding
                                      || EscortTarget.AI.State == AIState.Scrap
                                      || EscortTarget.AI.State == AIState.Refit)
             {
                 OrderRebaseToNearest();
+                return;
+            }
+
+            if (ThrustTargetOnWayToShip(goal, EscortTarget.Position, out Vector2 thrustTarget))
+            {
+                ThrustOrWarpToPos(thrustTarget, timeStep);
                 return;
             }
 
@@ -1039,7 +1085,8 @@ namespace Ship_Game.AI
 
             if (!Owner.Position.InRadius(constructor.Position, constructor.Radius + ConstructionShip.ConstructingDistance))
             {
-                ThrustOrWarpToPos(constructor.Position, timeStep);
+                ThrustTargetOnWayToShip(goal, constructor.Position, out Vector2 thrustTarget);
+                ThrustOrWarpToPos(thrustTarget, timeStep);
             }
             else
             {
@@ -1048,7 +1095,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void DoRearmShip(FixedSimTime timeStep)
+        void DoRearmShip(FixedSimTime timeStep, ShipGoal goal)
         {
             if (EscortTarget == null || !EscortTarget.Active)
             {
@@ -1057,12 +1104,15 @@ namespace Ship_Game.AI
             }
 
             if (!Owner.Position.InRadius(EscortTarget.Position, EscortTarget.Radius + 300f))
-                ThrustOrWarpToPos(EscortTarget.Position, timeStep);
+            {
+                ThrustTargetOnWayToShip(goal, EscortTarget.Position, out Vector2 thrustTarget);
+                ThrustOrWarpToPos(thrustTarget, timeStep);
+            }
             else
                 ReverseThrustUntilStopped(timeStep); // the empire goal takes care of the rearm
         }
 
-        void DoSupplyShip(FixedSimTime timeStep)
+        void DoSupplyShip(FixedSimTime timeStep, ShipGoal goal)
         {
             var escortTarget = EscortTarget;
             if (EscortTarget == null || !escortTarget.Active
@@ -1075,7 +1125,8 @@ namespace Ship_Game.AI
             }
 
             
-            ThrustOrWarpToPos(EscortTarget.Position, timeStep);
+            ThrustTargetOnWayToShip(goal, escortTarget.Position, out Vector2 thrustTarget);
+            ThrustOrWarpToPos(thrustTarget, timeStep);
             if (Owner.Position.InRadius(escortTarget.Position, escortTarget.Radius + 300f))
             {
                 // remove amount from incoming supply (we counted full ordnance so remove it now)

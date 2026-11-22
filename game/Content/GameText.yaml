@@ -14618,9 +14618,9 @@ Pathfinder:
  PTB: "Caçador de Caminhos"
 PathfinderTip:
  Id: 4537
- ENG: "When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ships travel in straight lines and drop out of warp as wells are encountered."
- RUS: "Когда ВКЛ, при перемещении по вселенной корабли прокладывают курс в обход враждебных и неизвестных планетарных гравитационных скважин, избегая выхода из варпа. При ВЫКЛ корабли движутся по прямой и выходят из варпа при встрече со скважинами."
- PTB: "Quando ATIVADO, as naves traçam uma rota ao redor de poços gravitacionais planetários hostis e desconhecidos ao se mover pelo universo, evitando saídas de dobra. Quando DESATIVADO, as naves viajam em linha reta e saem de dobra ao encontrar os poços."
+ ENG: "When ON, ships moving across the universe plot a course around systems outside friendly territory or holding an enemy planet, and around planetary gravity wells that would pull them out of warp. Turning this OFF makes ships travel in straight lines and drop out of warp as wells are encountered."
+ RUS: "Когда ВКЛ, корабли, перемещаясь по вселенной, прокладывают курс в обход систем вне дружественной территории или с вражеской планетой, а также планетарных гравитационных скважин, которые выбили бы их из варпа. При ВЫКЛ корабли движутся по прямой и выходят из варпа при встрече со скважинами."
+ PTB: "Quando ATIVADO, as naves que se movem pelo universo traçam uma rota ao redor de sistemas fora do território amigo ou com um planeta inimigo, e ao redor de poços gravitacionais planetários que as tirariam de dobra. Quando DESATIVADO, as naves viajam em linha reta e saem de dobra ao encontrar os poços."
 PlayerBuiltProtectedFromScrap:
  Id: 4538
  ENG: "You placed this yourself, so the governor will never scrap it or cancel it."
