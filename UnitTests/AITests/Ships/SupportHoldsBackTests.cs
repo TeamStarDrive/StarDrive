@@ -313,6 +313,23 @@ public class SupportHoldsBackTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ASupportShipOnEvadeHoldingBackStillFleesWhenTheFightFindsIt()
+    {
+        Ship warship = Spawn(Warship, Player, Ours - new Vector2(50_000f, 0f));
+        Ship support = Spawn(Support, Player, Ours);
+        support.AI.CombatState = CombatState.Evade;
+        Planet safe = AddDummyPlanetToEmpire(Ours - new Vector2(150_000f, 0f), Player);
+        Ship enemy = EnemyAt(Ours + new Vector2(8_000f, 0f));
+        RunObjectsSim(TestSimStep);
+
+        Commands.RightClickOnShip(new Array<Ship> { warship, support }, enemy);
+        Assert.IsTrue(support.AI.HoldsBack, "setup: the support ship holds back");
+        RunSimWhile((simTimeout: 10, fatal: true), () => support.AI.HoldsBack);
+
+        Assert.AreEqual(safe, support.AI.ResupplyTarget, "Evade wins: its holding back ends there, and it flees to a safe planet of ours");
+    }
+
+    [TestMethod]
     public void AShipWithNothingToFightWithHoldsWhereItIsOnAFarAttack()
     {
         Ship warship = Spawn(Warship, Player, Ours);
