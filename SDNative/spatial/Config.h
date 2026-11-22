@@ -60,6 +60,11 @@ namespace spatial
 
     /**
      * Cells holding more objects than this are collided by a sweep over their left edges
+     * @note 2026-11: a cell at the smallest size cannot split, and in a big battle the biggest held 3,900-7,600
+     *       objects, so checking every pair was 25-88 million checks a step. Replaying battle snapshots,
+     *       the sweep took the heaviest steps from 38 and 67 ms (hash set alone) to 19 and 19 ms, and RedFox's
+     *       10,000-ship SDNativeTests scene, whose cells fill to 64 before they split, from 0.77 to 0.41 ms;
+     *       one lighter step with mid-sized, crowded cells went from 6.1 to 7.7 ms.
      */
     constexpr int CollisionSweepThreshold = 32;
 }
