@@ -226,6 +226,18 @@ namespace Ship_Game.Spatial
             return numCollisions;
         }
 
+        // the pairs the broad phase finds, in the order the narrow phase takes them
+        internal CollisionPair[] FindCollisionPairs()
+        {
+            var p = new CollisionParams { IgnoreSameLoyalty = 1 };
+            CollisionPairs results = default;
+            SpatialCollideAll(Spat, Root, ref p, ref results);
+            var pairs = new CollisionPair[results.Size];
+            for (int i = 0; i < pairs.Length; ++i)
+                pairs[i] = results.Data[i];
+            return pairs;
+        }
+
         public SpatialObjectBase[] FindNearby(ref SearchOptions opt)
         {
             if (opt.MaxResults == 0)

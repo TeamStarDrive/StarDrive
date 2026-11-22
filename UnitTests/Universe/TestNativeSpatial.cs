@@ -4,6 +4,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using SDUtils;
+using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Universe
 {
@@ -64,6 +66,58 @@ namespace UnitTests.Universe
             using (SpatialManager.Found again = UState.Spatial.FindNearbyBuffered(ref all))
                 Assert.AreEqual(expected.Length, again.Length, "and the same ships again");
             Assert.AreEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "a search with its buffer given back makes no array");
+        }
+
+        [TestMethod]
+        public void ACrowdedCellIsCollidedInTheSamePairsAndOrderAsALoopOverEveryPairOfIt()
+        {
+            using var tree = new NativeSpatial(SpatialType.Qtree, 100_000, 1024);
+            var objects = new SpatialObjectBase[40];
+            for (int i = 0; i < objects.Length; ++i)
+            {
+                Ship_Game.Empire owner = i % 3 == 0 ? Enemy : Player;
+                Ship ship = SpawnShip("Vulcan Scout", owner, Vector2.Zero);
+                objects[i] = i % 2 == 0 ? ship : Projectile.Create(ship.Weapons.First, ship, Vector2.Zero, Vectors.Up, null, false);
+            }
+            int spacing = new AABoundingBox2Di(objects[1]).Width / 2; // projectiles two places apart just touch
+            Assert.IsTrue(spacing >= 2, $"setup: a projectile's box is wide enough to space the objects by: {spacing}");
+            for (int i = 0; i < objects.Length; ++i)
+            {
+                int slot = i * 17 % objects.Length; // left edges in an order unlike the cell's
+                objects[i].Position = new(slot * spacing, slot % 2 * 4);
+            }
+            tree.UpdateAll(objects);
+            for (int i = 0; i < objects.Length; ++i)
+                Assert.AreEqual(i, objects[i].SpatialIndex, "setup: the cell holds the objects in the order they were added");
+
+            var expected = new Array<CollisionPair>();
+            int touching = 0;
+            for (int i = 0; i < objects.Length; ++i)
+            {
+                for (int j = i + 1; j < objects.Length; ++j)
+                {
+                    SpatialObjectBase a = objects[i], b = objects[j];
+                    var ra = new AABoundingBox2Di(a);
+                    var rb = new AABoundingBox2Di(b);
+                    if ((NativeSpatialObject.GetCollisionMask(a.Type) & NativeSpatialObject.GetCollisionMask(b.Type)) != 0
+                        && a.GetLoyaltyId() != b.GetLoyaltyId() && ra.Overlaps(rb))
+                    {
+                        expected.Add(new CollisionPair(a.SpatialIndex, b.SpatialIndex));
+                        if (ra.X2 == rb.X1 || rb.X2 == ra.X1)
+                            ++touching;
+                    }
+                }
+            }
+            Assert.IsTrue(expected.Count > objects.Length, $"setup: most objects meet several others: {expected.Count} pairs");
+            Assert.IsTrue(touching > 0, "setup: some boxes just touch, edge to edge");
+
+            CollisionPair[] found = tree.FindCollisionPairs();
+            Assert.AreEqual(expected.Count, found.Length, "the same number of pairs");
+            for (int k = 0; k < found.Length; ++k)
+            {
+                Assert.IsTrue(expected[k].A == found[k].A && expected[k].B == found[k].B,
+                              $"pair {k}: ({expected[k].A}, {expected[k].B}) expected, ({found[k].A}, {found[k].B}) found");
+            }
         }
     }
 }
