@@ -335,7 +335,7 @@ namespace Ship_Game.Commands.Goals
                 d.ReleaseClaim();
         }
 
-        // as pirates board a salvage platform, its owner's order ends and what it holds is lost; their own order recovers the derelict's ship, or takes the platform apart at a derelict they cannot recover or already recover from another; one with no order, or boarded by pirates already defeated, is taken away; a save or the UI can apply the change of hands
+        // as pirates board a salvage platform, its owner's order ends and what it holds is lost; their own order recovers the derelict's ship, or takes the platform apart at a derelict they cannot recover or already recover from another; one with no order, or boarded by pirates already defeated, is taken away; off the sim thread it is queued for it
         public static void Captured(Ship platform, Empire from, Empire to)
         {
             if (platform.Universe.Screen is { IsOnSimThread: false } screen)

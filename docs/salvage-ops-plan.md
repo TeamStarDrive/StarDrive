@@ -564,8 +564,8 @@ station stood in the system (they show from the start, 332 A) no longer holds.
   - A station is taken over at the moment it changes hands, by boarding or by a gift, a merger's included
     (`SalvageOps.TakeOver`, called from `LoyaltyChanges`): its old owner's order ends, and its new owner gets one from
     the salvage step on, whatever the old owner was, so a defeated empire's station works for its rebels and one taken
-    from pirates works for its boarder. The change of hands runs on the sim thread, and is queued for it when the UI
-    applies it; a queued one that the station's loss or a later change of hands has overtaken does nothing.
+    from pirates works for its boarder. The change of hands runs on the sim thread, and is queued for it when applied
+    off it; a queued one that the station's loss or a later change of hands has overtaken does nothing.
     A save applies the pending changes of hands on the sim thread as it begins (`UniverseState.PrepareForSave`), and
     the save worker applies none, so it writes none half done.
     An order that finds its station in other hands hands it on. `UniverseObjectManager.UpdateLists` cleans up a ship

@@ -35,7 +35,18 @@ public partial class UniverseScreen
 
     public void SaveAsync(string saveName, bool resetLogOnComplete = false)
     {
-        var savedGame = new SavedGame(this);
+        SavedGame savedGame;
+        try
+        {
+            savedGame = new SavedGame(this);
+        }
+        catch (Exception e)
+        {
+            UState.ForgetListsToSave();
+            Log.Error(e, $"Universe.SaveAsync('{saveName}') failed");
+            return;
+        }
+
         IsSaving = true;
         savedGame.SaveAsync(saveName, (error) =>
         {

@@ -254,7 +254,7 @@ public sealed class Derelicts
                 Items[i].SetKnownBy(player);
     }
 
-    // a ship that changes hands where it is counts as entering its system for its new owner; a save or the UI can apply the change of hands
+    // a ship that changes hands where it is counts as entering its system for its new owner; off the sim thread it is queued for it
     public void ChangedHands(Ship ship)
     {
         if (ship.Universe.Screen is { IsOnSimThread: false } screen)

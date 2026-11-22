@@ -65,6 +65,9 @@ namespace Ship_Game.Ships.Components
         // from any thread: the ship is to change hands from the empire to another at its next update
         public bool ChangesFrom(Empire empire) => Volatile.Read(ref Change)?.To is { } to && to != empire;
 
+        // from any thread: the ship is new, and its empire lists it at its next update
+        public bool WaitsToBeListed => Volatile.Read(ref Change)?.Type == Type.Spawn;
+
         /// <returns>TRUE if loyalty changed</returns>
         public bool Update(Ship ship)
         {

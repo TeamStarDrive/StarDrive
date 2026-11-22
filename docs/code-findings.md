@@ -1339,6 +1339,23 @@ Item 29 comes from issue #558 (troops sent to a ship), 2026-11-22.
     system holding an at-war planet is passed around whole in the middle of a route, so this is left
     near the start and end of a trip. Logged by decision 2546.
 
+Items 30-32 come from the branch review of `fixes_70`, 2026-11-22. Each was there before the save
+was prepared on the sim thread (`1a958c501`). Logged by decision 2584.
+
+30. `[thread]` **Paused frames during a save still run the actions the UI queued.** While
+    `IsSaving` holds the simulation, `ProcessSimulationTurns` (`UniverseScreen.UpdateGame.cs` ~120)
+    still calls `InvokePendingSimThreadActions`, so goal adds and removes, construction queue edits,
+    `MassScrap` and `AbsorbEmpire` (`EndAllTasks`, `EmpireShips.Clear`) change state the save
+    worker is writing. The UI thread also launches troops from planets (the planet list, the planet
+    info panel, the colony screen) while the worker writes those planets' troop lists.
+31. `[thread]` **Exit does not wait for a save being written.** `UniverseScreen.ExitScreen` joins the
+    sim thread, not the save worker, then disposes the universe. A teardown during a save (the window
+    closed, or a click in the frame before `IsSaving` is set) disposes ships the worker is writing,
+    and leaves the save slot it was writing cut short.
+32. `[thread]` **The save worker reads the fog of war render target.** `UniverseState.OnSerialize`
+    converts `Screen.FogMap` to bytes (`TexExport.ToAlphaBytes`) on the worker while the UI thread
+    draws into it.
+
 ## Larger items with their own notes
 
 **~~`GetBestPorts` lets a crippled Colony-type port through~~** — resolved 2026-09-28. The filter

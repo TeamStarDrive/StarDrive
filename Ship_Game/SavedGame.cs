@@ -61,9 +61,19 @@ namespace Ship_Game
             SaveUniverseData(State, SaveFile, collectMemory: false);
         }
 
+        // null when the save cannot start, which `finished` hears at once
         public TaskResult SaveAsync(string saveAs, Action<Exception> finished)
         {
-            SaveFile = new($"{DefaultSaveGameFolder}{saveAs}.sav");
+            try
+            {
+                SaveFile = new($"{DefaultSaveGameFolder}{saveAs}.sav");
+            }
+            catch (Exception e)
+            {
+                State.ForgetListsToSave();
+                finished(e);
+                return null;
+            }
 
             // written on a worker while the sim thread runs paused frames
             var saveTask = Parallel.Run(() =>

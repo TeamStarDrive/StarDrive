@@ -1279,9 +1279,29 @@ namespace UnitTests.Serialization
             Assert.IsNotNull(kept.GetValue(UState), "setup: a save keeps the ship list it writes");
 
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
-            using (new FileStream($"{SavedGame.DefaultSaveGameFolder}UnitTest.LockedSave.sav", FileMode.Create, FileAccess.ReadWrite, FileShare.None))
-                Assert.ThrowsException<IOException>(() => save.Save("UnitTest.LockedSave"), "setup: the save file is held open, so the save fails");
+            string lockedSave = $"{SavedGame.DefaultSaveGameFolder}UnitTest.LockedSave.sav";
+            try
+            {
+                using (new FileStream(lockedSave, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+                    Assert.ThrowsExactly<IOException>(() => save.Save("UnitTest.LockedSave"), "setup: the save file is held open, so the save fails");
+            }
+            finally
+            {
+                File.Delete(lockedSave);
+            }
             Assert.IsNull(kept.GetValue(UState), "a failed save lets go of the ship list it kept, dead ships and all");
+        }
+
+        [TestMethod]
+        public void AnAsyncSaveThatFailsAsItStartsLeavesTheGameFreeToSaveAgain()
+        {
+            CreateUniverseAndPlayerEmpire();
+            SpawnShip("Terran-Prototype", Player, new Vector2(200_000, 0));
+            var kept = typeof(UniverseState).GetField("ShipsToSave", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+            Universe.SaveAsync("UnitTest.Bad\0Name");
+            Assert.IsFalse(Universe.IsSaving, "a save whose file cannot be named is not being written, so the next save, exit and load are free");
+            Assert.IsNull(kept.GetValue(UState), "and it keeps no lists");
         }
 
         [StarDataType]

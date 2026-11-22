@@ -231,6 +231,29 @@ public class TroopLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ASaveKeepsOnlyTheShipsTheirEmpiresList()
+    {
+        UState.Objects.UpdateLists();
+        Universe.IsSaving = true;
+        try
+        {
+            Ship troopShip = TroopShip(Colony);
+            UState.Objects.Update(FixedSimTime.Zero);
+            Ship[] ships = UState.Objects.GetShips();
+            Assert.IsTrue(ships.Contains(troopShip) && !Player.OwnedShips.Contains(troopShip),
+                          "setup: the ship list holds a new ship its empire does not list yet, as one made on another thread during the save's tidy");
+
+            Ship[] kept = Ship_Game.Universe.UniverseState.ListedShips(ships);
+            Assert.IsFalse(kept.Contains(troopShip), "the save leaves it for after it is written");
+            AssertEqual(ships.Length - 1, kept.Length, "and keeps every other ship");
+        }
+        finally
+        {
+            Universe.IsSaving = false;
+        }
+    }
+
+    [TestMethod]
     public void EachLandingOrderPicksAFreshDropSpot()
     {
         Ship shuttle = ShuttleWithoutCarrier(EnemyPlanet);

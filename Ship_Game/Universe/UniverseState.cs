@@ -327,8 +327,29 @@ namespace Ship_Game.Universe
             Objects.UpdateLists(removeInactiveObjects: true);
             for (int i = 0; i < Empires.Count; ++i)
                 Empires[i].AI?.ApplyPendingChanges();
-            ShipsToSave = Objects.GetShips();
+            ShipsToSave = ListedShips(Objects.GetShips());
             ProjectilesToSave = Objects.GetProjectiles();
+        }
+
+        // the ships their empires list; one made on another thread during the tidy is left for after the save, as is one made while it is written
+        internal static Ship[] ListedShips(Ship[] ships)
+        {
+            Array<Ship> listed = null;
+            for (int i = 0; i < ships.Length; ++i)
+            {
+                bool waits = ships[i].LoyaltyTracker?.WaitsToBeListed == true;
+                if (waits && listed == null)
+                {
+                    listed = new(ships.Length);
+                    for (int j = 0; j < i; ++j)
+                        listed.Add(ships[j]);
+                }
+                else if (!waits && listed != null)
+                {
+                    listed.Add(ships[i]);
+                }
+            }
+            return listed?.ToArray() ?? ships;
         }
 
         // the lists kept for a save, let go once it is written or has failed
