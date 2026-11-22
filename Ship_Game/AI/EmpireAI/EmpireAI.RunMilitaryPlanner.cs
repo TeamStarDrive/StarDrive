@@ -20,13 +20,6 @@ namespace Ship_Game.AI
         readonly Array<MilitaryTask> TasksToAdd    = new();
         readonly Array<MilitaryTask> TasksToRemove = new();
 
-        [StarDataSerialize]
-        StarDataDynamicField[] OnSerialize()
-        {
-            ApplyPendingChanges();
-            return null;
-        }
-
         void RunMilitaryPlanner()
         {
             if (OwnerEmpire.isPlayer)
@@ -62,7 +55,7 @@ namespace Ship_Game.AI
         }
 
         // adds first, so a task ended before it was ever added is not kept
-        void ApplyPendingChanges()
+        internal void ApplyPendingChanges()
         {
             TaskList.AddRange(TasksToAdd);
             TasksToAdd.Clear();

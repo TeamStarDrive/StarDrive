@@ -503,6 +503,9 @@ below also gets that frame's input. No screen gets input while the game window i
 - A save is `BinarySerializer.SerializeMultiType(writer, { HeaderData, UniverseState })`.
 - Saves start on the sim thread (`SaveDuringNextUpdate` → `CheckForPendingSaves`). `SaveAsync` serializes on
   a pool thread while `IsSaving` holds the simulation.
+- One save at a time. `new SavedGame(...)` prepares it on the sim thread (`UniverseState.PrepareForSave`): it
+  tidies the object lists, applies pending changes of hands and AI task changes, and keeps the ship and
+  projectile lists the save writes. The pool thread only reads; a ship made while it writes is left out.
 - Autosaves (`Autosave1..3`) happen after `GlobalStats.AutoSaveFreq` seconds of unpaused play.
 - Fields match by **name**. Renaming a field loads old saves with the initializer. A field that no longer
   exists is skipped on read. Deleting a `[StarDataType]` type that old saves still hold breaks those saves.

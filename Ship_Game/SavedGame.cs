@@ -51,8 +51,8 @@ namespace Ship_Game
 
         public SavedGame(UniverseScreen screen)
         {
-            // clean up and submit objects before saving
             State = screen.UState;
+            State.PrepareForSave();
         }
 
         public void Save(string saveAs)
@@ -65,8 +65,7 @@ namespace Ship_Game
         {
             SaveFile = new($"{DefaultSaveGameFolder}{saveAs}.sav");
 
-            // All of this data can be serialized in parallel,
-            // because we already built `SaveData` object, which no longer depends on UniverseScreen
+            // written on a worker while the sim thread runs paused frames
             var saveTask = Parallel.Run(() =>
             {
                 try
@@ -83,6 +82,18 @@ namespace Ship_Game
         }
 
         void SaveUniverseData(UniverseState state, FileInfo saveFile, bool collectMemory)
+        {
+            try
+            {
+                WriteUniverseData(state, saveFile, collectMemory);
+            }
+            finally
+            {
+                state.ForgetListsToSave();
+            }
+        }
+
+        void WriteUniverseData(UniverseState state, FileInfo saveFile, bool collectMemory)
         {
             var t = new PerfTimer();
 

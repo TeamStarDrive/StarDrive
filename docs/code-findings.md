@@ -1291,7 +1291,8 @@ Items 19-26 come from the branch review of `fixes_38` (the landing work), 2026-1
     `PlanetListScreenItem.cs` (~377, after Send Troops) calls `Objects.UpdateLists()`, which
     applies loyalty changes and removes inactive ships off the sim thread. Pre-existing on main;
     since paused frames also apply loyalty changes, the atomic claim in `LoyaltyChanges` is what
-    keeps one change from applying twice. Fix: `RunOnSimThread`, or drop the call.
+    keeps one change from applying twice. → **Fixed by** queuing the call for the sim thread
+    (`RunOnSimThread`); while a save is being written, it waits until the save is done.
 23. `[latent]` **Assault transporters never fire, and evasion never sees a ship.**
     `DoAssaultTransporterLogic` (`ShipAI.DoAction.cs` ~750) and `Evade` read
     `ShipAI.NearByShips`, which nothing fills; it is only cleared. The Codex entry Capturing Ships

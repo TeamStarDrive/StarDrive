@@ -15,9 +15,8 @@ public partial class UniverseScreen
     {
         try
         {
-            ApplyPendingChangesBeforeSave();
-            IsSaving = true;
             var savedGame = new SavedGame(this);
+            IsSaving = true;
             savedGame.Save(saveName);
             return savedGame; // used in unit testing
         }
@@ -34,14 +33,10 @@ public partial class UniverseScreen
         return null;
     }
 
-    // a change of hands applies here, on the sim thread, with what it sets off, so the save worker finds none half done
-    void ApplyPendingChangesBeforeSave() => UState.Objects.UpdateLists(removeInactiveObjects: true);
-
     public void SaveAsync(string saveName, bool resetLogOnComplete = false)
     {
-        ApplyPendingChangesBeforeSave();
-        IsSaving = true;
         var savedGame = new SavedGame(this);
+        IsSaving = true;
         savedGame.SaveAsync(saveName, (error) =>
         {
             IsSaving = false;
@@ -72,10 +67,14 @@ public partial class UniverseScreen
             PlayedSinceSave += Math.Min(now - LastSaveCheckTime, 1f);
         LastSaveCheckTime = now;
 
+        if (IsSaving)
+            return; // one save at a time, so a new one never tidies the lists the last one is still writing
+
         if (PendingSaveName.NotEmpty())
         {
-            SaveAsync(PendingSaveName);
+            string saveName = PendingSaveName;
             PendingSaveName = null;
+            SaveAsync(saveName);
             PlayedSinceSave = 0f; // a save of the player's resets the autosave timer
         }
         else if (PlayedSinceSave >= GlobalStats.AutoSaveFreq)

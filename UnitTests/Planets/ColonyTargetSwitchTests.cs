@@ -259,9 +259,6 @@ public class ColonyTargetSwitchTests : StarDriveTest
         Assert.IsTrue(mids.Any(g => g.TargetPlanet == better), "the found planet takes the next weakest target instead");
     }
 
-    static void ApplyPendingTasks(Empire empire)
-        => typeof(EmpireAI).GetMethod("ApplyPendingChanges", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(empire.AI, null);
-
     static bool ChecksNewOwners(MarkForColonization goal)
         => (bool)typeof(MarkForColonization).GetField("CheckNewOwnersInSystem", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(goal);
 
@@ -282,7 +279,7 @@ public class ColonyTargetSwitchTests : StarDriveTest
         goal.Task = MilitaryTask.CreateClaimTask(Enemy, old, 20f, Player, 1);
         Enemy.AI.AddPendingTask(goal.Task);
         Enemy.AI.AddPendingTask(MilitaryTask.CreateGuardTask(Enemy, old));
-        ApplyPendingTasks(Enemy);
+        Enemy.AI.ApplyPendingChanges();
         Enemy.AI.AddPendingTask(MilitaryTask.CreateGuardTask(Enemy, old));
         Assert.IsFalse(ChecksNewOwners(goal), "setup: another empire holds the old target's system");
 
@@ -293,7 +290,7 @@ public class ColonyTargetSwitchTests : StarDriveTest
 
         Planet target = AddPlanet("New", 16f);
         goal.SwitchTargetPlanet(target);
-        ApplyPendingTasks(Enemy);
+        Enemy.AI.ApplyPendingChanges();
 
         AssertEqual(target, goal.TargetPlanet);
         Assert.IsNull(goal.Task, "the claim for the old target is called off");
@@ -306,9 +303,19 @@ public class ColonyTargetSwitchTests : StarDriveTest
         var other = new MarkForColonization(AddPlanet("Other", 5f), Enemy);
         Enemy.AI.AddGoal(other);
         other.SwitchTargetPlanet(guarded);
-        ApplyPendingTasks(Enemy);
+        Enemy.AI.ApplyPendingChanges();
 
         AssertEqual(1, GuardsFor(Enemy, guarded), "a planet a fleet is already asked to guard gets no second one");
+    }
+
+    [TestMethod]
+    public void AFleetAskedForJustBeforeASaveIsInIt()
+    {
+        Planet guarded = AddPlanet("Guarded", 16f);
+        Enemy.AI.AddPendingTask(MilitaryTask.CreateGuardTask(Enemy, guarded));
+        AssertEqual(0, GuardsFor(Enemy, guarded), "setup: the task waits to be added");
+        _ = new SavedGame(Universe);
+        AssertEqual(1, GuardsFor(Enemy, guarded), "the save adds the waiting tasks on the sim thread as it begins, so it writes them");
     }
 
     [TestMethod]

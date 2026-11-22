@@ -316,18 +316,39 @@ namespace Ship_Game.Universe
         [StarData] public SaveState Save;
         [StarData] public byte[] FogMapBytes;
 
+        // the ship and projectile lists the next save writes, kept on the sim thread as it began
+        Ship[] ShipsToSave;
+        Projectile[] ProjectilesToSave;
+
+        // on the sim thread as a save begins; the second tidy applies the changes of hands of the ships the first one made
+        internal void PrepareForSave()
+        {
+            Objects.UpdateLists(removeInactiveObjects: true);
+            Objects.UpdateLists(removeInactiveObjects: true);
+            for (int i = 0; i < Empires.Count; ++i)
+                Empires[i].AI?.ApplyPendingChanges();
+            ShipsToSave = Objects.GetShips();
+            ProjectilesToSave = Objects.GetProjectiles();
+        }
+
+        // the lists kept for a save, let go once it is written or has failed
+        internal void ForgetListsToSave()
+        {
+            ShipsToSave = null;
+            ProjectilesToSave = null;
+        }
+
         [StarDataSerialize]
         public StarDataDynamicField[] OnSerialize()
         {
-            // clean up and submit objects before saving
-            Objects.UpdateLists(removeInactiveObjects: true);
-
+            // the lists as the save began: a ship made while it writes is in neither them nor its empire's ships
             var save = new SaveState
             {
-                Ships = Objects.GetShips(),
-                Projectiles = Objects.GetProjectiles(),
+                Ships = ShipsToSave ?? Objects.GetShips(),
+                Projectiles = ProjectilesToSave ?? Objects.GetProjectiles(),
                 Derelicts = Derelicts.ToArray()
             };
+            ForgetListsToSave();
             save.SetAllDesigns(this);
 
             // FogMap is converted to a Alpha bytes so that it can be included in the savegame
