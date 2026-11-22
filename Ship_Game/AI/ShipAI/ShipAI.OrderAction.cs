@@ -61,15 +61,22 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.Stop, AIState.HoldPosition);
         }
 
-        // holds where it is, fighting from its spot without closing in on any enemy, until its next order
-        public void OrderHoldBack()
+        // holds where it is with the enemy in sight or nothing to fight with, else heads for it as an attack move would; it fights where the fight finds it without closing in on any enemy, until its next order
+        public void OrderHoldBack(Ship enemy, Vector2 toward, Vector2 finalDir)
         {
-            ClearWayPoints();
-            ClearOrders();
             ClearPriorityOrderAndTarget();
-            Target = null;
             TargetQueue.Clear();
-            OrderHoldPosition();
+            if (!CanAttack || Owner.Position.InRadius(enemy.Position, Owner.SensorRange))
+            {
+                ClearWayPoints();
+                ClearOrders();
+                Target = null;
+                OrderHoldPosition();
+            }
+            else
+            {
+                OrderMoveTo(toward, finalDir, AIState.MoveTo, MoveOrder.Aggressive);
+            }
             HoldsBack = true;
         }
 

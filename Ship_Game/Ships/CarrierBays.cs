@@ -42,12 +42,14 @@ namespace Ship_Game.Ships
         public SupplyShuttles SupplyShuttles;
         public MiningBays MiningBays { get; private set; }
         public float HangarRange => HasActiveHangars ? DefaultHangarRange : 0;
-        public bool IsPrimaryCarrierRoleForLaunchRange => 
-                                            HasActiveHangars &&
-                                            (Owner.WeaponsMaxRange.AlmostZero()
-                                            || Owner.DesignRole == RoleName.carrier
-                                            || Owner.DesignRole == RoleName.support
-                                            || Owner.DesignRoleType == RoleType.Orbital);
+        public bool IsPrimaryCarrierRoleForLaunchRange => HasActiveHangars
+            && IsDedicatedCarrier(Owner.DesignRole, Owner.DesignRoleType == RoleType.Orbital, Owner.HasWorkingWeapon);
+
+        // a dedicated carrier launches its fighters by its stance, as far out as its sensors reach on most; another ship within its weapons range, 7,500 at least
+        public static bool IsDedicatedCarrier(RoleName role, bool isOrbital, bool hasWeapon)
+        {
+            return role is RoleName.carrier or RoleName.support || isOrbital || !hasWeapon;
+        }
 
         AssaultShipCombat TroopTactics;
 
@@ -781,10 +783,11 @@ namespace Ship_Game.Ships
             if (HasActiveHangars && !Owner.IsSpoolingOrInWarp)
             {
                 float range;
-                if (IsPrimaryCarrierRoleForLaunchRange && Owner.AI.CombatState != CombatState.ShortRange && Owner.AI.CombatState != CombatState.AttackRuns)
+                if (Owner.AI.HoldsBack
+                    || IsPrimaryCarrierRoleForLaunchRange && Owner.AI.CombatState != CombatState.ShortRange && Owner.AI.CombatState != CombatState.AttackRuns)
                     range = Owner.SensorRange;
                 else
-                    range = Owner.WeaponsMaxRange;
+                    range = Math.Max(Owner.WeaponsMaxRange, DefaultHangarRange);
 
                 if (!Owner.ManualHangarOverride && distanceToTarget < range)
                     return true;

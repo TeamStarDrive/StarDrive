@@ -797,15 +797,21 @@ namespace Ship_Game.AI
             return CanEnterCombatFromCurrentStance(order);
         }
 
+        // whether it has anything to fight with: weapons, hangars or transporters
+        bool CanAttack => Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters;
+
         // does current CombatState and Move Stance allows us to enter combat with `Target`
         bool CanEnterCombatFromCurrentStance(MoveOrder order)
         {
             if (Target == null || IgnoreCombat || IsNonCombatant)
                 return false;
 
-            bool canAttack = Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters;
-            if (!canAttack)
+            if (!CanAttack)
                 return false;
+
+            // holding back, it fights what its sensors find whatever its stance, as it closes in on nobody
+            if (HoldsBack)
+                return true;
 
             // always enter combat if we're in Aggressive Stance, even if ship is in warp, unless it is a player's ship on Hold Position
             bool playerHolds = Owner.Loyalty.isPlayer && CombatState == CombatState.HoldPosition;

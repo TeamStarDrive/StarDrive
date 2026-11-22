@@ -98,17 +98,17 @@ namespace Ship_Game.Universe
                 if (!ship.HoldsBackFromAttacks)
                     continue;
                 if (holdBack)
-                    HoldBackFromAttack(ship);
+                    HoldBackFromAttack(ship, target, target.Position, ship.Position.DirectionToTarget(target.Position));
                 else
                     RightClickOnShip(ship, target);
             }
         }
 
         // a queued attack leaves the ship's orders as they are
-        void HoldBackFromAttack(Ship ship)
+        void HoldBackFromAttack(Ship ship, Ship target, Vector2 toward, Vector2 finalDir)
         {
             if (!Input.QueueAction && ship.PlayerShipCanTakeFleetOrders(forAttack: true))
-                ship.AI.OrderHoldBack();
+                ship.AI.OrderHoldBack(target, toward, finalDir);
         }
 
         public static void SpreadGroupAttack(Array<Ship> ships, Ship target)
@@ -331,7 +331,7 @@ namespace Ship_Game.Universe
                     if (!ship.HoldsBackFromAttacks)
                         continue;
                     if (holdBack)
-                        HoldBackFromAttack(ship);
+                        HoldBackFromAttack(ship, shipToAttack, fleet.GetFinalPos(ship), Vectors.Up);
                     else
                         FleetShipAttacks(ship, shipToAttack);
                 }

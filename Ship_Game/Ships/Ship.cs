@@ -1039,6 +1039,18 @@ namespace Ship_Game.Ships
         // @return Filtered list of purely offensive weapons
         public Weapon[] OffensiveWeapons => Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
 
+        // whether one of its weapons, point defense included, is still in working order
+        public bool HasWorkingWeapon
+        {
+            get
+            {
+                for (int i = 0; i < Weapons.Count; ++i)
+                    if (Weapons[i].Module?.Active == true)
+                        return true;
+                return false;
+            }
+        }
+
         /// <summary>
         /// Get Active weapons, preferring Offensive weapons at first.
         /// If there's no Offensive weapons, it returns all Active weapons.

@@ -33,7 +33,6 @@ public class ShipDesignStats
     public float RelativeStrength;
 
     public int PointDefenseValue;
-    public int TotalHangarArea;
     public bool HasPowerCells;
     public bool CanTargetFighters;
     public bool CanTargetCorvettes;
@@ -108,7 +107,6 @@ public class ShipDesignStats
         RelativeStrength = (float)Math.Round(Strength / nSlots, 2);
 
         PointDefenseValue = weapons.Sum(w => (w.TruePD?4:0) + (w.Tag_PD?1:0));
-        TotalHangarArea   = modules.Sum(m => m.MaximumHangarShipSize);
         HasPowerCells    = modules.Any(m => m.ModuleType == ShipModuleType.FuelCell && m.PowerStoreMax > 0);
         CanTargetFighters  = weapons.Any(w => !w.TruePD && !w.ExcludesFighters);
         CanTargetCorvettes = weapons.Any(w => !w.TruePD && !w.ExcludesCorvettes);

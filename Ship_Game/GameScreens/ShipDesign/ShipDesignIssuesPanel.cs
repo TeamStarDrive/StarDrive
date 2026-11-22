@@ -113,9 +113,9 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckLowRefiningTime(ds.RefiningTime());
                 Issues.CheckLowSalvageCargo();
                 Issues.CheckSalvageLaunchOrdnance();
-                Issues.CheckSecondaryCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange);
+                Issues.CheckSecondaryCarrier(S.Carrier.HasFighterBays, Screen.Role, S.HasWorkingWeapon, (int)S.WeaponsMaxRange);
                 Issues.CheckConstructorCost(S.IsConstructor, S.GetCost(S.Universe.Player));
-                Issues.CheckDedicatedCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange, S.SensorRange,
+                Issues.CheckDedicatedCarrier(S.Carrier.HasFighterBays, Screen.Role, S.HasWorkingWeapon, (int)S.WeaponsMaxRange, S.SensorRange,
                     S.ShipData.DefaultCombatState is CombatState.ShortRange or CombatState.AttackRuns);
 
                 Issues.CheckTargetExclusions(ds.NumWeaponSlots > 0, ds.CanTargetFighters, ds.CanTargetCorvettes,

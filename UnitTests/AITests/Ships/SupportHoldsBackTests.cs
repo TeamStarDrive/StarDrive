@@ -11,8 +11,9 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.AITests.Ships;
 
 /// <summary>
-/// On a player's attack or attack move made with warships, support ships, carriers and bombers hold back:
-/// they fight from their spot, carriers launching their fighters, and close in on no enemy until their next order.
+/// On a player's attack or attack move made with warships, support ships, carriers and bombers hold back: they head
+/// for the enemy as an attack move would and fight where the fight finds them, launching their fighters as far out as
+/// their sensors reach, and close in on no enemy until their next order.
 /// </summary>
 [TestClass]
 public class SupportHoldsBackTests : StarDriveTest
@@ -21,11 +22,12 @@ public class SupportHoldsBackTests : StarDriveTest
     const string Support = "Kwark support mk1";
     const string Carrier = "TEST_Heavy Carrier mk1";
     const string Bomber = "Alliance-Class Mk Ia Hvy Assault";
+    const string Salvager = "Terran Salvage Ship";
     static readonly Vector2 Ours = new(200_000f, 300_000f);
 
     public SupportHoldsBackTests()
     {
-        LoadStarterShips(Warship, Support, Carrier, Bomber, "Ving Defender");
+        LoadStarterShips(Warship, Support, Carrier, Bomber, Salvager, "Ving Defender");
         CreateUniverseAndPlayerEmpire();
         UnlockAllShipsFor(Player);
         UState.Objects.EnableParallelUpdate = false;
@@ -215,21 +217,138 @@ public class SupportHoldsBackTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ASupportShipMovingWhenToldToHoldBackKeepsHoldingBackAfterItOvershoots()
+    public void ASupportShipHoldingBackAtTheEndOfItsMoveKeepsHoldingBackAsItFliesBackToItsSpot()
     {
         Ship warship = Spawn(Warship, Player, Ours);
         Ship support = Spawn(Support, Player, Ours + new Vector2(0f, 2_000f));
-        Ship enemy = EnemyAt(Ours + new Vector2(30_000f, 0f));
-        support.AI.OrderMoveTo(Ours + new Vector2(0f, 600_000f), Vectors.Down);
-        RunSimWhile((simTimeout: 60, fatal: true), () => !support.IsInWarp);
+        Ship enemy = EnemyAt(Ours + new Vector2(150_000f, 0f));
+        RunObjectsSim(TestSimStep);
+        Commands.RightClickOnShip(new Array<Ship> { warship, support }, enemy);
+        enemy.QueueTotalRemoval();
+        RunSimWhile((simTimeout: 60, fatal: true), () => support.AI.OrderQueue.PeekFirst?.Plan != ShipAI.Plan.HoldPosition);
+        ShipAI.ShipGoal hold = support.AI.OrderQueue.PeekFirst;
+        Assert.IsTrue(support.AI.HoldsBack, "setup: the support ship holds back at the end of its move");
+
+        support.Position += new Vector2(0f, 5_000f);
+        RunObjectsSim(TestSimStep);
+
+        Assert.AreNotSame(hold, support.AI.OrderQueue.PeekLast, "setup: pushed off its spot, it is sent back to it");
+        Assert.IsTrue(support.AI.HoldsBack, "flying back to that spot, it still holds back");
+    }
+
+    [TestMethod]
+    public void OnAnAttackOnAFarEnemyASupportShipHeadsForItAndStopsWhereTheFightFindsIt()
+    {
+        Ship warship = Spawn(Warship, Player, Ours);
+        Ship support = ShortRangeSupport();
+        Ship enemy = EnemyAt(Ours + new Vector2(150_000f, 0f));
+        RunObjectsSim(TestSimStep);
+        Assert.IsFalse(support.InCombat, "setup: the enemy is beyond the support ship's sensors");
 
         Commands.RightClickOnShip(new Array<Ship> { warship, support }, enemy);
-        Vector2 spot = support.Position;
-        float farthest = 0f;
-        RunSimWhile((simTimeout: 5, fatal: false), null, () => farthest = System.Math.Max(farthest, support.Position.Distance(spot)));
+        Assert.IsTrue(support.AI.HoldsBack, "setup: the support ship holds back");
+        RunSimWhile((simTimeout: 60, fatal: true), () => !support.InCombat);
+        AssertGreaterThan(support.Position.X, Ours.X + 50_000f, "it heads for the enemy with the warship, as an aggressive move would");
 
-        AssertGreaterThan(farthest, 100f, "setup: the support ship overshot the spot it was told to hold");
-        Assert.IsTrue(support.AI.HoldsBack, "flying back to that spot, it still holds back");
+        RunObjectsSim(2f);
+        Vector2 spot = support.Position;
+        RunObjectsSim(5f);
+        Assert.IsTrue(support.InCombat, "setup: it still fights");
+        AssertLessThan(support.Position.Distance(spot), 150f, "it stops where the fight found it, closing in on nothing");
+    }
+
+    [TestMethod]
+    public void OnAFleetsAttackOnAFarEnemyItsSupportShipsHeadForTheirPlacesAroundIt()
+    {
+        Ship warship = Spawn(Warship, Player, Ours);
+        Ship bomber = Spawn(Bomber, Player, Ours + new Vector2(0f, 2_000f));
+        Ship enemy = EnemyAt(Ours + new Vector2(150_000f, 0f));
+        Fleet fleet = Player.CreateFleet(1, null);
+        fleet.AddShip(warship);
+        fleet.AddShip(bomber);
+        bomber.RelativeFleetOffset = new Vector2(0f, 3_000f);
+        RunObjectsSim(TestSimStep);
+
+        Commands.MoveFleetToLocation(null, enemy, null, enemy.Position, Vectors.Up, fleet);
+
+        AssertGreaterThan(fleet.GetFinalPos(bomber).Distance(enemy.Position), 1_000f, "setup: the bomber's place in the fleet is behind the enemy's spot");
+        Assert.IsTrue(bomber.AI.HoldsBack, "the bomber holds back");
+        Assert.IsTrue(bomber.AI.OrderQueue.PeekFirst.HasAggressiveMoveOrder, "and moves as an attack move would");
+        AssertLessThan(bomber.AI.MovePosition.Distance(fleet.GetFinalPos(bomber)), 1f, "to its place in the fleet around the enemy");
+    }
+
+    [TestMethod]
+    public void ACarrierOnHoldPositionHoldingBackFromAFarAttackStopsWhereTheFightFindsItAndLaunches()
+    {
+        Ship warship = Spawn(Warship, Player, Ours - new Vector2(50_000f, 0f));
+        Ship carrier = Spawn(Carrier, Player, Ours);
+        carrier.AI.CombatState = CombatState.HoldPosition;
+        Ship enemy = EnemyAt(Ours + new Vector2(150_000f, 0f));
+        RunObjectsSim(TestSimStep);
+
+        Commands.RightClickOnShip(new Array<Ship> { warship, carrier }, enemy);
+        Assert.IsTrue(carrier.AI.HoldsBack, "setup: the carrier holds back");
+        RunSimWhile((simTimeout: 60, fatal: true), () => !carrier.InCombat);
+        AssertGreaterThan(enemy.Position.Distance(carrier.Position), 5_000f, "on Hold Position too, the fight finds it as its sensors find the enemy, far from it");
+
+        RunObjectsSim(5f);
+        AssertGreaterThan(carrier.Carrier.GetActiveFighters().Count, 0, "and it launches its fighters from there");
+    }
+
+    [TestMethod]
+    public void ACarrierOnHoldPositionHoldingBackLaunchesAtAnEnemyItSeesAndStaysPut()
+    {
+        Ship warship = Spawn(Warship, Player, Ours - new Vector2(50_000f, 0f));
+        Ship carrier = Spawn(Carrier, Player, Ours);
+        carrier.AI.CombatState = CombatState.HoldPosition;
+        Ship enemy = EnemyAt(Ours + new Vector2(8_000f, 0f));
+        RunObjectsSim(TestSimStep);
+
+        Commands.RightClickOnShip(new Array<Ship> { warship, carrier }, enemy);
+        Vector2 spot = carrier.Position;
+        RunObjectsSim(5f);
+
+        AssertGreaterThan(carrier.Carrier.GetActiveFighters().Count, 0, "on Hold Position too, it launches its fighters at the enemy it sees");
+        AssertLessThan(carrier.Position.Distance(spot), 150f, "and stays where it is");
+    }
+
+    [TestMethod]
+    public void AShipWithNothingToFightWithHoldsWhereItIsOnAFarAttack()
+    {
+        Ship warship = Spawn(Warship, Player, Ours);
+        Ship salvager = Spawn(Salvager, Player, Ours + new Vector2(0f, 2_000f));
+        Assert.IsTrue(salvager.HoldsBackFromAttacks && salvager.Weapons.Count == 0
+                      && !salvager.Carrier.HasActiveHangars && !salvager.Carrier.HasTransporters,
+                      "setup: a support ship with nothing to fight with");
+        Ship enemy = EnemyAt(Ours + new Vector2(150_000f, 0f));
+        RunObjectsSim(TestSimStep);
+
+        Commands.RightClickOnShip(new Array<Ship> { warship, salvager }, enemy);
+        Assert.IsTrue(salvager.AI.HoldsBack, "it holds back");
+        Assert.IsFalse(salvager.AI.HasWayPoints, "where it is, with no move toward the enemy, as it could never fight it");
+
+        Vector2 spot = salvager.Position;
+        RunObjectsSim(15f);
+        AssertLessThan(salvager.Position.Distance(spot), 150f, "and stays there");
+    }
+
+    [TestMethod]
+    public void ACarrierHoldingBackOnAStanceThatClosesInLaunchesItsFightersAsFarAsItsSensorsReach()
+    {
+        Ship warship = Spawn(Warship, Player, Ours);
+        Ship carrier = Spawn(Carrier, Player, Ours + new Vector2(0f, 2_000f));
+        carrier.AI.CombatState = CombatState.AttackRuns;
+        Ship enemy = EnemyAt(carrier.Position + new Vector2((carrier.WeaponsMaxRange + carrier.SensorRange) / 2f, 0f));
+        RunObjectsSim(TestSimStep);
+        AssertGreaterThan(enemy.Position.Distance(carrier.Position), carrier.WeaponsMaxRange + 500f,
+                          "setup: the enemy is beyond the range a carrier on Attack Runs launches from");
+
+        Commands.RightClickOnShip(new Array<Ship> { warship, carrier }, enemy);
+        Assert.IsTrue(carrier.AI.HoldsBack, "setup: the carrier holds back");
+        RunObjectsSim(5f);
+
+        AssertGreaterThan(enemy.Position.Distance(carrier.Position), carrier.WeaponsMaxRange, "setup: the enemy is still that far");
+        AssertGreaterThan(carrier.Carrier.GetActiveFighters().Count, 0, "holding back, it launches its fighters as far out as its sensors reach");
     }
 
     [TestMethod]

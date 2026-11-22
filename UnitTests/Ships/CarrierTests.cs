@@ -6,6 +6,7 @@ using Ship_Game.AI;
 using Ship_Game.Empires;
 using Ship_Game.Fleets;
 using Ship_Game.GameScreens.LoadGame;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 #pragma warning disable CA2213
@@ -22,7 +23,8 @@ namespace UnitTests.Ships
         public CarrierTests()
         {
             LoadStarterShips("TEST_Heavy Carrier mk1",
-                             "Ving Defender", 
+                             "Terran-Prototype",
+                             "Ving Defender",
                              "Alliance-Class Mk Ia Hvy Assault",
                              "Assault Shuttle",
                              "Terran Assault Shuttle");
@@ -256,6 +258,91 @@ namespace UnitTests.Ships
             Carrier.ChangeOrdnance(ordCombatThreshold - 40); 
             resupplyReason = Carrier.Supply.Resupply();
             AssertEqual(resupplyReason, ResupplyReason.NotNeeded, "Carrier should not want to resupply when in combat and has fighters launched");
+        }
+
+        // a warship with some fighter hangars, not a dedicated carrier
+        TestShip SecondaryCarrier()
+        {
+            TestShip ship = SpawnShip("Terran-Prototype", Player, new Vector2(20_000));
+            Assert.IsTrue(ship.Carrier.HasFighterBays && !ship.Carrier.IsPrimaryCarrierRoleForLaunchRange,
+                          "setup: a warship with some fighter hangars is not a dedicated carrier");
+            return ship;
+        }
+
+        [TestMethod]
+        public void AShipWithSomeFighterHangarsLaunchesThemWithin7500AtLeast()
+        {
+            TestShip ship = SecondaryCarrier();
+            for (int i = 0; i < ship.Weapons.Count; ++i)
+                if (ship.Weapons[i].GetActualRange(Player) >= CarrierBays.DefaultHangarRange)
+                    ship.Weapons[i].Module.Active = false;
+            ship.ShipStatusChange();
+            Assert.IsTrue(ship.HasWorkingWeapon && !ship.Carrier.IsPrimaryCarrierRoleForLaunchRange, "setup: with its shorter weapons it is still no dedicated carrier");
+            AssertLessThan(ship.WeaponsMaxRange, CarrierBays.DefaultHangarRange - 200f, "setup: its weapons reach less than 7,500");
+
+            float beyondItsWeapons = (ship.WeaponsMaxRange + CarrierBays.DefaultHangarRange) / 2f;
+            Assert.IsTrue(ship.Carrier.IsInHangarLaunchRange(beyondItsWeapons), "it launches its fighters at an enemy beyond its weapons but within 7,500");
+            Assert.IsFalse(ship.Carrier.IsInHangarLaunchRange(CarrierBays.DefaultHangarRange + 100f), "and no farther");
+        }
+
+        [TestMethod]
+        public void AShipWithFighterHangarsWhoseWeaponsAreGoneIsADedicatedCarrierAtEveryUpdate()
+        {
+            TestShip ship = SecondaryCarrier();
+            for (int i = 0; i < ship.Weapons.Count; ++i)
+                ship.Weapons[i].Module.Active = false;
+
+            for (int update = 1; update <= 3; ++update)
+            {
+                ship.ShipStatusChange();
+                Assert.IsTrue(ship.Carrier.IsPrimaryCarrierRoleForLaunchRange, $"with no weapon left it is a dedicated carrier, update {update}");
+                AssertEqual(0.01f, CarrierBays.DefaultHangarRange, ship.WeaponsMaxRange, $"and keeps a dedicated carrier's range, update {update}");
+            }
+        }
+
+        [TestMethod]
+        public void AShipWithFighterHangarsAndOnlyPointDefenseLeftIsNoDedicatedCarrier()
+        {
+            TestShip ship = SecondaryCarrier();
+            bool hasPointDefense = false;
+            for (int i = 0; i < ship.Weapons.Count; ++i)
+            {
+                var weapon = ship.Weapons[i];
+                if (weapon.TruePD)
+                    hasPointDefense = true;
+                else
+                    weapon.Module.Active = false;
+            }
+            Assert.IsTrue(hasPointDefense, "setup: it has point defense");
+
+            ship.ShipStatusChange();
+            Assert.IsFalse(ship.Carrier.IsPrimaryCarrierRoleForLaunchRange, "point defense is a weapon, so a ship left with it is no dedicated carrier");
+        }
+
+        [TestMethod]
+        public void TheShipDesignerCallsDedicatedTheCarriersTheGameLaunchesByStance()
+        {
+            (RoleName role, bool hasWeapon, bool dedicated)[] cases =
+            {
+                (RoleName.carrier, true, true),
+                (RoleName.support, true, true),
+                (RoleName.cruiser, false, true),
+                (RoleName.cruiser, true, false),
+                (RoleName.bomber, true, false),
+            };
+            for (int i = 0; i < cases.Length; ++i)
+            {
+                (RoleName role, bool hasWeapon, bool dedicated) = cases[i];
+                var issues = new ShipDesignIssues(Universe, Carrier.ShipData);
+                issues.CheckDedicatedCarrier(true, role, hasWeapon, 4_000, 30_000f, shortRange: false);
+                issues.CheckSecondaryCarrier(true, role, hasWeapon, 4_000);
+
+                string which = $"{role}, with weapons: {hasWeapon}";
+                AssertEqual(1, issues.CurrentDesignIssues.Count, $"{which}: one carrier issue");
+                Assert.AreEqual(dedicated ? DesignIssueType.DedicatedCarrier : DesignIssueType.SecondaryCarrier,
+                                issues.CurrentDesignIssues[0].Type, $"{which}: as the game decides");
+                Assert.AreEqual(dedicated, CarrierBays.IsDedicatedCarrier(role, false, hasWeapon), $"{which}: the game's rule");
+            }
         }
 
         [TestMethod]
