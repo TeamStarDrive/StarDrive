@@ -1017,15 +1017,17 @@ namespace Ship_Game.AI
                 ApproachToLand(timeStep, pirateBase.Position, pirateBase.Position, range, LaunchShip.ShipyardSpeed(Owner));
         }
 
-        // the route to a ship more than twice the router's reach away is planned once for the trip (again after a load),
-        // and again where its last leg ends if that ship is still that far; the trip ends within reach of the ship
+        // the route to a ship more than twice the router's reach away is planned once for the trip (again after a load), and again where its last leg
+        // ends if that ship is still that far; a plan for the same order comes the router's reach from the last; the trip ends within reach of the ship
         ShipGoal ShipRouteGoal;
         Vector2[] ShipRouteDetours;
         int ShipRouteDetourIndex;
         Vector2 ShipRouteLegEnd;
+        ShipGoal ShipRoutePlannedFor;
+        Vector2 ShipRoutePlannedAt;
         internal int ShipRoutesPlanned;
 
-        // where to thrust on the way to a ship: a point of the route while it is far, the ship itself when nearer; false within reach of it
+        // where to thrust on the way to a ship: a point of the route while it is far, the ship itself when nearer, with routing off or for a hangar ship; false within reach of it
         bool ThrustTargetOnWayToShip(ShipGoal goal, Vector2 shipPos, out Vector2 thrustTarget)
         {
             thrustTarget = shipPos;
@@ -1033,20 +1035,29 @@ namespace Ship_Game.AI
             if (Owner.Position.InRadius(shipPos, reach))
             {
                 ShipRouteGoal = null;
+                ShipRoutePlannedFor = null;
                 return false;
+            }
+
+            if (Owner.IsHangarShip || !GravityWellRouter.RoutesFor(Owner) || Owner.Position.InRadius(shipPos, 2f * reach))
+            {
+                ShipRouteGoal = null;
+                return true;
             }
 
             bool onTrip = ReferenceEquals(ShipRouteGoal, goal);
             bool legEnded = onTrip && ShipRouteDetourIndex >= ShipRouteDetours.Length && Owner.Position.InRadius(ShipRouteLegEnd, reach);
             if (!onTrip || legEnded)
             {
-                if (!GravityWellRouter.RoutesFor(Owner) || Owner.Position.InRadius(shipPos, 2f * reach))
+                if (ReferenceEquals(ShipRoutePlannedFor, goal) && Owner.Position.InRadius(ShipRoutePlannedAt, reach))
                 {
                     ShipRouteGoal = null;
                     return true;
                 }
 
                 ShipRouteGoal = goal;
+                ShipRoutePlannedFor = goal;
+                ShipRoutePlannedAt = Owner.Position;
                 ShipRouteLegEnd = shipPos;
                 ShipRouteDetours = GravityWellRouter.BuildDetours(Owner, Owner.Position, shipPos, MoveOrder.Regular);
                 ShipRouteDetourIndex = 0;

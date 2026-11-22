@@ -60,6 +60,9 @@ namespace Ship_Game.AI
             Orbit?.ExitOrbit();
             IgnoreCombat = false;
             HoldsBack = false;
+            HeldGoalSeconds = 0f;
+            ShipRouteGoal = null;
+            ShipRoutePlannedFor = null;
             ExitCombatState();
             ChangeAIState(newState); // Must come after ExitCombatState since ExitCombatState change the AIstate to awaiting orders.
             if (ExplorationTarget != null)

@@ -165,6 +165,110 @@ public class RouteToShipTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ATroopShipOnItsRouteTurnsStraightToOurShipOnceItComesWithinTwiceTheReach()
+    {
+        Ship troopShip = TroopShip();
+        troopShip.AI.OrderRebaseToShip(Carrier);
+        RunSimWhile((simTimeout: 100, fatal: true), () => troopShip.Position.X < 600_000f);
+        AssertEqual(1, troopShip.AI.ShipRoutesPlanned, "setup: the troop ship is on its route to our ship");
+
+        float metAt = troopShip.Position.X;
+        float farthestEast = metAt;
+        MoveCarrierTo(troopShip.Position + new Vector2(0f, 10_000f));
+        RunSimWhile((simTimeout: 60, fatal: true),
+                    () => troopShip.Position.OutsideRadius(Carrier.Position, GravityWellRouter.DetourReachDistance),
+                    () => farthestEast = System.Math.Max(farthestEast, troopShip.Position.X));
+
+        AssertLessThan(farthestEast, metAt + 100_000f, "the troop ship turns to our ship beside it, not on along its route to where our ship was");
+        AssertEqual(1, troopShip.AI.ShipRoutesPlanned, "within twice the router's reach it flies straight, with no new route");
+    }
+
+    [TestMethod]
+    public void ATroopShipOnItsRouteFliesStraightOnceRoutingIsSwitchedOff()
+    {
+        SolarSystem enemy = EnemySystemAt(new Vector2(700_000f, 300_000f));
+        Ship troopShip = TroopShip();
+        bool wasOn = GlobalStats.RouteAroundGravityWells;
+        float widest = 0f;
+        try
+        {
+            GlobalStats.RouteAroundGravityWells = true;
+            troopShip.AI.OrderRebaseToShip(Carrier);
+            RunSimWhile((simTimeout: TestSimStepD, fatal: false), null);
+            AssertEqual(1, troopShip.AI.ShipRoutesPlanned, "setup: the troop ship planned its route around the enemy system");
+
+            GlobalStats.RouteAroundGravityWells = false;
+            RunSimWhile((simTimeout: 100, fatal: true),
+                        () => troopShip.Position.X < enemy.Position.X - enemy.Radius - 20_000f,
+                        () => widest = System.Math.Max(widest, System.Math.Abs(troopShip.Position.Y - Start.Y)));
+        }
+        finally
+        {
+            GlobalStats.RouteAroundGravityWells = wasOn;
+        }
+
+        AssertLessThan(widest, enemy.Radius / 4f, "with the Pathfinder option off it flies the straight line to our ship, not the route it planned");
+    }
+
+    [TestMethod]
+    public void OurShipHoveringAtTwiceTheReachIsRoutedToOnceForEachReachTheShipMoves()
+    {
+        Ship troopShip = TroopShip();
+        float reach = GravityWellRouter.DetourReachDistance;
+        MoveCarrierTo(troopShip.Position + new Vector2(2f * reach + 1_000f, 0f));
+        troopShip.AI.OrderRebaseToShip(Carrier);
+        RunSimWhile((simTimeout: TestSimStepD, fatal: false), null);
+        AssertEqual(1, troopShip.AI.ShipRoutesPlanned, "setup: our ship just beyond twice the reach is routed to");
+
+        bool nearer = true;
+        RunSimWhile((simTimeout: 3, fatal: false), null, () =>
+        {
+            nearer = !nearer;
+            MoveCarrierTo(troopShip.Position + new Vector2(2f * reach + (nearer ? -1_000f : 1_000f), 0f));
+        });
+
+        float moved = troopShip.Position.Distance(Start);
+        AssertLessThan(troopShip.AI.ShipRoutesPlanned, 2 + (int)(moved / reach), "a new route for the same order needs the router's reach of movement since the last, so none is planned each step");
+    }
+
+    [TestMethod]
+    public void ACarriersSupplyShuttleFliesStraightToTheShipItSupplies()
+    {
+        Ship mothership = SpawnShip("TEST_Excalibur-Class Supercarrier", Player, Start + new Vector2(0f, 3_000f));
+        Ship shuttle = SpawnShip("Vulcan Scout", Player, Start);
+        shuttle.Mothership = mothership;
+        bool wasOn = GlobalStats.RouteAroundGravityWells;
+        try
+        {
+            GlobalStats.RouteAroundGravityWells = true;
+            shuttle.AI.AddSupplyShipGoal(Carrier);
+            RunSimWhile((simTimeout: 3, fatal: false), null);
+        }
+        finally
+        {
+            GlobalStats.RouteAroundGravityWells = wasOn;
+        }
+
+        AssertEqual(ShipAI.Plan.SupplyShip, shuttle.AI.OrderQueue.PeekFirst.Plan, "setup: the shuttle is still on its way");
+        AssertEqual(0, shuttle.AI.ShipRoutesPlanned, "a hangar ship flies straight, as before the route planner was used for supply");
+    }
+
+    [TestMethod]
+    public void ANewOrderLetsGoOfTheRouteToTheShipItFlewTo()
+    {
+        Ship troopShip = TroopShip();
+        troopShip.AI.OrderRebaseToShip(Carrier);
+        RunSimWhile((simTimeout: TestSimStepD, fatal: false), null);
+        AssertEqual(1, troopShip.AI.ShipRoutesPlanned, "setup: the troop ship planned its route to our ship");
+
+        troopShip.AI.OrderMoveTo(Start, Vectors.Up);
+
+        var field = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        Assert.IsNull(typeof(ShipAI).GetField("ShipRouteGoal", field).GetValue(troopShip.AI), "a new order ends the trip");
+        Assert.IsNull(typeof(ShipAI).GetField("ShipRoutePlannedFor", field).GetValue(troopShip.AI), "and lets go of the order that led to our ship");
+    }
+
+    [TestMethod]
     [DataRow(ShipAI.Plan.Escort)]
     [DataRow(ShipAI.Plan.SupplyShip)]
     [DataRow(ShipAI.Plan.RearmShipFromPlanet)]

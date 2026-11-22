@@ -260,6 +260,18 @@ public class RefitLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ANewOrderLooksForItsGoalAtOnceNotTrustingTheOrderBefore()
+    {
+        OrderRefit(Homeworld.Position + new Vector2(8000, 0));
+        RunObjectsSim(1.5f); // half a second after its second look
+        Player.AI.RemoveGoal(Refit);
+        Refitted.AI.OrderMoveAndRefit(Homeworld, Refit);
+
+        RunObjectsSim(TestSimStep.FixedTime);
+        Assert.AreNotEqual(AIState.Refit, Refitted.AI.State, "the new order sees at its first look that its goal is gone");
+    }
+
+    [TestMethod]
     public void ARefitOrderedAgainRightAfterOneWasCalledOffIsKept()
     {
         OrderRefit(Homeworld.Position + new Vector2(8000, 0));
