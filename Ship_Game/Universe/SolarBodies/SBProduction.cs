@@ -617,10 +617,31 @@ namespace Ship_Game.Universe.SolarBodies
             return n;
         }
 
+        // at war with a major empire, the AI's new bomber goes ahead of the warships waiting in the queue, not of those being built or of earlier bombers
+        void PutBomberAheadOfWarships(QueueItem item)
+        {
+            if (P.OwnerIsPlayer || item.QType != QueueItemType.CombatShip || item.ShipData?.Role != RoleName.bomber || !Owner.IsAtWarWithMajorEmpire)
+                return;
+
+            float ahead = 0f, behind = float.MaxValue;
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.QType != QueueItemType.CombatShip || q.IsRefit != item.IsRefit)
+                    continue;
+                if (q.ProductionSpent > 0f || q.ShipData?.Role == RoleName.bomber)
+                    behind = Math.Min(behind, q.PriorityBonus);
+                else
+                    ahead = Math.Max(ahead, q.PriorityBonus);
+            }
+            item.RaisePriorityBonus(Math.Min(ahead + 1f, behind - 0.01f));
+        }
+
         void AddToQueueAndPrioritize(QueueItem item)
         {
             lock (ConstructionQueue)
             {
+                PutBomberAheadOfWarships(item);
                 ConstructionQueue.Add(item);
                 QueueSnapshotDirty = true;
                 if (!P.OwnerIsPlayer)

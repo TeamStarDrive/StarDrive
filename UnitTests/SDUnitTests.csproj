@@ -190,6 +190,7 @@
     <Compile Include="Planets\TestRefitQueuePlacement.cs" />
     <Compile Include="Planets\AIColonyShipQueueTests.cs" />
     <Compile Include="Planets\AIRefitQueueOrderTests.cs" />
+    <Compile Include="Planets\AIBomberQueueTests.cs" />
     <Compile Include="Planets\ItemsFinishedPerTurnTests.cs" />
     <Compile Include="Planets\PlanetSurfaceScanTests.cs" />
     <Compile Include="Planets\ShipyardBonusTests.cs" />

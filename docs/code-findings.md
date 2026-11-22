@@ -1368,6 +1368,27 @@ Logged by decision 2600.
     distortion, particles and light pillars are never disposed. The game shows the error and goes on
     without that memory.
 
+Item 34 comes from the Ralyeh invasion of Overt II (Combined Arms save at stardate 1116.4),
+2026-11-23. Logged by decision 2606.
+
+34. **The AI's queue bonus outgrows every priority, so its queue runs nearly first in, first out.**
+    `QueueItem.GetAndUpdatePriorityForAI` (`QueueItem.cs` ~149) adds to `PriorityBonus` on every
+    sort of the queue, which each new item starts: 0.05 to 0.2 by type, 0.2 more for warships and
+    troops at war with a major empire, 1 for rushed items and Subspace Projectors, and the share of
+    the cost already spent, again on each sort. On a busy planet the bonus reaches 15-17 while the
+    base priorities run 0 to about 1, so an `OrbitalUrgent` item (priority 0) sat 15th of 21 on
+    Kothlar V, behind older warships, troops and freighters.
+
+Item 35 comes from the review of the AI's wait for bombers, 2026-11-23. Logged by decision 2610.
+
+35. **A task counts bombing its fleet will not take.** `MilitaryTask.CheckSupportNeeds` weighs the
+    task's bombing need against `FleetShips.BombSecsAvailable`, every bomber in the pool, but
+    `FleetShips.GetBombers` (`FleetShips.cs` ~251) takes at most `fleetCount * Ratios.MinBombers`
+    bombers, and none when `MinBombers` is 0, as a mod or randomized fleet sizes can make it. A task
+    whose pool holds the bombing then leaves with a bomber or two, and asks no troops for the rest.
+    The wait for bombers (`WaitsForBombers`) reads the same pool, so it can end while the fleet would
+    still carry too little bombing.
+
 ## Larger items with their own notes
 
 **~~`GetBestPorts` lets a crippled Colony-type port through~~** — resolved 2026-09-28. The filter

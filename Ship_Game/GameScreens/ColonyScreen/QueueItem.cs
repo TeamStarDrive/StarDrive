@@ -143,6 +143,8 @@ namespace Ship_Game
             }
         }
 
+        public void RaisePriorityBonus(float bonus) => PriorityBonus = PriorityBonus.LowerBound(bonus);
+
         // This also increases the priority bonus of the item. So it will be bumped up in the list a little next time
         public float GetAndUpdatePriorityForAI(Planet planet,int totalFreighters)
         {
