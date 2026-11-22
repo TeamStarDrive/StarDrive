@@ -2,6 +2,8 @@
 using Ship_Game.Spatial;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace UnitTests.Universe
 {
@@ -27,6 +29,41 @@ namespace UnitTests.Universe
                 return new NativeSpatial(SpatialType.Qtree, worldSize, 1024);
             }
             throw new ArgumentException("Invalid SpatialType");
+        }
+
+        [TestMethod]
+        public void ABufferedSearchKeepsItsResultsWhileASearchInsideItRuns()
+        {
+            CreateQuadTree(100_000, 100);
+            RunObjectsSim(TestSimStep);
+            var s = (Ship)AllObjects[0];
+            SearchOptions all = new(s.Position, 60000, GameObjectType.Ship)
+            {
+                MaxResults = 64,
+                SortByDistance = true,
+            };
+            SpatialObjectBase[] expected = UState.Spatial.FindNearby(ref all);
+            Assert.IsTrue(expected.Length > 1, $"setup: the search must find ships: {expected.Length}");
+
+            UState.Spatial.FindNearbyBuffered(ref all).Dispose(); // this thread's spare buffer, as any earlier search leaves it
+            using (SpatialManager.Found outer = UState.Spatial.FindNearbyBuffered(ref all))
+            {
+                Assert.AreEqual(expected.Length, outer.Length, "the same ships as an array search");
+                for (int i = 0; i < outer.Length; ++i)
+                {
+                    SearchOptions near = new(outer[i].Position, 60000, GameObjectType.Ship) { MaxResults = 8 };
+                    using (SpatialManager.Found inner = UState.Spatial.FindNearbyBuffered(ref near))
+                        Assert.IsTrue(inner.Length > 1, $"setup: the inner search must find several ships: {inner.Length}");
+                    for (int j = 0; j < expected.Length; ++j)
+                        Assert.AreEqual(expected[j], outer[j], $"the outer results stay as they were found, after the search around ship {i}");
+                }
+            }
+
+            UState.Spatial.FindNearbyBuffered(ref all).Dispose();
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            using (SpatialManager.Found again = UState.Spatial.FindNearbyBuffered(ref all))
+                Assert.AreEqual(expected.Length, again.Length, "and the same ships again");
+            Assert.AreEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "a search with its buffer given back makes no array");
         }
     }
 }

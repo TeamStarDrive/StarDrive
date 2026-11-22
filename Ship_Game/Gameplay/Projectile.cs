@@ -1208,8 +1208,8 @@ namespace Ship_Game.Gameplay
             if (!TryPhaseThroughModule(victim) && Damage(victim))
                 return; // all damage absorbed
 
-            // create an enumeration object which will step through the module grid one by one
-            IEnumerable<ShipModule> walk = parent.RayHitTestWalkModules(
+            // steps through the module grid one module at a time
+            Ship.GridWalk walk = parent.RayHitTestWalkModules(
                 hitPos, VelocityDirection, parent.Radius, IgnoresShields);
 
             foreach (ShipModule nextModule in walk)

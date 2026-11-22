@@ -57,6 +57,16 @@ internal sealed class FindResultBuffer<T> where T : QtreeNodeBase<T>
         return arr;
     }
 
+    // the found objects into results, returning how many
+    public int CopyAndClearBuffer(SpatialObjectBase[] results)
+    {
+        int count = Count;
+        Count = 0;
+        Array.Copy(Items, results, count);
+        Array.Clear(Items, 0, count);
+        return count;
+    }
+
     // resets this result buffer
     public FindResultBuffer<T> Get(T root, int maxResults = 0)
     {

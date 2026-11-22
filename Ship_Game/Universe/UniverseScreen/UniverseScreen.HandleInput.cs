@@ -505,7 +505,14 @@ namespace Ship_Game
                 Ship ship = ships[i];
                 if (ship.Active && ship.ShieldMax > 0f && ship.IsVisibleToPlayerInMap && !ship.IsLaunching && !ship.IsLanding)
                 {
-                    shields.AddRange(ship.GetActiveShields().Select(s => s.Shield));
+                    ShipModule[] modules = ship.Modules;
+                    int numShields = modules.Length == 0 ? 0 : ship.Grid.NumShields;
+                    for (int s = 0; s < numShields; ++s)
+                    {
+                        ShipModule shield = ship.Grid.GetShield(modules, s);
+                        if (shield.ShieldsAreActive)
+                            shields.Add(shield.Shield);
+                    }
                 }
             }
 

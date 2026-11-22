@@ -362,6 +362,9 @@ namespace Ship_Game.Ships
             }
         }
 
+        public int NumShields => ShieldsIndex.Length;
+        [Pure] public ShipModule GetShield(ShipModule[] modules, int index) => modules[ShieldsIndex[index]];
+
         [Pure] public IEnumerable<ShipModule> GetAmplifiers(ShipModule[] modules)
         {
             if (modules.Length == 0) yield break; // not sure why this happens

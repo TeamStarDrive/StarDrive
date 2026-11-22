@@ -118,6 +118,172 @@ public class ModuleBlastTests : StarDriveTest
         Assert.AreEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "the search walks the modules, not an enumerator over the grid");
     }
 
+    // the blast's cells in the order of the quadrant drawing in Ship_ModuleGrid, written out as plain loops
+    static string BlastCellsInDrawingOrder(Ship ship, Point c, Point a, Point b, bool checkShields)
+    {
+        var found = new System.Text.StringBuilder();
+        int w = ship.GridWidth, h = ship.GridHeight;
+        int firstX = Math.Max(a.X, 0), firstY = Math.Max(a.Y, 0);
+        int lastX = Math.Min(b.X, w - 1), lastY = Math.Min(b.Y, h - 1);
+        c = new Point(Math.Clamp(c.X, 0, w - 1), Math.Clamp(c.Y, 0, h - 1));
+        void Cell(int x, int y, bool root, int distance, int quadrant)
+        {
+            var p = new Point(x, y);
+            foreach (ShipModule m in ship.Grid.GetModulesAt(ship.Modules, p, checkShields))
+                found.Append(Describe(ship, new ModuleQuadrant(m, p, root, distance, quadrant)));
+        }
+
+        Cell(c.X, c.Y, true, 1, 1);
+        if (firstX == lastX && firstY == lastY)
+            return found.ToString();
+        for (int k = 0; c.X - k >= firstX; ++k)
+        {
+            for (int y = c.Y - k, d = k + 1; y >= firstY; --y, ++d) Cell(c.X - k, y, false, d, 1);
+            if (c.Y - k >= firstY) for (int x = c.X - k - 1, d = k + 2; x >= firstX; --x, ++d) Cell(x, c.Y - k, false, d, 1);
+        }
+        for (int k = 0; c.X + 1 + k <= lastX; ++k)
+        {
+            for (int y = c.Y - k, d = k + 1; y >= firstY; --y, ++d) Cell(c.X + 1 + k, y, false, d, 2);
+            if (c.Y - k >= firstY) for (int x = c.X + 2 + k, d = k + 2; x <= lastX; ++x, ++d) Cell(x, c.Y - k, false, d, 2);
+        }
+        for (int k = 0; c.X + 1 + k <= lastX; ++k)
+        {
+            for (int y = c.Y + 1 + k, d = k + 1; y <= lastY; ++y, ++d) Cell(c.X + 1 + k, y, false, d, 3);
+            if (c.Y + 1 + k <= lastY) for (int x = c.X + 2 + k, d = k + 2; x <= lastX; ++x, ++d) Cell(x, c.Y + 1 + k, false, d, 3);
+        }
+        for (int k = 0; c.X - k >= firstX; ++k)
+        {
+            for (int y = c.Y + 1 + k, d = k + 1; y <= lastY; ++y, ++d) Cell(c.X - k, y, false, d, 4);
+            if (c.Y + 1 + k <= lastY) for (int x = c.X - k - 1, d = k + 2; x >= firstX; --x, ++d) Cell(x, c.Y + 1 + k, false, d, 4);
+        }
+        return found.ToString();
+    }
+
+    static string Describe(Ship ship, ModuleQuadrant q) => $" {Array.IndexOf(ship.Modules, q.Module)}/{(q.Root ? "r" : "")}{(q.Bubble ? "b" : "")}/{q.Distance}/{q.Quadrant}";
+
+    [TestMethod]
+    public void ABlastWalksItsCellsInTheOrderOfTheQuadrantDrawing()
+    {
+        Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+        var random = new Random(2496);
+        int walked = 0;
+        for (int state = 0; state < 2; ++state)
+        {
+            if (state == 1)
+            {
+                ship.GetModuleAt(1, 1).Die(null, cleanupOnly: true);
+                ship.GetShields().First().DamageShield(1_000_000f, null, out _);
+            }
+            for (int i = 0; i < 300; ++i)
+            {
+                var c = new Point(random.Next(-2, ship.GridWidth + 2), random.Next(-2, ship.GridHeight + 2));
+                var a = new Point(c.X - random.Next(0, 5), c.Y - random.Next(0, 5));
+                var b = new Point(c.X + random.Next(0, 5), c.Y + random.Next(0, 5));
+                bool checkShields = random.Next(2) == 0;
+                var walk = new System.Text.StringBuilder();
+                foreach (ModuleQuadrant q in ship.EnumModulesQuadrants(c, a, b, checkShields))
+                    walk.Append(Describe(ship, q));
+                Assert.AreEqual(BlastCellsInDrawingOrder(ship, c, a, b, checkShields), walk.ToString(),
+                                $"a blast at {c} over {a}..{b}, shields {checkShields}");
+                walked += walk.Length;
+            }
+        }
+        Assert.IsTrue(walked > 1000, $"setup: the blasts must reach modules: {walked}");
+    }
+
+    [TestMethod]
+    public void AShotSteppingDiagonallyPastACornerIsStoppedByTheModuleOnTheCorner()
+    {
+        Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+        ship.UpdateModulePositions(TestSimStep, forceUpdate: true);
+        ShipModule corner = ship.GetModuleAt(1, 0);
+        ShipModule beyond = ship.GetModuleAt(1, 1);
+        Assert.IsNull(ship.GetModuleAt(0, 0), "setup: the shot's first cell is empty");
+        Assert.IsNull(ship.GetModuleAt(0, 1), "setup: and so is the other cell at the corner");
+        Assert.IsTrue(corner != null && beyond != null && corner != beyond, "setup: a module on the corner, another beyond it");
+
+        // half-cell steps along this line go from cell (0,0) straight to (1,1), past the corner of (1,0)
+        Vector2 from = ship.GridLocalToWorld(new Vector2(-16f, -15.5f));
+        Vector2 to = ship.GridLocalToWorld(new Vector2(40f, 40.5f));
+        ShipModule first = null;
+        foreach (ShipModule m in ship.RayHitTestWalkModules(from, (to - from).Normalized(), from.Distance(to), ignoreShields: true))
+        {
+            first = m;
+            break;
+        }
+        Assert.AreEqual(corner, first, "the module on the corner seals it");
+        Assert.AreEqual(corner, ship.RayHitTestSingle(from, to, ignoreShields: true), "for the first hit test of a shot too");
+    }
+
+    // every line a shot walks through the grid, and the shields up, counted
+    static int WalkTheGrid(Ship ship, Vector2 from)
+    {
+        int found = 0;
+        foreach (ShipModule _ in ship.RayHitTestWalkModules(from, (ship.Position - from).Normalized(), 600f, ignoreShields: false))
+            ++found;
+        if (ship.RayHitTestSingle(from, ship.Position, ignoreShields: true) != null)
+            ++found;
+        for (int i = 0; i < ship.NumShields; ++i)
+            if (ship.GetShield(i).ShieldsAreActive)
+                ++found;
+        return found;
+    }
+
+    [TestMethod]
+    public void RayWalksAndTheShieldsByIndexTakeNothingOffTheHeap()
+    {
+        Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+        ship.UpdateModulePositions(TestSimStep, forceUpdate: true);
+        Vector2 from = ship.Position + new Vector2(-300, 7);
+        int found = WalkTheGrid(ship, from);
+        Assert.IsTrue(found > 4, $"setup: the walks must cross modules and shields: {found}");
+
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        int again = WalkTheGrid(ship, from);
+        Assert.AreEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "a walk over the grid keeps no enumerator on the heap");
+        Assert.AreEqual(found, again, "and finds the same modules each time");
+
+        var byIndex = new ShipModule[ship.NumShields];
+        for (int i = 0; i < byIndex.Length; ++i)
+            byIndex[i] = ship.GetShield(i);
+        CollectionAssert.AreEqual(ship.GetShields().ToArray(), byIndex, "the shields by index are the shield list, in its order");
+    }
+
+    [TestMethod]
+    public void AVeteranCrewPicksAmongTheMostValuableModulesAndThePickAllocatesNothing()
+    {
+        Ship target = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+        Ship shooter = SpawnShip("TEST_ShipShield", Enemy, new Vector2(150, 0));
+        target.UpdateModulePositions(TestSimStep, forceUpdate: true);
+        Weapon weapon = ResourceManager.CreateWeapon(UState, "VulcanCannon", shooter, null);
+
+        ShipModule[] modules = target.Modules.Where(m => m.Active).ToArray();
+        int[] valuesDescending = modules.Select(m => m.ModuleTargetingValue).OrderByDescending(v => v).ToArray();
+        int veteranLimit = modules.Length / (5 + 1);
+        Assert.IsTrue(veteranLimit >= 1, $"setup: enough modules for a veteran's short list: {modules.Length}");
+        int threshold = valuesDescending[veteranLimit - 1];
+        Assert.IsTrue(valuesDescending[valuesDescending.Length - 1] < threshold, "setup: some modules must be worth less than the short list");
+
+        shooter.Level = 5;
+        for (int i = 0; i < 200; ++i)
+        {
+            ShipModule picked = target.GetRandomInternalModule(weapon);
+            Assert.IsTrue(picked.ModuleTargetingValue >= threshold, $"a veteran picks from the {veteranLimit} most valuable modules: {picked.UID} is worth {picked.ModuleTargetingValue}, the list starts at {threshold}");
+        }
+
+        shooter.Level = 0;
+        bool pickedLess = false;
+        for (int i = 0; i < 500 && !pickedLess; ++i)
+            pickedLess = target.GetRandomInternalModule(weapon).ModuleTargetingValue < threshold;
+        Assert.IsTrue(pickedLess, "a green crew picks from all the modules in range");
+
+        shooter.Level = 5;
+        target.GetRandomInternalModule(weapon);
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        target.GetRandomInternalModule(weapon);
+        Assert.AreEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "a pick makes no list of the modules");
+    }
+
     static void DrainShields(Ship ship)
     {
         foreach (ShipModule m in ship.GetShields())

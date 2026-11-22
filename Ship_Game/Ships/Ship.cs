@@ -1474,7 +1474,7 @@ namespace Ship_Game.Ships
                 LastDamagedBy = null; // we need to clear this to avoid memory leaks
 
             if (!AI.BadGuysNear)
-                Universe.Shields?.RemoveShieldLights(GetActiveShields());
+                Universe.Shields?.RemoveShieldLights(this);
         }
 
         public void UpdateResupply()

@@ -143,8 +143,8 @@ namespace Ship_Game.AI
                 OnlyLoyalty = sensorShip.Loyalty,
             };
 
-            SpatialObjectBase[] friends = sensorShip.Universe.Spatial.FindNearby(ref findFriends);
-            
+            using SpatialManager.Found friends = sensorShip.Universe.Spatial.FindNearbyBuffered(ref findFriends);
+
             for (int i = 0; i < friends.Length; ++i)
             {
                 var friend = (Ship)friends[i];
@@ -189,7 +189,7 @@ namespace Ship_Game.AI
                 ExcludeLoyalty = us,
             };
 
-            SpatialObjectBase[] enemies = sensorShip.Universe.Spatial.FindNearby(ref findEnemies);
+            using SpatialManager.Found enemies = sensorShip.Universe.Spatial.FindNearbyBuffered(ref findEnemies);
 
             for (int i = 0; i < enemies.Length; ++i)
             {
@@ -252,7 +252,7 @@ namespace Ship_Game.AI
                 }
             };
 
-            SpatialObjectBase[] missiles = sensorShip.Universe.Spatial.FindNearby(ref opt);
+            using SpatialManager.Found missiles = sensorShip.Universe.Spatial.FindNearbyBuffered(ref opt);
             for (int i = 0; i < missiles.Length; ++i)
                 ScannedProjectiles.Add((Projectile)missiles[i]);
 

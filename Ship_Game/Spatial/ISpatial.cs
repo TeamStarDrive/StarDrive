@@ -62,6 +62,9 @@ namespace Ship_Game
         /// </summary>
         SpatialObjectBase[] FindNearby(ref SearchOptions opt);
 
+        // as FindNearby, into results (at least MaxResults long), returning how many it found
+        int FindNearby(ref SearchOptions opt, SpatialObjectBase[] results);
+
         /// <summary>
         /// Performs a linear search instead of using the Quadtree.
         /// 

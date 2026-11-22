@@ -73,8 +73,20 @@ namespace Ship_Game.Spatial
                 return Empty<SpatialObjectBase>.Array;
             
             var found = new SpatialObjectBase[count];
+            int numFound = CopyInto(objectIds, count, objects, found);
+            if (numFound == count)
+                return found;
+
+            var actual = new SpatialObjectBase[numFound];
+            Array.Copy(found, 0, actual, 0, numFound);
+            return actual;
+        }
+
+        // the objects of the ids, into results, returning how many there were
+        public static int CopyInto(int* objectIds, int count, SpatialObjectBase[] objects, SpatialObjectBase[] results)
+        {
             int numFound = 0;
-            for (int i = 0; i < found.Length; ++i)
+            for (int i = 0; i < count; ++i)
             {
                 int spatialIndex = objectIds[i];
                 SpatialObjectBase go = objects[spatialIndex];
@@ -93,16 +105,10 @@ namespace Ship_Game.Spatial
                 }
                 else
                 {
-                    found[numFound++] = go;
+                    results[numFound++] = go;
                 }
             }
-
-            if (numFound == count)
-                return found;
-
-            var actual = new SpatialObjectBase[numFound];
-            Array.Copy(found, 0, actual, 0, numFound);
-            return actual;
+            return numFound;
         }
 
         public static void SortByDistance<T>(in SearchOptions opt, T[] objects) where T : SpatialObjectBase
