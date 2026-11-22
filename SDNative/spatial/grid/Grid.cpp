@@ -69,7 +69,7 @@ namespace spatial
     CollisionPairs Grid::collideAll(SpatialRoot* root, const CollisionParams& params)
     {
         GridCell* cells = reinterpret_cast<GridCell*>(root);
-        Collider collider { *FrontAlloc, Objects.maxObjects() };
+        Collider collider { *FrontAlloc };
 
         int numCells = View.NumCells;
         for (int i = 0; i < numCells; ++i)

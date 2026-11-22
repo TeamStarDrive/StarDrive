@@ -87,7 +87,7 @@ namespace spatial
 
     CollisionPairs GridL2::collideAll(SpatialRoot* root, const CollisionParams& params)
     {
-        Collider collider { *FrontAlloc, Objects.maxObjects() };
+        Collider collider { *FrontAlloc };
         GridCell** arrayOfCells = reinterpret_cast<GridCell**>(root);
         int numTopLevelCells = TopLevel.NumCells;
         int numSecondLevelCells = SecondLevel.NumCells;

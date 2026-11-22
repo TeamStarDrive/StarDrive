@@ -57,4 +57,9 @@ namespace spatial
      * Default capacity for a single grid cell before reallocating
      */
     constexpr int GridDefaultCellCapacity = 16;
+
+    /**
+     * Cells holding more objects than this are collided by a sweep over their left edges
+     */
+    constexpr int CollisionSweepThreshold = 32;
 }
