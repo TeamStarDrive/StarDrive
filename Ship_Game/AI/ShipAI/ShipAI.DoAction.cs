@@ -749,13 +749,14 @@ namespace Ship_Game.AI
 
         Vector2 FindLandingOffset(Planet planet)
         {
-            Vector2 pos;
-            if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle)
-                pos = Vector2.Zero.GenerateRandomPointInsideCircle(planet.Radius, planet.Random);
-            else
-                pos = planet.Position - planet.Position.GenerateRandomPointOnCircle(planet.Radius * 1.5f, planet.Random);
+            if (!Owner.IsSingleTroopShip && !Owner.IsDefaultAssaultShuttle)
+                return planet.Position - planet.Position.GenerateRandomPointOnCircle(planet.Radius * 1.5f, planet.Random);
 
-            return pos;
+            // anywhere on the half of the planet facing the ship: a spot on the far half is mirrored onto it
+            Vector2 offset = Vector2.Zero.GenerateRandomPointInsideCircle(planet.Radius, planet.Random);
+            Vector2 toShip = planet.Position.DirectionToTarget(Owner.Position);
+            float along = offset.Dot(toShip);
+            return along < 0f ? offset - toShip * (2f * along) : offset;
         }
 
         void DoRefit(FixedSimTime timeStep, ShipGoal goal)
