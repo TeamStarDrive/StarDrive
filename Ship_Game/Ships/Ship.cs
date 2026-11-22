@@ -270,6 +270,9 @@ namespace Ship_Game.Ships
                        DesignRole == RoleName.carrier;
         }
 
+        // support ships, carriers and bombers hold back from a player's attack they make with warships
+        public bool HoldsBackFromAttacks => DesignRoleType == RoleType.WarSupport;
+
         public bool IsGoodScout() => ShipData.Role != RoleName.supply 
                                      && Fleet == null
                                      && IsScoutForExploring;

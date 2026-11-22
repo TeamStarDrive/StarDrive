@@ -59,6 +59,7 @@ namespace Ship_Game.AI
             BadShipsNear      = (1 << 8),
             BadPlanetsNear    = (1 << 9),
             ReturnToHangarSoon = (1 << 10),
+            HoldsBack         = (1 << 11),
             BadShipsOrPlanetsNear = BadShipsNear | BadPlanetsNear,
         }
 
@@ -100,6 +101,10 @@ namespace Ship_Game.AI
         bool ReturnToHangarSoon
         { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.ReturnToHangarSoon); 
           [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.ReturnToHangarSoon, value); }
+        // in combat it fights from its spot and closes in on no enemy, until its next order
+        public bool HoldsBack
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.HoldsBack);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.HoldsBack, value); }
 
         [StarDataConstructor]
         ShipAI() {}

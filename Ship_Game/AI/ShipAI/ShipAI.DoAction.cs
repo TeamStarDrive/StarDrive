@@ -134,7 +134,7 @@ namespace Ship_Game.AI
                 CombatState = CombatState.Evade;
 
             float distanceToTarget = target.Position.Distance(Owner.Position);
-            bool movesToTarget = CombatState != CombatState.HoldPosition || HasPriorityTarget; // on Hold Position only a target the player picked draws the ship out
+            bool movesToTarget = CombatState != CombatState.HoldPosition && !HoldsBack || HasPriorityTarget; // on Hold Position, or holding back, only a target the player picked draws the ship out
             bool priorityMove = HasPriorityOrder && movesToTarget;
             bool inReach = distanceToTarget <= 7500f || distanceToTarget <= Owner.DesiredCombatRange;
 
@@ -171,7 +171,7 @@ namespace Ship_Game.AI
                     Owner.HyperspaceReturn();
                 }
 
-                if (Intercepting && CombatRangeType == StanceType.RangedCombatMovement)
+                if (Intercepting && !HoldsBack && CombatRangeType == StanceType.RangedCombatMovement)
                 {
                     // clamp the radius here so that it wont flounder if the ship has very long range weapons.
                     float radius = Owner.DesiredCombatRange * 3f;
@@ -186,11 +186,25 @@ namespace Ship_Game.AI
                         Intercepting = false;
                 }
 
-                CombatAI.ExecuteCombatTactic(timeStep);
+                if (HoldsBack && !HasPriorityTarget)
+                    HoldBackInCombat(target, distanceToTarget, timeStep);
+                else
+                    CombatAI.ExecuteCombatTactic(timeStep);
                 if (closeEnough && Owner.IsSpooling) // a stance's move this close starts no jump
                     Owner.HyperspaceReturn();
                 Owner.Carrier.TryAssaultShipCombat();
             }
+        }
+
+        // a ship holding back stops and faces its target; on a stance that keeps its distance it backs away from one inside its range
+        void HoldBackInCombat(Ship target, float distanceToTarget, FixedSimTime timeStep)
+        {
+            RotateTowardsPosition(Owner.PredictAim(target), timeStep, 0.2f);
+            float keepAt = Owner.DesiredCombatRange * 0.9f;
+            if (CombatState is CombatState.Artillery or CombatState.GuardMode && distanceToTarget < keepAt)
+                Owner.SubLightAccelerate(stlSpeedLimit: keepAt - distanceToTarget, Thrust.Reverse);
+            else
+                ReverseThrustUntilStopped(timeStep);
         }
 
         internal void MoveToEngageTarget(Ship target, FixedSimTime timeStep)

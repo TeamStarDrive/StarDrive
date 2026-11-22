@@ -59,6 +59,7 @@ namespace Ship_Game.AI
             DisposeOrders();
             Orbit?.ExitOrbit();
             IgnoreCombat = false;
+            HoldsBack = false;
             ExitCombatState();
             ChangeAIState(newState); // Must come after ExitCombatState since ExitCombatState change the AIstate to awaiting orders.
             if (ExplorationTarget != null)

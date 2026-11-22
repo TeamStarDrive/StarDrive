@@ -77,6 +77,40 @@ namespace Ship_Game.Universe
             return true;
         }
 
+        // each selected ship takes the right click on a ship, but on an attack the warships take, support ships, carriers and bombers hold back
+        public void RightClickOnShip(Array<Ship> selected, Ship target)
+        {
+            Ship[] ships = selected.ToArray();
+            bool withWarships = target != null && !target.Loyalty.isPlayer && ShipGroup.HasWarshipForAttack(ships);
+            for (int i = 0; i < ships.Length; ++i)
+            {
+                if (!(withWarships && ships[i].HoldsBackFromAttacks))
+                    RightClickOnShip(ships[i], target);
+            }
+
+            if (!withWarships)
+                return;
+
+            bool holdBack = ShipGroup.WarshipTookTheAttack(ships, target);
+            for (int i = 0; i < ships.Length; ++i)
+            {
+                Ship ship = ships[i];
+                if (!ship.HoldsBackFromAttacks)
+                    continue;
+                if (holdBack)
+                    HoldBackFromAttack(ship);
+                else
+                    RightClickOnShip(ship, target);
+            }
+        }
+
+        // a queued attack leaves the ship's orders as they are
+        void HoldBackFromAttack(Ship ship)
+        {
+            if (!Input.QueueAction && ship.PlayerShipCanTakeFleetOrders(forAttack: true))
+                ship.AI.OrderHoldBack();
+        }
+
         public static void SpreadGroupAttack(Array<Ship> ships, Ship target)
         {
             Ship[] attackers = ships.Filter(s => s.AI.Target == target);
@@ -272,7 +306,8 @@ namespace Ship_Game.Universe
         {
             fleet.FinalPosition = shipToAttack.Position;
             fleet.AssignPositions(Vectors.Up);
-            if (fleet.Ships.Any(s => s.Active
+            Ship[] ships = fleet.Ships.ToArray();
+            if (ships.Any(s => s.Active
                    && s.Position.Distance(shipToAttack.Position) > 7500f
                    && !HelperFunctions.CanExitWarpForChangingDirectionByCommand([s], s.AI.PotentialTargets)))
             {
@@ -280,17 +315,39 @@ namespace Ship_Game.Universe
                 return false;
             }
 
-            foreach (Ship fleetShip in fleet.Ships)
+            bool withWarships = ShipGroup.HasWarshipForAttack(ships);
+            for (int i = 0; i < ships.Length; ++i)
             {
-                if (fleetShip.PlayerShipCanTakeFleetOrders(forAttack: true))
+                if (!(withWarships && ships[i].HoldsBackFromAttacks))
+                    FleetShipAttacks(ships[i], shipToAttack);
+            }
+
+            if (withWarships)
+            {
+                bool holdBack = ShipGroup.WarshipTookTheAttack(ships, shipToAttack);
+                for (int i = 0; i < ships.Length; ++i)
                 {
-                    ResetShipsTargetAndPriorityOrders(fleetShip);
-                    AttackSpecificShip(fleetShip, shipToAttack);
+                    Ship ship = ships[i];
+                    if (!ship.HoldsBackFromAttacks)
+                        continue;
+                    if (holdBack)
+                        HoldBackFromAttack(ship);
+                    else
+                        FleetShipAttacks(ship, shipToAttack);
                 }
             }
 
             GameAudio.AffirmativeClick();
             return true;
+        }
+
+        void FleetShipAttacks(Ship ship, Ship target)
+        {
+            if (ship.PlayerShipCanTakeFleetOrders(forAttack: true))
+            {
+                ResetShipsTargetAndPriorityOrders(ship);
+                AttackSpecificShip(ship, target);
+            }
         }
 
         bool QueueFleetMovement(Vector2 movePosition, Vector2 direction, ShipGroup fleet)

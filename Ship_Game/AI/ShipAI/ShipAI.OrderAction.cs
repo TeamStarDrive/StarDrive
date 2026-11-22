@@ -61,6 +61,18 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.Stop, AIState.HoldPosition);
         }
 
+        // holds where it is, fighting from its spot without closing in on any enemy, until its next order
+        public void OrderHoldBack()
+        {
+            ClearWayPoints();
+            ClearOrders();
+            ClearPriorityOrderAndTarget();
+            Target = null;
+            TargetQueue.Clear();
+            OrderHoldPosition();
+            HoldsBack = true;
+        }
+
         // Forces the ship to HoldPosition at its current location
         // MoveOrder parameter controls how the ship responds to threats
         // if MoveOrder.StandGround, then ship will have priority HoldPosition

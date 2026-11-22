@@ -167,10 +167,10 @@ namespace Ship_Game
 
                 if (shipClicked != null || planetClicked != null)
                 {
-                    foreach (Ship selectedShip in SelectedShipList)
+                    ShipCommands.RightClickOnShip(SelectedShipList, shipClicked);
+                    if (planetClicked != null)
                     {
-                        ShipCommands.RightClickOnShip(selectedShip, shipClicked);
-                        if (planetClicked != null)
+                        foreach (Ship selectedShip in SelectedShipList)
                             ShipCommands.RightClickOnPlanet(selectedShip, planetClicked, true);
                     }
 
