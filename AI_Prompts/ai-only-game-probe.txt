@@ -137,8 +137,8 @@ Report back
 - Save the saves and results, and any probe changes, in one folder outside the repo, and tell me where.
 
 Afterwards
-- Running the tests can set the selected mod to none in the user config (loading the base game's data does), so
-  remind me to pick my mod again in game.
+- Loading game data saves what it loads as the selected mod in the user config: none after the tests, and the
+  probed mod after a probe run with PROBE_MOD. Remind me to pick my mod again in game.
 - Offer to remove the worktrees.
 
 ########################################################################################################################

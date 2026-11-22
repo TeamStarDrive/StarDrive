@@ -499,6 +499,8 @@ namespace Ship_Game.Ships
             try
             {
                 parts = content.LoadMeshParts(ModelPath);
+                if (parts == null)
+                    Log.Warning($"Hull {HullName}: no parts could be read from '{ModelPath}', it plays in one piece till its model loads");
             }
             catch (Exception e)
             {
