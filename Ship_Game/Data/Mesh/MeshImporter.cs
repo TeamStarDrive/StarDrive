@@ -56,6 +56,30 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
+        // a model's parts alone, read from its file with no buffers or textures made: none for a model in one piece, null if the file does not load
+        public unsafe StaticMesh ImportParts(string meshPath, string meshName)
+        {
+            SdMesh* mesh = null;
+            try
+            {
+                mesh = SDMeshOpen(meshPath);
+                if (mesh == null)
+                    return null;
+                if (!HasParts(mesh))
+                    return new StaticMesh(meshName, StubBounds);
+                return LoadParts(mesh, materials: null, extractVertexPositions: false, partsOnly: true);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"ImportParts '{meshName}' failed");
+                return null;
+            }
+            finally
+            {
+                if (mesh != null) SDMeshClose(mesh);
+            }
+        }
+
         public Model ImportModel(string meshPath, string meshName)
         {
             // Phase 2.8.C: ImportModel restoration deferred. The XNA Model API requires
@@ -75,7 +99,7 @@ namespace Ship_Game.Data.Mesh
             bool isSkinned = mesh->NumSkinnedBones > 0;
             Map<long, LightingEffect> materials = GetMaterials(mesh, modelName, isSkinned);
             if (HasParts(mesh))
-                return LoadParts(mesh, materials, extractVertexPositions);
+                return LoadParts(mesh, materials, extractVertexPositions, partsOnly: false);
 
             var rawMeshes = new Array<MeshData>();
             var positions = extractVertexPositions ? new Array<Vector3>() : null;
@@ -134,8 +158,8 @@ namespace Ship_Game.Data.Mesh
             return false;
         }
 
-        // a model cut into numbered parts loads as one mesh per material with its parts in order, so an intact ship draws each at once
-        unsafe StaticMesh LoadParts(SdMesh* mesh, Map<long, LightingEffect> materials, bool extractVertexPositions)
+        // a model cut into numbered parts loads as one mesh per material with its parts in order, so an intact ship draws each at once; partsOnly reads each part's triangles in the same order and makes no meshes
+        unsafe StaticMesh LoadParts(SdMesh* mesh, Map<long, LightingEffect> materials, bool extractVertexPositions, bool partsOnly)
         {
             // each group's data is fetched once, as every fetch rebuilds it, and stays valid while nothing fetches the group again
             var data = new SdVertexData[mesh->NumGroups];
@@ -164,7 +188,7 @@ namespace Ship_Game.Data.Mesh
                     continue;
                 SdMeshGroup* g0 = SDMeshGetGroup(mesh, members[first].Group);
                 SdVertexData d0 = data[members[first].Group];
-                VertexDeclaration declaration = d0.CreateDeclaration();
+                VertexDeclaration declaration = partsOnly ? null : d0.CreateDeclaration();
 
                 // the groups drawn with this one: same material, transform and vertex layout
                 var batch = new Array<int>();
@@ -188,8 +212,8 @@ namespace Ship_Game.Data.Mesh
                     indexCount += d.IndexCount;
                 }
 
-                var vertices = new byte[vertexCount * d0.VertexStride];
-                var indices = new int[indexCount];
+                byte[] vertices = partsOnly ? null : new byte[vertexCount * d0.VertexStride];
+                int[] indices = partsOnly ? null : new int[indexCount];
                 var partStart = new int[numParts];
                 var partPrimitives = new int[numParts];
                 BoundingSphere sphere = default;
@@ -199,11 +223,14 @@ namespace Ship_Game.Data.Mesh
                     int part = members[k].Part;
                     SdMeshGroup* g = SDMeshGetGroup(mesh, members[k].Group);
                     SdVertexData d = data[members[k].Group];
-                    new ReadOnlySpan<byte>(d.VertexData, d.VertexCount * d.VertexStride).CopyTo(vertices.AsSpan(vertexBase * d0.VertexStride));
+                    if (!partsOnly)
+                    {
+                        new ReadOnlySpan<byte>(d.VertexData, d.VertexCount * d.VertexStride).CopyTo(vertices.AsSpan(vertexBase * d0.VertexStride));
+                        for (int i = 0; i < d.IndexCount; ++i)
+                            indices[indexBase + i] = d.IndexData[i] + vertexBase;
+                    }
                     if (partPrimitives[part] == 0)
                         partStart[part] = indexBase;
-                    for (int i = 0; i < d.IndexCount; ++i)
-                        indices[indexBase + i] = d.IndexData[i] + vertexBase;
                     partPrimitives[part] += d.IndexCount / 3;
                     sphere = sphere.Radius > 0f ? BoundingSphere.CreateMerged(sphere, g->Bounds) : g->Bounds;
 
@@ -222,6 +249,8 @@ namespace Ship_Game.Data.Mesh
                     indexBase += d.IndexCount;
                 }
 
+                if (partsOnly)
+                    continue;
                 rawMeshes.Add(new MeshData
                 {
                     Name              = SDMeshGetGroup(mesh, members[batch[0]].Group)->Name.AsString,

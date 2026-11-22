@@ -232,6 +232,8 @@ namespace SynapseGaming.LightingSystem.Core
             SharedFx.View = LastFrameState.View;
             SharedFx.Projection = LastFrameState.Projection;
 
+            float halfHeight = GraphicsDevice.Viewport.Height * 0.5f;
+            WithInsides.Clear();
             foreach (Rendering.ISceneObject iso in om.ActiveObjects)
             {
                 if (iso is not Rendering.SceneObject so || !so.HasMeshes) continue;
@@ -240,17 +242,62 @@ namespace SynapseGaming.LightingSystem.Core
                 float[] shown = so.PartShown; // read once, as the sim thread swaps it
                 Matrix world = so.World; // and moves it
                 DrawRenderables(so, world, shown, insides: false);
-                if (shown != null)
+                if (shown != null && BigEnoughForInsides(so, world, LastFrameState.View, LastFrameState.Projection, halfHeight))
                 {
-                    // a model with a part off shows its insides only where they are nearer than its outside: through the gap, burnt but for a part coming back's
-                    Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullClockwiseFace);
-                    GraphicsDevice.DepthStencilState = NearerOnly;
-                    DrawRenderables(so, world, shown, insides: true);
-                    Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullCounterClockwiseFace);
-                    Ship_Game.Graphics.RenderStates.EnableDepthWrite(GraphicsDevice);
+                    // an animated model's insides go right after its outside, in the same pose
+                    if (so.AnimationPlayer is { HasBones: true })
+                        DrawInsides(so, world, shown);
+                    else
+                        WithInsides.Add((so, world, shown));
                 }
                 DrawModelMeshes(so, world);
             }
+
+            if (WithInsides.Count > 0)
+            {
+                BeginInsides();
+                foreach ((Rendering.SceneObject so, Matrix world, float[] shown) in WithInsides)
+                    DrawRenderables(so, world, shown, insides: true);
+                EndInsides();
+                WithInsides.Clear();
+            }
+        }
+
+        // a model with a part off shows its insides only where they are nearer than what is drawn there: through the gap, burnt but for a part coming back's
+        void BeginInsides()
+        {
+            Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullClockwiseFace);
+            GraphicsDevice.DepthStencilState = NearerOnly;
+        }
+
+        void EndInsides()
+        {
+            Ship_Game.Graphics.RenderStates.SetCullMode(GraphicsDevice, CullMode.CullCounterClockwiseFace);
+            Ship_Game.Graphics.RenderStates.EnableDepthWrite(GraphicsDevice);
+        }
+
+        void DrawInsides(Rendering.SceneObject so, in Matrix world, float[] shown)
+        {
+            BeginInsides();
+            DrawRenderables(so, world, shown, insides: true);
+            EndInsides();
+        }
+
+        // the models with a part off whose insides show this frame, with the place and parts their outsides were drawn with
+        readonly List<(Rendering.SceneObject So, Matrix World, float[] Shown)> WithInsides = new();
+
+        // a gap in a model drawn smaller than this radius on screen is too small to see into
+        internal const float InsidesMinPixels = 8f;
+
+        // whether a model shows on screen big enough to see its insides through a gap, in a perspective or an orthographic view; one whose bounds are unknown, or at or behind the eye, always is
+        internal static bool BigEnoughForInsides(Rendering.SceneObject so, in Matrix world, in Matrix view, in Matrix projection, float halfHeight)
+        {
+            BoundingSphere bounds = so.ObjectBoundingSphere;
+            if (bounds.Radius <= 0f)
+                return true;
+            Vector3 center = Vector3.Transform(world.Translation + bounds.Center, view);
+            float w = center.Z * projection.M34 + projection.M44;
+            return w <= 0f || bounds.Radius * projection.M22 * halfHeight >= InsidesMinPixels * w;
         }
 
         // Phase 3.8.B: depth-only pass into ShadowMap.ShadowMap from the
@@ -951,6 +998,10 @@ namespace SynapseGaming.LightingSystem.Effects
         public Texture2D SpecularColorMapTexture { get; set; }
         // marks the hull paint that takes its owner's color
         public Texture2D TintMapTexture { get; set; }
+        // the average OKLab lightness of the paint the tint map marks, measured as the model loads; 0 with none, and under 0.01 counts as none
+        public float PaintLightness { get; set; }
+        // the share of the owner's color's lightness a texel at the paint's average lightness is lifted to, set per tint map from HullPaintLift.yaml
+        public float PaintLiftShare { get; set; } = Ship_Game.Data.Mesh.HullPaintLift.DefaultShare;
 
         public bool Skinned { get; set; }
         public bool DoubleSided { get; set; }
@@ -1035,7 +1086,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // ── EffectParameter handles (cached at ctor) ────────────────────────
         readonly EffectParameter pWorld, pView, pProjection;
         readonly EffectParameter pDiffuseColor, pEmissiveColor, pSpecularColor;
-        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pHullTint, pPartLook, pPartReach, pReachShape, pAlpha, pEyePosition;
+        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pPaintLightness, pPaintLiftShare, pHullTint, pPartLook, pPartReach, pReachShape, pAlpha, pEyePosition;
         readonly EffectParameter pLightingEnabled, pTextureEnabled, pFogEnabled;
         readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled, pTintMapEnabled;
         readonly EffectParameter pAmbientLightColor;
@@ -1094,6 +1145,33 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
 
         // the owner's color for the next draw's tint-mapped paint, W = 0 for none; the renderer sets it from each SceneObject
         public Vector4 HullTint { get; set; }
+
+        // a color's OKLab lightness, as the eye sees it: 0 for black, 1 for white
+        public static float LightnessOf(float red, float green, float blue)
+            => LightnessOfLinear(Linear(red), Linear(green), Linear(blue));
+
+        public static float LightnessOf(Color c)
+            => LightnessOfLinear(LinearOfByte[c.R], LinearOfByte[c.G], LinearOfByte[c.B]);
+
+        static double Linear(float c) => c <= 0.04045f ? c / 12.92 : Math.Pow((c + 0.055) / 1.055, 2.4);
+
+        static readonly double[] LinearOfByte = LinearOfBytes();
+
+        static double[] LinearOfBytes()
+        {
+            var linear = new double[256];
+            for (int i = 0; i < linear.Length; ++i)
+                linear[i] = Linear(i / 255f);
+            return linear;
+        }
+
+        static float LightnessOfLinear(double r, double g, double b)
+        {
+            double l = Math.Cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+            double m = Math.Cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+            double s = Math.Cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+            return (float)(0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s);
+        }
 
         // the share of a part coming back the next draw shows, 1 for a whole model; the renderer sets it per part
         public float ShareShown { get; set; } = 1f;
@@ -1198,6 +1276,8 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pSpecularPower      = Parameters["SpecularPower"];
             pSpecularAmount     = Parameters["SpecularAmount"];
             pEmissiveScale      = Parameters["EmissiveScale"];
+            pPaintLightness     = Parameters["PaintLightness"];
+            pPaintLiftShare     = Parameters["PaintLiftShare"];
             pHullTint           = Parameters["HullTint"];
             pPartLook           = Parameters["PartLook"];
             pPartReach          = Parameters["PartReach"];
@@ -1443,6 +1523,8 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             bool tintMapBound = TintMapTexture != null && HullTint.W > 0f;
             pTintMapEnabled?.SetValue(tintMapBound);
             pHullTint?.SetValue(HullTint);
+            pPaintLightness?.SetValue(PaintLightness >= 0.01f ? PaintLightness : 1f);
+            pPaintLiftShare?.SetValue(PaintLiftShare);
             if (tintMapBound)
                 pTintMap?.SetValue(TintMapTexture);
 

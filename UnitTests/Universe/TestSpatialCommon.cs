@@ -225,6 +225,65 @@ namespace UnitTests.Universe
         }
         
         [TestMethod]
+        public void FindNearbyIntoABufferFindsTheSameObjectsInTheSameOrder()
+        {
+            ISpatial tree = CreateQuadTree(100_000, 100, spawnProjectilesWithOffset:100f);
+            var buffer = new SpatialObjectBase[64];
+            int compared = 0;
+            foreach (SpatialObjectBase obj in AllObjects)
+            {
+                if (obj is not Ship s)
+                    continue;
+                for (int variant = 0; variant < 3; ++variant)
+                {
+                    SearchOptions opt = new(s.Position, 30000, variant == 2 ? GameObjectType.Proj : GameObjectType.Ship)
+                    {
+                        MaxResults = 8,
+                        SortByDistance = variant == 1,
+                        Exclude = s,
+                        ExcludeLoyalty = variant == 2 ? null : s.Loyalty,
+                        FilterFunction = variant == 2 ? go => go is GameObject { Id: var id } && id % 2 == 0 : null,
+                    };
+                    SpatialObjectBase[] expected = tree.FindNearby(ref opt);
+                    int count = tree.FindNearby(ref opt, buffer);
+                    CollectionAssert.AreEqual(expected, buffer.AsSpan(0, count).ToArray(), $"search {variant} around {s}");
+                    compared += count;
+                }
+            }
+            Assert.IsTrue(compared > 100, $"setup: the searches must find objects: {compared}");
+        }
+
+        [TestMethod]
+        public void FindNearbyIntoABufferAllocatesNothing()
+        {
+            ISpatial tree = CreateQuadTree(100_000, 100);
+            var s = (Ship)AllObjects[0];
+            var buffer = new SpatialObjectBase[512];
+            SearchOptions opt = new(s.Position, 60000, GameObjectType.Ship)
+            {
+                MaxResults = 512,
+                SortByDistance = true,
+                Exclude = s,
+            };
+            int first = tree.FindNearby(ref opt, buffer);
+            Assert.IsTrue(first > 1, $"setup: the search must find ships: {first}");
+
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            int second = tree.FindNearby(ref opt, buffer);
+            Assert.AreEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "a search into a buffer makes no array");
+            Assert.AreEqual(first, second, "and finds the same ships");
+        }
+
+        [TestMethod]
+        public void ASearchIntoABufferForNoResultsFindsNone()
+        {
+            ISpatial tree = CreateQuadTree(100_000, 100);
+            var s = (Ship)AllObjects[0];
+            SearchOptions opt = new(s.Position, 60000, GameObjectType.Ship) { MaxResults = 0 };
+            Assert.AreEqual(0, tree.FindNearby(ref opt, Empty<SpatialObjectBase>.Array), "a search asked for no results fills no buffer");
+        }
+
+        [TestMethod]
         [TestCategory("Performance")]
         public void TreeUpdatePerformance()
         {

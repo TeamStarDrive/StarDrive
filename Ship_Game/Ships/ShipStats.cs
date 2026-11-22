@@ -320,7 +320,10 @@ namespace Ship_Game.Ships
             if (S.Modules.Length == 0)
                 return;
 
-            int numMainShields = S.GetShields().Count(s => s.ModuleType == ShipModuleType.Shield);
+            int numMainShields = 0;
+            for (int i = 0; i < S.NumShields; ++i)
+                if (S.GetShield(i).ModuleType == ShipModuleType.Shield)
+                    ++numMainShields;
             if (numMainShields == 0)
                 return;
 

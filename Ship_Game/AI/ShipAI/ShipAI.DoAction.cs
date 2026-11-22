@@ -134,7 +134,7 @@ namespace Ship_Game.AI
                 CombatState = CombatState.Evade;
 
             float distanceToTarget = target.Position.Distance(Owner.Position);
-            bool movesToTarget = CombatState != CombatState.HoldPosition || HasPriorityTarget; // on Hold Position only a target the player picked draws the ship out
+            bool movesToTarget = CombatState != CombatState.HoldPosition && !HoldsBack || HasPriorityTarget; // on Hold Position, or holding back, only a target the player picked draws the ship out
             bool priorityMove = HasPriorityOrder && movesToTarget;
             bool inReach = distanceToTarget <= 7500f || distanceToTarget <= Owner.DesiredCombatRange;
 
@@ -171,7 +171,7 @@ namespace Ship_Game.AI
                     Owner.HyperspaceReturn();
                 }
 
-                if (Intercepting && CombatRangeType == StanceType.RangedCombatMovement)
+                if (Intercepting && !HoldsBack && CombatRangeType == StanceType.RangedCombatMovement)
                 {
                     // clamp the radius here so that it wont flounder if the ship has very long range weapons.
                     float radius = Owner.DesiredCombatRange * 3f;
@@ -186,11 +186,25 @@ namespace Ship_Game.AI
                         Intercepting = false;
                 }
 
-                CombatAI.ExecuteCombatTactic(timeStep);
+                if (HoldsBack && !HasPriorityTarget)
+                    HoldBackInCombat(target, distanceToTarget, timeStep);
+                else
+                    CombatAI.ExecuteCombatTactic(timeStep);
                 if (closeEnough && Owner.IsSpooling) // a stance's move this close starts no jump
                     Owner.HyperspaceReturn();
                 Owner.Carrier.TryAssaultShipCombat();
             }
+        }
+
+        // a ship holding back stops and faces its target; on a stance that keeps its distance it backs away from one inside its range
+        void HoldBackInCombat(Ship target, float distanceToTarget, FixedSimTime timeStep)
+        {
+            RotateTowardsPosition(Owner.PredictAim(target), timeStep, 0.2f);
+            float keepAt = Owner.DesiredCombatRange * 0.9f;
+            if (CombatState is CombatState.Artillery or CombatState.GuardMode && distanceToTarget < keepAt)
+                Owner.SubLightAccelerate(stlSpeedLimit: keepAt - distanceToTarget, Thrust.Reverse);
+            else
+                ReverseThrustUntilStopped(timeStep);
         }
 
         internal void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
@@ -752,7 +766,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (!Owner.Loyalty.AI.HasGoal(GoalType.Refit, Owner))
+            if (!EmpireHoldsGoal(GoalType.Refit, timeStep))
             {
                 ClearOrders(); // Could not find empire refit goal
                 return;
@@ -1003,13 +1017,70 @@ namespace Ship_Game.AI
                 ApproachToLand(timeStep, pirateBase.Position, pirateBase.Position, range, LaunchShip.ShipyardSpeed(Owner));
         }
 
-        void DoRebaseToShip(FixedSimTime timeStep)
+        // the route to a ship more than twice the router's reach away is planned once for the trip (again after a load), and again where its last leg
+        // ends if that ship is still that far; a plan for the same order comes the router's reach from the last; the trip ends within reach of the ship
+        ShipGoal ShipRouteGoal;
+        Vector2[] ShipRouteDetours;
+        int ShipRouteDetourIndex;
+        Vector2 ShipRouteLegEnd;
+        ShipGoal ShipRoutePlannedFor;
+        Vector2 ShipRoutePlannedAt;
+        internal int ShipRoutesPlanned;
+
+        // where to thrust on the way to a ship: a point of the route while it is far, the ship itself when nearer, with routing off or for a hangar ship; false within reach of it
+        bool ThrustTargetOnWayToShip(ShipGoal goal, Vector2 shipPos, out Vector2 thrustTarget)
+        {
+            thrustTarget = shipPos;
+            float reach = GravityWellRouter.DetourReachDistance;
+            if (Owner.Position.InRadius(shipPos, reach))
+            {
+                ShipRouteGoal = null;
+                ShipRoutePlannedFor = null;
+                return false;
+            }
+
+            if (Owner.IsHangarShip || !GravityWellRouter.RoutesFor(Owner) || Owner.Position.InRadius(shipPos, 2f * reach))
+            {
+                ShipRouteGoal = null;
+                return true;
+            }
+
+            bool onTrip = ReferenceEquals(ShipRouteGoal, goal);
+            bool legEnded = onTrip && ShipRouteDetourIndex >= ShipRouteDetours.Length && Owner.Position.InRadius(ShipRouteLegEnd, reach);
+            if (!onTrip || legEnded)
+            {
+                if (ReferenceEquals(ShipRoutePlannedFor, goal) && Owner.Position.InRadius(ShipRoutePlannedAt, reach))
+                {
+                    ShipRouteGoal = null;
+                    return true;
+                }
+
+                ShipRouteGoal = goal;
+                ShipRoutePlannedFor = goal;
+                ShipRoutePlannedAt = Owner.Position;
+                ShipRouteLegEnd = shipPos;
+                ShipRouteDetours = GravityWellRouter.BuildDetours(Owner, Owner.Position, shipPos, MoveOrder.Regular);
+                ShipRouteDetourIndex = 0;
+                ++ShipRoutesPlanned;
+            }
+
+            thrustTarget = GravityWellRouter.GetThrustTarget(ShipRouteDetours, ref ShipRouteDetourIndex, ShipRouteLegEnd, Owner.Position);
+            return true;
+        }
+
+        void DoRebaseToShip(FixedSimTime timeStep, ShipGoal goal)
         {
             if (EscortTarget == null || !EscortTarget.Active || EscortTarget.IsLanding
                                      || EscortTarget.AI.State == AIState.Scrap
                                      || EscortTarget.AI.State == AIState.Refit)
             {
                 OrderRebaseToNearest();
+                return;
+            }
+
+            if (ThrustTargetOnWayToShip(goal, EscortTarget.Position, out Vector2 thrustTarget))
+            {
+                ThrustOrWarpToPos(thrustTarget, timeStep);
                 return;
             }
 
@@ -1039,7 +1110,8 @@ namespace Ship_Game.AI
 
             if (!Owner.Position.InRadius(constructor.Position, constructor.Radius + ConstructionShip.ConstructingDistance))
             {
-                ThrustOrWarpToPos(constructor.Position, timeStep);
+                ThrustTargetOnWayToShip(goal, constructor.Position, out Vector2 thrustTarget);
+                ThrustOrWarpToPos(thrustTarget, timeStep);
             }
             else
             {
@@ -1048,7 +1120,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void DoRearmShip(FixedSimTime timeStep)
+        void DoRearmShip(FixedSimTime timeStep, ShipGoal goal)
         {
             if (EscortTarget == null || !EscortTarget.Active)
             {
@@ -1057,12 +1129,15 @@ namespace Ship_Game.AI
             }
 
             if (!Owner.Position.InRadius(EscortTarget.Position, EscortTarget.Radius + 300f))
-                ThrustOrWarpToPos(EscortTarget.Position, timeStep);
+            {
+                ThrustTargetOnWayToShip(goal, EscortTarget.Position, out Vector2 thrustTarget);
+                ThrustOrWarpToPos(thrustTarget, timeStep);
+            }
             else
                 ReverseThrustUntilStopped(timeStep); // the empire goal takes care of the rearm
         }
 
-        void DoSupplyShip(FixedSimTime timeStep)
+        void DoSupplyShip(FixedSimTime timeStep, ShipGoal goal)
         {
             var escortTarget = EscortTarget;
             if (EscortTarget == null || !escortTarget.Active
@@ -1075,7 +1150,8 @@ namespace Ship_Game.AI
             }
 
             
-            ThrustOrWarpToPos(EscortTarget.Position, timeStep);
+            ThrustTargetOnWayToShip(goal, escortTarget.Position, out Vector2 thrustTarget);
+            ThrustOrWarpToPos(thrustTarget, timeStep);
             if (Owner.Position.InRadius(escortTarget.Position, escortTarget.Radius + 300f))
             {
                 // remove amount from incoming supply (we counted full ordnance so remove it now)

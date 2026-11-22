@@ -201,7 +201,7 @@ namespace spatial
     CollisionPairs Qtree::collideAll(SpatialRoot* root, const CollisionParams& params)
     {
         QtreeNode* rootNode = reinterpret_cast<QtreeNode*>(root);
-        Collider collider { *FrontAlloc, Objects.maxObjects() };
+        Collider collider { *FrontAlloc };
 
         SmallStack<QtreeNode*> stack { rootNode };
         do

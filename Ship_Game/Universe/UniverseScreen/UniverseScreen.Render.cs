@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -466,6 +467,33 @@ namespace Ship_Game
             }
         }
 
+        // the hulls whose parts their ships hit out of sight asked for, each once a game, read one a frame on the UI thread
+        readonly Array<ShipHull> HullPartsWanted = new();
+        readonly HashSet<ShipHull> HullPartsAsked = new();
+
+        public void AskForHullParts(ShipHull hull)
+        {
+            lock (HullPartsWanted)
+            {
+                if (HullPartsAsked.Add(hull))
+                    HullPartsWanted.Add(hull);
+            }
+        }
+
+        internal void LoadAskedHullParts()
+        {
+            ShipHull hull;
+            lock (HullPartsWanted)
+            {
+                if (HullPartsWanted.Count == 0)
+                    return;
+                hull = HullPartsWanted[0];
+                HullPartsWanted.RemoveAt(0);
+            }
+            if (hull.NumParts == 0 && !hull.ModelInOnePiece)
+                hull.LoadParts(ContentManager);
+        }
+
         // @return TRUE if Circle(posInWorld, radiusInWorld) overlaps the screen Frustum
         public bool IsInFrustum(in Vector2 posInWorld, float radiusInWorld)
         {
@@ -490,6 +518,7 @@ namespace Ship_Game
             Frustum.Matrix = ViewProjection;
 
             CreateShipSceneObjects();
+            LoadAskedHullParts();
             UState.Derelicts.LoadModels(this);
 
             BeginSunburnPerf.Start();

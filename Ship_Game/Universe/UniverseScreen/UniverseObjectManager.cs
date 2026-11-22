@@ -192,7 +192,7 @@ namespace Ship_Game
 
             bool isRunning = timeStep.FixedTime > 0f;
 
-            // only remove and kill objects if game is not paused; while saving, the save applies loyalty changes itself
+            // only remove and kill objects if game is not paused; while saving, loyalty changes wait until the save is written
             UpdateLists(removeInactiveObjects: isRunning, applyLoyaltyChanges: !Universe.IsSaving);
             UpdateAllSystems(timeStep);
             UpdateAllShips(timeStep);

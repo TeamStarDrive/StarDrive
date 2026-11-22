@@ -43,6 +43,8 @@ namespace UnitTests.Serialization
 
         static T SerDes<T>(T instance, out byte[] bytes, bool verbose = false)
         {
+            if (instance is UniverseState universe)
+                universe.PrepareForSave();
             var ser = new BinarySerializer(instance);
             bytes = Serialize(ser, instance, verbose);
             return Deserialize<T>(ser, bytes, verbose);
@@ -1247,6 +1249,59 @@ namespace UnitTests.Serialization
             Ship deserialized = us.Player.OwnedShips[0];
             ShipDataTests.AssertAreEqual((ShipDesign)spawned.ShipData, (ShipDesign)deserialized.ShipData,
                                          checkModules:true);
+        }
+
+        [TestMethod]
+        public void SerializingTheUniverseLeavesItsObjectListsAsTheyAre()
+        {
+            CreateUniverseAndPlayerEmpire();
+            SpawnShip("Terran-Prototype", Player, new Vector2(200_000, 0));
+            Ship dead = SpawnShip("Terran-Prototype", Player, new Vector2(210_000, 0));
+            UState.Objects.UpdateLists(removeInactiveObjects: true);
+            dead.Active = false;
+            Ship added = SpawnShip("Terran-Prototype", Player, new Vector2(220_000, 0));
+            Ship[] ships = UState.Objects.GetShips();
+            Ship_Game.Gameplay.Projectile[] projectiles = UState.Objects.GetProjectiles();
+            Assert.IsTrue(Array.IndexOf(ships, dead) >= 0 && Array.IndexOf(ships, added) < 0, "setup: a dead ship still listed and a new one not yet");
+
+            Serialize(new BinarySerializer(UState), UState);
+            Assert.AreSame(ships, UState.Objects.GetShips(), "the save worker publishes no list and removes no ship: the sim thread may be using them");
+            Assert.AreSame(projectiles, UState.Objects.GetProjectiles(), "nor a projectile list");
+        }
+
+        [TestMethod]
+        public void ASaveThatFailsKeepsNoListsOfTheUniverse()
+        {
+            CreateUniverseAndPlayerEmpire();
+            SpawnShip("Terran-Prototype", Player, new Vector2(200_000, 0));
+            var save = new SavedGame(Universe);
+            var kept = typeof(UniverseState).GetField("ShipsToSave", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.IsNotNull(kept.GetValue(UState), "setup: a save keeps the ship list it writes");
+
+            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
+            string lockedSave = $"{SavedGame.DefaultSaveGameFolder}UnitTest.LockedSave.sav";
+            try
+            {
+                using (new FileStream(lockedSave, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+                    Assert.ThrowsExactly<IOException>(() => save.Save("UnitTest.LockedSave"), "setup: the save file is held open, so the save fails");
+            }
+            finally
+            {
+                File.Delete(lockedSave);
+            }
+            Assert.IsNull(kept.GetValue(UState), "a failed save lets go of the ship list it kept, dead ships and all");
+        }
+
+        [TestMethod]
+        public void AnAsyncSaveThatFailsAsItStartsLeavesTheGameFreeToSaveAgain()
+        {
+            CreateUniverseAndPlayerEmpire();
+            SpawnShip("Terran-Prototype", Player, new Vector2(200_000, 0));
+            var kept = typeof(UniverseState).GetField("ShipsToSave", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+            Universe.SaveAsync("UnitTest.Bad\0Name");
+            Assert.IsFalse(Universe.IsSaving, "a save whose file cannot be named is not being written, so the next save, exit and load are free");
+            Assert.IsNull(kept.GetValue(UState), "and it keeps no lists");
         }
 
         [StarDataType]

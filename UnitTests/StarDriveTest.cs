@@ -203,8 +203,8 @@ public partial class StarDriveTest : IDisposable
 
     protected bool LoadedExtraData;
 
-    // Temporarily loads all game data. It will be unloaded after the current TestMethod finishes.
-    public void LoadAllGameData()
+    // Temporarily loads all game data, the mod's when one is given. It will be unloaded after the current TestMethod finishes.
+    public void LoadAllGameData(ModEntry mod = null)
     {
         LoadedExtraData = true;
         Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
@@ -213,7 +213,7 @@ public partial class StarDriveTest : IDisposable
         GlobalStats.AsteroidVisibility = ObjectVisibility.None; // dont create Asteroid SO's
 
         ResourceManager.UnloadAllData(ScreenManager.Instance);
-        ResourceManager.LoadItAll(ScreenManager.Instance, null);
+        ResourceManager.LoadItAll(ScreenManager.Instance, mod);
     }
 
     // this will clean up any extra data after a TestMethod finishes

@@ -59,6 +59,7 @@ namespace Ship_Game.AI
             BadShipsNear      = (1 << 8),
             BadPlanetsNear    = (1 << 9),
             ReturnToHangarSoon = (1 << 10),
+            HoldsBack         = (1 << 11),
             BadShipsOrPlanetsNear = BadShipsNear | BadPlanetsNear,
         }
 
@@ -100,6 +101,10 @@ namespace Ship_Game.AI
         bool ReturnToHangarSoon
         { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.ReturnToHangarSoon); 
           [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.ReturnToHangarSoon, value); }
+        // in combat it fights from its spot and closes in on no enemy, until its next order
+        public bool HoldsBack
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.HoldsBack);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.HoldsBack, value); }
 
         [StarDataConstructor]
         ShipAI() {}
@@ -288,7 +293,7 @@ namespace Ship_Game.AI
 
         void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (!Owner.Loyalty.AI.HasGoal(GoalType.ScrapShip, Owner))
+            if (!EmpireHoldsGoal(GoalType.ScrapShip, timeStep))
             {
                 ClearOrders(); // Could not find empire scrap goal
                 return;
@@ -643,16 +648,16 @@ namespace Ship_Game.AI
                 case Plan.ReturnToHangar:           DoReturnToHangar(timeStep);               break;
                 case Plan.TroopToShip:              DoTroopToShip(timeStep, goal);            break;
                 case Plan.BoardShip:                DoBoardShip(timeStep);                    break;
-                case Plan.SupplyShip:               DoSupplyShip(timeStep);                   break;
-                case Plan.RearmShipFromPlanet:      DoRearmShip(timeStep);                    break;
+                case Plan.SupplyShip:               DoSupplyShip(timeStep, goal);             break;
+                case Plan.RearmShipFromPlanet:      DoRearmShip(timeStep, goal);              break;
                 case Plan.BuildOrbital:             DoBuildOrbital(timeStep, goal);           break;
                 case Plan.Refit:                    DoRefit(timeStep, goal);                  break;
                 case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
                 case Plan.ReturnHome:               DoReturnHome(timeStep, goal);             break;
-                case Plan.RebaseToShip:             DoRebaseToShip(timeStep);                 break;
+                case Plan.RebaseToShip:             DoRebaseToShip(timeStep, goal);           break;
                 case Plan.HoldPosition:             DoHoldPositionPlan(timeStep, goal);       break;
-                case Plan.Escort:                   AIStateEscort(timeStep);                  break;
+                case Plan.Escort:                   AIStateEscort(timeStep, goal);            break;
                 case Plan.Meteor:                   DoMeteor(goal);                           break;
                 case Plan.BuilderReturnHome:        DoBuilderReturnHome(timeStep, goal);      break;
                 case Plan.SupplyReturnHome:         DoSupplyReturnHome(timeStep, goal);       break;
@@ -946,7 +951,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void AIStateEscort(FixedSimTime timeStep)
+        void AIStateEscort(FixedSimTime timeStep, ShipGoal goal)
         {
             Owner.AI.SetPriorityOrder(false);
             var escortTarget = EscortTarget;
@@ -972,6 +977,12 @@ namespace Ship_Game.AI
                 && !escortTarget.AI.BadGuysNear && !escortTarget.Carrier.FightersLaunched && escortTarget.Carrier.IsOwnFighter(Owner))
             {
                 OrderReturnToHangar();
+                return;
+            }
+
+            if (!Owner.IsHangarShip && ThrustTargetOnWayToShip(goal, escortTarget.Position, out Vector2 thrustTarget))
+            {
+                ThrustOrWarpToPos(thrustTarget, timeStep);
                 return;
             }
 

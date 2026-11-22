@@ -433,6 +433,8 @@ public sealed class SafeQueue<T> : IDisposable, IReadOnlyCollection<T>
         }
     }
 
+    // the struct enumerator foreach takes
+    public Enumerator GetEnumerator() => new(this);
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);
     IEnumerator    IEnumerable.GetEnumerator()    => new Enumerator(this);
 

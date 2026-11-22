@@ -226,11 +226,44 @@ namespace Ship_Game.Spatial
             return numCollisions;
         }
 
+        // the pairs the broad phase finds, in the order the narrow phase takes them
+        internal CollisionPair[] FindCollisionPairs()
+        {
+            var p = new CollisionParams { IgnoreSameLoyalty = 1 };
+            CollisionPairs results = default;
+            SpatialCollideAll(Spat, Root, ref p, ref results);
+            var pairs = new CollisionPair[results.Size];
+            for (int i = 0; i < pairs.Length; ++i)
+                pairs[i] = results.Data[i];
+            return pairs;
+        }
+
         public SpatialObjectBase[] FindNearby(ref SearchOptions opt)
         {
             if (opt.MaxResults == 0)
                 return Empty<SpatialObjectBase>.Array;
 
+            (SpatialObjectBase[] objects, IntPtr root) = GetObjectsAndRootSafe();
+            NativeSearchOptions nso = ToNative(ref opt, objects);
+            int* objectIds = stackalloc int[opt.MaxResults];
+            int resultCount = SpatialFindNearby(Spat, root, objectIds, ref nso);
+            return LinearSearch.Copy(objectIds, resultCount, objects);
+        }
+
+        public int FindNearby(ref SearchOptions opt, SpatialObjectBase[] results)
+        {
+            if (opt.MaxResults == 0)
+                return 0;
+
+            (SpatialObjectBase[] objects, IntPtr root) = GetObjectsAndRootSafe();
+            NativeSearchOptions nso = ToNative(ref opt, objects);
+            int* objectIds = stackalloc int[opt.MaxResults];
+            int resultCount = SpatialFindNearby(Spat, root, objectIds, ref nso);
+            return LinearSearch.CopyInto(objectIds, resultCount, objects, results);
+        }
+
+        static NativeSearchOptions ToNative(ref SearchOptions opt, SpatialObjectBase[] objects)
+        {
             int ignoreId = -1;
             if (opt.Exclude is { SpatialIndex: >= 0 })
                 ignoreId = opt.Exclude.SpatialIndex;
@@ -253,23 +286,21 @@ namespace Ship_Game.Spatial
                 FilterFunction = null,
                 DebugId = opt.DebugId,
             };
-            
-            (SpatialObjectBase[] objects, IntPtr root) = GetObjectsAndRootSafe();
 
             if (opt.FilterFunction != null)
-            {
-                SearchFilterFunc filterFunc = opt.FilterFunction;
-                nso.FilterFunction = (int objectId) =>
-                {
-                    SpatialObjectBase go = objects[objectId];
-                    bool success = filterFunc(go);
-                    return success ? 1 : 0;
-                };
-            }
+                nso.FilterFunction = NativeFilter(opt.FilterFunction, objects);
+            return nso;
+        }
 
-            int* objectIds = stackalloc int[opt.MaxResults];
-            int resultCount = SpatialFindNearby(Spat, root, objectIds, ref nso);
-            return LinearSearch.Copy(objectIds, resultCount, objects);
+        // the native search's filter over the objects of one search
+        static SearchFilter NativeFilter(SearchFilterFunc filterFunc, SpatialObjectBase[] objects)
+        {
+            return (int objectId) =>
+            {
+                SpatialObjectBase go = objects[objectId];
+                bool success = filterFunc(go);
+                return success ? 1 : 0;
+            };
         }
 
         public SpatialObjectBase[] FindLinear(ref SearchOptions opt)

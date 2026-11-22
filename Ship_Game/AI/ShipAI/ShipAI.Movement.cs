@@ -58,8 +58,10 @@ namespace Ship_Game.AI
             if (WayPoints.Count == 0 || LastMoveFinalPos == Vector2.Zero || ExplorationTarget != null || !HasOnlyOneMoveQueued()) return;
             // Re-issue from current position; AddWayPoint will rebuild detours.
             float groupLateralOffset = GroupLateralOffset;
+            bool holdsBack = HoldsBack;
             AddWayPoint(LastMoveFinalPos, LastMoveFinalDir, LastMoveWantedState, LastMoveOrder, 0f, null);
             GroupLateralOffset = groupLateralOffset;
+            HoldsBack = holdsBack;
         }
 
         bool HasOnlyOneMoveQueued()
@@ -123,8 +125,10 @@ namespace Ship_Game.AI
             float distanceFromHoldAt = Owner.Position.Distance(holdAt);
             if (distanceFromHoldAt > HoldPointSlack)
             {
+                bool holdsBack = HoldsBack;
                 OrderMoveTo(holdAt, goal.Direction, AIState.HoldPosition, order);
                 OrderHoldPosition(holdAt, goal.Direction, order);
+                HoldsBack = holdsBack;
             }
             else if (BadGuysNear && CanEnterCombatFromCurrentStance(order))
             {

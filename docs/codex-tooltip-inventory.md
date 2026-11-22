@@ -172,7 +172,7 @@ Tokens: 462. Already hooked: 399.
 | 157 | `ChangesTheSimulationFrequencyLower` |  Changes the simulation frequency. Lower values are faster, but inaccurate. Higher values are accurate, but slower. If your game is lagging due to high numbe... | MainMenu/OptionsScreen.cs |  |  |
 | 158 | `DisableScreenPanningOptionTip` | Mouse pointer cannot be used for edge screen movement; the keyboard and a middle-mouse drag still pan. Useful for players with multiple monitors. | MainMenu/OptionsScreen.cs |  | overview_controls |
 | 159 | `GameOptionsInfluenceAlphaTip` | Adjusts the empires' border color strength in the Universe Screen. You can change it if the border colors get too bright for you, especially late game. | MainMenu/OptionsScreen.cs |  |  |
-| 160 | `PathfinderTip` | When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ... | MainMenu/OptionsScreen.cs |  | overview_map_overlays |
+| 160 | `PathfinderTip` | When ON, ships moving across the universe plot a course around systems outside friendly territory or holding an enemy planet, and around planetary gravity ... | MainMenu/OptionsScreen.cs |  | overview_map_overlays |
 | 161 | `PausesGameOnNotificationsClearing` | Pauses game on notifications. Clearing notifications unpauses the game. | MainMenu/OptionsScreen.cs |  |  |
 | 162 | `SendAutomaticErrorReportsTo` | Send automatic error reports to Blackbox developers. | MainMenu/OptionsScreen.cs |  |  |
 | 163 | `TT_EngineTrails` | This will enable engine trails for moving ships, disabling this will improve performance | MainMenu/OptionsScreen.cs |  |  |

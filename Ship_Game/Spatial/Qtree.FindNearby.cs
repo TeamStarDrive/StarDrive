@@ -13,7 +13,26 @@ public partial class Qtree
         return FindBuffer.Value.Get(root, maxResults);
     }
 
-    public unsafe SpatialObjectBase[] FindNearby(ref SearchOptions opt)
+    public SpatialObjectBase[] FindNearby(ref SearchOptions opt)
+    {
+        SpatialObjectBase[] results = Find(ref opt).GetArrayAndClearBuffer<SpatialObjectBase>();
+        if (opt.SortByDistance)
+            LinearSearch.SortByDistance(opt, results);
+        return results;
+    }
+
+    public int FindNearby(ref SearchOptions opt, SpatialObjectBase[] results)
+    {
+        if (opt.MaxResults == 0)
+            return 0;
+        int count = Find(ref opt).CopyAndClearBuffer(results);
+        if (opt.SortByDistance)
+            results.SortByDistance(count, opt.SearchRect.Center);
+        return count;
+    }
+
+    // the objects found, left in this thread's traversal buffer
+    unsafe FindResultBuffer<QtreeNode> Find(ref SearchOptions opt)
     {
         AABoundingBox2D searchRect = opt.SearchRect;
         int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
@@ -94,10 +113,7 @@ public partial class Qtree
             }
         } while (buffer.NextNode >= 0 && buffer.Count < maxResults);
 
-        SpatialObjectBase[] results = buffer.GetArrayAndClearBuffer<SpatialObjectBase>();
-        if (opt.SortByDistance)
-            LinearSearch.SortByDistance(opt, results);
-        return results;
+        return buffer;
     }
 
     public SpatialObjectBase[] FindLinear(ref SearchOptions opt)

@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
@@ -86,6 +87,26 @@ public class PirateCaptureScuttleTests : StarDriveTest
         RunUntilGone(station);
         foreach (Ship shuttle in shuttles)
             Assert.IsTrue(shuttle.Active && shuttle.TroopCount == 1, "the troops live on after the station blows");
+    }
+
+    [TestMethod]
+    public void AStationTakenAsTheGameSavesLoadsWithItsTroopShuttlesAmongThePiratesShips()
+    {
+        Ship station = StationWithBoarders("Basic Research Station", Raiders, pirateTroops: 2);
+        station.LoyaltyChangeFromBoarding(Raiders, addNotification: false);
+        UState.StarDate = 1001f; // past the start, so the load runs no first turn
+        SavedGame save = Universe.Save("UnitTest.PirateCaptureSave", throwOnError: true);
+        Ship[] shuttles = Shuttles(Raiders);
+        AssertEqual(2, shuttles.Length, "setup: the save applies the capture, and the troops leave in shuttles");
+
+        UniverseScreen loaded = LoadSave(save.SaveFile);
+        Empire pirates = loaded.UState.GetEmpireById(Raiders.Id);
+        foreach (Ship shuttle in shuttles)
+        {
+            Ship ship = loaded.UState.Objects.FindShip(shuttle.Id);
+            Assert.IsTrue(ship != null && ship.Loyalty == pirates, "the save holds the shuttles the capture launched");
+            Assert.IsTrue(pirates.OwnedShips.Contains(ship), "and loads them among the pirates' ships");
+        }
     }
 
     [TestMethod]

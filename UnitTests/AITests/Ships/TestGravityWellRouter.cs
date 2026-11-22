@@ -231,6 +231,40 @@ public class TestGravityWellRouter : StarDriveTest
     }
 
     [TestMethod]
+    public void ASystemInOurTerritoryHoldingAnAtWarPlanetOnTheWayIsPassedAroundWhole()
+    {
+        SolarSystem system = AddDummyPlanetToEmpire(new Vector2(500_000f, 0f), Player).System;
+        system.SetExploredBy(Player);
+        Vector2 dest = new(1_000_000f, 0f);
+        AssertEqual(0, Detours(Scout.Position, dest).Length, "setup: our own system on the way is crossed");
+
+        AddPlanetTo(system, system.Position + new Vector2(0f, 60_000f), Enemy);
+        Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, system.Position), "setup: the system's center lies in our territory");
+
+        Vector2[] detours = Detours(Scout.Position, dest);
+        Assert.IsTrue(detours.Length > 0, "a planet at war with us makes the system an enemy system on the way");
+        Vector2 a = Scout.Position;
+        for (int i = 0; i <= detours.Length; i++)
+        {
+            Vector2 b = i < detours.Length ? detours[i] : dest;
+            AssertGreaterThan(ClosestApproach(a, b, system.Position), system.Radius, $"the leg from {a} to {b} stays out of the whole system");
+            a = b;
+        }
+    }
+
+    [TestMethod]
+    public void AnUnexploredSystemInOurTerritoryHoldingAnAtWarPlanetOnTheWayIsNotPassedAroundWhole()
+    {
+        SolarSystem system = AddDummyPlanetToEmpire(new Vector2(500_000f, 0f), Player).System;
+        AddPlanetTo(system, system.Position + new Vector2(0f, 60_000f), Enemy);
+        Assert.IsFalse(system.IsExploredBy(Player), "setup: we have not explored the system");
+        Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, system.Position), "setup: the system's center lies in our territory");
+
+        AssertEqual(0, Detours(Scout.Position, new Vector2(1_000_000f, 0f)).Length,
+                    "the route does not reveal an enemy planet in a system we have not explored");
+    }
+
+    [TestMethod]
     public void AKnownRemnantPortalInATradePartnersSystemOnTheWayIsPassedAround()
     {
         CreateThirdMajorEmpire();

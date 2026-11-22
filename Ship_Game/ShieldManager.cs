@@ -92,10 +92,14 @@ public sealed class ShieldManager : IDisposable
         VisiblePlanetShields = visibleShields;
     }
 
-    public void RemoveShieldLights(IEnumerable<ShipModule> shields)
+    public void RemoveShieldLights(Ship ship)
     {
-        foreach (ShipModule shield in shields)
-            shield.Shield.RemoveLight(Universe);
+        for (int i = 0; i < ship.NumShields; ++i)
+        {
+            ShipModule shield = ship.GetShield(i);
+            if (shield.ShieldsAreActive)
+                shield.Shield.RemoveLight(Universe);
+        }
     }
 
     public void Update(FixedSimTime timeStep)

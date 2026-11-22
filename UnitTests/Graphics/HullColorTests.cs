@@ -91,6 +91,139 @@ public class HullColorTests : StarDriveTest
         }
     }
 
+    // a model measures the OKLab lightness of the paint its tint map marks as it loads, black unused texture space left out; a model with no tint map measures none
+    [TestMethod]
+    [DataRow("Model/Ships/Cordrazine/ship16e.fbx", 0.239f)]
+    [DataRow("Model/Ships/Pollops/Fern.fbx", 0.414f)]
+    [DataRow("Model/Ships/Vulfen/TypeXIII.fbx", 0.359f)]
+    [DataRow("Model/Ships/Draylok/ship18c.fbx", 0.288f)]
+    [DataRow("Model/Ships/Opteris/ship19d.fbx", 0.590f)]
+    [DataRow("Model/Ships/Speeder/ship07.fbx", 0f)]
+    public void AShipModelMeasuresTheLightnessOfItsPaint(string model, float paintLightness)
+    {
+        StaticMesh mesh = Content.LoadStaticMesh(model);
+        LightingEffect fx = mesh.GetFirstEffect<LightingEffect>();
+        Assert.IsNotNull(fx?.DiffuseMapTexture, $"setup: {model} loads with its diffuse map");
+        AssertEqual(0.003f, paintLightness, fx.PaintLightness, $"{model} paint under {fx.TintMapFile}");
+    }
+
+    // the paint is measured from the texture files the model loaded, not read back from the GPU
+    [TestMethod]
+    public void APaintIsMeasuredFromItsTextureFiles()
+    {
+        LightingEffect fx = Content.LoadStaticMesh("Model/Ships/Cordrazine/ship16e.fbx").GetFirstEffect<LightingEffect>();
+        using var diffuse = new Microsoft.Xna.Framework.Graphics.Texture2D(Game.GraphicsDevice, 4, 4) { Name = fx.DiffuseMapTexture.Name };
+        using var mask = new Microsoft.Xna.Framework.Graphics.Texture2D(Game.GraphicsDevice, 4, 4) { Name = fx.TintMapTexture.Name };
+        AssertEqual(0.003f, 0.239f, MeshInterface.PaintLightnessOf(diffuse, mask), "blank textures named for the Cordrazine's files measure its paint");
+    }
+
+    // a paint whose files cannot be read is not measured, so it keeps its own lightness
+    [TestMethod]
+    public void APaintWhoseFilesCannotBeReadIsNotMeasured()
+    {
+        using var diffuse = new Microsoft.Xna.Framework.Graphics.Texture2D(Game.GraphicsDevice, 4, 4) { Name = "Content/Model/Ships/NoSuchShip/hull_d.dds" };
+        using var mask = new Microsoft.Xna.Framework.Graphics.Texture2D(Game.GraphicsDevice, 4, 4) { Name = "Content/Model/Ships/NoSuchShip/hull_t.dds" };
+        Assert.AreEqual(0f, MeshInterface.PaintLightnessOf(diffuse, mask));
+    }
+
+    // a tint map takes its lift from HullPaintLift.yaml by its file name, and one not listed takes the default
+    [TestMethod]
+    [DataRow("Model/Ships/Kulrathi/ship11_t.dds", 0.70f)]
+    [DataRow("Content/Model/Ships/Platforms/platform_base_t.dds", 0.70f)]
+    [DataRow("Model/Ships/Ralyeh/ship17_t_0.dds", 0.85f)]
+    [DataRow("Model/Ships/Kulrathi/ship11_t_0.dds", 0.85f)]
+    [DataRow(null, 0.85f)]
+    public void ATintMapTakesItsLiftFromTheLiftTable(string tintMap, float lift)
+    {
+        AssertEqual(0.0001f, lift, HullPaintLift.ShareOf(tintMap), $"{tintMap}");
+    }
+
+    // a mod's lift table is merged over the base game's: its own tint maps take its lifts, the base game's it lists take its lifts, the rest keep the base game's
+    [TestMethod]
+    public void AModsLiftTableIsMergedOverTheBaseGames()
+    {
+        string modDir = $"Mods/__HullPaintLiftTest{System.Environment.ProcessId}";
+        try
+        {
+            foreach (string leftover in System.IO.Directory.GetDirectories("Mods", "__HullPaintLiftTest*"))
+                if (System.IO.Directory.GetCreationTimeUtc(leftover) < System.DateTime.UtcNow.AddMinutes(-10)) // from a run that was stopped
+                    System.IO.Directory.Delete(leftover, recursive: true);
+            System.IO.Directory.CreateDirectory(modDir);
+            System.IO.File.Copy("Mods/ExampleMod/Globals.yaml", modDir + "/Globals.yaml");
+            System.IO.File.WriteAllText(modDir + "/HullPaintLift.yaml",
+                "TintMaps:\n  hull_t.dds: 0.40\n  ship11_t.dds: 0.55\n  bright_t.dds: 2\n  2nd_t.dds: 0.40\n  \"3rd_t.dds\": 0.40\n");
+
+            GlobalStats.SetActiveModNoSave(new ModEntry(GamePlayGlobals.Deserialize(new System.IO.FileInfo(modDir + "/Globals.yaml"))));
+            ResourceManager.InitContentDir();
+            Assert.IsTrue(GlobalStats.HasMod, "setup: the mod is running");
+            long logStart = LogLength();
+            AssertEqual(0.0001f, 0.40f, HullPaintLift.ShareOf("mod models/Hull/hull_t.dds"), "the mod's own tint map takes the mod's lift");
+            AssertEqual(0.0001f, 0.55f, HullPaintLift.ShareOf("Model/Ships/Kulrathi/ship11_t.dds"), "a base game tint map the mod lists takes the mod's lift");
+            AssertEqual(0.0001f, 0.70f, HullPaintLift.ShareOf("Model/Ships/Draylok/ship18_t_0.dds"), "one the mod does not list keeps the base game's lift");
+            AssertEqual(0.0001f, 0.85f, HullPaintLift.ShareOf("mod models/Hull/bright_t.dds"), "a lift above the highest is ignored for the default");
+            AssertEqual(0.0001f, 0.40f, HullPaintLift.ShareOf("mod models/Hull/3rd_t.dds"), "a quoted name that starts with a digit is read");
+            AssertEqual(0.0001f, 0.85f, HullPaintLift.ShareOf("mod models/Hull/2nd_t.dds"), "an unquoted one reads as a number and is ignored");
+            StringAssert.Contains(LoggedSince(logStart), "is not a tint map file name", "and the ignored name is logged");
+        }
+        finally
+        {
+            GlobalStats.SetActiveModNoSave(null);
+            ResourceManager.InitContentDir();
+            if (System.IO.Directory.Exists(modDir))
+                System.IO.Directory.Delete(modDir, recursive: true);
+        }
+        AssertEqual(0.0001f, 0.70f, HullPaintLift.ShareOf("Model/Ships/Kulrathi/ship11_t.dds"), "with the mod gone the base game's table applies again");
+    }
+
+    // a model's material takes its tint map's lift as it loads
+    [TestMethod]
+    [DataRow("Model/Ships/Kulrathi/ship11f.fbx", 0.70f)]
+    [DataRow("Model/Ships/Ralyeh/ship17c.fbx", 0.85f)]
+    public void AShipModelTakesItsTintMapsLift(string model, float lift)
+    {
+        LightingEffect fx = Content.LoadStaticMesh(model).GetFirstEffect<LightingEffect>();
+        Assert.IsNotNull(fx?.TintMapTexture, $"setup: {model} loads with its tint map");
+        AssertEqual(0.0001f, lift, fx.PaintLiftShare, $"{model} under {fx.TintMapFile}");
+    }
+
+    // OKLab lightness runs from black to white as the eye sees it, so pure blue is lighter than its share of light suggests
+    [TestMethod]
+    [DataRow(0f, 0f, 0f, 0f)]
+    [DataRow(1f, 1f, 1f, 1f)]
+    [DataRow(0.502f, 0.502f, 0.502f, 0.600f)]
+    [DataRow(0f, 0f, 1f, 0.452f)]
+    [DataRow(1f, 1f, 0f, 0.968f)]
+    [DataRow(1f, 0f, 0f, 0.628f)]
+    public void AColorsLightnessIsHowLightItLooks(float red, float green, float blue, float lightness)
+    {
+        AssertEqual(0.001f, lightness, LightingEffect.LightnessOf(red, green, blue));
+    }
+
+    // a DXT1 texel read alone decodes as the whole image's decoding gives it, a texel its block marks transparent as black
+    [TestMethod]
+    public void ADxt1TexelReadAloneDecodesAsTheWholeImageDoes()
+    {
+        LightingEffect fx = Content.LoadStaticMesh("Model/Ships/Cordrazine/ship16e.fbx").GetFirstEffect<LightingEffect>();
+        foreach (Microsoft.Xna.Framework.Graphics.Texture2D tex in new[] { fx.DiffuseMapTexture, fx.TintMapTexture })
+        {
+            Assert.AreEqual(Microsoft.Xna.Framework.Graphics.SurfaceFormat.Dxt1, tex.Format, $"setup: {tex.Name} is DXT1");
+            Color[] whole = Ship_Game.Data.Texture.ImageUtils.DecompressDxt1(tex);
+            var blocks = new byte[tex.Width * tex.Height / 2];
+            tex.GetData(blocks);
+            int differ = 0;
+            for (int y = 0; y < tex.Height; ++y)
+            {
+                for (int x = 0; x < tex.Width; ++x)
+                {
+                    Color expected = whole[y * tex.Width + x];
+                    if (Ship_Game.Data.Texture.ImageUtils.Dxt1Texel(blocks, tex.Width, x, y) != (expected.A == 0 ? Color.Transparent : expected))
+                        ++differ;
+                }
+            }
+            Assert.AreEqual(0, differ, $"{tex.Name}: texels decoded differently");
+        }
+    }
+
     static float MarkedShare(Microsoft.Xna.Framework.Graphics.Texture2D mask)
     {
         Color[] texels;

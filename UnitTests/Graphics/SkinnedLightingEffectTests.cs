@@ -96,9 +96,9 @@ public class SkinnedLightingEffectTests : StarDriveTest
 
     // Animated hulls take their owner's color on their tint-mapped paint like static hulls do.
     [TestMethod]
-    [DataRow(1f, 112, 255)]
-    [DataRow(0f, 128, 128)]
-    public void SkinnedLightingEffect_HullTintColorsTheTintMappedPaint(float tintWeight, int red, int blue)
+    [DataRow(1f, 58, 115, 255)]
+    [DataRow(0f, 128, 128, 128)]
+    public void SkinnedLightingEffect_HullTintColorsTheTintMappedPaint(float tintWeight, int red, int green, int blue)
     {
         GraphicsDevice device = Game.GraphicsDevice;
         using var paint = new Texture2D(device, 1, 1);
@@ -114,8 +114,36 @@ public class SkinnedLightingEffectTests : StarDriveTest
         });
         Color px = pixels[32 * 64 + 32];
         AssertEqual(3f, red, px.R, "red");
-        AssertEqual(3f, red, px.G, "green");
+        AssertEqual(3f, green, px.G, "green");
         AssertEqual(3f, blue, px.B, "blue");
+    }
+
+    // Animated hulls gray half-strength paint and brighten a dark paint under a lighter color by its tint map's lift like static hulls do.
+    [TestMethod]
+    [DataRow(120, 60, 150, 128, 1f, 0f, 0f, 0f, 0.85f, 150, 57, 46)]
+    [DataRow(32, 32, 32, 255, 1f, 1f, 0f, 0.2435f, 0.55f, 113, 113, 0)]
+    [DataRow(32, 32, 32, 255, 1f, 1f, 0f, 0.2435f, 0.85f, 205, 206, 10)]
+    public void SkinnedLightingEffect_GraysAndBrightensThePaintLikeStaticHulls(int paintRed, int paintGreen, int paintBlue, int maskValue,
+        float red, float green, float blue, float paintLightness, float lift, int expRed, int expGreen, int expBlue)
+    {
+        GraphicsDevice device = Game.GraphicsDevice;
+        using var paint = new Texture2D(device, 1, 1);
+        paint.SetData(new[] { new Color(paintRed, paintGreen, paintBlue, 255) });
+        using var mask = new Texture2D(device, 1, 1);
+        mask.SetData(new[] { new Color(maskValue, maskValue, maskValue, 255) });
+        Color[] pixels = RenderSkinnedCube(fx =>
+        {
+            fx.Texture = paint;
+            fx.TextureEnabled = true;
+            fx.TintMapTexture = mask;
+            fx.PaintLightness = paintLightness;
+            fx.PaintLiftShare = lift;
+            fx.HullTint = new Vector4(red, green, blue, 1f);
+        });
+        Color px = pixels[32 * 64 + 32];
+        AssertEqual(3f, expRed, px.R, "red");
+        AssertEqual(3f, expGreen, px.G, "green");
+        AssertEqual(3f, expBlue, px.B, "blue");
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

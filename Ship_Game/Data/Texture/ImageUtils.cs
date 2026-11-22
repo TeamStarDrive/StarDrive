@@ -48,6 +48,32 @@ namespace Ship_Game.Data.Texture
             return DxtReader.DecompressData(tex.Width, tex.Height, dxtData, DxtReader.PixelFormat.DXT1);
         }
 
+        // one texel of a DXT1 image's blocks, decoded as DecompressDxt1 decodes it, but transparent black where its block marks it transparent
+        public static Color Dxt1Texel(byte[] blocks, int width, int x, int y)
+        {
+            int block = ((y >> 2) * (width >> 2) + (x >> 2)) * 8;
+            int c0 = blocks[block] | blocks[block + 1] << 8;
+            int c1 = blocks[block + 2] | blocks[block + 3] << 8;
+            int code = blocks[block + 4 + (y & 3)] >> ((x & 3) * 2) & 3;
+            Color a = Rgb565(c0), b = Rgb565(c1);
+            return code switch
+            {
+                0 => a,
+                1 => b,
+                2 => c0 > c1 ? Third(a, b) : new Color((a.R + b.R) / 2, (a.G + b.G) / 2, (a.B + b.B) / 2),
+                _ => c0 > c1 ? Third(b, a) : Color.Transparent,
+            };
+        }
+
+        static Color Rgb565(int c)
+        {
+            int r = c >> 11 & 31, g = c >> 5 & 63, b = c & 31;
+            return new Color(r << 3 | r >> 2, g << 2 | g >> 4, b << 3 | b >> 2);
+        }
+
+        // two thirds of the way from b to a
+        static Color Third(Color a, Color b) => new((2 * a.R + b.R + 1) / 3, (2 * a.G + b.G + 1) / 3, (2 * a.B + b.B + 1) / 3);
+
         static unsafe Color[] BytesToColor(byte[] pixels)
         {
             var colors = new Color[pixels.Length / 4];

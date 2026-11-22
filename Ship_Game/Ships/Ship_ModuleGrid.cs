@@ -29,6 +29,11 @@ namespace Ship_Game.Ships
 
         public IEnumerable<ShipModule> GetShields() => Grid.GetShields(ModuleSlotList);
         public IEnumerable<ShipModule> GetActiveShields() => Grid.GetActiveShields(ModuleSlotList);
+
+        // the shield modules by index, active or not: GetShield(0) to GetShield(NumShields - 1)
+        public int NumShields => ModuleSlotList.Length == 0 ? 0 : Grid.NumShields;
+        public ShipModule GetShield(int index) => Grid.GetShield(ModuleSlotList, index);
+
         public IEnumerable<ShipModule> GetAmplifiers() => Grid.GetAmplifiers(ModuleSlotList);
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
@@ -210,7 +215,7 @@ namespace Ship_Game.Ships
                 && (point.Y > 0 || point.X < Grid.Width - 1);
         }
 
-        IEnumerable<ShipModule> GetModulesAt(Point gridPos, bool checkShields)
+        ModuleGridFlyweight.ModulesAt GetModulesAt(Point gridPos, bool checkShields)
         {
             return Grid.GetModulesAt(ModuleSlotList, gridPos, checkShields);
         }
@@ -254,7 +259,7 @@ namespace Ship_Game.Ships
         }
 
         // the modules from center c over the grid rectangle a..b, divided to quadrants as above
-        IEnumerable<ModuleQuadrant> EnumModulesQuadrants(Point c, Point a, Point b, bool checkShields)
+        internal IEnumerable<ModuleQuadrant> EnumModulesQuadrants(Point c, Point a, Point b, bool checkShields)
         {
             int firstX = a.X, firstY = a.Y;
             int lastX  = b.X, lastY  = b.Y;
@@ -421,29 +426,24 @@ namespace Ship_Game.Ships
             }
         }
         
-        // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
-        //       updated every time a module dies. The code for that is in ShipModule.cs
-        // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
-        // @note Ignores shields !
+        // the active module whose center is nearest to a point, shields aside; null for a ship with none
         public ShipModule FindClosestModule(Vector2 worldPos)
         {
             if (!Active) return null;
 
-            // The search rect in EnumModulesQuadrants is worldPos +/- searchRadius;
-            // it must reach the ship's grid (centered at Position, extent Radius)
-            // even when worldPos is far outside the hull, otherwise the overlap
-            // check short-circuits and we get null.
-            float searchRadius = worldPos.Distance(Position) + Radius;
-
             ShipModule closest = null;
             float bestDistSq = float.MaxValue;
-            foreach (ModuleQuadrant mq in EnumModulesQuadrants(worldPos, searchRadius, checkShields: false))
+            ShipModule[] modules = ModuleSlotList;
+            for (int i = 0; i < modules.Length; ++i)
             {
-                float distSq = mq.Module.Position.SqDist(worldPos);
+                ShipModule m = modules[i];
+                if (!m.Active)
+                    continue;
+                float distSq = m.Position.SqDist(worldPos);
                 if (distSq < bestDistSq)
                 {
                     bestDistSq = distSq;
-                    closest = mq.Module;
+                    closest = m;
                 }
             }
             return closest;
@@ -505,56 +505,91 @@ namespace Ship_Game.Ships
                         moduleExplosion: true);
         }
 
+        // each thread's blast buffers free for reuse: a blast that kills a module sets off that module's blast inside it, and death blasts run on parallel threads, so each blast takes its own and gives it back
+        [ThreadStatic] static Array<ModuleQuadrant[]> FreeBlastBuffers;
+
+        static ModuleQuadrant[] TakeBlastBuffer(int size)
+        {
+            Array<ModuleQuadrant[]> free = FreeBlastBuffers ??= new();
+            if (free.Count > 0 && free[free.Count - 1].Length >= size)
+                return free.PopLast();
+            return new ModuleQuadrant[Math.Max((int)global::System.Numerics.BitOperations.RoundUpToPowerOf2((uint)size), 64)];
+        }
+
+        static void GiveBackBlastBuffer(ModuleQuadrant[] buffer, int used)
+        {
+            Array.Clear(buffer, 0, used); // let go of the modules
+            FreeBlastBuffers.Add(buffer);
+        }
+
         // the module the blast centers on takes what it can, then each corner gets a quarter of the rest
         static void DamageBlast(GameObject damageSource, float damage, IEnumerable<ModuleQuadrant> blast, bool moduleExplosion)
         {
-            var corner = new Array<ModuleQuadrant>();
-            int quadrant = 0;
-            foreach (ModuleQuadrant mq in blast)
+            ModuleQuadrant[] corner = TakeBlastBuffer(64);
+            int count = 0, used = 0;
+            try
             {
-                if (mq.Root)
+                int quadrant = 0;
+                foreach (ModuleQuadrant mq in blast)
                 {
-                    if (mq.Module.DamageExplosive(damageSource, ref damage, moduleExplosion))
-                        return;
-                    continue;
+                    if (mq.Root)
+                    {
+                        if (mq.Module.DamageExplosive(damageSource, ref damage, moduleExplosion))
+                            return;
+                        continue;
+                    }
+                    if (mq.Quadrant != quadrant)
+                    {
+                        SpendBlastQuarter(damageSource, corner, count, damage * 0.25f, moduleExplosion);
+                        count = 0;
+                        quadrant = mq.Quadrant;
+                    }
+                    if (count == corner.Length)
+                        Array.Resize(ref corner, count * 2);
+                    corner[count++] = mq;
+                    used = Math.Max(used, count);
                 }
-                if (mq.Quadrant != quadrant)
-                {
-                    SpendBlastQuarter(damageSource, corner, damage * 0.25f, moduleExplosion);
-                    quadrant = mq.Quadrant;
-                }
-                corner.Add(mq);
+                SpendBlastQuarter(damageSource, corner, count, damage * 0.25f, moduleExplosion);
             }
-            SpendBlastQuarter(damageSource, corner, damage * 0.25f, moduleExplosion);
+            finally
+            {
+                GiveBackBlastBuffer(corner, used);
+            }
         }
 
         // a corner's quarter goes to its nearest modules first, each taking what it can of what is left
-        static void SpendBlastQuarter(GameObject damageSource, Array<ModuleQuadrant> corner, float quarter, bool moduleExplosion)
+        static void SpendBlastQuarter(GameObject damageSource, ModuleQuadrant[] corner, int count, float quarter, bool moduleExplosion)
         {
-            if (corner.Count == 0)
+            if (count == 0)
                 return;
 
             int maxDistance = 0;
-            for (int i = 0; i < corner.Count; ++i)
+            for (int i = 0; i < count; ++i)
                 maxDistance = Math.Max(maxDistance, corner[i].Distance);
 
-            var firstAtDistance = new int[maxDistance + 2];
-            for (int i = 0; i < corner.Count; ++i)
+            Span<int> firstAtDistance = maxDistance < 254 ? stackalloc int[maxDistance + 2] : new int[maxDistance + 2];
+            for (int i = 0; i < count; ++i)
                 ++firstAtDistance[corner[i].Distance + 1];
             for (int d = 1; d < firstAtDistance.Length; ++d)
                 firstAtDistance[d] += firstAtDistance[d - 1];
 
-            var nearestFirst = new ModuleQuadrant[corner.Count];
-            for (int i = 0; i < corner.Count; ++i)
-                nearestFirst[firstAtDistance[corner[i].Distance]++] = corner[i];
-            corner.Clear();
-
-            for (int i = 0; i < nearestFirst.Length && quarter > 0f; ++i)
+            ModuleQuadrant[] nearestFirst = TakeBlastBuffer(count);
+            try
             {
-                ShipModule m = nearestFirst[i].Module;
-                // a shield's bubble takes no more of the blast once its shield is down
-                if (m.Active && (!nearestFirst[i].Bubble || m.ShieldsAreActive))
-                    m.DamageExplosive(damageSource, ref quarter, moduleExplosion);
+                for (int i = 0; i < count; ++i)
+                    nearestFirst[firstAtDistance[corner[i].Distance]++] = corner[i];
+
+                for (int i = 0; i < count && quarter > 0f; ++i)
+                {
+                    ShipModule m = nearestFirst[i].Module;
+                    // a shield's bubble takes no more of the blast once its shield is down
+                    if (m.Active && (!nearestFirst[i].Bubble || m.ShieldsAreActive))
+                        m.DamageExplosive(damageSource, ref quarter, moduleExplosion);
+                }
+            }
+            finally
+            {
+                GiveBackBlastBuffer(nearestFirst, count);
             }
         }
 
@@ -660,88 +695,140 @@ namespace Ship_Game.Ships
         }
 
         // GridLocal walk from localA to localB
-        IEnumerable<ShipModule> WalkModuleGrid2(Vector2 localA, Vector2 localB, bool checkShields)
+        GridWalk WalkModuleGrid2(Vector2 localA, Vector2 localB, bool checkShields)
         {
-            (Vector2 dir, float len) = (localB - localA).GetDirectionAndLength();
+            return new(this, localA, localB, checkShields);
+        }
 
-            // we take steps in half-module widths, to make sure we don't jump over modules
-            Vector2 step = dir * 8f;
+        // the modules a line from localA to localB crosses, sampled every half module
+        public struct GridWalk
+        {
+            readonly Ship S;
+            readonly Vector2 Step;
+            readonly bool CheckShields;
+            Vector2 Pos;
+            int N;
+            ShipModule PrevModule;
+            Point PrevPos;
+            ModuleGridFlyweight.ModulesAt AtCell;
+            bool InCell;
 
-            // reduce the total length by radius of a single module
-            int n = (int)((len - 4f) / 8f);
-
-            if (Universe.DebugMode == DebugModes.Targeting)
+            internal GridWalk(Ship s, Vector2 localA, Vector2 localB, bool checkShields)
             {
-                Universe.DebugWin?.DrawLine(DebugModes.Targeting,
-                    GridLocalToWorld(localA),
-                    GridLocalToWorld(localB),
-                    2f, Color.IndianRed, lifeTime:0.01f);
+                (Vector2 dir, float len) = (localB - localA).GetDirectionAndLength();
+
+                // we take steps in half-module widths, to make sure we don't jump over modules
+                Step = dir * 8f;
+
+                // reduce the total length by radius of a single module
+                N = (int)((len - 4f) / 8f);
+
+                S = s;
+                CheckShields = checkShields;
+                Pos = localA;
+                PrevModule = null;
+                PrevPos = new Point(-1000, -1000);
+                AtCell = default;
+                InCell = false;
+                Current = null;
+
+                if (s.Universe.DebugMode == DebugModes.Targeting)
+                {
+                    s.Universe.DebugWin?.DrawLine(DebugModes.Targeting,
+                        s.GridLocalToWorld(localA),
+                        s.GridLocalToWorld(localB),
+                        2f, Color.IndianRed, lifeTime:0.01f);
+                }
             }
 
-            ShipModule prevModule = null;
-            var prevPos = new Point(-1000, -1000);
+            public ShipModule Current { get; private set; }
 
-            for (Vector2 pos = localA; n > 0; --n, pos += step)
+            public GridWalk GetEnumerator() => this;
+
+            public bool MoveNext()
             {
-                if (Universe.DebugMode == DebugModes.Targeting)
+                while (true)
                 {
-                    Universe.DebugWin?.DrawCircle(DebugModes.Targeting, GridLocalToWorld(pos),
-                                                  3f, Color.Yellow, lifeTime:0.01f);
-                }
-
-                Point p = GridLocalToPoint(pos);
-                if (p == prevPos)
-                    continue;
-
-                // CONSERVATIVE DIAGONAL TRAVERSAL: half-cell sampling can step straight from a
-                // cell to its diagonal neighbor, skipping the two orthogonal cells the line clips
-                // at the shared corner. If one of those flanking cells holds a module, the line is
-                // really blocked by it - otherwise a shot squeezes through a corner gap and hits a
-                // module that is sealed on all four orthogonal sides. Visit the first solid flank so
-                // it blocks the shot. One flank is enough to seal; yielding just one also avoids
-                // re-emitting a module that spans both the corner and the destination cell.
-                if (prevPos.X != -1000 && p.X != prevPos.X && p.Y != prevPos.Y)
-                {
-                    ShipModule blocker = ActiveHullModuleAt(p.X, prevPos.Y)
-                                      ?? ActiveHullModuleAt(prevPos.X, p.Y);
-                    if (blocker != null && blocker != prevModule)
+                    if (InCell)
                     {
-                        prevModule = blocker;
-                        if (Universe.DebugMode == DebugModes.Targeting)
-                            Universe.DebugWin?.DrawRect(DebugModes.Targeting, blocker.Position,
-                                                        blocker.XSize*8f+1f, Rotation, Color.Red, lifeTime:0.01f);
-                        yield return blocker;
-                    }
-                }
-
-                prevPos = p;
-
-                if (Universe.DebugMode == DebugModes.Targeting)
-                {
-                    Universe.DebugWin?.DrawRect(DebugModes.Targeting, GridCellCenterToWorld(p.X, p.Y),
-                                                8f, Rotation, Color.OrangeRed, lifeTime:0.01f);
-                }
-
-                foreach (ShipModule m in GetModulesAt(p, checkShields))
-                {
-                    if (prevModule != m)
-                    {
-                        prevModule = m;
-
-                        if (Universe.DebugMode == DebugModes.Targeting)
+                        while (AtCell.MoveNext())
                         {
-                            Universe.DebugWin?.DrawRect(DebugModes.Targeting, m.Position,
-                                                        m.XSize*8f+1f, Rotation, Color.GreenYellow, lifeTime:0.01f);
-                        }
+                            ShipModule m = AtCell.Current;
+                            if (PrevModule != m)
+                            {
+                                PrevModule = m;
 
-                        yield return m;
+                                if (S.Universe.DebugMode == DebugModes.Targeting)
+                                {
+                                    S.Universe.DebugWin?.DrawRect(DebugModes.Targeting, m.Position,
+                                                                  m.XSize*8f+1f, S.Rotation, Color.GreenYellow, lifeTime:0.01f);
+                                }
+
+                                Current = m;
+                                return true;
+                            }
+                        }
+                        InCell = false;
+                        --N;
+                        Pos += Step;
+                    }
+
+                    if (N <= 0)
+                        return false;
+
+                    if (S.Universe.DebugMode == DebugModes.Targeting)
+                    {
+                        S.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, S.GridLocalToWorld(Pos),
+                                                        3f, Color.Yellow, lifeTime:0.01f);
+                    }
+
+                    Point p = S.GridLocalToPoint(Pos);
+                    if (p == PrevPos)
+                    {
+                        --N;
+                        Pos += Step;
+                        continue;
+                    }
+
+                    // CONSERVATIVE DIAGONAL TRAVERSAL: half-cell sampling can step straight from a
+                    // cell to its diagonal neighbor, skipping the two orthogonal cells the line clips
+                    // at the shared corner. If one of those flanking cells holds a module, the line is
+                    // really blocked by it - otherwise a shot squeezes through a corner gap and hits a
+                    // module that is sealed on all four orthogonal sides. Visit the first solid flank so
+                    // it blocks the shot. One flank is enough to seal; returning just one also avoids
+                    // re-emitting a module that spans both the corner and the destination cell.
+                    ShipModule blocker = null;
+                    if (PrevPos.X != -1000 && p.X != PrevPos.X && p.Y != PrevPos.Y)
+                    {
+                        blocker = S.ActiveHullModuleAt(p.X, PrevPos.Y)
+                               ?? S.ActiveHullModuleAt(PrevPos.X, p.Y);
+                    }
+
+                    PrevPos = p;
+
+                    if (S.Universe.DebugMode == DebugModes.Targeting)
+                    {
+                        S.Universe.DebugWin?.DrawRect(DebugModes.Targeting, S.GridCellCenterToWorld(p.X, p.Y),
+                                                      8f, S.Rotation, Color.OrangeRed, lifeTime:0.01f);
+                    }
+
+                    AtCell = S.GetModulesAt(p, CheckShields);
+                    InCell = true;
+
+                    if (blocker != null && blocker != PrevModule)
+                    {
+                        PrevModule = blocker;
+                        if (S.Universe.DebugMode == DebugModes.Targeting)
+                            S.Universe.DebugWin?.DrawRect(DebugModes.Targeting, blocker.Position,
+                                                          blocker.XSize*8f+1f, S.Rotation, Color.Red, lifeTime:0.01f);
+                        Current = blocker;
+                        return true;
                     }
                 }
             }
         }
 
-        // Active hull module at a single grid cell, or null. Allocation-free single lookup (avoids
-        // the yield-based GetModulesAt enumerator). Used by the conservative diagonal traversal to
+        // Active hull module at a single grid cell, or null. Used by the conservative diagonal traversal to
         // detect a corner-sealing module. Shields are intentionally not tested here: shield bubbles
         // span many cells and are already caught at every sampled cell by the main walk, so the
         // corner-seal check only needs the hull module that the half-cell sampling skipped.
@@ -777,21 +864,23 @@ namespace Ship_Game.Ships
 
         // Enumerate through ModuleGrid, yielding modules
         // this is used by ArmorPiercingTouch
-        public IEnumerable<ShipModule> RayHitTestWalkModules(Vector2 startPos, Vector2 direction,
-                                                             float distance, bool ignoreShields)
+        public GridWalk RayHitTestWalkModules(Vector2 startPos, Vector2 direction,
+                                              float distance, bool ignoreShields)
         {
-            if (!Active) yield break;
+            if (!Active) return default;
             Vector2 endPos = startPos + direction * distance;
             Vector2 a = WorldToGridLocal(startPos);
             Vector2 b = WorldToGridLocal(endPos);
 
             // this clips the line within grid bounds, but the line will be touching the bounds
             if (ClipLineToGrid(a, b, ref a, ref b))
-            {
-                foreach (ShipModule m in WalkModuleGrid2(a, b, !ignoreShields))
-                    yield return m;
-            }
+                return WalkModuleGrid2(a, b, !ignoreShields);
+            return default;
         }
+
+        // each thread's candidates and sort keys for a pick, kept between picks
+        [ThreadStatic] static ShipModule[] PickModules;
+        [ThreadStatic] static int[] PickKeys;
 
         // Refactor by RedFox: Picks a random internal module in search range (squared) of the projectile
         // -- Higher crew level means the missile will pick the most optimal target module ;) --
@@ -800,19 +889,37 @@ namespace Ship_Game.Ships
             if (projPos.InRadius(Position, Radius+50))
                 return null; // Dont shoot on top of us!
 
-            ShipModule[] modules = ModuleSlotList.Filter(m => m.Active && projPos.SqDist(m.Position) < sqSearchRange);
-            if (modules.Length == 0)
+            ShipModule[] slots = ModuleSlotList;
+            ShipModule[] modules = PickModules;
+            if (modules == null || modules.Length < slots.Length)
+                PickModules = modules = new ShipModule[Math.Max(slots.Length, 256)];
+
+            int count = 0;
+            for (int i = 0; i < slots.Length; ++i)
+            {
+                ShipModule m = slots[i];
+                if (m.Active && projPos.SqDist(m.Position) < sqSearchRange)
+                    modules[count++] = m;
+            }
+            if (count == 0)
                 return null;
 
-            if (level > 1)
+            if (level > 1 && count > 1)
             {
                 // Sort Descending (-), so first element is the module with greatest TargetingValue
-                modules.Sort(m => -m.ModuleTargetingValue);
+                int[] keys = PickKeys;
+                if (keys == null || keys.Length < count)
+                    PickKeys = keys = new int[Math.Max(count, 256)];
+                for (int i = 0; i < count; ++i)
+                    keys[i] = -modules[i].ModuleTargetingValue;
+                Array.Sort(keys, modules, 0, count);
             }
 
             // higher levels lower the limit, which causes a better random pick
-            int limit = modules.Length / (level + 1);
-            return Loyalty.Random.Item(modules, limit);
+            int limit = count / (level + 1);
+            ShipModule picked = Loyalty.Random.Item(new Span<ShipModule>(modules, 0, count), limit);
+            Array.Clear(modules, 0, count);
+            return picked;
         }
 
         // This is called for guided weapons to pick a new target

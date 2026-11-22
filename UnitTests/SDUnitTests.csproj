@@ -69,6 +69,8 @@
     <Compile Include="AITests\Ships\OrderedTargetTests.cs" />
     <Compile Include="AITests\Ships\WarpInSpreadTests.cs" />
     <Compile Include="AITests\Ships\TestGravityWellRouter.cs" />
+    <Compile Include="AITests\Ships\RouteToShipTests.cs" />
+    <Compile Include="AITests\Ships\SupportHoldsBackTests.cs" />
     <Compile Include="AITests\Ships\BoardingShuttleTargetTests.cs" />
     <Compile Include="AITests\Ships\MeteorTargetTests.cs" />
     <Compile Include="AITests\Ships\ChaseLimitTests.cs" />
@@ -192,6 +194,7 @@
     <Compile Include="Planets\PlanetSurfaceScanTests.cs" />
     <Compile Include="Planets\ShipyardBonusTests.cs" />
     <Compile Include="Planets\TestSabotageWorkDistribution.cs" />
+    <Compile Include="Probes\AiGameProbe.cs" />
     <Compile Include="Serialization\BinaryReadWriteTests.cs" />
     <Compile Include="Serialization\ObjectScannerTests.cs" />
     <Compile Include="Serialization\SerializationRegressionTests.cs" />
@@ -348,6 +351,7 @@
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
+    <Compile Include="Collections\SortByDistanceTests.cs" />
     <Compile Include="Universe\BoxSelectionTests.cs" />
     <Compile Include="Universe\ShipSelectionTests.cs" />
     <Compile Include="Universe\CameraProjectionTests.cs" />

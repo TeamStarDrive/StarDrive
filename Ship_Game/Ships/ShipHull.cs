@@ -78,10 +78,10 @@ namespace Ship_Game.Ships
         // and the most-positive, the surface that faces the camera when the hull is upside down, as a tumbling derelict
         float[,] BackSurfaceMap;
 
-        // a model cut into parts: each part's triangles, once the model has loaded
+        // a model cut into parts: each part's triangles, once the model or its parts have loaded
         XnaVector3[][] PartTriangles;
         public int NumParts => PartTriangles?.Length ?? 0;
-        // its model has loaded in one piece, so its ships have no parts to count
+        // its model or its file has shown it in one piece, or its file did not read, so its ships have no parts to count
         public bool ModelInOnePiece { get; private set; }
 
         // the part map with the model and grid placement it was made for, so a hull editor's change of placement makes it again
@@ -89,7 +89,7 @@ namespace Ship_Game.Ships
         PartGrid PartMapGrid;
         const int PartSamples = 4; // a cell's samples a side
 
-        // the part of a model cut into parts each grid cell shows from above, 0 for the core; null until the model loads, or for a model in one piece
+        // the part of a model cut into parts each grid cell shows from above, 0 for the core; null until the model or its parts load, or for a model in one piece
         public byte[,] PartMap => CurrentPartGrid()?.Map;
 
         // the part map and its part count, read together
@@ -119,7 +119,7 @@ namespace Ship_Game.Ships
         sealed record ThrusterPartList(XnaVector3[][] Triangles, Vector2 MeshOffset, Vector3[] Positions, byte[] Parts);
         ThrusterPartList ThrusterPartsFound;
 
-        // the part each thruster sits on, which takes it out while lost till Ship.ThrusterBackShare of it is back; null until the model loads, or for a model in one piece
+        // the part each thruster sits on, which takes it out while lost till Ship.ThrusterBackShare of it is back; null until the model or its parts load, or for a model in one piece
         public byte[] ThrusterParts
         {
             get
@@ -163,7 +163,7 @@ namespace Ship_Game.Ships
         sealed record PartLinkList(XnaVector3[][] Triangles, uint[] Links);
         PartLinkList PartLinksFound;
 
-        // the parts each part touches, a bit each, 0 the core, a part reaching the core through none taken as touching it; a part stays on only while a chain of whole parts it touches reaches the core; null until the model loads, or for a model in one piece
+        // the parts each part touches, a bit each, 0 the core, a part reaching the core through none taken as touching it; a part stays on only while a chain of whole parts it touches reaches the core; null until the model or its parts load, or for a model in one piece
         public uint[] PartLinks
         {
             get
@@ -318,7 +318,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // a part's center in the model, the radius about it that holds it, and the model's part count; false before the model loads, or for a part with no triangles
+        // a part's center in the model, the radius about it that holds it, and the model's part count; false before the model or its parts load, or for a part with no triangles
         public bool GetPartBounds(int part, out XnaVector3 center, out float radius, out int numParts)
         {
             center = default;
@@ -344,7 +344,7 @@ namespace Ship_Game.Ships
             radius = (max - min).Length() * 0.5f;
         }
 
-        // a random point on a part's surface in the model, each triangle as likely as its area, and the radius about the part's center that holds it; false before the model loads, or for a part with no triangles
+        // a random point on a part's surface in the model, each triangle as likely as its area, and the radius about the part's center that holds it; false before the model or its parts load, or for a part with no triangles
         public bool RandomPointOnPart(int part, RandomBase random, out XnaVector3 point, out float radius)
         {
             point = default;
@@ -492,6 +492,45 @@ namespace Ship_Game.Ships
             return null;
         }
 
+        // the parts of a hull none of whose ships has been drawn, from its model file alone, so its ships lose parts out of sight as in sight; a hull whose file does not read plays in one piece till its model loads, and false
+        public bool LoadParts(GameContentManager content)
+        {
+            StaticMesh parts;
+            try
+            {
+                parts = content.LoadMeshParts(ModelPath);
+                if (parts == null)
+                    Log.Warning($"Hull {HullName}: no parts could be read from '{ModelPath}', it plays in one piece till its model loads");
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"Hull {HullName}: the parts of '{ModelPath}' could not be read, it plays in one piece till its model loads: {e.Message}");
+                parts = null;
+            }
+            XnaVector3[][] triangles = parts?.NumParts > 0 ? parts.PartTriangles : null;
+            lock (HullSlots)
+            {
+                if (PartTriangles != null || ModelInOnePiece)
+                    return true; // its model loaded meanwhile
+                if (triangles != null)
+                    PartLinksFound = new(triangles, FindPartLinks(triangles, out _));
+                PartTriangles = triangles;
+                ModelInOnePiece = triangles == null;
+            }
+            return parts != null;
+        }
+
+        // two reads of a model's parts, the same triangle for triangle
+        static bool SameParts(XnaVector3[][] a, XnaVector3[][] b)
+        {
+            if (a == null || b == null || a.Length != b.Length)
+                return false;
+            for (int i = 0; i < a.Length; ++i)
+                if (!a[i].AsSpan().SequenceEqual(b[i]))
+                    return false;
+            return true;
+        }
+
         // findPartLinks, for a ship in a game with hull plates on: which parts touch is found with the model; a hull loaded without it finds them once, the first time a ship on it counts a part lost
         public bool LoadModel(out SceneObject shipSO, GameContentManager content, bool findPartLinks = false)
         {
@@ -528,6 +567,14 @@ namespace Ship_Game.Ships
                 }
 
                 XnaVector3[][] triangles = mesh.NumParts > 0 ? mesh.PartTriangles : null;
+                XnaVector3[][] had = PartTriangles;
+                if (had != triangles && SameParts(had, triangles))
+                {
+                    // the parts read from the file before, equal to the model's: what was made from them moves to the model's, which the hull keeps from now on
+                    if (PartMapGrid is { } grid && grid.Triangles == had) PartMapGrid = grid with { Triangles = triangles };
+                    if (ThrusterPartsFound is { } thrusters && thrusters.Triangles == had) ThrusterPartsFound = thrusters with { Triangles = triangles };
+                    if (PartLinksFound is { } links && links.Triangles == had) PartLinksFound = links with { Triangles = triangles };
+                }
                 if (findPartLinks && triangles != null && PartLinksFound?.Triangles != triangles)
                     PartLinksFound = new(triangles, FindPartLinks(triangles, out _)); // before the parts show, so a ship counting them finds the links ready
                 PartTriangles = triangles; // a reloaded hull may show another model
@@ -616,7 +663,7 @@ namespace Ship_Game.Ships
         float SampleX(XnaVector3 v) => ((v.X + MeshOffset.X) / 16f + GridCenter.X) * PartSamples - 0.5f;
         float SampleY(XnaVector3 v) => ((v.Y + MeshOffset.Y) / 16f + GridCenter.Y) * PartSamples - 0.5f;
 
-        // the part shown from above at a grid cell, 0 for the core, outside the grid, or before the model loads
+        // the part shown from above at a grid cell, 0 for the core, outside the grid, or before the model or its parts load
         public static int PartAt(byte[,] map, Point cell)
         {
             if (map == null || (uint)cell.X >= (uint)map.GetLength(0) || (uint)cell.Y >= (uint)map.GetLength(1))

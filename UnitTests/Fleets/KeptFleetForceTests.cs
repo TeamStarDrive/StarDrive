@@ -744,7 +744,7 @@ public class KeptFleetForceTests : StarDriveTest
                                        threatened, 500f, MilitaryTaskImportance.Important);
         Enemy.AI.AddPendingTask(postInvasion);
         Enemy.AI.AddPendingTask(defense);
-        typeof(EmpireAI).GetMethod("ApplyPendingChanges", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(Enemy.AI, null);
+        Enemy.AI.ApplyPendingChanges();
 
         typeof(EmpireDefense).GetMethod("AssessDefense", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(new EmpireDefense(Enemy), null);
         Assert.IsTrue(postInvasion.QueuedForRemoval, "setup: the defense ends the post-invasion task to free its fleet");
@@ -766,7 +766,7 @@ public class KeptFleetForceTests : StarDriveTest
                                        threatened, 500f, MilitaryTaskImportance.Important);
         Enemy.AI.AddPendingTask(postInvasion);
         Enemy.AI.AddPendingTask(defense);
-        typeof(EmpireAI).GetMethod("ApplyPendingChanges", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(Enemy.AI, null);
+        Enemy.AI.ApplyPendingChanges();
         defense.EndTask();
         Assert.IsTrue(defense.QueuedForRemoval && Enemy.AI.GetDefendSystemTasks().Contains(defense),
                       "setup: the defense has ended and is still listed until the planner's next pass");

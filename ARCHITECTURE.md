@@ -503,6 +503,10 @@ below also gets that frame's input. No screen gets input while the game window i
 - A save is `BinarySerializer.SerializeMultiType(writer, { HeaderData, UniverseState })`.
 - Saves start on the sim thread (`SaveDuringNextUpdate` → `CheckForPendingSaves`). `SaveAsync` serializes on
   a pool thread while `IsSaving` holds the simulation.
+- One save at a time. `new SavedGame(...)` prepares it on the sim thread (`UniverseState.PrepareForSave`): it
+  tidies the object lists, applies pending changes of hands and AI task changes, and keeps the ship and
+  projectile lists the save writes, less a ship its empire does not list yet. The pool thread writes the save
+  from them and changes no object list; a ship made while it writes is left out.
 - Autosaves (`Autosave1..3`) happen after `GlobalStats.AutoSaveFreq` seconds of unpaused play.
 - Fields match by **name**. Renaming a field loads old saves with the initializer. A field that no longer
   exists is skipped on read. Deleting a `[StarDataType]` type that old saves still hold breaks those saves.
@@ -574,7 +578,7 @@ Everything below runs on the sim thread; ship updates and ship AI fan out over `
 | Threat and defense | `AI/ThreatMatrix*.cs`, `AI/ThreatCluster.cs`, `AI/DefensiveCoordinator.cs`, `AI/SystemCommander.cs` | Known enemy strength by area; system defense |
 | Fleets | `Fleets/Fleet*.cs` (`Fleet : ShipGroup`) | Formation, movement, staging, combat orders, flanking; an idle kept fleet waits at a rally planet, and its refit and split steps are in `Fleets/Fleet.Idle.cs` |
 | Ship AI | `AI/ShipAI/` (`ShipAI`, `ShipGoal` order queue, `CombatAI`), `AI/CombatTactics/`, `AI/ShipMovement/` | Orders, combat stances (`Artillery`, `BroadSides`, `OrbitTarget`, `Evade`, `HoldPosition`, `AttackRun`) |
-| Routing | `AI/GravityWellRouter.cs` | Waypoints around gravity wells and hostile systems, computed when an order is given |
+| Routing | `AI/GravityWellRouter.cs` | Waypoints around gravity wells and hostile systems, computed when an order is given; a trip to a ship far away (`ShipAI.ThrustTargetOnWayToShip`) plans its route when it starts and again where a leg ends with that ship still far |
 | Factions and others | `Pirates.cs`, `Remnants.cs`, `AI/DroneAI.cs`, `AI/MissileAI.cs` | Faction AI; drones and missiles |
 
 ---

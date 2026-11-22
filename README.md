@@ -106,6 +106,9 @@ contact us in [Discord](https://discord.gg/dfvnfH4) for more information on modd
 * All YAML files can be modded and are hotloaded while the game is running, so you can do interactive tweaking
 * Feel free to ask for more details in [Discord](https://discord.gg/dfvnfH4)
 
+## Testing how the AI plays
+[`AI_Prompts/ai-only-game-probe.txt`](AI_Prompts/ai-only-game-probe.txt) is a prompt for Claude Code. It has the AI empires play many galaxies on their own, then compares two builds of the game or two versions of a mod, or reports how the AI plays with one. It needs the development setup above.
+
 # Development Cycle
 ## For new features, refactors, old bug fixes  (feature)
 * Create a new feature branch from the current `jupiter-1.60/fixes_NN` branch (the highest NN).

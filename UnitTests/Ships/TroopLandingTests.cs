@@ -197,6 +197,63 @@ public class TroopLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AShipMadeWhileASaveIsWrittenIsLeftOutOfIt()
+    {
+        UState.StarDate = 1042.5f; // past the start, so the load runs no first turn
+        var save = new SavedGame(Universe);
+        Universe.IsSaving = true;
+        Ship troopShip;
+        try
+        {
+            troopShip = TroopShip(Colony);
+            UState.Objects.Update(FixedSimTime.Zero);
+            Assert.IsTrue(UState.Objects.GetShips().Contains(troopShip) && !Player.OwnedShips.Contains(troopShip),
+                          "setup: a paused frame lists the new ship but holds back its change of hands");
+            save.Save("UnitTest.ShipMadeWhileSaving");
+        }
+        finally
+        {
+            Universe.IsSaving = false;
+        }
+
+        UniverseScreen loaded = LoadSave(save.SaveFile);
+        Assert.IsNull(loaded.UState.Objects.FindShip(troopShip.Id), "the save holds the ships as it began, so not one made while it was written");
+        Empire player = loaded.UState.Player;
+        int ours = 0;
+        foreach (Ship ship in loaded.UState.Objects.GetShips())
+        {
+            if (ship.Loyalty != player || ship.IsSubspaceProjector)
+                continue;
+            ++ours;
+            Assert.IsTrue(player.OwnedShips.Contains(ship), $"every ship of ours loads in our ship list: {ship}");
+        }
+        Assert.IsTrue(ours > 0, "setup: the save must hold ships of ours");
+    }
+
+    [TestMethod]
+    public void ASaveKeepsOnlyTheShipsTheirEmpiresList()
+    {
+        UState.Objects.UpdateLists();
+        Universe.IsSaving = true;
+        try
+        {
+            Ship troopShip = TroopShip(Colony);
+            UState.Objects.Update(FixedSimTime.Zero);
+            Ship[] ships = UState.Objects.GetShips();
+            Assert.IsTrue(ships.Contains(troopShip) && !Player.OwnedShips.Contains(troopShip),
+                          "setup: the ship list holds a new ship its empire does not list yet, as one made on another thread during the save's tidy");
+
+            Ship[] kept = Ship_Game.Universe.UniverseState.ListedShips(ships);
+            Assert.IsFalse(kept.Contains(troopShip), "the save leaves it for after it is written");
+            AssertEqual(ships.Length - 1, kept.Length, "and keeps every other ship");
+        }
+        finally
+        {
+            Universe.IsSaving = false;
+        }
+    }
+
+    [TestMethod]
     public void EachLandingOrderPicksAFreshDropSpot()
     {
         Ship shuttle = ShuttleWithoutCarrier(EnemyPlanet);

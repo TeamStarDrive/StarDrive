@@ -433,9 +433,12 @@ namespace Ship_Game
             // chain at the fleet's average position and translate per-ship by FleetOffset.
             // Dispersed groups, and ships whose translated chain hits an obstacle, route on their own.
             Vector2[] sharedDetours = TryComputeClusteredDetours(finalPos, order);
+            Ship[] ships = Ships.ToArray();
+            bool supportHoldsBack = order.IsSet(MoveOrder.Aggressive) && HasWarshipForAttack(ships);
 
-            foreach (Ship ship in Ships)
+            for (int i = 0; i < ships.Length; ++i)
             {
+                Ship ship = ships[i];
                 if (ship.PlayerShipCanTakeFleetOrders())
                 {
                     // set PriorityOrder = true, so that our ships don't scatter after arriving
@@ -455,11 +458,38 @@ namespace Ship_Game
                     }
 
                     ship.AI.OrderMoveTo(finalShipPos, finalDir, AIState.FormationMoveTo, shipOrder);
+                    ship.AI.HoldsBack = supportHoldsBack && ship.HoldsBackFromAttacks;
                     if (this is not Fleet)
                         ship.AI.GroupLateralOffset = ship.RelativeFleetOffset.X;
                 }
             }
         }
+
+        // whether one of these ships is a player's warship that takes an attack order
+        public static bool HasWarshipForAttack(Ship[] ships)
+        {
+            for (int i = 0; i < ships.Length; ++i)
+            {
+                Ship ship = ships[i];
+                if (IsPlayersWarship(ship) && ship.PlayerShipCanTakeFleetOrders(forAttack: true))
+                    return true;
+            }
+            return false;
+        }
+
+        // whether one of the player's warships among these ships attacks the target or has it queued
+        public static bool WarshipTookTheAttack(Ship[] ships, Ship target)
+        {
+            for (int i = 0; i < ships.Length; ++i)
+            {
+                Ship ship = ships[i];
+                if (IsPlayersWarship(ship) && (ship.AI.Target == target || ship.AI.TargetQueue.ContainsRef(target)))
+                    return true;
+            }
+            return false;
+        }
+
+        static bool IsPlayersWarship(Ship ship) => ship.Loyalty.isPlayer && ship.DesignRoleType == RoleType.Warship;
 
         // Returns a shared detour chain if the group is clustered enough that its ships
         // can reuse the same route (with their FleetOffset applied). Returns null when

@@ -1291,7 +1291,8 @@ Items 19-26 come from the branch review of `fixes_38` (the landing work), 2026-1
     `PlanetListScreenItem.cs` (~377, after Send Troops) calls `Objects.UpdateLists()`, which
     applies loyalty changes and removes inactive ships off the sim thread. Pre-existing on main;
     since paused frames also apply loyalty changes, the atomic claim in `LoyaltyChanges` is what
-    keeps one change from applying twice. Fix: `RunOnSimThread`, or drop the call.
+    keeps one change from applying twice. → **Fixed by** queuing the call for the sim thread
+    (`RunOnSimThread`); while a save is being written, it waits until the save is done.
 23. `[latent]` **Assault transporters never fire, and evasion never sees a ship.**
     `DoAssaultTransporterLogic` (`ShipAI.DoAction.cs` ~750) and `Evade` read
     `ShipAI.NearByShips`, which nothing fills; it is only cleared. The Codex entry Capturing Ships
@@ -1324,6 +1325,36 @@ Items 27-28 come from the branch review of `fixes_48`, 2026-10-15.
     `Mem.Dispose(ref TransientContent)` without checking `disposing`. `MainMenuScreen` checks it
     before disposing its scene since fixes_48; the base class wants the same, for every screen. It is
     reached only when a screen is dropped without `RemoveScreen` disposing it.
+
+Item 29 comes from issue #558 (troops sent to a ship), 2026-11-22.
+
+29. **The route planner and the game size an enemy well differently under the counter-inhibition
+    trait.** `GravityWellRouter.WellScale` shrinks an at-war planet's well by
+    `EnemyPlanetInhibitionPercentCounter` when our influence covers the whole well, but
+    `SolarSystem.HoldingWellRadius` shrinks it only while the ship's own `IsInFriendlyProjectorRange`
+    is set, and that status is refreshed with the ship's sensors (`Ship.UpdateSensors`). A ship
+    arriving at warp from outside our influence can still carry the old status, so the game holds it
+    by the full well. In Roland's #558 save (Kulrathi, trait 0.2) a troop ship routed 6,960 from
+    Earth, outside the planner's 6,720, dropped out of warp inside Earth's 8,000 well. Since #558 a
+    system holding an at-war planet is passed around whole in the middle of a route, so this is left
+    near the start and end of a trip. Logged by decision 2546.
+
+Items 30-32 come from the branch review of `fixes_70`, 2026-11-22. Each was there before the save
+was prepared on the sim thread (`1a958c501`). Logged by decision 2584.
+
+30. `[thread]` **Paused frames during a save still run the actions the UI queued.** While
+    `IsSaving` holds the simulation, `ProcessSimulationTurns` (`UniverseScreen.UpdateGame.cs` ~120)
+    still calls `InvokePendingSimThreadActions`, so goal adds and removes, construction queue edits,
+    `MassScrap` and `AbsorbEmpire` (`EndAllTasks`, `EmpireShips.Clear`) change state the save
+    worker is writing. The UI thread also launches troops from planets (the planet list, the planet
+    info panel, the colony screen) while the worker writes those planets' troop lists.
+31. `[thread]` **Exit does not wait for a save being written.** `UniverseScreen.ExitScreen` joins the
+    sim thread, not the save worker, then disposes the universe. A teardown during a save (the window
+    closed, or a click in the frame before `IsSaving` is set) disposes ships the worker is writing,
+    and leaves the save slot it was writing cut short.
+32. `[thread]` **The save worker reads the fog of war render target.** `UniverseState.OnSerialize`
+    converts `Screen.FogMap` to bytes (`TexExport.ToAlphaBytes`) on the worker while the UI thread
+    draws into it.
 
 ## Larger items with their own notes
 

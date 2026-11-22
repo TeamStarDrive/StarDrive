@@ -59,6 +59,10 @@ namespace Ship_Game.AI
             DisposeOrders();
             Orbit?.ExitOrbit();
             IgnoreCombat = false;
+            HoldsBack = false;
+            HeldGoalSeconds = 0f;
+            ShipRouteGoal = null;
+            ShipRoutePlannedFor = null;
             ExitCombatState();
             ChangeAIState(newState); // Must come after ExitCombatState since ExitCombatState change the AIstate to awaiting orders.
             if (ExplorationTarget != null)
@@ -90,6 +94,21 @@ namespace Ship_Game.AI
         public void SetPriorityOrder(bool priority)
         {
             HasPriorityOrder = priority;
+        }
+
+        // the empire goal kind the ship last found its empire holding for it, and for how much longer that answer stands
+        GoalType HeldGoalType;
+        float HeldGoalSeconds;
+
+        // whether the ship's empire still holds a goal of this kind for it: a yes stands for a second, a no is looked up again each time
+        public bool EmpireHoldsGoal(GoalType type, FixedSimTime timeStep)
+        {
+            if (HeldGoalType == type && (HeldGoalSeconds -= timeStep.FixedTime) > 0f)
+                return true;
+            bool held = Owner.Loyalty.AI.HasGoal(type, Owner);
+            HeldGoalType = type;
+            HeldGoalSeconds = held ? 1f : 0f;
+            return held;
         }
 
         public void ClearOrdersAndWayPoints(AIState newState = AIState.AwaitingOrders, bool priority = false)

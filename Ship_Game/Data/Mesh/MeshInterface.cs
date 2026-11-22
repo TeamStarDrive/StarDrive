@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
@@ -11,6 +12,7 @@ using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 using XnaQuaternion = Microsoft.Xna.Framework.Quaternion;
 using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
+using XnaColor = Microsoft.Xna.Framework.Color;
 #pragma warning disable CA1060, CA1401
 
 // ReSharper disable MemberCanBePrivate.Local
@@ -594,6 +596,8 @@ namespace Ship_Game.Data.Mesh
             fx.TintMapFile = TintMapFileOf(fx.DiffuseMapFile);
             if (fx.TintMapFile != null && TintMapExists(fx.TintMapFile))
                 fx.TintMapTexture = TryLoadTexture(content, fx.TintMapFile);
+            fx.PaintLightness = PaintLightnessOf(fx.DiffuseMapTexture, fx.TintMapTexture);
+            fx.PaintLiftShare = HullPaintLift.ShareOf(fx.TintMapFile);
             //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
             fx.Skinned         = isSkinned;
@@ -641,6 +645,68 @@ namespace Ship_Game.Data.Mesh
             if (DiffuseMapWord.IsMatch(diffuseMapFile))
                 return DiffuseMapWord.Replace(diffuseMapFile, "-Tint$1");
             return null;
+        }
+
+        // a tint map's diffuse map is the one beside it, so a loaded tint map keeps its paint's lightness for every model that shares it
+        static readonly ConditionalWeakTable<Texture2D, StrongBox<float>> PaintLightnesses = new();
+
+        // texels this dark are a texture's unused space, not paint
+        const float UnusedTexelLuminance = 0.02f;
+
+        // the average OKLab lightness of the diffuse map's texels the tint map marks, weighted as the shader grays them; 0 when either is missing or unreadable
+        public static float PaintLightnessOf(Texture2D diffuse, Texture2D tintMap)
+        {
+            if (diffuse == null || tintMap == null)
+                return 0f;
+            return PaintLightnesses.GetValue(tintMap, mask => new StrongBox<float>(MeasurePaintLightness(diffuse.Name, mask.Name))).Value;
+        }
+
+        static float MeasurePaintLightness(string diffuseFile, string tintMapFile)
+        {
+            try
+            {
+                (Func<int, int, XnaColor> paint, int paintWidth, int paintHeight) = TexelsOf(diffuseFile);
+                (Func<int, int, XnaColor> mask, int width, int height) = TexelsOf(tintMapFile);
+                double sum = 0.0, weight = 0.0;
+                for (int y = 3; y < height; y += 8)
+                {
+                    for (int x = 3; x < width; x += 8)
+                    {
+                        float grayed = Math.Min(1f, mask(x, y).R * 2f / 255f);
+                        if (grayed <= 0f)
+                            continue;
+                        XnaColor c = paint(x * paintWidth / width, y * paintHeight / height);
+                        if ((0.3f * c.R + 0.59f * c.G + 0.11f * c.B) / 255f <= UnusedTexelLuminance)
+                            continue;
+                        sum += LightingEffect.LightnessOf(c) * grayed;
+                        weight += grayed;
+                    }
+                }
+                return weight > 0.0 ? (float)(sum / weight) : 0f;
+            }
+            catch (Exception e) when (e is not OutOfMemoryException)
+            {
+                Log.Warning($"MeshImporter.PaintLightnessOf('{diffuseFile}', '{tintMapFile}') failed, its paint keeps its own lightness: {e.Message}");
+                return 0f;
+            }
+        }
+
+        // a model texture's texels by position, read from its DDS file, since a texture read back from the GPU keeps a staging copy as long as it lives
+        static (Func<int, int, XnaColor> Texel, int Width, int Height) TexelsOf(string ddsFile)
+        {
+            Ship_Game.Data.Texture.DxtReader dds;
+            using (FileStream fs = File.OpenRead(ddsFile))
+                dds = new Ship_Game.Data.Texture.DxtReader(fs, keepDxt1Blocks: true);
+            int width = dds.Width, height = dds.Height;
+            if (dds.Dxt1Blocks != null)
+            {
+                byte[] blocks = dds.Dxt1Blocks;
+                return ((x, y) => Ship_Game.Data.Texture.ImageUtils.Dxt1Texel(blocks, width, x, y), width, height);
+            }
+            XnaColor[] texels = dds.DecodedImage;
+            if (width <= 0 || height <= 0 || texels.Length < width * height)
+                throw new InvalidDataException($"'{ddsFile}' holds no image");
+            return ((x, y) => texels[y * width + x], width, height);
         }
 
         // a path the model's folder gave may already start at Content/, which the content lookup adds itself after trying a running mod's file

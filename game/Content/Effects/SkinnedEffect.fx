@@ -74,6 +74,10 @@ float  SpecularAmount  = 1.0;
 // see MeshLighting.fx
 float  EmissiveScale   = 1.0;
 // see MeshLighting.fx
+float  PaintLightness  = 1.0;
+// see MeshLighting.fx
+float  PaintLiftShare  = 0.85;
+// see MeshLighting.fx
 float4 HullTint        = float4(1, 1, 1, 0);
 // see MeshLighting.fx
 float4 PartLook        = float4(1, 0, 1, 0);
@@ -360,15 +364,52 @@ float Luminance(float3 c)
 }
 
 // see MeshLighting.fx
-float3 TintAtLuminance(float3 tint, float lum)
+float3 OklabOf(float3 srgb)
 {
-    float3 c = tint + (lum - Luminance(tint));
-    float l = Luminance(c);
-    float n = min(c.r, min(c.g, c.b));
-    float x = max(c.r, max(c.g, c.b));
-    if (n < 0.0) c = l + (c - l) * l / max(l - n, 0.00001);
-    if (x > 1.0) c = l + (c - l) * (1.0 - l) / max(x - l, 0.00001);
-    return c;
+    float3 c = srgb <= 0.04045 ? srgb / 12.92 : pow(max(srgb + 0.055, 0.0) / 1.055, 2.4);
+    float3 lms = float3(dot(c, float3(0.4122214708, 0.5363325363, 0.0514459929)),
+                        dot(c, float3(0.2119034982, 0.6806995451, 0.1073969566)),
+                        dot(c, float3(0.0883024619, 0.2817188376, 0.6299787005)));
+    lms = pow(max(lms, 0.0), 1.0 / 3.0);
+    return float3(dot(lms, float3(0.2104542553, 0.7936177850, -0.0040720468)),
+                  dot(lms, float3(1.9779984951, -2.4285922050, 0.4505937099)),
+                  dot(lms, float3(0.0259040371, 0.7827717662, -0.8086757660)));
+}
+
+// see MeshLighting.fx
+float3 LinearOfOklab(float3 lab)
+{
+    float3 lms = float3(dot(lab, float3(1.0, 0.3963377774, 0.2158037573)),
+                        dot(lab, float3(1.0, -0.1055613458, -0.0638541728)),
+                        dot(lab, float3(1.0, -0.0894841775, -1.2914855480)));
+    lms = lms * lms * lms;
+    return float3(dot(lms, float3(4.0767416621, -3.3077115913, 0.2309699292)),
+                  dot(lms, float3(-1.2684380046, 2.6097574011, -0.3413193965)),
+                  dot(lms, float3(-0.0041960863, -0.7034186147, 1.7076147010)));
+}
+
+// see MeshLighting.fx
+float PaintLift(float colorLightness)
+{
+    float target = PaintLiftShare * colorLightness;
+    return target > PaintLightness ? log(1.0 - target) / log(1.0 - PaintLightness) : 1.0;
+}
+
+// see MeshLighting.fx
+float3 PaintAt(float lightness, float2 tint, float strength)
+{
+    float chroma = length(tint);
+    float2 hue = chroma > 0.0001 ? tint / chroma : float2(0.0, 0.0);
+    float shown = 0.0;
+    [unroll] for (int i = 0; i < 7; ++i)
+    {
+        float tried = shown + chroma * exp2(-1.0 - i);
+        float3 c = LinearOfOklab(float3(lightness, hue * tried));
+        if (min(c.r, min(c.g, c.b)) >= 0.0 && max(c.r, max(c.g, c.b)) <= 1.0)
+            shown = tried;
+    }
+    float3 c = saturate(LinearOfOklab(float3(lightness, hue * shown * pow(max(strength, 0.0), 0.6))));
+    return c <= 0.0031308 ? c * 12.92 : 1.055 * pow(c, 1.0 / 2.4) - 0.055;
 }
 
 // three random numbers in [0,1) for a lattice cell
@@ -473,8 +514,17 @@ float4 PSDefault(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
     float shade = Luminance(texColor.rgb);
 
     if (TintMapEnabled)
-        texColor.rgb = lerp(texColor.rgb, TintAtLuminance(HullTint.rgb, Luminance(texColor.rgb)),
-                            tex2D(TintSampler, input.TexCoord).r * HullTint.w);
+    {
+        float paint = tex2D(TintSampler, input.TexCoord).r * HullTint.w;
+        [branch] if (paint > 0.0)
+        {
+            float grayed = saturate(paint * 2.0);
+            float3 tint = OklabOf(HullTint.rgb);
+            float lightness = saturate(OklabOf(texColor.rgb).x);
+            lightness = lerp(lightness, 1.0 - pow(1.0 - lightness, PaintLift(tint.x)), grayed);
+            texColor.rgb = lerp(texColor.rgb, PaintAt(lightness, tint.yz, paint), grayed);
+        }
+    }
 
     float3 glow = EmissiveMapEnabled ? tex2D(EmissiveSampler, input.TexCoord).rgb : float3(0, 0, 0);
     float3 emissive = EmissiveMapEnabled ? glow * EmissiveScale : EmissiveColor;

@@ -519,10 +519,10 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.LowTroopsForBays, WarningLevel.Major, troopsMissing);
         }
 
-        public void CheckDedicatedCarrier(bool hasFighterHangars, RoleName role, 
+        public void CheckDedicatedCarrier(bool hasFighterHangars, RoleName role, bool hasWeapon,
                                           int maxWeaponRange, float sensorRange, bool shortRange)
         {
-            if (role != RoleName.carrier  && !Stationary || !hasFighterHangars)
+            if (!hasFighterHangars || !CarrierBays.IsDedicatedCarrier(role, Stationary, hasWeapon))
                 return;
 
             bool minCarrier  = false;
@@ -537,9 +537,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.DedicatedCarrier, WarningLevel.Informative, rangeText);
         }
 
-        public void CheckSecondaryCarrier(bool hasFighterHangars, RoleName role, int maxWeaponRange)
+        public void CheckSecondaryCarrier(bool hasFighterHangars, RoleName role, bool hasWeapon, int maxWeaponRange)
         {
-            if (role == RoleName.carrier || !hasFighterHangars || Stationary)
+            if (!hasFighterHangars || CarrierBays.IsDedicatedCarrier(role, Stationary, hasWeapon))
                 return;
 
             string rangeText = $"\n{GetRangeLaunchText(maxWeaponRange, out int minLaunchRangeWeapons, out bool minCarrier)}" +

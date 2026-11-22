@@ -1,0 +1,144 @@
+AI-ONLY GAME PROBE: A PROMPT FOR CLAUDE CODE
+============================================
+
+What this is
+------------
+A prompt for a Claude Code session opened in a StarDrive BlackBox checkout. It has the AI empires play many games
+on their own, with no player, and measures how they do. It can answer three kinds of question:
+
+  A. Code change: did a change to the game's code make the AI play better or worse?
+     Two game builds play the same galaxies.
+  B. Mod change: did a change to a mod make the AI play better or worse with it?
+     One game build plays the same galaxies with two versions of the mod.
+  C. Look only: how does the AI play with this content?
+     One build and one version; nothing is compared. Use it to check a mod's ships, research, buildings and the
+     errors and warnings it logs.
+
+The games are played by UnitTests/Probes/AiGameProbe.cs, and UnitTests/Probes/ai_probe_compare.py reads its output.
+The probe does nothing in a normal test run.
+
+It was first used for the kept AI fleets work, with 20 galaxies of 1,500 turns each and both builds compared galaxy
+by galaxy. That run took about 80 minutes on 4 threads.
+
+How to use it
+-------------
+1. Copy everything between the two lines of hashes into Claude Code.
+2. Fill in the parts in [BRACKETS] first.
+
+The full run keeps 4 CPU threads busy for over an hour. The machine stays usable, but not for playing.
+
+########################################################################################################################
+
+Run an AI-only game probe on StarDrive BlackBox
+
+Fill in
+- Kind of run: [A CODE CHANGE | B MOD CHANGE | C LOOK ONLY]
+- Game build(s):
+  - A: base commit [BASE COMMIT], new commit [NEW COMMIT].
+  - B and C: commit [COMMIT], or "my checkout as it is".
+- Mod: [MOD FOLDER NAME UNDER game/Mods, OR "none" FOR THE BASE GAME]
+- Mod versions for B: base [BASE VERSION: A COMMIT OF THE MOD'S REPO, OR A FOLDER],
+  new [NEW VERSION: A COMMIT OR A FOLDER]
+- What changed (A and B), or what to look at (C): [ONE OR TWO SENTENCES]
+- Extra things to measure: [NONE, OR FOR EXAMPLE: SHIPS BUILT PER DESIGN, TECHS RESEARCHED BY TURN 500,
+  HOW OFTEN A BUILDING IS BUILT]
+- Player race: [A RACE IN THIS CONTENT; DEFAULT United Federation]. The player is locked out, and that race takes no
+  part in the games, so pick one you do not need to measure.
+- Galaxies and turns: [DEFAULT 20 GALAXIES x 1,500 TURNS; FOR C, 5 GALAXIES ARE ENOUGH]
+
+Ground rules
+- Ask me before every step that runs longer than a few minutes: the calibration game and the full run.
+- Never build or run while StarDrive is open.
+- Never commit the saves, the results, or any change you make to the probe for this run.
+- Leave my checkout untouched. Work in git worktrees outside it.
+
+1. Worktrees and builds
+- A: add two detached worktrees outside my checkout, one at each commit.
+- B: add two worktrees at the same game commit.
+  - Put the base version of the mod in one worktree's game/Mods/<mod>, and the new version in the other's.
+  - Use the same folder name in both: saves record the mod by name.
+- C: one worktree.
+- If a worktree's commit has no UnitTests/Probes/AiGameProbe.cs, copy it from my checkout, with its Compile line in
+  UnitTests/SDUnitTests.csproj (that project lists every file by hand), and the optional mod argument of
+  StarDriveTest.LoadAllGameData. Every side must run the identical probe. It needs a commit from mid-November 2026 or
+  later; on an older one it may not build, so adapt it there without changing what it measures.
+- Copy the probe from my checkout over an older copy too. On a commit without UniverseScreen.LoadAskedHullParts, drop
+  the probe's one call to it: such a build never reads hull section data for ships nobody sees, so in the probe its
+  ships lose no hull sections at all. Say so in the report when the sides differ in this.
+- Copy the native files the game folder needs that git does not track (at least game/SDNative.dll) from my
+  checkout into each worktree's game folder.
+- If the mod is its own git repo, copy or check it out into each worktree's game/Mods folder. A worktree of the
+  game does not bring it along.
+- Build each worktree with `dotnet build UnitTests/SDUnitTests.csproj -c Release -p:Platform=x64`. The test output
+  lands under UnitTests/bin/Debug even in Release.
+
+2. The probe
+- Read the summary at the top of UnitTests/Probes/AiGameProbe.cs. It is one test, driven by PROBE_* environment
+  variables, and it does nothing without PROBE_MODE.
+- Run it with the environment variables set, from the worktree:
+  `dotnet test UnitTests/SDUnitTests.csproj -c Release -p:Platform=x64 --no-build --filter "FullyQualifiedName~AiGameProbe"`
+- PROBE_MODE=generate makes the starting galaxies, once, on the base side: by default 5 AI empires, a Medium galaxy,
+  Brutal difficulty (it makes the AI build more fleets), and the player locked out as in the AUTO builds.
+- PROBE_MODE=run plays every galaxy_*.sav in PROBE_SAVES at 20 sim steps per game second, and writes TSV files to
+  PROBE_OUT named after PROBE_ARM: a summary row per AI empire per game, samples every 10 turns, progress every
+  50 turns, and every distinct error and warning logged during each game with its count.
+- Set PROBE_ARM to base or new (look for C). Give PROBE_SAVES and PROBE_OUT as absolute paths that every side shares:
+  a relative path is taken from each worktree's own game folder.
+- PROBE_MOD switches a mod on for both modes; leave it unset for the base game. Tests start on the base game whatever
+  mod is selected in game. If the mod fails to load, the game's error window opens and waits until it is closed;
+  the probe then stops with an error instead of playing the base game.
+- For B: if the new mod version removes or renames ships, hulls, techs or races, the base saves may not load on the
+  new side. Then generate saves on each side instead, and say that the starts are no longer paired.
+- For extra things to measure, add them to the probe in the worktrees only, identically on every side.
+
+What the probe already measures, per AI empire
+- At the end: planets, population, money, score, warship strength, and the turn the empire was defeated, if it was.
+- Counted every turn: planets colonized, taken from other empires, lost to other empires, and lost to no owner;
+  wars started, empire-turns at war, and the first AI-AI war's turn.
+- Warships lost in combat and their strength. The game's own lost-ship counter is never written, so the probe
+  counts a ship that leaves play destroyed, tumbling or as a derelict.
+- Hull sections lost by its warships, counted at each turn, and how many warships are missing one (samples only).
+  A build from before hull sections were read for unseen ships counts none.
+- Where the warship strength sits on average: on a task, in an idle fleet, or in the unassigned pool; fleets per
+  empire; war and defense tasks waiting for a force.
+
+3. Calibration (ask first)
+- Play one game on galaxy_01, for 1,000 turns or 15 minutes, into its own PROBE_OUT folder. The probe adds rows to
+  its files, and the compare script refuses a galaxy that appears twice.
+- Report the time per 50 turns, and check that the samples make sense: wars counted, ships lost counted, no
+  unexpected errors.
+
+4. Full run (ask first)
+- Every galaxy on every side, one game at a time.
+- PROBE_LIMIT (900 wall seconds per game by default) is a safety stop. A game it stops is left out of the comparison,
+  so raise it if the calibration game came near it.
+- A game that crashes is logged in errors.tsv and the run goes on to the next one.
+- Other load on the machine changes wall times, so do not judge speed from this run.
+
+5a. Compare (A and B)
+- Run `py -I UnitTests/Probes/ai_probe_compare.py <out folder> base new`.
+- The sim is not repeatable, because its random sources are seeded from the clock. One galaxy's gap is mostly chance.
+- The script adds up the AI empires per galaxy, takes new - base, and prints the mean over the galaxies with its
+  standard error, and in how many galaxies new was lower or higher.
+- Treat a difference under two standard errors as no difference. With about 30 metrics, one or two can cross that
+  line by chance: trust differences that agree with each other and with the per-galaxy numbers.
+
+5b. Read (C)
+- Run `py -I UnitTests/Probes/ai_probe_compare.py <out folder> <arm>` for the means, lowest and highest.
+- List the errors and warnings from errors.tsv and warnings.tsv by message, with their total count and the games
+  they appeared in. For a mod they are often content problems.
+
+Report back
+- A and B: a table of metric | base | new | new - base +- SE.
+- C: a table of metric | mean | lowest | highest.
+- The per-galaxy planet numbers, any defeats, and the errors.
+- The late game (turn 1,000 on) for the extra things to measure, from the samples.
+- A short plain-language verdict, and what you would trace next if something looks real.
+- Save the saves and results, and any probe changes, in one folder outside the repo, and tell me where.
+
+Afterwards
+- Loading game data saves what it loads as the selected mod in the user config: none after the tests, and the
+  probed mod after a probe run with PROBE_MOD. Remind me to pick my mod again in game.
+- Offer to remove the worktrees.
+
+########################################################################################################################

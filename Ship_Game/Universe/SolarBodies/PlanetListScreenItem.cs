@@ -43,6 +43,7 @@ namespace Ship_Game
         private bool MarkedForColonization;
         public bool CanSendTroops;
         volatile bool SentTroopsListed;
+        volatile bool SentTroopsWaitForSave; // a troop sent while a save was written, listed once it is done
         ThreatMatrix.HostilePresence Hostiles;
 
         public PlanetListScreenItem(PlanetListScreen screen, Planet planet, float distance, bool canSendTroops)
@@ -143,6 +144,11 @@ namespace Ship_Game
             {
                 SentTroopsListed = false;
                 UpdateButtonSendTroops();
+            }
+            if (SentTroopsWaitForSave && !Player.Universe.Screen.IsSaving)
+            {
+                SentTroopsWaitForSave = false;
+                Player.Universe.Screen.RunOnSimThread(ListSentTroops);
             }
             base.Update(fixedDeltaTime);
         }
@@ -385,16 +391,24 @@ namespace Ship_Game
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderLandAllTroops(Planet, clearOrders: true);
                 Screen.RefreshSendTroopButtonsVisibility();
-                Player.Universe.Screen.RunOnSimThread(() =>
-                {
-                    Player.Universe.Objects.UpdateLists(); // a troop launched from a planet for this order joins the player's ship lists
-                    SentTroopsListed = true;
-                });
+                Player.Universe.Screen.RunOnSimThread(ListSentTroops);
             }
             else
             {
                 GameAudio.NegativeClick();
             }
+        }
+
+        // a troop launched from a planet for this order joins the player's ship lists; while a save is written, after it
+        void ListSentTroops()
+        {
+            if (Player.Universe.Screen.IsSaving)
+            {
+                SentTroopsWaitForSave = true;
+                return;
+            }
+            Player.Universe.Objects.UpdateLists();
+            SentTroopsListed = true;
         }
 
         void OnSendTroopsRightClick() // cancel one incoming troop

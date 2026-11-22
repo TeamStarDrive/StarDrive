@@ -195,6 +195,159 @@ public class ShipPartsTests : StarDriveTest
         return drawn;
     }
 
+    // a model's parts read from its file alone, as for a hull no ship of has been drawn
+    static StaticMesh PartsOnly(string model)
+        => new MeshImporter(Content).ImportParts(Ship_Game.Data.RawContentLoader.GetContentPath(model), model);
+
+    [TestMethod]
+    public void AModelsPartsReadFromItsFileAloneAreTheDrawnModelsParts()
+    {
+        const string model = "Model/Ships/Terran/HeavyGunboat/ship10b.fbx";
+        StaticMesh drawn = Content.LoadStaticMesh(model);
+        StaticMesh parts = PartsOnly(model);
+        Assert.IsNotNull(parts, "the file reads");
+        Assert.AreEqual(0, parts.RawMeshes?.Count ?? 0, "with no meshes made");
+        Assert.AreEqual(drawn.NumParts, parts.NumParts, "the same parts");
+        for (int part = 0; part < drawn.NumParts; ++part)
+            CollectionAssert.AreEqual(drawn.PartTriangles[part], parts.PartTriangles[part], $"part {part}'s triangles, in the same order");
+
+        StaticMesh onePiece = PartsOnly("Model/Ships/Terran/Shuttle/ship08.fbx");
+        Assert.IsNotNull(onePiece, "a model in one piece reads");
+        Assert.AreEqual(0, onePiece.NumParts, "with no parts");
+    }
+
+    [TestMethod]
+    public void AnAnimatedModelsPartsReadFromItsFileAloneAreItsDrawnParts()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "ShipPartsTests_animated_parts_only.fbx");
+        AnimatedPartsModel.Write(path);
+        try
+        {
+            var importer = new MeshImporter(Content);
+            StaticMesh drawn = importer.ImportStaticMesh(path, "animated_parts");
+            StaticMesh parts = importer.ImportParts(path, "animated_parts");
+            Assert.IsTrue(drawn.IsSkinned, "setup: the model has bones");
+            Assert.AreEqual(2, parts.NumParts, "the core and one part");
+            for (int part = 0; part < 2; ++part)
+                CollectionAssert.AreEqual(drawn.PartTriangles[part], parts.PartTriangles[part], $"part {part}'s triangles, in the same order");
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [TestMethod]
+    public void AHullsModelLoadedAfterItsPartsWereReadTakesThemOverAsTheyStand()
+    {
+        Assert.IsTrue(Ship_Game.ResourceManager.Hull("Terran/HeavyGunboat", out ShipHull real), "setup: the Heavy Gunboat hull");
+        ShipHull hull = real.GetClone();
+        const System.Reflection.BindingFlags instance = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var triangles = typeof(ShipHull).GetField("PartTriangles", instance)!;
+        typeof(ShipHull).GetField("PartLinksFound", instance)!.SetValue(hull, null);
+        typeof(ShipHull).GetField("PartMapGrid", instance)!.SetValue(hull, null);
+        typeof(ShipHull).GetField("ThrusterPartsFound", instance)!.SetValue(hull, null);
+        triangles.SetValue(hull, PartsOnly(hull.ModelPath + ".fbx").PartTriangles); // as read from the file before any ship on it was drawn
+        uint[] links = hull.PartLinks;
+        byte[,] map = hull.PartMap;
+        byte[] thrusters = hull.ThrusterParts;
+        Assert.IsTrue(thrusters.Length > 0, "setup: the hull has thrusters");
+
+        Assert.IsTrue(hull.LoadModel(out SceneObject _, Content, findPartLinks: true), "setup: its model loads");
+        Assert.AreSame(Content.LoadStaticMesh(hull.ModelPath).PartTriangles, triangles.GetValue(hull), "the hull keeps the model's parts, so the next load compares nothing");
+        Assert.AreSame(links, hull.PartLinks, "what was found from the read stands: its links");
+        Assert.AreSame(map, hull.PartMap, "and its part map");
+        Assert.AreSame(thrusters, hull.ThrusterParts, "and its thrusters' parts");
+    }
+
+    [TestMethod]
+    public void AHullWhoseFileDoesNotReadPlaysInOnePieceTillItsModelLoads()
+    {
+        Assert.IsTrue(Ship_Game.ResourceManager.Hull("Terran/HeavyGunboat", out ShipHull real), "setup: the Heavy Gunboat hull");
+        ShipHull hull = real.GetClone();
+        const System.Reflection.BindingFlags instance = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        typeof(ShipHull).GetField("PartTriangles", instance)!.SetValue(hull, null);
+        typeof(ShipHull).GetProperty(nameof(ShipHull.ModelInOnePiece))!.SetValue(hull, false);
+        hull.ModelPath = "Model/Ships/Terran/HeavyGunboat/no_such_model";
+
+        Assert.IsFalse(hull.LoadParts(Content), "the file does not read");
+        Assert.IsTrue(hull.ModelInOnePiece, "so its ships count no parts and ask for none, till its model loads");
+        hull.ModelPath = real.ModelPath;
+        Assert.IsTrue(hull.LoadModel(out SceneObject _, Content), "setup: then its model loads");
+        Assert.IsFalse(hull.ModelInOnePiece, "and its parts count");
+        Assert.AreEqual(7, hull.NumParts);
+
+        ShipHull badPath = real.GetClone();
+        typeof(ShipHull).GetField("PartTriangles", instance)!.SetValue(badPath, null);
+        typeof(ShipHull).GetProperty(nameof(ShipHull.ModelInOnePiece))!.SetValue(badPath, false);
+        badPath.ModelPath = "x";
+        Assert.IsFalse(badPath.LoadParts(Content), "a model path the content cannot even name reads nothing, and throws nothing into the frame");
+        Assert.IsTrue(badPath.ModelInOnePiece, "and plays in one piece");
+    }
+
+    [TestMethod]
+    public void AShipHitOutOfSightHasItsHullsPartsReadAndLosesAPartAsInSight()
+    {
+        SetupGunboats();
+        Ship ship = SpawnShip(GunboatDesign, Player, new(200_000f, 200_000f)); // never drawn
+        ShipHull hull = ship.BaseHull;
+        const System.Reflection.BindingFlags instance = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var triangles = typeof(ShipHull).GetField("PartTriangles", instance)!;
+        var onePiece = typeof(ShipHull).GetProperty(nameof(ShipHull.ModelInOnePiece))!;
+        var gridParts = typeof(ModuleGridFlyweight).GetField("Parts", instance)!;
+        object hullTriangles = triangles.GetValue(hull);
+        bool hullOnePiece = hull.ModelInOnePiece;
+        try
+        {
+            triangles.SetValue(hull, null);
+            onePiece.SetValue(hull, false);
+            gridParts.SetValue(ship.Grid, null);
+
+            Kill(ship.Modules[0]);
+            Assert.AreEqual(0, hull.NumParts, "a hit only asks for the hull's parts");
+            Universe.LoadAskedHullParts();
+            Assert.AreEqual(7, hull.NumParts, "the next frame gives the hull its parts, with no ship of the hull drawn");
+            Assert.IsTrue(ship.Grid.GetParts(out int[] _), "and its ships can count them");
+
+            foreach (ShipModule m in ModulesOf(ship, 3, out int _))
+                Kill(m);
+            float[] shown = ship.PartShownNow();
+            Assert.IsTrue(shown != null && shown[3] < 1f, "the ship out of sight loses the part its modules died under");
+        }
+        finally
+        {
+            triangles.SetValue(hull, hullTriangles);
+            onePiece.SetValue(hull, hullOnePiece);
+            gridParts.SetValue(ship.Grid, null);
+        }
+    }
+
+    // a model of radius 100 at the given distance in front of the eye, on a screen 1024 pixels tall
+    static bool InsidesShownAt(float distance, Microsoft.Xna.Framework.Matrix projection, float radius = 100f)
+    {
+        var so = new SceneObject { ObjectBoundingSphere = new(Microsoft.Xna.Framework.Vector3.Zero, radius) };
+        var view = Microsoft.Xna.Framework.Matrix.CreateLookAt(new(0, 0, distance), Microsoft.Xna.Framework.Vector3.Zero, Microsoft.Xna.Framework.Vector3.Up);
+        return SynapseGaming.LightingSystem.Core.SceneInterface.BigEnoughForInsides(so, Microsoft.Xna.Framework.Matrix.Identity, view, projection, halfHeight: 512f);
+    }
+
+    [TestMethod]
+    public void AModelDrawnTooSmallToSeeIntoShowsNoInsides()
+    {
+        var perspective = Microsoft.Xna.Framework.Matrix.CreatePerspectiveFieldOfView(Microsoft.Xna.Framework.MathHelper.PiOver4, 1f, 1f, 1_000_000f);
+        // radius 100 * cot(22.5 degrees) 2.414 * 512 pixels / distance is 8 pixels at a distance of about 15,450
+        Assert.IsTrue(InsidesShownAt(1000f, perspective), "close up, its insides show through a gap");
+        Assert.IsTrue(InsidesShownAt(15_000f, perspective), "and still at a radius of just over 8 pixels");
+        Assert.IsFalse(InsidesShownAt(16_000f, perspective), "but not under 8 pixels");
+
+        var orthographic = Microsoft.Xna.Framework.Matrix.CreateOrthographic(400, 400, 1, 100_000);
+        Assert.IsTrue(InsidesShownAt(500f, orthographic), "an orthographic view goes by the view's size: 256 pixels");
+        Assert.IsTrue(InsidesShownAt(50_000f, orthographic), "at any distance");
+        var wideOrthographic = Microsoft.Xna.Framework.Matrix.CreateOrthographic(20_000, 20_000, 1, 100_000);
+        Assert.IsFalse(InsidesShownAt(500f, wideOrthographic), "and a view 20,000 across makes it 5 pixels");
+
+        Assert.IsTrue(InsidesShownAt(1_000_000f, perspective, radius: 0f), "a model whose bounds are unknown shows its insides");
+    }
+
     [TestMethod]
     public void AShipModelLeavesOutThePartsItNoLongerShows()
     {

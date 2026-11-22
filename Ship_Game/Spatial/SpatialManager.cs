@@ -103,6 +103,45 @@ namespace Ship_Game.Gameplay
             return Spatial?.FindNearby(ref opt) ?? Empty<SpatialObjectBase>.Array;
         }
 
+        // each thread's spare search buffer: a search made while another's results are held takes its own
+        [ThreadStatic] static SpatialObjectBase[] SpareFound;
+
+        // as FindNearby, its results held in a buffer of this thread until they are disposed
+        public Found FindNearbyBuffered(ref SearchOptions opt)
+        {
+            int size = Math.Max(opt.MaxResults, 1);
+            SpatialObjectBase[] buffer = SpareFound;
+            if (buffer != null && buffer.Length >= size)
+                SpareFound = null;
+            else
+                buffer = new SpatialObjectBase[Math.Max(size, 512)];
+            return new(buffer, Spatial?.FindNearby(ref opt, buffer) ?? 0);
+        }
+
+        public readonly ref struct Found
+        {
+            readonly SpatialObjectBase[] Buffer;
+            readonly int Count;
+
+            internal Found(SpatialObjectBase[] buffer, int count)
+            {
+                Buffer = buffer;
+                Count = count;
+            }
+
+            public int Length => Count;
+            public SpatialObjectBase this[int index] => (uint)index < (uint)Count ? Buffer[index] : throw new IndexOutOfRangeException();
+
+            public void Dispose()
+            {
+                if (Buffer == null)
+                    return;
+                Array.Clear(Buffer, 0, Count);
+                if (SpareFound == null || SpareFound.Length < Buffer.Length)
+                    SpareFound = Buffer;
+            }
+        }
+
         /// <summary>
         /// Counts the number of nearby objects that match the search criteria
         /// </summary>
