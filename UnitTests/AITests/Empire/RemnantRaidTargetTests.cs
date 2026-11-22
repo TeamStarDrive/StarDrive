@@ -624,11 +624,8 @@ namespace UnitTests.AITests.Empire
             guardian.AI.ClearOrders();
             Assert.AreEqual(AIState.AwaitingOrders, guardian.AI.State, "setup: the guardian sits idle, as the chase left it");
 
-            long logLength = LogLength();
             SavedGame save = Universe.Save("UnitTest.IdleGuardian", throwOnError: true);
             UniverseScreen loaded = LoadSave(save.SaveFile);
-            if (loaded == null)
-                Assert.Fail($"setup: the save loads; the log since the save:\n{LoggedSince(logLength)}");
             Ship loadedGuardian = loaded.UState.Objects.FindShip(guardian.Id);
             Planet nearest = loadedGuardian.System.PlanetList.FindMin(p => p.Position.SqDist(loadedGuardian.Position));
 

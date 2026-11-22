@@ -59,12 +59,14 @@ public partial class StarDriveTest : IDisposable
         StarDriveTestContext.EnableMockInput(enabled);
     }
 
-    // the save loaded as the game loads one, with no sim thread; its universe is disposed after the test
+    // the save loaded as the game loads one, with no sim thread; its universe is disposed after the test, and a load that fails fails the test with its log
     public UniverseScreen LoadSave(FileInfo saveFile, bool verbose = false)
     {
+        long logLength = LogLength();
         UniverseScreen loaded = new LoadGame(saveFile) { Verbose = verbose }.Load(noErrorDialogs: true, startSimThread: false);
-        if (loaded != null)
-            LoadedUniverses.Add(loaded);
+        if (loaded == null)
+            throw new AssertFailedException($"the save {saveFile.Name} loads; the log since the load began:\n{LoggedSince(logLength)}");
+        LoadedUniverses.Add(loaded);
         return loaded;
     }
 
@@ -282,6 +284,7 @@ public partial class StarDriveTest : IDisposable
             Universe?.ExitScreen();
             Universe?.Dispose();
             Universe = null;
+            StarDriveTestContext.FlushGraphics();
         }
     }
 

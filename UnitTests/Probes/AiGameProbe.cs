@@ -291,6 +291,7 @@ public class AiGameProbe : StarDriveTest
         {
             us.ExitScreen();
             us.Dispose();
+            StarDriveTestContext.FlushGraphics();
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

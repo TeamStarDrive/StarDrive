@@ -105,6 +105,12 @@ namespace UnitTests
             Log.Close();
         }
 
+        // destroys the graphics resources disposed so far, as presenting a frame does in the game
+        public static void FlushGraphics()
+        {
+            Game?.GraphicsDevice?.Flush();
+        }
+
         public static void EnableMockInput(bool enabled)
         {
             if (enabled)

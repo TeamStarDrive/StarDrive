@@ -1356,6 +1356,18 @@ was prepared on the sim thread (`1a958c501`). Logged by decision 2584.
     converts `Screen.FogMap` to bytes (`TexExport.ToAlphaBytes`) on the worker while the UI thread
     draws into it.
 
+Item 33 comes from the Patch Build that failed after `fixes_70` (run 45029501028), 2026-11-22.
+Logged by decision 2600.
+
+33. **A load that fails keeps the half-made universe's graphics.** `LoadGame.Load` (`LoadGame.cs`
+    ~45) makes the `UniverseScreen` in `LoadEverything`. When `SetupUniverseScreen` throws during or
+    after `LoadGraphics` (out of memory making a render target, as on that build, or a save that
+    breaks `InitializeUniverse`), the catch logs the error and returns null without disposing it. Its
+    finalizer runs `Dispose(false)`, which frees its `TransientContent` but skips `UnloadGraphics`,
+    so the render targets it made (up to five screen-sized ones and two fog targets), bloom,
+    distortion, particles and light pillars are never disposed. The game shows the error and goes on
+    without that memory.
+
 ## Larger items with their own notes
 
 **~~`GetBestPorts` lets a crippled Colony-type port through~~** — resolved 2026-09-28. The filter
