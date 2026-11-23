@@ -595,8 +595,10 @@ namespace Ship_Game.Universe.SolarBodies
 
         static bool IsOutpostOrCapital(QueueItem q) => q.isBuilding && q.Building.IsCapitalOrOutpost;
 
-        // in the AI's queue the refits stay together right behind the items kept first, ahead of the rest
-        static int AIRank(int frontRank, QueueItem q) => frontRank < 3 ? frontRank : q.IsRefit ? 3 : 4;
+        // in the AI's queue the shipyards go right behind the items kept first, then the refits together, ahead of the rest
+        static int AIRank(int frontRank, QueueItem q) => frontRank < 3 ? frontRank : IsShipyard(q) ? 3 : q.IsRefit ? 4 : 5;
+
+        static bool IsShipyard(QueueItem q) => q.Goal is DeepSpaceBuildGoal { ToBuild.IsShipyard: true };
 
         // an Outpost or Capital in the first slot stays there, and nothing goes ahead of it
         public bool IsFirstSlotLocked => ConstructionQueue.Count > 0 && IsOutpostOrCapital(ConstructionQueue[0]);
@@ -677,7 +679,7 @@ namespace Ship_Game.Universe.SolarBodies
                     }
                 }
 
-                // Ship and orbital refits jump the queue so the ship returns to service fast; the AI's sort already puts them there.
+                // Ship and orbital refits jump the queue so the ship returns to service fast; the AI's sort puts them right behind its shipyards.
                 if (item.IsRefit && P.OwnerIsPlayer)
                     PromoteRefitToFront(item);
             }

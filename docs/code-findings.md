@@ -1416,6 +1416,17 @@ Item 37 comes from the review of where stations go, 2026-11-23. Logged by decisi
     rule measured from the center (where stations go, which systems are worth a fleet to clear) then
     measures from there.
 
+Item 38 comes from the review of the AI's shipyard rank, 2026-11-23. Logged by decision 2639.
+
+38. **A colony that wants fewer shipyards scraps a standing one, never a queued or flying one.**
+    `Planet.BuildOrScrapShipyard` (`Planet_BuildDefenses.cs` ~324) counts the shipyards built and on
+    the way, and with more than it wants calls `SBProduction.CancelShipyard`, else scraps the newest
+    standing shipyard. `CancelShipyard` (`SBProduction.cs` ~835) looks for a queue item whose
+    `ShipData` is a shipyard, but a shipyard order's `ShipData` is its constructor, so it finds none;
+    and while any orbital is queued at the colony, `OrbitalsInTheWorks` returns before the count, so
+    the cancel could not run then anyway. A colony that wants one less while its new shipyard's
+    constructor is in flight scraps a standing shipyard as the new one deploys.
+
 ## Larger items with their own notes
 
 **~~`GetBestPorts` lets a crippled Colony-type port through~~** — resolved 2026-09-28. The filter
