@@ -52,7 +52,7 @@ public class AIBomberQueueTests : StarDriveTest
         IShipDesign warship = ResourceManager.Ships.GetDesign(Warship), bomber = ResourceManager.Ships.GetDesign(Bomber);
         Home.Construction.Enqueue(warship, QueueItemType.CombatShip);
         QueueItem started = Home.Construction.GetConstructionQueue()[0];
-        started.ProductionSpent = 1f; // under way, though far from done
+        started.ProductionSpent = 1f; // under way, barely
         Home.Construction.Enqueue(warship, QueueItemType.CombatShip);
         Home.Construction.Enqueue(warship, QueueItemType.CombatShip);
         Home.Construction.Enqueue(bomber, QueueItemType.CombatShip);
@@ -63,6 +63,49 @@ public class AIBomberQueueTests : StarDriveTest
         string order = string.Join(", ", queue.Select(q => q == started ? "started" : q.ShipData.Role == RoleName.bomber ? "bomber" : "warship"));
         Assert.AreEqual("started, bomber, bomber, warship, warship, warship", order,
                         "the warship under way first, then the bombers in the order they came, then the warships waiting");
+    }
+
+    [TestMethod]
+    public void SeveralNewBombersInARowAllGoAheadOfTheWarshipsWaitingInTheOrderTheyCame()
+    {
+        Assert.IsTrue(Enemy.IsAtWarWithMajorEmpire, "setup: at war with the player");
+        IShipDesign warship = ResourceManager.Ships.GetDesign(Warship), bomber = ResourceManager.Ships.GetDesign(Bomber);
+        for (int i = 0; i < 4; ++i)
+            Home.Construction.Enqueue(warship, QueueItemType.CombatShip);
+        var bombers = new System.Collections.Generic.List<QueueItem>();
+        for (int i = 0; i < 4; ++i)
+        {
+            Home.Construction.Enqueue(bomber, QueueItemType.CombatShip);
+            bombers.Add(Home.Construction.GetConstructionQueue().First(q => q.ShipData.Role == RoleName.bomber && !bombers.Contains(q)));
+        }
+
+        QueueItem[] queue = Home.Construction.GetConstructionQueue().ToArray();
+        for (int i = 0; i < 4; ++i)
+            Assert.AreEqual(bombers[i], queue[i], $"bomber {i + 1} of 4 is at place {i + 1} in the queue");
+    }
+
+    [TestMethod]
+    public void ABomberOrderedAtPeaceAmongTheWarshipsDoesNotHoldBackTheNextBomberAtWar()
+    {
+        Enemy.AI.EndWarFromEvent(Player);
+        Enemy.UpdateRelationships(takeTurn: false);
+        IShipDesign warship = ResourceManager.Ships.GetDesign(Warship), bomber = ResourceManager.Ships.GetDesign(Bomber);
+        Home.Construction.Enqueue(warship, QueueItemType.CombatShip);
+        Home.Construction.Enqueue(bomber, QueueItemType.CombatShip);
+        QueueItem earlierBomber = Home.Construction.GetConstructionQueue().First(q => q.ShipData.Role == RoleName.bomber);
+        Home.Construction.Enqueue(warship, QueueItemType.CombatShip);
+        QueueItem lastWarship = Home.Construction.GetConstructionQueue().Last();
+        Assert.AreNotEqual(RoleName.bomber, lastWarship.ShipData.Role, "setup: the warship ordered after the earlier bomber waits behind it");
+
+        Player.AI.DeclareWarOn(Enemy, WarType.BorderConflict);
+        Enemy.UpdateRelationships(takeTurn: false);
+        Assert.IsTrue(Enemy.IsAtWarWithMajorEmpire, "setup: at war with the player");
+        Home.Construction.Enqueue(bomber, QueueItemType.CombatShip);
+
+        QueueItem[] queue = Home.Construction.GetConstructionQueue().ToArray();
+        int newBomber = System.Array.FindIndex(queue, q => q != earlierBomber && q.ShipData.Role == RoleName.bomber);
+        Assert.IsTrue(System.Array.IndexOf(queue, earlierBomber) < newBomber, "the new bomber goes behind the earlier one");
+        Assert.IsTrue(newBomber < System.Array.IndexOf(queue, lastWarship), "and ahead of the warship waiting behind that one");
     }
 
     [TestMethod]

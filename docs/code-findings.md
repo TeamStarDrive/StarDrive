@@ -1379,15 +1379,33 @@ Item 34 comes from the Ralyeh invasion of Overt II (Combined Arms save at starda
     base priorities run 0 to about 1, so an `OrbitalUrgent` item (priority 0) sat 15th of 21 on
     Kothlar V, behind older warships, troops and freighters.
 
-Item 35 comes from the review of the AI's wait for bombers, 2026-11-23. Logged by decision 2610.
+Item 35 comes from the review of the AI's wait for bombers, 2026-11-23. Logged by decisions 2610 and
+2617.
 
 35. **A task counts bombing its fleet will not take.** `MilitaryTask.CheckSupportNeeds` weighs the
     task's bombing need against `FleetShips.BombSecsAvailable`, every bomber in the pool, but
     `FleetShips.GetBombers` (`FleetShips.cs` ~251) takes at most `fleetCount * Ratios.MinBombers`
-    bombers, and none when `MinBombers` is 0, as a mod or randomized fleet sizes can make it. A task
-    whose pool holds the bombing then leaves with a bomber or two, and asks no troops for the rest.
-    The wait for bombers (`WaitsForBombers`) reads the same pool, so it can end while the fleet would
-    still carry too little bombing.
+    bombers, and none when `MinBombers` is 0, as a mod's fleet ratio can make it (every vanilla ratio
+    wants at least one bomber, randomized fleet sizes included). A task whose pool holds the bombing
+    then leaves with a bomber or two, and asks no troops for the rest. The wait for bombers
+    (`WaitsForBombers`) reads the same pool, so it can end while the fleet would still carry too
+    little bombing. It also asks only `CanBuildBombers`, so with `MinBombers` at 0 a task can wait
+    through half its life for bombers the planner does not build and the fleet would not take. The
+    Combined Arms ratio for an empire with no design in the corvette role or larger
+    (`FleetRatios.cs` ~65) wants none.
+
+Item 36 comes from the review of fixes_71, 2026-11-23. Logged by decision 2616.
+
+36. **A task that waits for bombers is not ended as outmatched.** In `MilitaryTask.FindKeptForce`
+    (`MilitaryTask_KeptFleets.cs` ~68 and ~89), a try short of troops or bombing marks the search
+    short of support, which skips both the new fleet from the pool and the `EndTask` of an outmatched
+    task. While `WaitsForBombers` holds, every try is short of bombing, so a task against a target it
+    cannot beat stays up to half its life instead of ending at once. All that time its war mission
+    counts against the missions allowed per war (`CanAddAnotherWarGoal`) and it takes one of the few
+    task evaluations the planner makes each turn at war (`EmpireAI.RunMilitaryPlanner.cs` ~35). An
+    empire that keeps no fleets does the same in `FormFleetFromPool` (`MilitaryTask_Requistions.cs`
+    ~502), whose support check returns before the outmatched check. A task short of troops did this
+    before; the wait makes it common.
 
 ## Larger items with their own notes
 

@@ -163,7 +163,9 @@ namespace Ship_Game.AI
 
         public void ScanForEnemies(Ship sensorShip, float sensorRadius)
         {
-            BadPlanetsNear = InReachOfHostilePlanet();
+            bool badPlanetsNear = InReachOfHostilePlanet();
+            if (badPlanetsNear != BadPlanetsNear)
+                BadPlanetsNear = badPlanetsNear;
             if (sensorRadius <= 0f) // sensors can be disabled, we use radius 0 to signal this
             {
                 PotentialTargets = Empty<Ship>.Array;
