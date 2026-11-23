@@ -92,13 +92,13 @@ namespace Ship_Game.AI.ExpansionAI
         ExplorableGameObject[] GetPotentialResearchableSolarBodies(bool ignoreDistance)
         {
             Array<ExplorableGameObject> solarBodies = new();
-            float averageDist = Owner.AverageSystemsSqdistFromCenter;
+            float averageDistance = Owner.AverageSystemDistanceFromCenter;
             foreach (ExplorableGameObject solarBody in Universe.ResearchableSolarBodies.Keys)
             {
                 SolarSystem system = solarBody.System ?? solarBody as SolarSystem;
                 if (solarBody.IsExploredBy(Owner) 
                     && !solarBody.IsResearchStationDeployedBy(Owner) // this bit is for performance - faster than HasGoal
-                    && (ignoreDistance || HelperFunctions.InGoodDistanceForReseachOrMiningOps(Owner, system, averageDist, Influense(system.Position)))
+                    && (ignoreDistance || HelperFunctions.InGoodDistanceForStations(Owner, system, averageDistance))
                     && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody))
                     && (Owner.Universe.Remnants == null 
                         || !Owner.Universe.Remnants.AI.HasGoal(g => g is RemnantPortal && g.TargetShip.System == solarBody)))

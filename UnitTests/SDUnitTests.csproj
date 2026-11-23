@@ -124,6 +124,7 @@
     <Compile Include="ExoticSystems\ClearingFleetTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
+    <Compile Include="ExoticSystems\StationDistanceTests.cs" />
     <Compile Include="Fleets\ClaimFleetTests.cs" />
     <Compile Include="Fleets\ExplorationFleetTests.cs" />
     <Compile Include="Fleets\FleetCatchUpTests.cs" />

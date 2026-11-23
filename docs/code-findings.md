@@ -1407,6 +1407,15 @@ Item 36 comes from the review of fixes_71, 2026-11-23. Logged by decision 2616.
     ~502), whose support check returns before the outmatched check. A task short of troops did this
     before; the wait makes it common.
 
+Item 37 comes from the review of where stations go, 2026-11-23. Logged by decision 2632.
+
+37. **An empire of under a billion people has its weighted center pulled toward the map's middle.**
+    `Empire.CalcWeightedCenter` (`Empire.cs` ~2688) divides the population-weighted sum of its
+    planets' positions by the total population floored at 1, so below a billion people the center
+    lies short of the planets, toward (0,0), and an empire of outposts alone has it at (0,0). Every
+    rule measured from the center (where stations go, which systems are worth a fleet to clear) then
+    measures from there.
+
 ## Larger items with their own notes
 
 **~~`GetBestPorts` lets a crippled Colony-type port through~~** — resolved 2026-09-28. The filter
