@@ -391,18 +391,42 @@ namespace Ship_Game
             return (oldValue * oldWeight) + (newValue * (1 - oldWeight));
         }
 
-        static public bool InGoodDistanceForReseachOrMiningOps(Empire owner, SolarSystem system, float averageDist, InfluenceStatus influence)
+        // a research or mining station goes to a system holding a colony of ours, no farther from our weighted center than our systems lie on average,
+        // or inside our borders or those of an empire we have an alliance or open borders with
+        static public bool InGoodDistanceForStations(Empire owner, SolarSystem system, float averageDistance)
         {
             return system.HasPlanetsOwnedBy(owner)
-                   || system.Position.SqDist(owner.WeightedCenter) < averageDist * 1.5f
-                   || system.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(owner))
-                   || influence == InfluenceStatus.Friendly;
+                   || system.Position.InRadius(owner.WeightedCenter, averageDistance)
+                   || InOwnOrTrustedBorders(owner, system.Position);
+        }
+
+        static bool InOwnOrTrustedBorders(Empire owner, Vector2 position)
+        {
+            InfluenceTree influence = owner.Universe.Influence;
+            if (owner.InfluenceActive && influence.IsInInfluenceOf(owner, position))
+                return true;
+
+            var relations = owner.AllRelations;
+            for (int i = 0; i < relations.Length; ++i)
+            {
+                Empire them = relations[i].Them;
+                if ((owner.IsAlliedWith(them) || owner.IsOpenBordersTreaty(them)) && them.InfluenceActive && influence.IsInInfluenceOf(them, position))
+                    return true;
+            }
+            return false;
+        }
+
+        // salvage also goes to a system one of whose five closest systems holds a colony of ours
+        static public bool InGoodDistanceForSalvageOps(Empire owner, SolarSystem system, float averageDistance)
+        {
+            return InGoodDistanceForStations(owner, system, averageDistance)
+                   || system.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(owner));
         }
 
         // a fleet goes to clear a system for research, mining or salvage only near home, or wherever a faction such as pirates or the Remnants is known
         static public bool WorthAFleetToClear(Empire owner, SolarSystem system)
         {
-            if (system.HasPlanetsOwnedBy(owner) || system.Position.SqDist(owner.WeightedCenter) < owner.AverageSystemsSqdistFromCenter * 1.5f)
+            if (system.HasPlanetsOwnedBy(owner) || system.Position.InRadius(owner.WeightedCenter, owner.AverageSystemDistanceFromCenter))
                 return true;
 
             ThreatCluster[] clusters = owner.AI.ThreatMatrix.FindHostileClusters(system.Position, system.Radius);

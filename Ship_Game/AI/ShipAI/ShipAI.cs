@@ -83,6 +83,10 @@ namespace Ship_Game.AI
         public bool BadGuysNear
         { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.BadShipsNear);
           [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.BadShipsNear, value); }
+        // within the reach of the guns of a planet whose owner may fire on this ship
+        public bool BadPlanetsNear
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.BadPlanetsNear);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] private set => Bit(Flags.BadPlanetsNear, value); }
         public bool IgnoreCombat
         { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.IgnoreCombat);
           [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.IgnoreCombat, value); }

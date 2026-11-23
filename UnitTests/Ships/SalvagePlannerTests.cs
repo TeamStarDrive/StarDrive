@@ -306,7 +306,7 @@ public class SalvagePlannerTests : SalvageOrderTest
         HostileThere(Enemy, hostile);
         Derelict d = Forms(Wreck, Enemy);
         Enemy.WeightedCenter = EnemyHome.Position;
-        Assert.IsFalse(WreckSystem.Position.SqDist(Enemy.WeightedCenter) < Enemy.AverageSystemsSqdistFromCenter * 1.5f, "setup: the system is far from home");
+        Assert.IsFalse(WreckSystem.Position.InRadius(Enemy.WeightedCenter, Enemy.AverageSystemDistanceFromCenter), "setup: the system is far from home");
 
         Plans();
 

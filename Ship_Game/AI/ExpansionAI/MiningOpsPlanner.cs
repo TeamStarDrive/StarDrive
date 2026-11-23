@@ -91,13 +91,13 @@ namespace Ship_Game.AI.ExpansionAI
         Planet[] GetPotentialMineablePlanets(bool ignoreDistance)
         {
             Array<Planet> mineables = new();
-            float averageDist = Owner.AverageSystemsSqdistFromCenter;
+            float averageDistance = Owner.AverageSystemDistanceFromCenter;
             for (int i = 0; i < Universe.MineablePlanets.Count; i++)
             {
                 Planet planet = Universe.MineablePlanets[i];
                 if (planet.IsExploredBy(Owner)
                     && (!planet.Mining.HasOpsOwner || planet.Mining.OpsOwnedByEmpire(Owner))
-                    && (ignoreDistance || HelperFunctions.InGoodDistanceForReseachOrMiningOps(Owner, planet.System, averageDist, Influense(planet.System.Position)))
+                    && (ignoreDistance || HelperFunctions.InGoodDistanceForStations(Owner, planet.System, averageDistance))
                     && (Owner.Universe.Remnants == null
                         || !Owner.Universe.Remnants.AI.HasGoal(g => g is RemnantPortal && g.TargetShip.System == planet.System)))
                 {

@@ -266,6 +266,31 @@ public class TroopLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ATroopShipPicksItsLandingSpotOnTheHalfOfThePlanetFacingIt()
+    {
+        foreach (float side in new[] { 1f, -1f })
+        {
+            var spots = new Vector2[20];
+            for (int i = 0; i < spots.Length; ++i)
+            {
+                Ship troopShip = SpawnShip(Player.data.DefaultTroopShip, Player, EnemyPlanet.Position + new Vector2(side * (EnemyPlanet.Radius + 3000), 0));
+                ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(troopShip);
+                troopShip.AI.OrderLandAllTroops(EnemyPlanet, clearOrders: true);
+                UState.Objects.Update(TestSimStep);
+                spots[i] = troopShip.AI.LandingOffset;
+                Assert.IsTrue(spots[i].NotZero(), "setup: the ship picked its spot");
+            }
+
+            foreach (Vector2 spot in spots)
+            {
+                AssertGreaterThan(spot.X * side, -0.01f, $"each spot lies on the half facing the ship ({spot})");
+                AssertLessThan(spot.Length(), EnemyPlanet.Radius + 0.01f, $"and on the planet ({spot})");
+            }
+            AssertLessThan(spots.Min(s => s.X * side), EnemyPlanet.Radius * 0.5f, "spots spread over that half, not along its rim only");
+        }
+    }
+
+    [TestMethod]
     public void ATroopShipNeverLandsOnAnEnemySpacePort()
     {
         EnemyPlanet.HasSpacePort = true;

@@ -653,7 +653,7 @@ namespace Ship_Game
         public bool CanTerraformPlanetTiles => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 2;
         public bool CanFullTerraformPlanets => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 3;
 
-        public float AverageSystemsSqdistFromCenter => OwnedSolarSystems.Count > 0 ? OwnedSolarSystems.Average(s => s.Position.SqDist(WeightedCenter)) : 0;
+        public float AverageSystemDistanceFromCenter => OwnedSolarSystems.Count == 0 ? 0 : OwnedSolarSystems.Average(s => s.Position.Distance(WeightedCenter));
 
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 

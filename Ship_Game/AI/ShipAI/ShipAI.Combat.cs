@@ -163,6 +163,9 @@ namespace Ship_Game.AI
 
         public void ScanForEnemies(Ship sensorShip, float sensorRadius)
         {
+            bool badPlanetsNear = InReachOfHostilePlanet();
+            if (badPlanetsNear != BadPlanetsNear)
+                BadPlanetsNear = badPlanetsNear;
             if (sensorRadius <= 0f) // sensors can be disabled, we use radius 0 to signal this
             {
                 PotentialTargets = Empty<Ship>.Array;
@@ -222,6 +225,23 @@ namespace Ship_Game.AI
             targets.SortByDistance(Owner.Position); // nearest to this ship first: a weapon tracks only the first few
             PotentialTargets = targets;
             ScannedTargets.Clear();
+        }
+
+        bool InReachOfHostilePlanet()
+        {
+            SolarSystem system = Owner.System;
+            if (system == null || system.OwnerList.Count == 0)
+                return false;
+
+            Empire us = Owner.Loyalty;
+            for (int i = 0; i < system.PlanetList.Count; ++i)
+            {
+                Planet p = system.PlanetList[i];
+                if (p.Owner != null && p.Owner.IsEmpireAttackable(us) && Owner.Position.InRadius(p.Position, p.SensorRange)
+                    && Owner.Position.InRadius(p.Position, p.GunReach()))
+                    return true;
+            }
+            return false;
         }
 
         void ScanForProjectiles(Ship sensorShip, float sensorRadius)

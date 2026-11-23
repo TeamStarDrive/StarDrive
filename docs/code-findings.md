@@ -1368,6 +1368,65 @@ Logged by decision 2600.
     distortion, particles and light pillars are never disposed. The game shows the error and goes on
     without that memory.
 
+Item 34 comes from the Ralyeh invasion of Overt II (Combined Arms save at stardate 1116.4),
+2026-11-23. Logged by decision 2606.
+
+34. **The AI's queue bonus outgrows every priority, so its queue runs nearly first in, first out.**
+    `QueueItem.GetAndUpdatePriorityForAI` (`QueueItem.cs` ~149) adds to `PriorityBonus` on every
+    sort of the queue, which each new item starts: 0.05 to 0.2 by type, 0.2 more for warships and
+    troops at war with a major empire, 1 for rushed items and Subspace Projectors, and the share of
+    the cost already spent, again on each sort. On a busy planet the bonus reaches 15-17 while the
+    base priorities run 0 to about 1, so an `OrbitalUrgent` item (priority 0) sat 15th of 21 on
+    Kothlar V, behind older warships, troops and freighters.
+
+Item 35 comes from the review of the AI's wait for bombers, 2026-11-23. Logged by decisions 2610 and
+2617.
+
+35. **A task counts bombing its fleet will not take.** `MilitaryTask.CheckSupportNeeds` weighs the
+    task's bombing need against `FleetShips.BombSecsAvailable`, every bomber in the pool, but
+    `FleetShips.GetBombers` (`FleetShips.cs` ~251) takes at most `fleetCount * Ratios.MinBombers`
+    bombers, and none when `MinBombers` is 0, as a mod's fleet ratio can make it (every vanilla ratio
+    wants at least one bomber, randomized fleet sizes included). A task whose pool holds the bombing
+    then leaves with a bomber or two, and asks no troops for the rest. The wait for bombers
+    (`WaitsForBombers`) reads the same pool, so it can end while the fleet would still carry too
+    little bombing. It also asks only `CanBuildBombers`, so with `MinBombers` at 0 a task can wait
+    through half its life for bombers the planner does not build and the fleet would not take. The
+    Combined Arms ratio for an empire with no design in the corvette role or larger
+    (`FleetRatios.cs` ~65) wants none.
+
+Item 36 comes from the review of fixes_71, 2026-11-23. Logged by decision 2616.
+
+36. **A task that waits for bombers is not ended as outmatched.** In `MilitaryTask.FindKeptForce`
+    (`MilitaryTask_KeptFleets.cs` ~68 and ~89), a try short of troops or bombing marks the search
+    short of support, which skips both the new fleet from the pool and the `EndTask` of an outmatched
+    task. While `WaitsForBombers` holds, every try is short of bombing, so a task against a target it
+    cannot beat stays up to half its life instead of ending at once. All that time its war mission
+    counts against the missions allowed per war (`CanAddAnotherWarGoal`) and it takes one of the few
+    task evaluations the planner makes each turn at war (`EmpireAI.RunMilitaryPlanner.cs` ~35). An
+    empire that keeps no fleets does the same in `FormFleetFromPool` (`MilitaryTask_Requistions.cs`
+    ~502), whose support check returns before the outmatched check. A task short of troops did this
+    before; the wait makes it common.
+
+Item 37 comes from the review of where stations go, 2026-11-23. Logged by decision 2632.
+
+37. **An empire of under a billion people has its weighted center pulled toward the map's middle.**
+    `Empire.CalcWeightedCenter` (`Empire.cs` ~2688) divides the population-weighted sum of its
+    planets' positions by the total population floored at 1, so below a billion people the center
+    lies short of the planets, toward (0,0), and an empire of outposts alone has it at (0,0). Every
+    rule measured from the center (where stations go, which systems are worth a fleet to clear) then
+    measures from there.
+
+Item 38 comes from the review of the AI's shipyard rank, 2026-11-23. Logged by decision 2639.
+
+38. **A colony that wants fewer shipyards scraps a standing one, never a queued or flying one.**
+    `Planet.BuildOrScrapShipyard` (`Planet_BuildDefenses.cs` ~324) counts the shipyards built and on
+    the way, and with more than it wants calls `SBProduction.CancelShipyard`, else scraps the newest
+    standing shipyard. `CancelShipyard` (`SBProduction.cs` ~835) looks for a queue item whose
+    `ShipData` is a shipyard, but a shipyard order's `ShipData` is its constructor, so it finds none;
+    and while any orbital is queued at the colony, `OrbitalsInTheWorks` returns before the count, so
+    the cancel could not run then anyway. A colony that wants one less while its new shipyard's
+    constructor is in flight scraps a standing shipyard as the new one deploys.
+
 ## Larger items with their own notes
 
 **~~`GetBestPorts` lets a crippled Colony-type port through~~** — resolved 2026-09-28. The filter

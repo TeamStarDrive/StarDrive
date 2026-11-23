@@ -397,9 +397,20 @@ namespace Ship_Game.AI.Tasks
             MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound) *  Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
             MinimumTaskForceStrength = MinimumTaskForceStrength.UpperBound(MinimumStrengthUpperBoundByImportance());
 
-            float lifeTimeMax = IsWarTask ? Owner.PersonalityModifiers.WarTasksLifeTime : 10;
+            float lifeTimeMax = LifeTimeMax;
             float goalLifeTime = Goal?.LifeTime ?? 0;
             MinimumTaskForceStrength *= (lifeTimeMax - goalLifeTime).LowerBound(lifeTimeMax*0.5f) / lifeTimeMax;
+        }
+
+        float LifeTimeMax => IsWarTask ? Owner.PersonalityModifiers.WarTasksLifeTime : 10;
+
+        // an empire that builds bombers waits for them through the first half of the task's life: for all the bombing a planet with guns needs, half of it for one without
+        bool WaitsForBombers(int bombSecs)
+        {
+            if (!Owner.CanBuildBombers || Goal == null || Goal.LifeTime >= LifeTimeMax * 0.5f)
+                return false;
+            float wanted = TargetPlanet?.GunReach() > 0f ? TaskBombTimeNeeded : TaskBombTimeNeeded * 0.5f;
+            return bombSecs < wanted;
         }
 
         float MinimumStrengthUpperBoundByImportance()
@@ -511,12 +522,15 @@ namespace Ship_Game.AI.Tasks
             return RequisitionStatus.Complete;
         }
 
-        // the pool and planets have the bombing and troops the force lacks, troops making up for missing bombing
+        // the pool and planets have the bombing and troops the force lacks, troops making up for missing bombing unless the task waits for bombers
         RequisitionStatus CheckSupportNeeds(FleetShips pool, int forceBombSecs, float forceTroopStrength, Planet rallyPoint,
                                             bool highTroopPriority, out Array<Troop> troopsOnPlanets)
         {
             troopsOnPlanets = new Array<Troop>();
             int bombSecs = pool.BombSecsAvailable + forceBombSecs;
+            if (WaitsForBombers(bombSecs))
+                return RequisitionStatus.NotEnoughBomberStrength;
+
             if (NeededTroopStrength > 0)
             {
                 CoverMissingBombingWithTroops(bombSecs);

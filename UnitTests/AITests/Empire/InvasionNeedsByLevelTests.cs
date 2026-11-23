@@ -1,15 +1,17 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire;
 
-// the troops and bombing time an AI task asks for a planet grow with the planet's level
+// the troops and bombing time an AI task asks for a planet grow with the planet's level, and how long it waits for bombers before troops make up for them
 [TestClass]
 public class InvasionNeedsByLevelTests : StarDriveTest
 {
@@ -88,9 +90,74 @@ public class InvasionNeedsByLevelTests : StarDriveTest
         Assert.IsTrue(onHand > 0, "test setup: the bomber is ready for a fleet");
 
         var task = new MilitaryTask(Target, Enemy, MilitaryTaskImportance.Normal) { TaskBombTimeNeeded = onHand + 40, NeededTroopStrength = 50 };
-        typeof(MilitaryTask).GetMethod("CreateTaskFleet", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(task, new object[] { 1f, false });
+        Requisition(task);
         AssertEqual(onHand, task.TaskBombTimeNeeded, "the bombing time on hand is asked for");
         AssertEqual(450, task.NeededTroopStrength, "the 40 missing seconds become 400 troop strength");
+    }
+
+    static MilitaryTask.RequisitionStatus Requisition(MilitaryTask task)
+        => (MilitaryTask.RequisitionStatus)typeof(MilitaryTask).GetMethod("CreateTaskFleet", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                                                .Invoke(task, new object[] { 1f, false })!;
+
+    // a war task for our planet asking this much bombing and 50 troop strength
+    MilitaryTask TaskForBombing(bool canBuildBombers, bool planetHasAGun, int bombing)
+    {
+        typeof(Ship_Game.Empire).GetProperty(nameof(Ship_Game.Empire.CanBuildBombers))!.SetValue(Enemy, canBuildBombers);
+        if (planetHasAGun)
+        {
+            Building template = ResourceManager.BuildingsDict.Values.First(b => b.IsWeapon);
+            Target.TilesList.First(t => t.Habitable && t.NoBuildingOnTile).PlaceBuilding(ResourceManager.CreateBuilding(Target, template), Target);
+        }
+        Assert.AreEqual(planetHasAGun, Target.GunReach() > 0f, "setup: the planet's gun");
+
+        var task = new MilitaryTask(Target, Enemy, MilitaryTaskImportance.Normal) { TaskBombTimeNeeded = bombing, NeededTroopStrength = 50 };
+        task.Goal = new WarMission(Enemy, Player, Target);
+        Assert.IsTrue(task.IsWarTask, "setup: a war task, which lasts the empire's war task life");
+        return task;
+    }
+
+    [TestMethod]
+    public void AnEmpireThatBuildsBombersWaitsForThemAgainstAPlanetWithAGunThroughHalfTheTasksLife()
+    {
+        AssertEqual(0, Enemy.ShipsReadyForFleet.BombSecsAvailable, "setup: no bomber is ready");
+        MilitaryTask task = TaskForBombing(canBuildBombers: true, planetHasAGun: true, bombing: 40);
+
+        Assert.AreEqual(MilitaryTask.RequisitionStatus.NotEnoughBomberStrength, Requisition(task), "the task waits for bombers");
+        AssertEqual(50, task.NeededTroopStrength, "and asks no troops for the bombing");
+
+        UState.StarDate += Enemy.PersonalityModifiers.WarTasksLifeTime * 0.4f;
+        Requisition(task);
+        AssertEqual(50, task.NeededTroopStrength, "it still waits before half its life");
+
+        UState.StarDate += Enemy.PersonalityModifiers.WarTasksLifeTime * 0.15f;
+        Requisition(task);
+        AssertEqual(450, task.NeededTroopStrength, "past half its life, troops make up for the 40 missing seconds");
+    }
+
+    [TestMethod]
+    public void AgainstAPlanetWithoutAGunItWaitsForHalfTheBombingAndTroopsMakeUpTheOtherHalf()
+    {
+        Enemy.ShipsReadyForFleet = ReadyForFleet(SpawnShip(Bomber, Enemy, new Vector2(-200_000)));
+        int onHand = Enemy.ShipsReadyForFleet.BombSecsAvailable;
+        Assert.IsTrue(onHand > 0, "setup: a bomber is ready");
+
+        MilitaryTask moreThanTwice = TaskForBombing(canBuildBombers: true, planetHasAGun: false, bombing: onHand * 2 + 2);
+        Assert.AreEqual(MilitaryTask.RequisitionStatus.NotEnoughBomberStrength, Requisition(moreThanTwice),
+                        "with less than half the bombing ready, the task waits for bombers");
+        AssertEqual(50, moreThanTwice.NeededTroopStrength, "and asks no troops for the bombing");
+
+        MilitaryTask twice = TaskForBombing(canBuildBombers: true, planetHasAGun: false, bombing: onHand * 2);
+        Requisition(twice);
+        AssertEqual(50 + onHand * 10, twice.NeededTroopStrength, "with half of it ready, troops make up for the other half");
+    }
+
+    [TestMethod]
+    public void AnEmpireThatCannotBuildBombersLetsTroopsMakeUpForAllTheBombingAtOnce()
+    {
+        AssertEqual(0, Enemy.ShipsReadyForFleet.BombSecsAvailable, "setup: no bomber is ready");
+        MilitaryTask task = TaskForBombing(canBuildBombers: false, planetHasAGun: true, bombing: 40);
+        Requisition(task);
+        AssertEqual(450, task.NeededTroopStrength, "troops make up for the 40 missing seconds");
     }
 
     [TestMethod]

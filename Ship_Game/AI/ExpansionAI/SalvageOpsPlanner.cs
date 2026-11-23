@@ -37,12 +37,12 @@ namespace Ship_Game.AI.ExpansionAI
 
             SolarSystem[] systems = Owner.DerelictSystems.ToArr();
             systems.Sort(s => s.Position.SqDist(Owner.WeightedCenter));
-            float averageDist = Owner.AverageSystemsSqdistFromCenter;
+            float averageDistance = Owner.AverageSystemDistanceFromCenter;
             bool built = false;
             for (int i = 0; i < systems.Length; ++i)
             {
                 SolarSystem system = systems[i];
-                if (!Candidate(system, averageDist, ignoreDistance))
+                if (!Candidate(system, averageDistance, ignoreDistance))
                     continue;
 
                 Derelict[] derelicts = ToOrderIn(Owner, system);
@@ -84,15 +84,14 @@ namespace Ship_Game.AI.ExpansionAI
         }
 
         // safe to work and near enough
-        bool Candidate(SolarSystem system, float averageDist, bool ignoreDistance)
-            => SafeToWork(Owner, system, out InfluenceStatus influence)
-               && (ignoreDistance || HelperFunctions.InGoodDistanceForReseachOrMiningOps(Owner, system, averageDist, influence));
+        bool Candidate(SolarSystem system, float averageDistance, bool ignoreDistance)
+            => SafeToWork(Owner, system)
+               && (ignoreDistance || HelperFunctions.InGoodDistanceForSalvageOps(Owner, system, averageDistance));
 
         // explored, outside enemy influence, with no Remnant portal, and with no colony of a rival it is neither at war with nor has open borders or an alliance with
-        static bool SafeToWork(Empire empire, SolarSystem system, out InfluenceStatus influence)
+        static bool SafeToWork(Empire empire, SolarSystem system)
         {
-            influence = empire.Universe.Influence.GetInfluenceStatus(empire, system.Position);
-            if (!system.IsExploredBy(empire) || influence == InfluenceStatus.Enemy)
+            if (!system.IsExploredBy(empire) || empire.Universe.Influence.GetInfluenceStatus(empire, system.Position) == InfluenceStatus.Enemy)
                 return false;
 
             if (empire.Universe.Remnants?.AI.HasGoal(g => g is RemnantPortal && g.TargetShip?.System == system) == true)
@@ -106,7 +105,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         // on the sim thread: where the planner would order salvage wherever the system lies, safe to work with no hostile strength the empire knows of
         public static bool WouldWork(Empire empire, SolarSystem system)
-            => SafeToWork(empire, system, out _) && empire.KnownEnemyStrengthNoResearchStationsIn(system) <= 0f;
+            => SafeToWork(empire, system) && empire.KnownEnemyStrengthNoResearchStationsIn(system) <= 0f;
 
         // the derelicts there the empire can order salvaged with a fifth of their turns left, the fewest turns left first, as a claim stops a derelict's clock
         public static Derelict[] ToOrderIn(Empire empire, SolarSystem system)

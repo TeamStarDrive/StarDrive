@@ -595,8 +595,10 @@ namespace Ship_Game.Universe.SolarBodies
 
         static bool IsOutpostOrCapital(QueueItem q) => q.isBuilding && q.Building.IsCapitalOrOutpost;
 
-        // in the AI's queue the refits stay together right behind the items kept first, ahead of the rest
-        static int AIRank(int frontRank, QueueItem q) => frontRank < 3 ? frontRank : q.IsRefit ? 3 : 4;
+        // in the AI's queue the shipyards go right behind the items kept first, then the refits together, ahead of the rest
+        static int AIRank(int frontRank, QueueItem q) => frontRank < 3 ? frontRank : IsShipyard(q) ? 3 : q.IsRefit ? 4 : 5;
+
+        static bool IsShipyard(QueueItem q) => q.Goal is DeepSpaceBuildGoal { ToBuild.IsShipyard: true };
 
         // an Outpost or Capital in the first slot stays there, and nothing goes ahead of it
         public bool IsFirstSlotLocked => ConstructionQueue.Count > 0 && IsOutpostOrCapital(ConstructionQueue[0]);
@@ -617,10 +619,31 @@ namespace Ship_Game.Universe.SolarBodies
             return n;
         }
 
+        // at war with a major empire, the AI's new bomber goes ahead of the warships waiting in the queue, not of those being built or of earlier bombers
+        void PutBomberAheadOfWarships(QueueItem item)
+        {
+            if (P.OwnerIsPlayer || item.QType != QueueItemType.CombatShip || item.ShipData?.Role != RoleName.bomber || !Owner.IsAtWarWithMajorEmpire)
+                return;
+
+            float ahead = 0f, behind = float.MaxValue;
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.QType != QueueItemType.CombatShip || q.IsRefit != item.IsRefit)
+                    continue;
+                if (q.ProductionSpent > 0f || q.ShipData?.Role == RoleName.bomber)
+                    behind = Math.Min(behind, q.PriorityBonus);
+                else
+                    ahead = Math.Max(ahead, q.PriorityBonus);
+            }
+            item.RaisePriorityBonus(Math.Min(ahead + 1f, behind - 0.01f));
+        }
+
         void AddToQueueAndPrioritize(QueueItem item)
         {
             lock (ConstructionQueue)
             {
+                PutBomberAheadOfWarships(item);
                 ConstructionQueue.Add(item);
                 QueueSnapshotDirty = true;
                 if (!P.OwnerIsPlayer)
@@ -656,7 +679,7 @@ namespace Ship_Game.Universe.SolarBodies
                     }
                 }
 
-                // Ship and orbital refits jump the queue so the ship returns to service fast; the AI's sort already puts them there.
+                // Ship and orbital refits jump the queue so the ship returns to service fast; the AI's sort puts them right behind its shipyards.
                 if (item.IsRefit && P.OwnerIsPlayer)
                     PromoteRefitToFront(item);
             }

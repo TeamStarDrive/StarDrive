@@ -1381,7 +1381,7 @@ namespace Ship_Game.Ships
         public void UpdateModulePositions(FixedSimTime timeStep, bool forceUpdate = false)
         {
             bool visible = IsVisibleToPlayer;
-            if (Active && (AI.BadGuysNear || visible || forceUpdate))
+            if (Active && (AI.BadGuysNear || AI.BadPlanetsNear || visible || forceUpdate))
             {
                 var a = new ShipModule.UpdateEveryFrameArgs
                 {

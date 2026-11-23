@@ -1673,7 +1673,7 @@ namespace Ship_Game
         {
             float reach = 0f;
             foreach (Building b in Buildings)
-                if (b.IsWeapon)
+                if (b != null && b.IsWeapon)
                     reach = Math.Max(reach, b.SpaceRange);
             return Math.Min(reach, SensorRange);
         }

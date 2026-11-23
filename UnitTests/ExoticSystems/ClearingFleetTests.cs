@@ -14,7 +14,7 @@ namespace UnitTests.ExoticSystems;
 
 /// <summary>
 /// A computer empire sends a fleet to clear a system for research or mining only near home, where it has planets of
-/// its own or within one and a half times its systems' average squared distance from its weighted center, or wherever
+/// its own or no farther from its weighted center than its systems lie on average, or wherever
 /// it knows of a faction there, such as pirates, the Remnants or event ships. That holds when its planner wants a
 /// research station in the system, when its research station there calls for help against an enemy's, when its
 /// planner wants to mine a planet there, and when its mining station there is attacked.
@@ -70,7 +70,7 @@ public class ClearingFleetTests : StarDriveTest
     void CenterTheAI(bool nearHome)
     {
         Enemy.WeightedCenter = nearHome ? NewPlanet.System.Position : EnemyHome.Position;
-        Assert.AreEqual(nearHome, NewPlanet.System.Position.SqDist(Enemy.WeightedCenter) < Enemy.AverageSystemsSqdistFromCenter * 1.5f,
+        Assert.AreEqual(nearHome, NewPlanet.System.Position.InRadius(Enemy.WeightedCenter, Enemy.AverageSystemDistanceFromCenter),
                         "setup: the system is near the AI's center, or far from it");
     }
 

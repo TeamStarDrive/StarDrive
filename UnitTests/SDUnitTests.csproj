@@ -124,6 +124,7 @@
     <Compile Include="ExoticSystems\ClearingFleetTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
+    <Compile Include="ExoticSystems\StationDistanceTests.cs" />
     <Compile Include="Fleets\ClaimFleetTests.cs" />
     <Compile Include="Fleets\ExplorationFleetTests.cs" />
     <Compile Include="Fleets\FleetCatchUpTests.cs" />
@@ -190,6 +191,8 @@
     <Compile Include="Planets\TestRefitQueuePlacement.cs" />
     <Compile Include="Planets\AIColonyShipQueueTests.cs" />
     <Compile Include="Planets\AIRefitQueueOrderTests.cs" />
+    <Compile Include="Planets\AIBomberQueueTests.cs" />
+    <Compile Include="Planets\AIShipyardQueueTests.cs" />
     <Compile Include="Planets\ItemsFinishedPerTurnTests.cs" />
     <Compile Include="Planets\PlanetSurfaceScanTests.cs" />
     <Compile Include="Planets\ShipyardBonusTests.cs" />
@@ -234,6 +237,7 @@
     <Compile Include="Ships\LaunchingShipProtectionTests.cs" />
     <Compile Include="Ships\HangarLandingTests.cs" />
     <Compile Include="Ships\HitBankTests.cs" />
+    <Compile Include="Ships\HostilePlanetReachTests.cs" />
     <Compile Include="Ships\BoardingLandingTests.cs" />
     <Compile Include="Ships\FleeTests.cs" />
     <Compile Include="Ships\TroopLandingTests.cs" />
