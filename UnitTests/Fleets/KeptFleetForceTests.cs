@@ -560,6 +560,45 @@ public class KeptFleetForceTests : StarDriveTest
         Assert.IsTrue(idle.IsIdle, "and the idle fleet stays idle");
     }
 
+    // a defense of the empire's own system, the player's ships seen there
+    MilitaryTask DefenseWithPlayerShipsSeen(int count)
+    {
+        SolarSystem home = Rally.System;
+        PlayerShipsSeen(Rally.Position, count, home);
+        return new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, Enemy, home.Position, home.Radius * 1.5f,
+                                home, 500f, MilitaryTaskImportance.Important);
+    }
+
+    [TestMethod]
+    public void ADefenseThatWouldGiveUpItsFightAtOnceFormsNoFleet()
+    {
+        Ship[] ships = Warships(1, Rally.Position + new Vector2(20_000f, 0f));
+        Fleet idle = KeptFleet(ships);
+        float one = One(ships[0]);
+        float playerShip = SpawnShip(Warship, Player, new Vector2(900_000f)).GetStrength();
+        int count = (int)(one * Enemy.PersonalityModifiers.CanWeTakeThisFightMultiplier / (playerShip * Fleet.ClearAreaEnemyShare)) + 1;
+        MilitaryTask defense = DefenseWithPlayerShipsSeen(count);
+        float hostiles = Enemy.Threats.GetWeightedHostileStrengthAt(defense.AO, defense.AORadius);
+        Assert.IsFalse(Fleet.CanTakeWeightedFight(Enemy, one, hostiles * Fleet.ClearAreaEnemyShare), "setup: the idle fleet would give up the fight there");
+
+        Requisition(defense, 0.5f * one, simulate: false);
+
+        Assert.IsNull(defense.Fleet, "a defense fleet that would give up its fight on its first update is not formed");
+        Assert.IsTrue(idle.IsIdle, "and the idle fleet stays idle");
+    }
+
+    [TestMethod]
+    public void ADefenseThatCanTakeItsFightFormsItsFleet()
+    {
+        Ship[] ships = Warships(1, Rally.Position + new Vector2(20_000f, 0f));
+        Fleet idle = KeptFleet(ships);
+        MilitaryTask defense = DefenseWithPlayerShipsSeen(1);
+
+        Requisition(defense, 0.5f * One(ships[0]), simulate: false);
+
+        Assert.AreEqual(idle, defense.Fleet, "the idle fleet takes a defense it can see through");
+    }
+
     [TestMethod]
     public void AWeakerFleetOutmatchedAtTheTargetLeavesTheTaskToTwoFleetsJoinedInsteadOfEndingIt()
     {

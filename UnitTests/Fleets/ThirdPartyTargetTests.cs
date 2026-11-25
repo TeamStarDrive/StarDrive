@@ -839,6 +839,44 @@ public class ThirdPartyTargetTests : StarDriveTest
         Assert.IsNull(fleet.FleetTask, "weighed by the Remnants' own multiplier it cannot, and the fleet gives up its task");
     }
 
+    // a fleet sent to clear the player's system, its hostiles seen there and no threat on its way, as in a system the fleet's empire has lost
+    Fleet ClearingThePlayersSystem(int seenHostiles, out MilitaryTask task)
+    {
+        SolarSystem system = Target.System;
+        SeenBeside(Target, Player, count: seenHostiles);
+        task = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, Enemy, system.Position, system.Radius,
+                                system, 0f, MilitaryTaskImportance.Normal);
+        var fleet = new Fleet(UState, Enemy) { FleetTask = task, TaskStep = 3 };
+        typeof(MilitaryTask).GetProperty(nameof(MilitaryTask.Fleet))!.SetValue(task, fleet);
+        for (int i = 0; i < 3; ++i)
+            fleet.AddShip(SpawnShip(Warship, Enemy, system.Position + new Vector2(-system.Radius * 3f, 1000f * i)));
+        Enemy.FleetStrEmpireMultiplier[Player.Id] = 1f;
+        Assert.IsFalse(Enemy.IsSystemUnderThreatForUs(system) || Enemy.IsSystemUnderThreatForAllies(system), "setup: no threat is on its way to the system");
+        return fleet;
+    }
+
+    [TestMethod]
+    public void AFleetClearingASystemGivesUpAForceTooStrongForItWithNoThreatOnItsWay()
+    {
+        Fleet fleet = ClearingThePlayersSystem(seenHostiles: 20, out MilitaryTask task);
+        float seen = Enemy.Threats.GetWeightedHostileStrengthAt(task.AO, task.AORadius);
+        Assert.IsFalse(Fleet.CanTakeWeightedFight(Enemy, fleet.GetStrength(), seen * 0.5f), "setup: the fleet cannot take the force there");
+
+        Call(fleet, "DoClearAreaOfEnemies", task);
+
+        Assert.IsNull(fleet.FleetTask, "a force too strong for the fleet ends its task, whether or not it is a fleet on its way");
+    }
+
+    [TestMethod]
+    public void AFleetClearingASystemStaysToClearALoneShipWithNoThreatOnItsWay()
+    {
+        Fleet fleet = ClearingThePlayersSystem(seenHostiles: 1, out MilitaryTask task);
+
+        Call(fleet, "DoClearAreaOfEnemies", task);
+
+        Assert.AreSame(task, fleet.FleetTask, "a lone ship left in the area is the fleet's to clear");
+    }
+
     [TestMethod]
     public void AFleetThatWentInStaysInItsFight()
     {

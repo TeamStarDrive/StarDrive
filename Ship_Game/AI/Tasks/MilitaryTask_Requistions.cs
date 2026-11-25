@@ -377,6 +377,11 @@ namespace Ship_Game.AI.Tasks
             {
                 enemyNear = Owner.AI.ThreatMatrix.GetWeightedHostileStrengthAt(AO, Ship_Game.Fleets.Fleet.AssaultEnemyScanRadius);
             }
+            else if (Type == TaskType.ClearAreaOfEnemies)
+            {
+                // no defense fleet is formed that would give up its fight on its first update
+                enemyNear = Owner.AI.ThreatMatrix.GetWeightedHostileStrengthAt(AO, AORadius) * Ship_Game.Fleets.Fleet.ClearAreaEnemyShare;
+            }
             else
             {
                 return false;
@@ -385,7 +390,7 @@ namespace Ship_Game.AI.Tasks
             if (Ship_Game.Fleets.Fleet.CanTakeWeightedFight(Owner, fleetStrength, enemyNear))
                 return false;
 
-            Log.Info($"{Owner.Name} TaskForce {GetFleetName()} not formed, outmatched Strength={fleetStrength} EnemyNear={enemyNear} Target={TargetPlanet.Name}");
+            Log.Info($"{Owner.Name} TaskForce {GetFleetName()} not formed, outmatched Strength={fleetStrength} EnemyNear={enemyNear} Target={TargetPlanet?.Name ?? TargetSystem?.Name}");
             return true;
         }
 

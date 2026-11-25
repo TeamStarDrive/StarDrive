@@ -2001,8 +2001,9 @@ namespace Ship_Game.Fleets
             bool threatIncoming = Owner.IsSystemUnderThreatForUs(FleetTask.TargetSystem)
                 || Owner.IsSystemUnderThreatForAllies(FleetTask.TargetSystem);
 
-            if (threatIncoming && EndInvalidTask(!CanTakeWeightedFight(enemyStrength*0.5f, task, inCombat: TaskStep >= 2)))
-                return; // If no threat is incoming, stay put to clear remaining lone ships
+            // the fleet gives up a fight it cannot take, a threat on its way or not
+            if (EndInvalidTask(!CanTakeWeightedFight(enemyStrength * ClearAreaEnemyShare, task, inCombat: TaskStep >= 2)))
+                return;
 
             float aoRadius = task.TargetSystem?.Radius * 2 ?? task.RallyPlanet.System.Radius * 2;
 
@@ -2520,6 +2521,9 @@ namespace Ship_Game.Fleets
 
         // the share of the enemy strength a fleet weighs in its fights once formed; forming a force, idle fleets and fleeing ships weigh it whole
         public const float StayInFightEnemyShare = 0.75f;
+
+        // the share of the weighted hostiles in its area a fleet clearing it weighs, when it is formed and on its task
+        public const float ClearAreaEnemyShare = 0.5f;
 
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool inCombat)
