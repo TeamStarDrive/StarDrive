@@ -22,10 +22,11 @@ namespace UnitTests.AITests.Ships
         const string CorvetteName = "Hornet mk2-a";
         const string FrigateName = "TEST_Spearhead mk1-a";
         const string CarrierName = "Light Carrier mk1-a";
+        const string ProjectorName = "Subspace Projector";
 
         public ShipAICombatTests()
         {
-            LoadStarterShips(ScoutName, RocketFName, CorvetteName, FrigateName, CarrierName);
+            LoadStarterShips(ScoutName, RocketFName, CorvetteName, FrigateName, CarrierName, ProjectorName);
             CreateUniverseAndPlayerEmpire("Human");
             AssertEqual(0, UState.Objects.NumShips);
 
@@ -185,6 +186,18 @@ namespace UnitTests.AITests.Ships
             SpawnStrongEnemyGroupWithCarrier();
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
             AssertEqual(CarrierTarget, Us.AI.Target, "Expected frigate to target another frigate");
+        }
+
+        [TestMethod]
+        public void ShipsTakeOnAShipBeforeANearerProjector()
+        {
+            SpawnOurShip(ScoutName);
+            SpawnNonCombat(ProjectorName, Enemy, 0, -300);
+            ScoutTarget = SpawnNonCombat(ScoutName, Enemy, 0, -5000);
+            RunObjectsSim(EnemyScanInterval);
+
+            AssertEqual(2, Us.AI.PotentialTargets.Length, "setup: we see the projector and the scout");
+            AssertEqual(ScoutTarget, Us.AI.Target, "a projector is the last thing worth shooting");
         }
 
         [TestMethod]

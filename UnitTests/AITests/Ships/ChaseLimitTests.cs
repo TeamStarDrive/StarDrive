@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
@@ -21,6 +22,7 @@ public class ChaseLimitTests : StarDriveTest
     const string PlatformName = "Platform Base mk1-a";
     const string ShuttleName = "Assault Shuttle";
     const string TroopShipName = "Human Troop";
+    const string ProjectorName = "Subspace Projector";
     static readonly FixedSimTime OneSecond = new(1f);
     static readonly FixedSimTime ToTheNextTargetPick = new(1.5f);
     static readonly Vector2 FleetPos = new(300_000f, 300_000f);
@@ -30,7 +32,7 @@ public class ChaseLimitTests : StarDriveTest
 
     public ChaseLimitTests()
     {
-        LoadStarterShips(FrigateName, ScoutName, CarrierName, DreadnoughtName, PlatformName, ShuttleName, TroopShipName);
+        LoadStarterShips(FrigateName, ScoutName, CarrierName, DreadnoughtName, PlatformName, ShuttleName, TroopShipName, ProjectorName);
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
     }
@@ -384,10 +386,11 @@ public class ChaseLimitTests : StarDriveTest
 
     Fleet MovingFleetTo(Vector2 destination, params TestShip[] ships)
     {
-        Fleet fleet = Enemy.CreateFleet(1, null);
+        Ship_Game.Empire owner = ships[0].Loyalty;
+        Fleet fleet = owner.CreateFleet(1, null);
         foreach (TestShip ship in ships)
             fleet.AddShip(ship);
-        fleet.FleetTask = new MilitaryTask(AddDummyPlanet(new Vector2(-300_000f)), Enemy, MilitaryTaskImportance.Normal);
+        fleet.FleetTask = new MilitaryTask(AddDummyPlanet(new Vector2(-300_000f)), owner, MilitaryTaskImportance.Normal);
         fleet.MoveTo(destination, FleetPos.DirectionToTarget(destination), MoveOrder.Aggressive);
         return fleet;
     }
@@ -932,5 +935,91 @@ public class ChaseLimitTests : StarDriveTest
 
         AssertEqual(AIState.MoveTo, ship.AI.State, "setup: the fleet ship answers the call");
         Assert.IsNull(ship.AI.OrbitedPlanet, "its fleet, not an orbit, takes it on from there");
+    }
+
+    // a ship of a fleet on a task, on an attack move of its own as its fleet sends it at a cluster, and a rival's projector 5,000 off, far from the task's area
+    TestShip FleetShipBesideAProjector(Ship_Game.Empire owner, out Fleet fleet, out TestShip projector)
+    {
+        TestShip ship = Quiet(SpawnShip(DreadnoughtName, owner, FleetPos));
+        fleet = MovingFleet(ship);
+        ship.AI.OrderAttackMoveTo(FleetPos + new Vector2(0f, -50_000f));
+        projector = Quiet(SpawnShip(ProjectorName, owner == Enemy ? Player : Enemy, ship.Position + new Vector2(0f, 5000f)));
+        AssertGreaterThan(projector.Position.Distance(fleet.FleetTask.AO), 500_000f, "setup: the projector is far from the task's area");
+        return ship;
+    }
+
+    [TestMethod]
+    public void AnAIFleetShipOnATaskLeavesAProjectorOnItsWayAlone()
+    {
+        TestShip ship = FleetShipBesideAProjector(Enemy, out _, out _);
+        RunObjectsSim(OneSecond);
+
+        AssertEqual(1, ship.AI.PotentialTargets.Length, "setup: the fleet ship sees the projector");
+        Assert.IsNull(ship.AI.Target, "a projector on the way does not turn the fleet from its task");
+        Assert.IsFalse(ship.InCombat);
+    }
+
+    [TestMethod]
+    public void AnAIFleetShipOnATaskTakesOnAProjectorInsideTheTaskArea()
+    {
+        TestShip ship = FleetShipBesideAProjector(Enemy, out Fleet fleet, out TestShip projector);
+        fleet.FleetTask.ChangeAO(projector.Position + new Vector2(fleet.FleetTask.AORadius - 1000f, 0f));
+        RunObjectsSim(OneSecond);
+
+        Assert.AreSame(projector, ship.AI.Target, "a projector in the area the fleet was sent to is part of its task");
+    }
+
+    [TestMethod]
+    public void AnAIFleetShipOnATaskLeavesAProjectorJustOutsideTheTaskAreaAlone()
+    {
+        TestShip ship = FleetShipBesideAProjector(Enemy, out Fleet fleet, out TestShip projector);
+        fleet.FleetTask.ChangeAO(projector.Position + new Vector2(fleet.FleetTask.AORadius + 1000f, 0f));
+        RunObjectsSim(OneSecond);
+
+        Assert.IsNull(ship.AI.Target, "the task's area ends at its radius");
+    }
+
+    [TestMethod]
+    public void AFighterOfAnAIFleetOnATaskLeavesAProjectorOnItsWayAlone()
+    {
+        TestShip carrier = FleetShipBesideAProjector(Enemy, out _, out TestShip projector);
+        TestShip fighter = Quiet(SpawnShip(ScoutName, Enemy, projector.Position + new Vector2(0f, 2000f)));
+        fighter.Mothership = carrier;
+        RunObjectsSim(OneSecond);
+
+        Assert.IsTrue(fighter.AI.PotentialTargets.ContainsRef(projector), "setup: the fighter sees the projector");
+        Assert.IsNull(fighter.AI.Target, "a carrier's fighters keep to its fleet's task");
+    }
+
+    [TestMethod]
+    public void APlayerFleetShipOnATaskStillTakesOnAProjectorOnItsWay()
+    {
+        TestShip ship = FleetShipBesideAProjector(Player, out _, out TestShip projector);
+        RunObjectsSim(OneSecond);
+
+        Assert.AreSame(projector, ship.AI.Target, "the player's own ships are left to the player");
+    }
+
+    [TestMethod]
+    public void AnAIShipOutsideAnyFleetStillTakesOnAProjector()
+    {
+        TestShip ship = FleetShip(FleetPos);
+        TestShip projector = Quiet(SpawnShip(ProjectorName, Player, ship.Position + new Vector2(0f, 5000f)));
+        RunObjectsSim(OneSecond);
+
+        Assert.AreSame(projector, ship.AI.Target, "only a fleet's task keeps a ship from a projector");
+    }
+
+    [TestMethod]
+    public void AShipOfAnAIFleetWithoutATaskStillTakesOnAProjector()
+    {
+        TestShip ship = FleetShip(FleetPos);
+        Fleet fleet = Enemy.CreateFleet(1, null);
+        fleet.AddShip(ship);
+        fleet.MoveTo(new Vector2(-300_000f), Vectors.Up, MoveOrder.Aggressive);
+        TestShip projector = Quiet(SpawnShip(ProjectorName, Player, ship.Position + new Vector2(0f, 5000f)));
+        RunObjectsSim(OneSecond);
+
+        Assert.AreSame(projector, ship.AI.Target, "a fleet without a task has no area to keep to");
     }
 }

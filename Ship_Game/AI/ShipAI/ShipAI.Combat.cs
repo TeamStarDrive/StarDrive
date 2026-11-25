@@ -463,6 +463,9 @@ namespace Ship_Game.AI
 
         Fleet.FleetFocus FocusClump;
 
+        // the fleet this ship fights for: its own, or its carrier's for a hangar ship
+        Fleet GoverningFleet => Owner.Fleet ?? (Owner.IsHangarShip ? Owner.Mothership?.Fleet : null);
+
         public Ship GetHighestPriorityTarget()
         {
             if (Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
@@ -470,8 +473,7 @@ namespace Ship_Game.AI
 
             if (PotentialTargets.Length > 0)
             {
-                Fleet governing = Owner.Fleet ?? (Owner.IsHangarShip ? Owner.Mothership?.Fleet : null);
-                FocusClump = governing?.Focus;
+                FocusClump = GoverningFleet?.Focus;
                 return PotentialTargets.FindMaxFiltered(MayChaseFilter ??= MayChase, TargetPriority ??= GetTargetPriority);
             }
             return null;
@@ -513,7 +515,7 @@ namespace Ship_Game.AI
             }
         }
 
-        // a guard chases outside its system only a ship firing on it or its station, or a carrier with fighters in the system, a moving fleet ship skips a lone weak ship that threatens neither it nor its fleet
+        // a guard chases outside its system only a ship firing on it or its station, or a carrier with fighters in the system, an AI ship of a fleet on a task chases a subspace projector only inside the task's area, a moving fleet ship skips a lone weak ship that threatens neither it nor its fleet
         bool MayChase(Ship target)
         {
             if (GuardedSystem is { } system)
@@ -521,6 +523,9 @@ namespace Ship_Game.AI
                     || target.Carrier.HasFightersIn(system)
                     || FiresOn(target, Owner)
                     || GuardedStation is { } station && FiresOn(target, station);
+
+            if (target.IsSubspaceProjector && !Owner.Loyalty.isPlayer && GoverningFleet?.FleetTask is { } task)
+                return target.Position.InRadius(task.AO, task.AORadius);
 
             return !OnFleetMove
                 || PotentialTargets.Length > 1
@@ -653,7 +658,7 @@ namespace Ship_Game.AI
             if (debug) Debug($"str={tgt.GetStrength().String()}");
             Ship boarding = tgt.AI.State == AIState.Boarding ? tgt.AI.EscortTarget : null;
             Ship tgtTarget = boarding ?? tgt.AI.Target;
-            Fleet ourFleet = Owner.Fleet ?? (Owner.IsHangarShip ? Owner.Mothership?.Fleet : null);
+            Fleet ourFleet = GoverningFleet;
             bool boardingOurs = boarding != null && (boarding == Owner || boarding == Owner.AI.EscortTarget || boarding == Owner.Mothership
                                                      || ourFleet != null && boarding.Fleet == ourFleet);
             if (Owner.AI.EscortTarget != null && tgtTarget == Owner.AI.EscortTarget)
@@ -718,8 +723,8 @@ namespace Ship_Game.AI
             if (FocusClump != null && tgt.Position.InRadius(FocusClump.Center, FocusClump.Radius))
                 value *= FocusClumpBias;
 
-            // keep reserach and mining stations as very low priority targets
-            if (tgt.IsResearchStation || tgt.IsMiningStation)
+            // keep research and mining stations and subspace projectors as very low priority targets
+            if (tgt.IsResearchStation || tgt.IsMiningStation || tgt.IsSubspaceProjector)
                 value *= 0.001f;
 
             if (debug) Debug($"relSize={relSize.String(2),-4}");
