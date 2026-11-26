@@ -3088,8 +3088,6 @@ namespace Ship_Game
         SoftAttack = 2219,
         /// <summary>Let's Discuss</summary>
         LetsDiscuss = 2220,
-        /// <summary>We want you to Declare War on...</summary>
-        WeWantYouToDeclare = 2221,
         /// <summary>Scuttle</summary>
         Scuttle = 2222,
         /// <summary>Orders this platform or station to self destruct</summary>

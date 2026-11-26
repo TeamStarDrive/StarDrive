@@ -703,7 +703,7 @@ namespace Ship_Game
             {
                 Building tile = planet.FindBuilding(t => t.IsCommodity);
                 if (tile != null)
-                    message.Append('\n').Append(tile.Name).Append(" on ").Append(planet.Name);
+                    message.Append('\n').Append(tile.TranslatedName.Text).Append(" on ").Append(planet.Name);
             }
 
             if (DangerousForcesPresent(empire))

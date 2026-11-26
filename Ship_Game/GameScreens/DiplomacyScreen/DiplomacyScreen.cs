@@ -586,7 +586,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         void BeginNegotiations()
         {
             OurOffer   = new Offer();
-            TheirOffer = new Offer { Them = Them };
+            TheirOffer = new Offer();
             OurOffersList.StartNegotiation(TheirOffersList, OurOffer, TheirOffer);
             TheirOffersList.StartNegotiation(OurOffersList, TheirOffer, OurOffer);
 
@@ -674,7 +674,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             DoNegotiationResponse(Them.AI.AnalyzeOffer(OurOffer, TheirOffer, Us, Attitude));
             OurOffer   = new Offer();
-            TheirOffer = new Offer { Them = Them };
+            TheirOffer = new Offer();
         }
 
         void OnAttitudePleadingClicked(GenericButton b)

@@ -49,7 +49,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         bool TryCreateCrashSite(Planet p, PlanetGridSquare tile, out string message)
         {
-            message    = $"A ship has crashed landed on {p.Name}.";
+            message    = $"A ship has crash-landed on {p.Name}.";
             Building b = ResourceManager.CreateBuilding(p, "Dynamic Crash Site");
 
             if (b == null)
@@ -144,7 +144,7 @@ namespace Ship_Game.Universe.SolarBodies
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
         Ship SpawnShip(UniverseState u, Planet p, Empire activatingEmpire, out string message)
         {
-            message = $"Recover efforts of a crashed ship on {p.Name} were futile.\n" +
+            message = $"Recovery efforts for a crashed ship on {p.Name} were futile.\n" +
                       "It was completely wrecked.";
 
             Ship template = ResourceManager.GetShipTemplate(ShipName, false);
@@ -184,7 +184,7 @@ namespace Ship_Game.Universe.SolarBodies
         void SpawnSurvivingTroops(Planet p, Empire owner, PlanetGridSquare tile, out string message)
         {
             Relationship rel = null;
-            message          = "The Crew was perished.";
+            message          = "The crew perished.";
 
             if (Loyalty != owner)
                 rel = owner.GetRelations(Loyalty);
@@ -219,13 +219,13 @@ namespace Ship_Game.Universe.SolarBodies
             else if (rel?.AtWar == true)
             {
                 message = playerTroopsRecovered
-                    ? "Our Troops are in combat there!."
+                    ? "Our Troops are in combat there!"
                     : "Hostile troops survived and are attacking!";
             }
             else
             {
                 message = playerTroopsRecovered
-                    ? "Our Troops and are heading home."
+                    ? "Our Troops survived and are heading home."
                     : "Neutral troops survived and are\nheading home.";
             }
         }

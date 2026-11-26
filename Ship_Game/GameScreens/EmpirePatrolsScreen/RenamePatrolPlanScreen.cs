@@ -39,7 +39,7 @@ namespace Ship_Game
             NameAlreadyExistsLabel.Color = Color.Red;
             Add(new CloseButton(Menu.Right - 40, Menu.Y + 15));
             RenameButton = ButtonMedium(Menu.X + 30, Menu.Bottom - 50, GameText.RenamePatrol, OnRenameClicked);
-            CancelButton = ButtonBigDip(Menu.X + 180, Menu.Bottom - 50, GameText.RenamePatrol, OnCancelClicked);
+            CancelButton = ButtonBigDip(Menu.X + 180, Menu.Bottom - 50, GameText.Cancel, OnCancelClicked);
             base.LoadContent();
         }
 
@@ -48,7 +48,6 @@ namespace Ship_Game
             RenameButton.Enabled = false;
             NameAlreadyExistsLabel.Visible = false;
             RenameButton.Text = "Rename";
-            CancelButton.Text = "Cancel";
             base.PerformLayout();
         }
 

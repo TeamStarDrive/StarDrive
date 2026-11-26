@@ -186,14 +186,14 @@ namespace Ship_Game.Ships
                 case RoleName.bomber:       return "'Bomber', as 5% of ship space is taken by bomb modules";
                 case RoleName.carrier:      return "'Carrier', as 10% of ship space is taken by hangar modules";
                 case RoleName.fighter:      return "'Fighter'";
-                case RoleName.scout:        return "'Scout' since it has";
+                case RoleName.scout:        return "'Scout'";
                 case RoleName.gunboat:      return "'Gunboat'";
                 case RoleName.drone:        return "'Drone'";
                 case RoleName.corvette:     return "'Corvette'";
                 case RoleName.frigate:      return "'Frigate'";
                 case RoleName.destroyer:    return "'Destroyer'";
                 case RoleName.cruiser:      return "'Cruiser'";
-                case RoleName.battleship:   return "'battleship'";
+                case RoleName.battleship:   return "'Battleship'";
                 case RoleName.capital:      return "'Capital'";
                 case RoleName.prototype:    return "'Prototype'";
             }

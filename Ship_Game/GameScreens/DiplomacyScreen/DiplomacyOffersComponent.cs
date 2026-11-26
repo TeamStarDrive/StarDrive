@@ -71,10 +71,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     OurOffer.NAPact = TheirOffer.NAPact = selected;
                     SelectTheirItem(ourItem.Response, selected);
                     break;
-                case "We Declare War":
-                    OurOffer.NAPact = TheirOffer.NAPact = selected;
-                    SelectTheirItem("NAPact", selected);
-                    break;
                 case "Peace Treaty":
                     OurOffer.PeaceTreaty = TheirOffer.PeaceTreaty = selected;
                     SelectTheirItem(ourItem.Response, selected);
@@ -87,7 +83,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     OurOffer.OpenBorders = TheirOffer.OpenBorders = selected;
                     SelectTheirItem(ourItem.Response, selected);
                     break;
-                case "Declare War": ourItem.ChangeSpecialInquiry(OurOffer.EmpiresToWarOn);      break;
                 case "Tech":        ourItem.ChangeSpecialInquiry(OurOffer.TechnologiesOffered); break;
                 case "Artifacts":   ourItem.ChangeSpecialInquiry(OurOffer.ArtifactsOffered);    break;
                 case "Colony":      ourItem.ChangeSpecialInquiry(OurOffer.ColoniesOffered);     break;

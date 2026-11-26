@@ -3479,6 +3479,15 @@ namespace Ship_Game.Fleets
         {
             return GetFleetPrefix(index) + " Fleet";
         }
+
+        // the name a player-addressable fleet key gets by default
+        public static bool IsDefaultFleetName(string name)
+        {
+            for (int key = Empire.FirstFleetKey; key <= Empire.LastFleetKey; ++key)
+                if (name == GetDefaultFleetName(key))
+                    return true;
+            return false;
+        }
         
         static string GetFleetPrefix(int index)
         {
@@ -3491,7 +3500,7 @@ namespace Ship_Game.Fleets
                 case 5: return "Fifth";
                 case 6: return "Sixth";
                 case 7: return "Seventh";
-                case 8: return "Eight";
+                case 8: return "Eighth";
                 case 9: return "Ninth";
                 // 10th, 11th, 12th, 13th
                 case 10: return "10th";

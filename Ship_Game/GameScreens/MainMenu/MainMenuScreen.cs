@@ -149,7 +149,7 @@ namespace Ship_Game.GameScreens.MainMenu
             if (GlobalStats.HasMod && !GlobalStats.Defaults.Mod.ModFormatSupported)
             {
                 ScreenManager.AddScreen(new MessageBoxScreen(this, "Mod format version mismatch. " +
-                    "Please update Blackbox and this mod to latest vessions", MessageBoxButtons.Ok, 275));
+                    "Please update Blackbox and this mod to the latest versions", MessageBoxButtons.Ok, 275));
                 return;
             }
 
@@ -161,7 +161,7 @@ namespace Ship_Game.GameScreens.MainMenu
             if (GlobalStats.HasMod && !GlobalStats.Defaults.Mod.ModFormatSupported)
             {
                 ScreenManager.AddScreen(new MessageBoxScreen(this, "Mod format version mismatch. " +
-                    "Please update Blackbox and this mod to latest vessions", MessageBoxButtons.Ok, 275));
+                    "Please update Blackbox and this mod to the latest versions", MessageBoxButtons.Ok, 275));
                 return;
             }
 

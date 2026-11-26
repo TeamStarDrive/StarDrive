@@ -452,11 +452,16 @@ namespace Ship_Game
             else
             {
                 fleet = CreateNewFleet(index, SelectedShipList);
+                if (fleet == null)
+                {
+                    GameAudio.NegativeClick();
+                    return;
+                }
             }
 
             SetSelectedFleet(fleet);
 
-            if (fleet.Name.IsEmpty() || fleet.Name.Contains("Fleet"))
+            if (fleet.Name.IsEmpty() || Fleet.IsDefaultFleetName(fleet.Name))
                 fleet.Name = Fleet.GetDefaultFleetName(index);
 
             fleet.Update(FixedSimTime.Zero /*paused during init*/);

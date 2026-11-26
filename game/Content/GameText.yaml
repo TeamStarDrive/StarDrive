@@ -10407,13 +10407,6 @@ LetsDiscuss:
  SPA: "Hablemos"
  UKR: "Давайте обговоримо"
  PTB: "Vamos Conversar"
-WeWantYouToDeclare:
- Id: 2221
- ENG: "We want you to Declare War on..."
- RUS: "Мы хотим, чтобы вы объявили войну империи..."
- SPA: "Queremos que le declaréis la guerra a..."
- UKR: "Ми хочемо, щоб ви оголосили війну..."
- PTB: "Queremos que você Declare Guerra contra..."
 Scuttle:
  Id: 2222
  ENG: "Scuttle"
@@ -11448,7 +11441,7 @@ And:
  ENG: " and "
  RUS: " и "
  SPA: " y "
- UKR: " і"
+ UKR: " і "
  PTB: " e "
 YouWouldProvideUsWith:
  Id: 3012
@@ -11462,7 +11455,7 @@ And2:
  ENG: "and "
  RUS: "и "
  SPA: "y "
- UKR: "і"
+ UKR: "і "
  PTB: "e "
 WeWouldProvideYouKnowledge:
  Id: 3014
