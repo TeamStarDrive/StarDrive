@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDUtils;
@@ -146,7 +147,21 @@ public sealed class ProgressBar
     }
 
     string Values10 => DrawPercentage ? $"{Progress.String(1)}%" : $"{Progress.String(1)}/{Max.String(1)}";
-    string Values    => DrawPercentage ? $"{(int)Progress}%" : $"{(int)Progress}/{(int)Max}";
+    string Values    => DrawPercentage ? $"{(int)Progress}%" : ValuePair(Progress, Max);
+
+    // whole numbers while the max is below 10,000, else both numbers in the k, M or B unit of the max
+    public static string ValuePair(float progress, float max)
+    {
+        float absMax = Math.Abs(max);
+        if (absMax < 10_000f)
+            return $"{(int)progress}/{(int)max}";
+
+        (float unit, string suffix) = absMax < 1_000_000f     ? (1_000f, "k")
+                                    : absMax < 1_000_000_000f ? (1_000_000f, "M")
+                                    : (1_000_000_000f, "B");
+        CultureInfo invariant = CultureInfo.InvariantCulture;
+        return $"{(progress / unit).ToString("0.#", invariant)}{suffix}/{(max / unit).ToString("0.#", invariant)}{suffix}";
+    }
 }
 
 // HACK: wrapper for ProgressBar
@@ -211,7 +226,7 @@ public class ProgressBarElement : UIElementContainer
         string prefix = LabelPrefix.NotEmpty() ? $"{LabelPrefix}: " : "";
         Label.Text = UsePercent
             ? $"{prefix}{Percent}%"
-            : $"{prefix}{(int)Progress}/{(int)Max}";
+            : $"{prefix}{ProgressBar.ValuePair(Progress, Max)}";
     }
 
     public override void Update(float fixedDeltaTime)

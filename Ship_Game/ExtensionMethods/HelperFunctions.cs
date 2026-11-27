@@ -244,8 +244,8 @@ namespace Ship_Game
         }
 
         // Gets a more human readable number string that also supports large numbers.
-        // Default:        0.25, 95.75, 950.7, 9500, 57.75k, 950.7k, 1.25M, 950.7M, 1000M
-        // compact:true:   0.25, 95.75, 950.7, 9500, 57.8k,  950.7k, 1.3M,  950.7M, 1000M
+        // Default:        0.25, 95.75, 950.7, 9500, 57.75k, 950.7k, 1.25M, 950.7M, 1.25B, 950.7B
+        // compact:true:   0.25, 95.75, 950.7, 9500, 57.8k,  950.7k, 1.3M,  950.7M, 1.3B,  950.7B
         public static string GetNumberString(this float stat, bool compact = false)
         {
             CultureInfo invariant = CultureInfo.InvariantCulture;
@@ -263,7 +263,12 @@ namespace Ship_Game
             float absM = Math.Abs(m);
             if (absM < 100f && !compact) return m.ToString("0.##", invariant) + "M";
             if (absM < 1000f)            return m.ToString("0.#",  invariant) + "M";
-            return m.ToString("#", invariant) + "M";
+
+            float b = stat / 1_000_000_000f;
+            float absB = Math.Abs(b);
+            if (absB < 100f && !compact) return b.ToString("0.##", invariant) + "B";
+            if (absB < 1000f)            return b.ToString("0.#",  invariant) + "B";
+            return b.ToString("#", invariant) + "B";
         }
 
         static string HostilesText(in ThreatMatrix.HostilePresence hostiles, bool withLabel)

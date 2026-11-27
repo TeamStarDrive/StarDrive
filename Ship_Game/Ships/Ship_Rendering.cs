@@ -386,7 +386,8 @@ namespace Ship_Game.Ships
             Vector2 gridCenter = new Vector2(Grid.Width, Grid.Height) / 2f;
             Vector2 rectCenter = new Vector2(drawRect.Width, drawRect.Height) / 2f;
 
-            float moduleSize = (drawRect.Width / (maxSpan + 1f)).Clamped(2f, 24f);
+            // the whole grid fits in the box, however wide the hull
+            float moduleSize = (Math.Min(drawRect.Width, drawRect.Height) / (maxSpan + 1f)).UpperBound(24f);
             var shipDrawRect = new Rectangle(
                     drawRect.X + (int)(rectCenter.X - (gridCenter.X * moduleSize)),
                     drawRect.Y + (int)(rectCenter.Y - (gridCenter.Y * moduleSize)),
@@ -440,8 +441,10 @@ namespace Ship_Game.Ships
                 if (markLockedModules && !Loyalty.IsModuleUnlocked(m.UID))
                 {
                     batch.FillRectangle(rect,Color.Black.Alpha(0.5f));
-                    batch.DrawRectangle(rect, Loyalty.Research.IsShipModuleQueuedForResearch(m.UID) 
-                        ? Color.CornflowerBlue : Color.Red, 0.5f);
+                    // outlined only while a module is big enough to show one
+                    if (moduleSize >= 2f)
+                        batch.DrawRectangle(rect, Loyalty.Research.IsShipModuleQueuedForResearch(m.UID)
+                            ? Color.CornflowerBlue : Color.Red, 0.5f);
                 }
             }
         }

@@ -24,7 +24,9 @@ public class TestGetNumberString
     [DataRow(1_500_000f, "1.5M")]
     [DataRow(100_000_000f, "100M")]
     [DataRow(950_700_000f, "950.7M")]
-    [DataRow(1_000_000_000f, "1000M")]
+    [DataRow(1_000_000_000f, "1B")]
+    [DataRow(2_500_000_000f, "2.5B")]
+    [DataRow(950_700_000_000f, "950.7B")]
     public void FormatsExpectedString(float value, string expected)
     {
         Assert.AreEqual(expected, value.GetNumberString());
@@ -35,6 +37,7 @@ public class TestGetNumberString
     [DataRow(-9500f, "-9500")]
     [DataRow(-57750f, "-57.75k")]
     [DataRow(-1_500_000f, "-1.5M")]
+    [DataRow(-2_500_000_000f, "-2.5B")]
     public void FormatsNegativeValues(float value, string expected)
     {
         Assert.AreEqual(expected, value.GetNumberString());
@@ -46,7 +49,8 @@ public class TestGetNumberString
     [DataRow(950700f, "950.7k")]
     [DataRow(1_250_000f, "1.3M")]
     [DataRow(950_700_000f, "950.7M")]
-    public void CompactDropsSecondDecimalInKAndMBands(float value, string expected)
+    [DataRow(1_250_000_000f, "1.3B")]
+    public void CompactDropsSecondDecimalInKMAndBBands(float value, string expected)
     {
         Assert.AreEqual(expected, value.GetNumberString(compact: true));
     }
